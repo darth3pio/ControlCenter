@@ -147,6 +147,7 @@
             this.MapListBox.Location = new System.Drawing.Point(13, 21);
             this.MapListBox.Multiline = true;
             this.MapListBox.Name = "MapListBox";
+            this.MapListBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.MapListBox.Size = new System.Drawing.Size(330, 166);
             this.MapListBox.TabIndex = 0;
             // 
@@ -189,9 +190,11 @@
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "MapList";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "MapList";
+            this.Text = "MapList Editor";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);

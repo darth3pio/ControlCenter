@@ -373,7 +373,7 @@
     <value>CenterParent</value>
   </data>
   <data name="$this.Text" xml:space="preserve">
-    <value>EditAcctForm</value>
+    <value>Edit Account</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>EditAcctForm</value>
