@@ -212,6 +212,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "GamespyConfig";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "GamespyConfig";
             ((System.ComponentModel.ISupportInitialize)(this.Port)).EndInit();
             this.ResumeLayout(false);

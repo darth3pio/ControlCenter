@@ -1159,5 +1159,10 @@ namespace BF2Statistics
         private static extern UInt32 DnsFlushResolverCache();
 
         #endregion Hosts File Redirect
+
+        private void Bf2StatisticsLink_Click(object sender, EventArgs e)
+        {
+            Process.Start("http://www.bf2statistics.com/");
+        }
     }
 }

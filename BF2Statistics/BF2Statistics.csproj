@@ -135,12 +135,6 @@
     <Compile Include="Hosts\HostsFile.cs" />
     <Compile Include="Item.cs" />
     <Compile Include="KeyValueItem.cs" />
-    <Compile Include="Forms\PlayerSelectForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\PlayerSelectForm.Designer.cs">
-      <DependentUpon>PlayerSelectForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LoginServer.cs" />
@@ -168,9 +162,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\MapList.resx">
       <DependentUpon>MapList.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\PlayerSelectForm.resx">
-      <DependentUpon>PlayerSelectForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ScoreSelectForm.resx">
       <DependentUpon>ScoreSelectForm.cs</DependentUpon>
@@ -207,6 +198,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Logo.ico" />
+    <None Include="Resources\e_logo.png" />
     <Content Include="SQL\MySQL.CreateTables.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -71,7 +71,7 @@ namespace BF2Statistics
 
         private void SaveBtn_Click(object sender, EventArgs e)
         {
-            MainForm.Config.DBEngine = TypeSelect.SelectedItem.ToString();
+            MainForm.Config.DBEngine = (TypeSelect.SelectedIndex == 0) ? "Sqlite" : "Mysql";
             MainForm.Config.DBHost = Hostname.Text;
             MainForm.Config.DBPort = (int)Port.Value;
             MainForm.Config.DBUser = Username.Text;

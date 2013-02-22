@@ -75,6 +75,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ScoreSelectForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "ScoreSelectForm";
             this.ResumeLayout(false);
 

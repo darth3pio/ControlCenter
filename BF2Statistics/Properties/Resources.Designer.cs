@@ -74,6 +74,13 @@ namespace BF2Statistics.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap e_logo {
+            get {
+                object obj = ResourceManager.GetObject("e_logo", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap green {
             get {
                 object obj = ResourceManager.GetObject("green", resourceCulture);

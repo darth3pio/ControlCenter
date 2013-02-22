@@ -619,6 +619,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "BF2sConfig";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "BF2Statistics Config";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();

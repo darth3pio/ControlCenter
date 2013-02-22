@@ -153,6 +153,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "CreateAcctForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Create Gamespy Account";
             ((System.ComponentModel.ISupportInitialize)(this.PidBox)).EndInit();
             this.ResumeLayout(false);
