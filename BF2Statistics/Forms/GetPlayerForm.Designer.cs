@@ -51,6 +51,7 @@
             this.Input.Size = new System.Drawing.Size(201, 20);
             this.Input.TabIndex = 1;
             this.Input.TextChanged += new System.EventHandler(this.Input_TextChanged);
+            this.Input.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Input_KeyDown);
             // 
             // SubmitBtn
             // 
