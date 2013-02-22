@@ -1,0 +1,5 @@
+BF2Statistics/bin/*
+BF2Statistics/obj/*
+SetupWizard/Debug/*
+SetupWizard/Release/*
+*.suo
