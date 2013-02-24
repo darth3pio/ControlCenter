@@ -227,20 +227,27 @@ namespace BF2Statistics
                     continue;
 
                 // Get the actual name of the mod
-                Desc.Load(DescFile);
-                XmlNodeList Node = Desc.GetElementsByTagName("title");
-                string Name = Node[0].InnerText.Trim();
-                if(Name == "MODDESC_BF2_TITLE")
+                try
                 {
-                    ModSelectList.Items.Add(new KeyValueItem(ModName, "Battlefield 2"));
-                    ModSelectList.SelectedIndex = ModSelectList.Items.Count -1;
-                    continue;
-                }
-                else if(Name == "MODDESC_XP_TITLE")
-                    Name = "Battlefield 2: Special Forces";
+                    Desc.Load(DescFile);
+                    XmlNodeList Node = Desc.GetElementsByTagName("title");
+                    string Name = Node[0].InnerText.Trim();
+                    if (Name == "MODDESC_BF2_TITLE")
+                    {
+                        ModSelectList.Items.Add(new KeyValueItem(ModName, "Battlefield 2"));
+                        ModSelectList.SelectedIndex = ModSelectList.Items.Count - 1;
+                        continue;
+                    }
+                    else if (Name == "MODDESC_XP_TITLE")
+                        Name = "Battlefield 2: Special Forces";
 
-                ModSelectList.Items.Add(new KeyValueItem(ModName, Name));
-                InstalledMods.Add(D, Name);
+                    ModSelectList.Items.Add(new KeyValueItem(ModName, Name));
+                    InstalledMods.Add(D, Name);
+                }
+                catch (Exception E)
+                {
+                    Log(E.Message);
+                }
             }
 
             // If we have no mods, we cant continue :(
@@ -1163,6 +1170,12 @@ namespace BF2Statistics
         private void Bf2StatisticsLink_Click(object sender, EventArgs e)
         {
             Process.Start("http://www.bf2statistics.com/");
+        }
+
+        private void SetupBtn_Click(object sender, EventArgs e)
+        {
+            InstallForm IS = new InstallForm();
+            IS.ShowDialog();
         }
     }
 }

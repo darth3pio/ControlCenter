@@ -9,9 +9,25 @@ namespace BF2Statistics
 {
     class HostsFile
     {
+        /// <summary>
+        /// Direct Filepath to the hosts file
+        /// </summary>
         public static readonly string FilePath = Path.Combine(Environment.SystemDirectory, "drivers", "etc", "hosts");
+
+        /// <summary>
+        /// Hosts file security object
+        /// </summary>
         protected FileSecurity Fs;
+
+        /// <summary>
+        /// Each line of the hosts file stored in a list. ALl redirects are removed
+        /// from this list before being stored here.
+        /// </summary>
         public List<string> OrigContents;
+
+        /// <summary>
+        /// A list of "hostname" => "IPAddress" in the hosts file.
+        /// </summary>
         public Dictionary<string, string> Lines;
 
         public HostsFile()
@@ -26,8 +42,10 @@ namespace BF2Statistics
             }
             catch (Exception e) {
                 Log(e.Message);
-                string message = "Unable to READ the HOST file!" + Environment.NewLine + Environment.NewLine
-                    + "Exception Message: " + e.Message;
+                string message = "Unable to READ the HOST file! Please make sure this program is being ran as an administrator, or "
+                    + "modify your HOSTS file permissions, allowing this program to read/modify it."
+                    + Environment.NewLine + Environment.NewLine
+                    + "Error Message: " + e.Message;
                 throw new Exception(message);
             }
 
@@ -44,10 +62,8 @@ namespace BF2Statistics
             }
             catch
             {
-                string message =
-                    "HOSTS file is not WRITABLE! Please make sure to replace your HOSTS file with " +
-                    "the one provided in the release package, or remove your current permissions from the HOSTS file. " +
-                    "It may also help to run this program as an administrator.";
+                string message = "HOSTS file is not WRITABLE! Please make sure this program is being ran as an administrator, or "
+                    + "modify your HOSTS file permissions, allowing this program to read/modify it.";
                 throw new Exception(message);
             }
 
@@ -96,9 +112,7 @@ namespace BF2Statistics
                 // Convert the dictionary of lines to a list of lines
                 List<string> lns = new List<string>();
                 foreach (KeyValuePair<String, String> line in Lines)
-                {
                     lns.Add( String.Format("{0}\t{1}", line.Value, line.Key) );
-                }
 
                 File.WriteAllLines(FilePath, lns);
             }
@@ -130,7 +144,7 @@ namespace BF2Statistics
             }
 
             // Remove old dirty redirects from the Backup
-            for (int i = 0; i < OrigContents.Count; i++)
+            for (int i = OrigContents.Count - 1; i >= 0; i--)
             {
                 if (OrigContents[i].Contains("bf2web.gamespy.com"))
                     OrigContents.RemoveAt(i);

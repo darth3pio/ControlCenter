@@ -64,13 +64,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_466C0CA44ECD4B9DA55729F17C117922"
+        "OwnerKey" = "8:_A63D17CF5EB3C952E6F74DA906FCE35A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A63D17CF5EB3C952E6F74DA906FCE35A"
+        "OwnerKey" = "8:_466C0CA44ECD4B9DA55729F17C117922"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -91,6 +91,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
         "Release"
         {
@@ -107,6 +115,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
     }
     "Deployable"
@@ -203,11 +219,6 @@
             "AssemblyAsmDisplayName" = "8:System.Data.SQLite, Version=1.0.82.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
-                    "_A63D17CF5EB3C952E6F74DA906FCE35A"
-                    {
-                    "Name" = "8:System.Data.SQLite.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:System.Data.SQLite.dll"
             "TargetName" = "8:"
@@ -234,11 +245,6 @@
             "AssemblyAsmDisplayName" = "8:MySql.Data, Version=6.5.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_ACB36BDD39DA2C912B03DD49EF03738D"
-                    {
-                    "Name" = "8:MySql.Data.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:MySql.Data.dll"
             "TargetName" = "8:"
@@ -367,15 +373,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:BF2Statistics Control Center"
-        "ProductCode" = "8:{9F5BBF33-D9EC-4C62-8635-100E7C5AB3A9}"
-        "PackageCode" = "8:{CA563493-92A8-4986-95F4-E441DB6E0486}"
+        "ProductCode" = "8:{B11B7CFC-C34D-47BB-B581-0431F096D9AB}"
+        "PackageCode" = "8:{B620A464-D908-44E5-9BC2-243BE3E78EDE}"
         "UpgradeCode" = "8:{2BC7A7AA-61E6-4E3E-9CC7-E199CC638CEB}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.0"
+        "ProductVersion" = "8:1.0.1"
         "Manufacturer" = "8:BF2Statistics"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.bf2statistics.com"
@@ -917,7 +923,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_466C0CA44ECD4B9DA55729F17C117922"
             {
-            "SourcePath" = "8:..\\BF2Statistics\\obj\\x86\\Release\\BF2Statistics.exe"
+            "SourcePath" = "8:..\\BF2Statistics\\obj\\x86\\Debug\\BF2Statistics.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_1C5681D20B8C4DEDB2774728B254999B"

@@ -116,11 +116,24 @@ namespace BF2Statistics
                 return;
             }
 
+            // Make sure directories exist!
+            if (!Directory.Exists(ClientPath.Text))
+            {
+                MessageBox.Show("BF2 Client path is not a valid directory", "Error");
+                return;
+            }
+            if (!Directory.Exists(ServerPath.Text))
+            {
+                MessageBox.Show("BF2 Server path is not a valid directory", "Error");
+                return;
+            }
+
             // Save config
             MainForm.Config.ClientPath = ClientPath.Text;
             MainForm.Config.ServerPath = ServerPath.Text;
             MainForm.Config.Save();
 
+            // Tell the main form we are OK
             this.DialogResult = DialogResult.OK;
         }
     }
