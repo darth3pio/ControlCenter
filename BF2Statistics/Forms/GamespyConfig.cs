@@ -20,16 +20,16 @@ namespace BF2Statistics
             InitializeComponent();
 
             // Fill values for config boxes
-            if (MainForm.Config.DBEngine == "Sqlite")
+            if (MainForm.Config.GamespyDBEngine == "Sqlite")
                 TypeSelect.SelectedIndex = 0;
             else
                 TypeSelect.SelectedIndex = 1;
 
-            Hostname.Text = MainForm.Config.DBHost;
-            Port.Value = MainForm.Config.DBPort;
-            Username.Text = MainForm.Config.DBUser;
-            Password.Text = MainForm.Config.DBPass;
-            DBName.Text = MainForm.Config.DBName;
+            Hostname.Text = MainForm.Config.GamespyDBHost;
+            Port.Value = MainForm.Config.GamespyDBPort;
+            Username.Text = MainForm.Config.GamespyDBUser;
+            Password.Text = MainForm.Config.GamespyDBPass;
+            DBName.Text = MainForm.Config.GamespyDBName;
             Debug.Checked = MainForm.Config.DebugStream;
         }
 
@@ -71,12 +71,12 @@ namespace BF2Statistics
 
         private void SaveBtn_Click(object sender, EventArgs e)
         {
-            MainForm.Config.DBEngine = (TypeSelect.SelectedIndex == 0) ? "Sqlite" : "Mysql";
-            MainForm.Config.DBHost = Hostname.Text;
-            MainForm.Config.DBPort = (int)Port.Value;
-            MainForm.Config.DBUser = Username.Text;
-            MainForm.Config.DBPass = Password.Text;
-            MainForm.Config.DBName = DBName.Text;
+            MainForm.Config.GamespyDBEngine = (TypeSelect.SelectedIndex == 0) ? "Sqlite" : "Mysql";
+            MainForm.Config.GamespyDBHost = Hostname.Text;
+            MainForm.Config.GamespyDBPort = (int)Port.Value;
+            MainForm.Config.GamespyDBUser = Username.Text;
+            MainForm.Config.GamespyDBPass = Password.Text;
+            MainForm.Config.GamespyDBName = DBName.Text;
             MainForm.Config.DebugStream = Debug.Checked;
             MainForm.Config.Save();
             this.Close();

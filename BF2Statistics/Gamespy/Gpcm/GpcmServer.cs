@@ -6,9 +6,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-namespace BF2Statistics
+namespace BF2Statistics.Gamespy
 {
-    class GpspServer
+    class GpcmServer
     {
         /// <summary>
         /// Our GPSP Server Listener Socket
@@ -23,12 +23,14 @@ namespace BF2Statistics
         /// <summary>
         /// List of connected clients
         /// </summary>
-        private List<GpspClient> Clients = new List<GpspClient>();
+        private List<GpcmClient> Clients = new List<GpcmClient>();
 
-        public GpspServer()
+        public event EventHandler OnUpdate;
+
+        public GpcmServer()
         {
             // Attempt to bind to port 29900
-            Listener = new TcpListener(IPAddress.Any, 29901);
+            Listener = new TcpListener(IPAddress.Any, 29900);
             Listener.Start();
 
             // Create a new thread to accept the connection
@@ -50,11 +52,20 @@ namespace BF2Statistics
             ConnectionsThread.Abort();
 
             // Disconnected all connected clients
-            foreach (GpspClient C in Clients)
+            foreach (GpcmClient C in Clients)
                 C.Dispose();
 
             // Unbind the port
             Listener.Stop();
+        }
+
+        /// <summary>
+        /// Returns the number of connected clients
+        /// </summary>
+        /// <returns></returns>
+        public int NumClients()
+        {
+            return Clients.Count;
         }
 
         /// <summary>
@@ -75,7 +86,8 @@ namespace BF2Statistics
                     }
                 }
 
-                Thread.Sleep(500);
+                Thread.Sleep(1000);
+                OnUpdate(this, new ClientList(Clients));
             }
         }
 
@@ -91,7 +103,7 @@ namespace BF2Statistics
             {
                 TcpClient Client = Listener.EndAcceptTcpClient(ar);
                 Listener.BeginAcceptTcpClient(new AsyncCallback(AcceptClient), null);
-                Clients.Add(new GpspClient(Client));
+                Clients.Add(new GpcmClient(Client));
             }
             catch { }
         }

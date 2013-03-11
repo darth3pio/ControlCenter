@@ -6,13 +6,16 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using BF2Statistics.Properties;
 using System.IO;
 using System.Xml;
 using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
+using BF2Statistics.Properties;
+using BF2Statistics.ASP;
+using BF2Statistics.Gamespy;
+using BF2Statistics.Logging;
 
 namespace BF2Statistics
 {
@@ -27,6 +30,16 @@ namespace BF2Statistics
         /// Startup root directory
         /// </summary>
         public static string Root = Application.StartupPath;
+
+        /// <summary>
+        /// The instance of this form
+        /// </summary>
+        private static MainForm Instance;
+
+        /// <summary>
+        /// The main form log file
+        /// </summary>
+        protected static LogWritter ErrorLog;
 
         /// <summary>
         /// An array of found mods
@@ -116,6 +129,19 @@ namespace BF2Statistics
                 }
             }
 
+            // Create logs folder if it doesnt exist
+            if (!Directory.Exists(Path.Combine(Root, "Logs")))
+                Directory.CreateDirectory(Path.Combine(Root, "Logs"));
+
+            // Make sure we have our snapshot dirs made
+            if (!Directory.Exists(ASP.Requests.SnapshotPost.TempPath))
+                Directory.CreateDirectory(ASP.Requests.SnapshotPost.TempPath);
+            if (!Directory.Exists(ASP.Requests.SnapshotPost.ProcPath))
+                Directory.CreateDirectory(ASP.Requests.SnapshotPost.ProcPath);
+
+            // Create ErrorLog file
+            ErrorLog = new LogWritter(Path.Combine(Root, "Logs", "Error.log"), 3000);
+
             // Define BF2Statistics Path
             Bf2statisticsPath = Path.Combine(Config.ServerPath, "bf2statistics");
 
@@ -129,6 +155,9 @@ namespace BF2Statistics
 
             // Set BF2Statistics Install Status
             SetInstallStatus();
+
+            // Get snapshot counts
+            CountSnapshots();
 
             // Set whether the bf2statistics system is detected
             BF2StatsFolderExists = Directory.Exists(Bf2statisticsPath);
@@ -155,14 +184,20 @@ namespace BF2Statistics
                 DoHOSTSCheck();
             }
             catch (Exception e) {
-                HostsStatusPic.Image = Properties.Resources.amber;
+                HostsStatusPic.Image = Resources.amber;
                 MessageBox.Show(e.Message, "Error");
             }
-            
 
             // Register for login server events
             LoginServer.OnShutdown += new ShutdownEventHandler(LoginServer_OnShutdown);
             LoginServer.OnUpdate += new EventHandler(LoginServer_OnUpdate);
+            ASPServer.OnShutdown += new ShutdownEventHandler(ASPServer_OnShutdown);
+
+            // Set the ASP statusbox
+            ASPServer.SetStatusBox(AspStatusBox);
+
+            // Set instance
+            Instance = this;
         }
 
         /// <summary>
@@ -259,6 +294,17 @@ namespace BF2Statistics
         }
 
         /// <summary>
+        /// Gets a count of processed and un processed snapshots
+        /// </summary>
+        private void CountSnapshots()
+        {
+            string[] Files = Directory.GetFiles(ASP.Requests.SnapshotPost.TempPath);
+            TotalUnProcSnapCount.Text = Files.Length.ToString();
+            Files = Directory.GetFiles(ASP.Requests.SnapshotPost.ProcPath);
+            TotalSnapCount.Text = Files.Length.ToString();
+        }
+
+        /// <summary>
         /// Assigns the Server Process if the process is running
         /// </summary>
         private void CheckServerProcess()
@@ -288,24 +334,7 @@ namespace BF2Statistics
         /// <param name="message">The message to be written to the log file</param>
         public static void Log(string message)
         {
-            DateTime datet = DateTime.Now;
-            String logFile = Path.Combine(Root, "Logs", "error.log");
-            if (!File.Exists(logFile))
-            {
-                FileStream files = File.Create(logFile);
-                files.Close();
-            }
-            try
-            {
-                StreamWriter sw = File.AppendText(logFile);
-                sw.WriteLine(datet.ToString("MM/dd hh:mm") + "> " + message);
-                sw.Flush();
-                sw.Close();
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message.ToString());
-            }
+            ErrorLog.Write(message);
         }
 
         /// <summary>
@@ -314,34 +343,10 @@ namespace BF2Statistics
         /// <param name="message">The message to be written to the log file</param>
         public static void Log(string message, params object[] items)
         {
-            Log(String.Format(message, items));
+            ErrorLog.Write(String.Format(message, items));
         }
 
         #endregion Startup Methods
-
-        #region Status OnClick Events
-
-        private void HostsFileStatusLabel_DoubleClick(object sender, EventArgs e)
-        {
-            tabControl1.SelectedIndex = 3;
-        }
-
-        private void LoginStatusDesc_DoubleClick(object sender, EventArgs e)
-        {
-            tabControl1.SelectedIndex = 2;
-        }
-
-        private void StatsStatusDesc_DoubleClick(object sender, EventArgs e)
-        {
-            tabControl1.SelectedIndex = 4;
-        }
-
-        private void ServerStatusDesc_DoubleClick(object sender, EventArgs e)
-        {
-            tabControl1.SelectedIndex = 1;
-        }
-
-        #endregion Status OnClick Events
 
         #region Launcher Tab
 
@@ -1167,6 +1172,128 @@ namespace BF2Statistics
 
         #endregion Hosts File Redirect
 
+        #region ASP Server
+
+        /// <summary>
+        /// Starts and stops the ASP HTTP server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void StartAspServerBtn_Click(object sender, EventArgs e)
+        {
+            if (!ASPServer.IsRunning)
+            {
+                try
+                {
+                    AspStatusBox.Clear();
+                    ASPServer.Start();
+                    AspStatusPic.Image = Resources.green;
+                    StartAspServerBtn.Text = "Shutdown ASP Server";
+                    ViewSnapshotBtn.Enabled = true;
+                }
+                catch (HttpListenerException E)
+                {
+                    // Custom port 80 in use message
+                    string Message;
+                    if (E.ErrorCode == 32)
+                        Message = "Port 80 is already in use by another program.";
+                    else
+                        Message = E.Message;
+
+                    AspStatusBox.Text += Message;
+                    AspStatusPic.Image = Resources.amber;
+                }
+                catch (Exception E)
+                {
+                    // Check for specific error
+                    AspStatusBox.Text += E.Message;
+                    AspStatusPic.Image = Resources.amber;
+                    ErrorLog.Write(E.Message);
+                }
+            }
+            else
+            {
+                try
+                {
+
+                    ASPServer.Stop();
+                    ViewSnapshotBtn.Enabled = false;
+                }
+                catch(Exception E)
+                {
+                    ErrorLog.Write(E.Message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Update the GUI when the ASP shutsdown
+        /// </summary>
+        private void ASPServer_OnShutdown()
+        {
+            AspStatusPic.Image = Resources.red;
+            StartAspServerBtn.Text = "Start ASP Server";
+            ViewSnapshotBtn.Enabled = false;
+        }
+
+        private void ViewAccessLogBtn_Click(object sender, EventArgs e)
+        {
+            Process.Start(Path.Combine(Root, "Logs", "AspAccess.log"));
+        }
+
+        private void ViewErrorLogBtn_Click(object sender, EventArgs e)
+        {
+            Process.Start(Path.Combine(Root, "Logs", "AspServer.log"));
+        }
+
+        private void ViewSnapshotLogBtn_Click(object sender, EventArgs e)
+        {
+            // Make sure the log file exists... It doesnt get created on startup like the others
+            string fPath = Path.Combine(Root, "Logs", "StatsDebug.log");
+            if (!File.Exists(fPath))
+                File.Create(fPath).Close();
+
+            Process.Start(fPath);
+        }
+
+        private void ViewSnapshotBtn_Click(object sender, EventArgs e)
+        {
+            SnapshotViewForm Form = new SnapshotViewForm();
+            Form.ShowDialog();
+            CountSnapshots();
+        }
+
+        #endregion ASP Server
+
+        #region Status OnClick Events
+
+        private void HostsFileStatusLabel_DoubleClick(object sender, EventArgs e)
+        {
+            tabControl1.SelectedIndex = 3;
+        }
+
+        private void LoginStatusDesc_DoubleClick(object sender, EventArgs e)
+        {
+            tabControl1.SelectedIndex = 2;
+        }
+
+        private void StatsStatusDesc_DoubleClick(object sender, EventArgs e)
+        {
+            tabControl1.SelectedIndex = 4;
+        }
+
+        private void AspStatusDesc_DoubleClick(object sender, EventArgs e)
+        {
+            tabControl1.SelectedIndex = 5;
+        }
+
+        private void ServerStatusDesc_DoubleClick(object sender, EventArgs e)
+        {
+            tabControl1.SelectedIndex = 1;
+        }
+
+        #endregion Status OnClick Events
+
         private void Bf2StatisticsLink_Click(object sender, EventArgs e)
         {
             Process.Start("http://www.bf2statistics.com/");
@@ -1177,5 +1304,19 @@ namespace BF2Statistics
             InstallForm IS = new InstallForm();
             IS.ShowDialog();
         }
+
+        #region Static Control Methods
+
+        public static void Disable()
+        {
+            Instance.Enabled = false;
+        }
+
+        public static void Enable()
+        {
+            Instance.Enabled = true;
+        }
+
+        #endregion Static Control Methods
     }
 }

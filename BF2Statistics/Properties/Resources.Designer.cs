@@ -88,6 +88,13 @@ namespace BF2Statistics.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap loading11 {
+            get {
+                object obj = ResourceManager.GetObject("loading11", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap red {
             get {
                 object obj = ResourceManager.GetObject("red", resourceCulture);

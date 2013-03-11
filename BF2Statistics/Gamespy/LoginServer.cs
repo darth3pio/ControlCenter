@@ -4,13 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using BF2Statistics.Database;
 using System.Windows.Forms;
+using BF2Statistics.Database;
+using BF2Statistics.Logging;
 
-namespace BF2Statistics
+namespace BF2Statistics.Gamespy
 {
-    public delegate void ShutdownEventHandler();
-
     public class LoginServer
     {
         protected static bool isRunning = false;
@@ -26,7 +25,7 @@ namespace BF2Statistics
 
         public static GamespyDatabase Database;
 
-        private static StreamWriter LogFile = File.AppendText( Path.Combine(MainForm.Root, "Logs", "server.log") );
+        private static LogWritter Logger = new LogWritter(Path.Combine(MainForm.Root, "Logs", "LoginServer.log"), 3000);
 
         public static TextBox StatusWindow;
 
@@ -111,16 +110,7 @@ namespace BF2Statistics
         /// <param name="message">The message to be written to the log file</param>
         public static void Log(string message)
         {
-            DateTime datet = DateTime.Now;
-            try
-            {
-                LogFile.WriteLine(datet.ToString("MM/dd hh:mm") + "> " + message);
-                LogFile.Flush();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message.ToString());
-            }
+            Logger.Write(message);
         }
 
         /// <summary>
@@ -129,7 +119,7 @@ namespace BF2Statistics
         /// <param name="message">The message to be written to the log file</param>
         public static void Log(string message, params object[] items)
         {
-            Log(String.Format(message, items));
+            Logger.Write(String.Format(message, items));
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Net.Mail;
+using BF2Statistics.Gamespy;
 
 namespace BF2Statistics
 {

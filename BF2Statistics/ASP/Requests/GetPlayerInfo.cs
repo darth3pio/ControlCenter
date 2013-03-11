@@ -1,0 +1,1144 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using BF2Statistics.Database;
+
+namespace BF2Statistics.ASP.Requests
+{
+    class GetPlayerInfo
+    {
+        /// <summary>
+        /// The Resonse Object
+        /// </summary>
+        private ASPResponse Response;
+
+        /// <summary>
+        /// Our query string
+        /// </summary>
+        Dictionary<string, string> QueryString;
+
+        /// <summary>
+        /// The Stats Database Driver
+        /// </summary>
+        private DatabaseDriver Driver;
+
+        /// <summary>
+        /// Database Rows
+        /// </summary>
+        private List<Dictionary<string, object>> Rows;
+
+        /// <summary>
+        /// Player ID
+        /// </summary>
+        private int Pid = 0;
+
+        /// <summary>
+        /// Alternate Format Variable
+        /// </summary>
+        private int Transpose = 0;
+
+        /// <summary>
+        /// A list of each requested info querystring
+        /// </summary>
+        private List<string> Info = new List<string>();
+
+        /// <summary>
+        /// Preperation Output Variable
+        /// </summary>
+        private Dictionary<string, object> Out = new Dictionary<string, object>();
+
+        /// <summary>
+        /// Final Output
+        /// </summary>
+        private FormattedOutput Output;
+
+        /// <summary>
+        /// The required Querystring for BF2HQ
+        /// </summary>
+        private static string RequiredKeys = "per*,cmb*,twsc,cpcp,cacp,dfcp,kila,heal,rviv,rsup,rpar,"
+		    + "tgte,dkas,dsab,cdsc,rank,cmsc,kick,kill,deth,suic,ospm,"
+		    + "klpm,klpr,dtpr,bksk,wdsk,bbrs,tcdr,ban,dtpm,lbtl,osaa,"
+		    + "vrk,tsql,tsqm,tlwf,mvks,vmks,mvn*,vmr*,fkit,fmap,fveh,fwea,"
+		    + "wtm-,wkl-,wdt-,wac-,wkd-,vtm-,vkl-,vdt-,vkd-,vkr-,"
+		    + "atm-,awn-,alo-,abr-,ktm-,kkl-,kdt-,kkd-";
+
+        //&info=per*,cmb*,twsc,cpcp,cacp,dfcp,kila,heal,rviv,rsup,rpar,tgte,dkas,dsab,cdsc,rank,cmsc,kick,kill,deth,suic,ospm,klpm,klpr,dtpr,bksk,wdsk,bbrs,tcdr,ban,dtpm,lbtl,osaa,vrk,tsql,tsqm,tlwf,mvks,vmks,mvn*,vmr*,fkit,fmap,fveh,fwea,wtm-,wkl-,wdt-,wac-,wkd-,vtm-,vkl-,vdt-,vkd-,vkr-,atm-,awn-,alo-,abr-,ktm-,kkl-,kdt-,kkd-
+
+        public GetPlayerInfo(ASPResponse Response, Dictionary<string, string> QueryString)
+        {
+            // Load class Variables
+            this.Response = Response;
+            this.QueryString = QueryString;
+            this.Driver = ASPServer.Database.Driver;
+            FormattedOutput Output;
+
+            // Setup Params
+            if (QueryString.ContainsKey("pid"))
+                Int32.TryParse(QueryString["pid"], out Pid);
+            if (QueryString.ContainsKey("transpose"))
+                Int32.TryParse(QueryString["transpose"], out Transpose);
+            if (QueryString.ContainsKey("info"))
+                Info = QueryString["info"].Split(',').ToList<string>();
+
+            // Make sure our required params are indeed passed
+            if (Pid == 0 || Info.Count == 0)
+            {
+                Output = new FormattedOutput("asof", "err");
+                Output.AddRow(Utils.UnixTimestamp(), "Invalid Syntax!");
+                Response.AddData(Output);
+                Response.IsValidData(false);
+                Response.Send();
+                return;
+            }
+            else
+            {
+                Output = new FormattedOutput("asof");
+                Output.AddRow(Utils.UnixTimestamp());
+                Response.AddData(Output);
+            }
+
+            // Get Missing keys for a standard request
+            List<string> ReqKeys = RequiredKeys.Split(',').ToList<string>();
+            var Diff = from item in ReqKeys where !Info.Contains(item) select item;
+            List<string> MissingKeys = new List<string>(Diff);
+
+            // Standard BF2HQ Request
+            if (MissingKeys.Count == 0)
+                DoFullRequest();
+            // Time Info
+            else if (QueryString["info"] == "ktm-,vtm-,wtm-,mtm-")
+                DoTimeRequest();
+            // Map Info
+            else if (QueryString["info"].StartsWith("mtm-,mwn-,mls-"))
+                DoMapRequest();
+            else if (QueryString["info"].StartsWith("rank") && QueryString["info"].EndsWith("vac-"))
+                DoServerRequest();
+            else
+                Response.Send();
+        }
+
+        /// <summary>
+        /// Produces a FULL player response for BF2HQ
+        /// </summary>
+        public void DoFullRequest()
+        {
+            // Fetch Player
+            Rows = Driver.Query("SELECT * FROM player WHERE id={0}", Pid);
+
+            // If player doesnt exist then output default dataB
+            if (Rows.Count == 0)
+            {
+                Output = new FormattedOutput("asof", "err");
+                Output.AddRow(Utils.UnixTimestamp(), "Player Doesnt Exist");
+                Response.AddData(Output);
+                Response.IsValidData(false);
+                Response.Send();
+                return;
+            }
+
+            // Add Player Data
+            Dictionary<string, object> Player = Rows[0];
+            Rows = null;
+            float Time = float.Parse(Player["time"].ToString());
+
+            // Start adding Player Data
+            Out.Add("pid", Player["id"]);
+            Out.Add("nick", Player["name"].ToString().Trim());
+            Out.Add("scor", Player["score"]);
+            Out.Add("jond", Player["joined"]);
+            Out.Add("wins", Player["wins"]);
+            Out.Add("loss", Player["losses"]);
+            Out.Add("mode0", Player["mode0"]);
+            Out.Add("mode1", Player["mode1"]);
+            Out.Add("mode2", Player["mode2"]);
+            Out.Add("time", Player["time"]);
+            Out.Add("smoc", (Int32.Parse(Player["rank"].ToString()) == 11) ? 1 : 0);
+            Out.Add("cmsc", Player["skillscore"]);
+            Out.Add("osaa", " "); // Overall small-arms accuracy
+            Out.Add("kill", Player["kills"]);
+            Out.Add("kila", Player["damageassists"]);
+            Out.Add("deth", Player["deaths"]);
+            Out.Add("suic", Player["suicides"]);
+            Out.Add("bksk", Player["killstreak"]);
+            Out.Add("wdsk", Player["deathstreak"]);
+            Out.Add("tvcr", "");    // Top Victim
+            Out.Add("topr", "");    // Top Oppenent
+            Out.Add("klpm", Math.Round((60 * (float.Parse(Player["kills"].ToString()) / Time)), 2));    // Kills per minute
+            Out.Add("dtpm", Math.Round((60 * (float.Parse(Player["deaths"].ToString()) / Time)), 2));   // Deaths per Minute
+            Out.Add("ospm", Math.Round((60 * (float.Parse(Player["score"].ToString()) / Time)), 2));    // Score Per Minute
+            Out.Add("klpr", Math.Round((float.Parse(Player["kills"].ToString()) / float.Parse(Player["rounds"].ToString())), 2));   // Kills Per Round
+            Out.Add("dtpr", Math.Round((float.Parse(Player["deaths"].ToString()) / float.Parse(Player["rounds"].ToString())), 2));  // Deaths Per Round
+            Out.Add("twsc", Player["teamscore"]);   // Teamwork Score
+            Out.Add("cpcp", Player["captures"]);    // Capture Control Points
+            Out.Add("cacp", Player["captureassists"]);    // Capture Assist Points
+            Out.Add("dfcp", Player["defends"]);     // Capture Control Defend Points
+            Out.Add("heal", Player["heals"]);       // Player Heals
+            Out.Add("rviv", Player["revives"]);     // Player Revives
+            Out.Add("rsup", Player["ammos"]);       // Player Resupplies
+            Out.Add("rpar", Player["repairs"]);     // Player Repairs
+            Out.Add("tgte", Player["targetassists"]);     // Times Targeted Enemy
+            Out.Add("dkas", Player["driverassists"]);     // Kill assists as driver
+            Out.Add("dsab", Player["driverspecials"]);    // Driver special ability points
+            Out.Add("cdsc", Player["cmdscore"]);    // Command Score
+            Out.Add("rank", Player["rank"]);        // Player Rank
+            Out.Add("kick", Player["kicked"]);      // Number of times Kicked from server the player has
+            Out.Add("bbrs", Player["rndscore"]);    // Best Round Score
+            Out.Add("tcdr", Player["cmdtime"]);     // Time As Commander
+            Out.Add("ban", Player["banned"]);       // Times Banned
+            Out.Add("lbtl", Player["lastonline"]);  // Player Last Battle
+            Out.Add("vrk", "");    // Vehicle Road Kills
+            Out.Add("tsql", Player["sqltime"]);     // Time As Squad Leaders
+            Out.Add("tsqm", Player["sqmtime"]);     // Time As Squad Members
+            Out.Add("tlwf", Player["lwtime"]);      // Time As Lone Wolf
+            Out.Add("mvks", "0");      // Top Victim Kills
+            Out.Add("vmks", "0");      // Top Opponent Kills
+            Out.Add("mvns", " ");      // Top Victim Name
+            Out.Add("mvrs", " ");      // Top Victim Rank
+            Out.Add("vmns", " ");      // Top Opponent Name
+            Out.Add("vmrs", " ");      // Top Opponent Rank
+            Out.Add("fkit", "");      // Favorite Kit
+            Out.Add("fmap", "");      // Favorite Map
+            Out.Add("fveh", "");      // Favorite Vehicle
+            Out.Add("fwea", "");      // Favorite Weapon
+            Out.Add("tnv", "0");      // NIGHT VISION GOGGLES Time - NOT USED
+            Out.Add("tgm", "0");      // GAS MASK TIME - NOT USED
+
+            // Proccess Weapons
+            AddWeaponData();
+
+            // Process Vehicles
+            AddVehicleData();
+
+            // Process Armies
+            AddArmyData();
+
+            //Process Kits
+            AddKitData();
+
+            // Get Player Top Victim and Opponent
+            GetPlayerTopVitcimAndOpp();
+
+            // Get Favorite Map
+            GetFavMap();
+
+            // Do output
+            Response.AddData(Out);
+            Response.Send();
+        }
+
+        /// <summary>
+        /// Fetches time info for player favorites
+        /// </summary>
+        private void DoTimeRequest()
+        {
+            int Kit = 0;
+            int Vehicle = 0;
+            int Weapon = 0;
+            int Map = 0;
+            string colName;
+
+            // Get params
+            if (QueryString.ContainsKey("kit"))
+                Int32.TryParse(QueryString["kit"], out Kit);
+            if (QueryString.ContainsKey("vehicle"))
+                Int32.TryParse(QueryString["vehicle"], out Vehicle);
+            if (QueryString.ContainsKey("weapon"))
+                Int32.TryParse(QueryString["weapon"], out Weapon);
+            if (QueryString.ContainsKey("map"))
+                Int32.TryParse(QueryString["map"], out Map);
+
+            // Check if the player exists
+            Rows = Driver.Query("SELECT name FROM player WHERE id={0}", Pid);
+            if(Rows.Count == 0)
+            {
+                Output = new FormattedOutput("asof", "err");
+                Output.AddRow(Utils.UnixTimestamp(), "Player Doesnt Exist");
+                Response.AddData(Output);
+                Response.IsValidData(false);
+                Response.Send();
+                return;
+            }
+
+            // Prepare output
+            Output = new FormattedOutput("pid", "nick", "ktm-" + Kit.ToString(), "vtm-" + Vehicle.ToString(), "wtm-" + Weapon.ToString(), "mtm-" + Map.ToString());
+
+            // Fetch data
+            List<string> Data = new List<string>(6);
+            Data.Add(Pid.ToString());
+            Data.Add(Rows[0]["name"].ToString().Trim());
+
+            // Kit Time
+            Rows = Driver.Query("SELECT time{0} AS time FROM kits WHERE id={1}", Kit, Pid);
+            if(Rows.Count == 0)
+                Data.Add("0");
+            else
+                Data.Add(Rows[0]["time"].ToString());
+
+            // Vehicle Time
+            Rows = Driver.Query("SELECT time{0} AS time FROM vehicles WHERE id={1}", Vehicle, Pid);
+            if(Rows.Count == 0)
+                Data.Add("0");
+            else
+                Data.Add(Rows[0]["time"].ToString());
+
+            // Weapon Time
+            if(Weapon > 9)
+            {
+                switch(Weapon)
+                {
+                    default:
+                        colName = "knifetime";
+                        break;
+                    case 10:
+                        colName = "shockpadtime";
+                        break;
+                    case 11:
+                        colName = "(c4time + claymoretime + atminetime)";
+                        break;
+                    case 12:
+                        colName = "handgrenadetime";
+                        break;
+                }
+            }
+            else
+                colName = "time" + Weapon;
+
+            Rows = Driver.Query("SELECT {0} AS time FROM weapons WHERE id={1}", colName, Pid);
+            if(Rows.Count == 0)
+                Data.Add("0");
+            else
+                Data.Add(Rows[0]["time"].ToString());
+
+            // Map Time
+            Rows = Driver.Query("SELECT time FROM maps WHERE (id = {0}) AND (mapid = {1})", Pid, Map);
+            if(Rows.Count == 0)
+                Data.Add("0");
+            else
+                Data.Add(Rows[0]["time"].ToString());
+
+            // Send Response
+            Output.AddRow(Data);
+            Response.AddData(Output);
+            Response.Send();
+        }
+
+        private void DoMapRequest()
+        {
+            bool Extended = Info.Contains("mbs-");
+            int CustomMapId = MainForm.Config.ASP_CustomMapID;
+
+            // Check if the player exists
+            Rows = Driver.Query("SELECT name FROM player WHERE id={0}", Pid);
+            if (Rows.Count == 0)
+            {
+                Output = new FormattedOutput("asof", "err");
+                Output.AddRow(Utils.UnixTimestamp(), "Player Doesnt Exist");
+                Response.AddData(Output);
+                Response.IsValidData(false);
+                Response.Send();
+                return;
+            }
+
+            // Add Player Data
+            Out.Add("pid", Pid);
+            Out.Add("nick", Rows[0]["name"].ToString().Trim());
+
+            // Begin headers
+            for (int i = 0; i < 7; i++)
+            {
+                Out.Add("mtm-" + i, "0");
+                Out.Add("mwn-" + i, "0");
+                Out.Add("mls-" + i, "0");
+                if (Extended)
+                {
+                    Out.Add("mbs-" + i, "0");
+                    Out.Add("mws-" + i, "0");
+                }
+            }
+
+            for (int i = 100; i < 106; i++)
+            {
+                Out.Add("mtm-" + i, "0");
+                Out.Add("mwn-" + i, "0");
+                Out.Add("mls-" + i, "0");
+                if (Extended)
+                {
+                    Out.Add("mbs-" + i, "0");
+                    Out.Add("mws-" + i, "0");
+                }
+            }
+
+            for (int i = 601; i < 603; i++)
+            {
+                Out.Add("mtm-" + i, "0");
+                Out.Add("mwn-" + i, "0");
+                Out.Add("mls-" + i, "0");
+                if (Extended)
+                {
+                    Out.Add("mbs-" + i, "0");
+                    Out.Add("mws-" + i, "0");
+                }
+            }
+
+            for (int i = 300; i < 308; i++)
+            {
+                Out.Add("mtm-" + i, "0");
+                Out.Add("mwn-" + i, "0");
+                Out.Add("mls-" + i, "0");
+                if (Extended)
+                {
+                    Out.Add("mbs-" + i, "0");
+                    Out.Add("mws-" + i, "0");
+                }
+            }
+
+            for (int i = 10; i < 13; i++)
+            {
+                Out.Add("mtm-" + i, "0");
+                Out.Add("mwn-" + i, "0");
+                Out.Add("mls-" + i, "0");
+                if (Extended)
+                {
+                    Out.Add("mbs-" + i, "0");
+                    Out.Add("mws-" + i, "0");
+                }
+            }
+
+            for (int i = 110; i < 130; i += 10)
+            {
+                Out.Add("mtm-" + i, "0");
+                Out.Add("mwn-" + i, "0");
+                Out.Add("mls-" + i, "0");
+                if (Extended)
+                {
+                    Out.Add("mbs-" + i, "0");
+                    Out.Add("mws-" + i, "0");
+                }
+            }
+
+            for (int i = 200; i < 203; i++)
+            {
+                Out.Add("mtm-" + i, "0");
+                Out.Add("mwn-" + i, "0");
+                Out.Add("mls-" + i, "0");
+                if (Extended)
+                {
+                    Out.Add("mbs-" + i, "0");
+                    Out.Add("mws-" + i, "0");
+                }
+            }
+
+            // Fetch all user map data
+            string Where = (Info.Contains("cmap-")) 
+                ? String.Format("WHERE id={0}", Pid)
+                : String.Format("WHERE id={0} AND mapid < {1}", Pid, CustomMapId);
+            Rows = Driver.Query("SELECT * FROM maps {0}", Where);
+
+            foreach (Dictionary<string, object> Row in Rows)
+            {
+                int Id = Int32.Parse(Row["mapid"].ToString());
+                if (Id > CustomMapId)
+                {
+                    Out.Add("mtm-" + Id, "0");
+                    Out.Add("mwn-" + Id, "0");
+                    Out.Add("mls-" + Id, "0");
+                    if (Extended)
+                    {
+                        Out.Add("mbs-" + Id, "0");
+                        Out.Add("mws-" + Id, "0");
+                    }
+                }
+                else
+                {
+                    Out["mtm-" + Id] = Row["time"];
+                    Out["mwn-" + Id] = Row["win"];
+                    Out["mls-" + Id] = Row["loss"];
+                    if (Extended)
+                    {
+                        Out["mbs-" + Id] = Row["best"];
+                        Out["mws-" + Id] = Row["worst"];
+                    }
+                }
+            }
+
+            // Send Response
+            List<string> Head = new List<string>(Out.Count);
+            List<string> Body = new List<string>(Out.Count);
+            foreach (KeyValuePair<string, object> Item in Out)
+            {
+                Head.Add(Item.Key);
+                Body.Add(Item.Value.ToString());
+            }
+
+            Output = new FormattedOutput(Head);
+            Output.AddRow(Body);
+
+            Response.AddData(Output);
+            Response.Send();
+        }
+
+        private void DoServerRequest()
+        {
+            // Fetch Player
+            Rows = Driver.Query("SELECT * FROM player WHERE id={0}", Pid);
+
+            // If player doesnt exist then output default data
+            if (Rows.Count == 0)
+            {
+                Output = new FormattedOutput("asof", "err");
+                Output.AddRow(Utils.UnixTimestamp(), "Player Doesnt Exist!");
+                Response.AddData(Output);
+                Response.IsValidData(false);
+                Response.Send();
+                return;
+            }
+
+            // Add default player data
+            Dictionary<string, object> Player = Rows[0];
+            Out.Add("pid", Pid);
+            Out.Add("name", Player["name"]);
+            Out.Add("scor", Player["score"]);
+            Out.Add("rank", Player["rank"]);
+            Out.Add("dfcp", Player["defends"]);
+            Out.Add("rpar", Player["repairs"]);
+            Out.Add("heal", Player["heals"]);
+            Out.Add("rsup", Player["ammos"]);
+            Out.Add("dsab", Player["driverspecials"]);
+            Out.Add("cdsc", Player["cmdscore"]);
+            Out.Add("tcdr", Player["cmdtime"]);
+            Out.Add("tsql", Player["sqltime"]);
+            Out.Add("tsqm", Player["sqmtime"]);
+            Out.Add("wins", Player["wins"]);
+            Out.Add("loss", Player["losses"]);
+            Out.Add("twsc", Player["teamscore"]);
+            Out.Add("bksk", Player["killstreak"]);
+            Out.Add("wdsk", Player["deathstreak"]);
+            Out.Add("time", Player["time"]);
+            Out.Add("kill", Player["kills"]);
+
+            // Add Kit Times
+            Rows = Driver.Query("SELECT time0, time1, time2, time3, time4, time5, time6 FROM kits WHERE id={0}", Pid);
+            if (Rows.Count == 0)
+            {
+                for (int i = 0; i < 7; i++)
+                    Out.Add("ktm-" + i, 0);
+            }
+            else
+            {
+                for (int i = 0; i < 7; i++)
+                    Out.Add("ktm-" + i, Rows[0]["time" + i]);
+            }
+
+            // Add weapon data
+            Rows = Driver.Query("SELECT * FROM weapons WHERE id={0}", Pid);
+            if (Rows.Count == 0)
+            {
+                for (int i = 0; i < 9; i++)
+                    Out.Add("wkl-" + i, 0);
+
+                Out.Add("wkl-10", 0);
+                Out.Add("wkl-11", 0);
+                Out.Add("wkl-12", 0);
+                Out.Add("wkl-13", 0);
+
+                if(Info.Contains("de-"))
+                {
+                    Out.Add("de-6", 0);
+                    Out.Add("de-7", 0);
+                    Out.Add("de-8", 0);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 9; i++)
+                    Out.Add("wkl-" + i, Rows[0]["kills" + i]);
+
+                Out.Add("wkl-10", Rows[0]["knifekills"]);
+                Out.Add("wkl-11", Rows[0]["shockpadkills"]);
+                Out.Add("wkl-12", 
+                    int.Parse(Rows[0]["c4kills"].ToString()) +
+                    int.Parse(Rows[0]["claymorekills"].ToString()) +
+                    int.Parse(Rows[0]["atminekills"].ToString())
+                );
+                Out.Add("wkl-13", 0);
+
+                // Special Forces
+                if (Info.Contains("de-"))
+                {
+                    Out.Add("de-6", Rows[0]["tacticaldeployed"]);
+                    Out.Add("de-7", Rows[0]["grapplinghookdeployed"]);
+                    Out.Add("de-8", Rows[0]["ziplinedeployed"]);
+                }
+            }
+
+            // Add Vehicle Data
+            Rows = Driver.Query("SELECT * FROM vehicles WHERE id={0}", Pid);
+            if (Rows.Count == 0)
+            {
+                // Time
+                for (int i = 0; i < 7; i++)
+                    Out.Add("vtm-" + i, 0);
+
+                // Kills
+                for (int i = 0; i < 7; i++)
+                    Out.Add("vkl-" + i, 0);
+            }
+            else
+            {
+                // Time
+                for (int i = 0; i < 7; i++)
+                    Out.Add("vtm-" + i, Rows[0]["time" + i]);
+
+                // Kills
+                for (int i = 0; i < 7; i++)
+                    Out.Add("vkl-" + i, Rows[0]["kills" + i]);
+            }
+
+            // Add army data (Army medals are processed in the backend, but this MAY change)
+            Rows = Driver.Query("SELECT * FROM army WHERE id={0}", Pid);
+            if (Rows.Count == 0)
+            {
+                // Time
+                for (int i = 0; i < 12; i++)
+                    Out.Add("atm-" + i, 0);
+
+                // Best Round Score
+                for (int i = 0; i < 12; i++)
+                    Out.Add("abr-" + i, 0);
+
+                // Wins
+                for (int i = 0; i < 12; i++)
+                    Out.Add("awn-" + i, 0); 
+            }
+            else
+            {
+                // Time
+                for (int i = 0; i < 12; i++)
+                    Out.Add("atm-" + i, Rows[0]["time" + i]);
+
+                // Best Round Score
+                for (int i = 0; i < 12; i++)
+                    Out.Add("abr-" + i, Rows[0]["best" + i]);
+
+                // Wins
+                for (int i = 0; i < 12; i++)
+                    Out.Add("awn-" + i, Rows[0]["win" + i]); 
+            }
+
+            // Send Response
+            Response.AddData(Out);
+            Response.Send();
+        }
+
+        /// <summary>
+        /// Adds Weapon Data to the Response
+        /// </summary>
+        private void AddWeaponData()
+        {
+            int time;
+            int Fav = 0;
+            int FavTime = 0;
+            double tempAcc = 0;
+            double Acc = 0;
+
+            Rows = Driver.Query("SELECT * FROM weapons WHERE id={0}", Pid);
+            if (Rows.Count == 0)
+            {
+                // Weapon Times
+                for (int i = 0; i < 14; i++)
+                    Out.Add("wtm-" + i, "0");
+
+                // Weapon kills
+                for (int i = 0; i < 14; i++)
+                    Out.Add("wkl-" + i, "0");
+
+                // Weapon Deaths
+                for (int i = 0; i < 14; i++)
+                    Out.Add("wdt-" + i, "0");
+
+                // Weapon Accuracy
+                for (int i = 0; i < 14; i++)
+                    Out.Add("wac-" + i, "0");
+
+                // Weapon kill/Death Ratio
+                for (int i = 0; i < 14; i++)
+                    Out.Add("wkd-" + i, "0");
+            }
+            else
+            {
+                // Weapon Times
+                for (int i = 0; i < 9; i++)
+                {
+                    time = Int32.Parse(Rows[0]["time" + i].ToString());
+                    if (time > FavTime)
+                    {
+                        Fav = i;
+                        FavTime = time;
+                    }
+                    Out.Add("wtm-" + i, time);
+                }
+
+                // Knife
+                time = Int32.Parse(Rows[0]["knifetime"].ToString());
+                if (time > FavTime)
+                {
+                    Fav = 9;
+                    FavTime = time;
+                }
+                Out.Add("wtm-9", time);
+
+                // Shock Pads
+                time = Int32.Parse(Rows[0]["shockpadtime"].ToString());
+                if (time > FavTime)
+                {
+                    Fav = 10;
+                    FavTime = time;
+                }
+                Out.Add("wtm-10", time);
+
+                // Explosives
+                time = (
+                    Int32.Parse(Rows[0]["c4time"].ToString()) +
+                    Int32.Parse(Rows[0]["claymoretime"].ToString()) +
+                    Int32.Parse(Rows[0]["atminetime"].ToString())
+                    );
+                if (time > FavTime)
+                {
+                    Fav = 11;
+                    FavTime = time;
+                }
+                Out.Add("wtm-11", time);
+
+                // Hand grenade
+                time = Int32.Parse(Rows[0]["handgrenadetime"].ToString());
+                if (time > FavTime)
+                {
+                    Fav = 12;
+                    FavTime = time;
+                }
+                Out.Add("wtm-12", time);
+
+                Out.Add("wtm-13", "0");
+
+                // Weapon kills
+                for (int i = 0; i < 9; i++)
+                    Out.Add("wkl-" + i, Rows[0]["kills" + i]);
+                Out.Add("wkl-9", Rows[0]["knifekills"]);
+                Out.Add("wkl-10", Rows[0]["shockpadkills"]);
+                Out.Add("wkl-11", (
+                    Int32.Parse(Rows[0]["c4kills"].ToString()) +
+                    Int32.Parse(Rows[0]["claymorekills"].ToString()) +
+                    Int32.Parse(Rows[0]["atminekills"].ToString())
+                    )
+                );
+                Out.Add("wkl-12", Rows[0]["handgrenadekills"]);
+                Out.Add("wkl-13", "0");
+
+                // Weapon Deaths
+                for (int i = 0; i < 9; i++)
+                    Out.Add("wdt-" + i, Rows[0]["deaths" + i]);
+                Out.Add("wdt-9", Rows[0]["knifedeaths"]);
+                Out.Add("wdt-10", Rows[0]["shockpaddeaths"]);
+                Out.Add("wdt-11", (
+                    Int32.Parse(Rows[0]["c4deaths"].ToString()) +
+                    Int32.Parse(Rows[0]["claymoredeaths"].ToString()) +
+                    Int32.Parse(Rows[0]["atminedeaths"].ToString())
+                    )
+                );
+                Out.Add("wdt-12", Rows[0]["handgrenadedeaths"]);
+                Out.Add("wdt-13", "0");
+
+                // Weapon Accuracy
+                for (int i = 0; i < 9; i++)
+                {
+                    tempAcc = (Rows[0]["fired" + i].ToString() != "0")
+                            ? (100 * (float.Parse(Rows[0]["hit" + i].ToString()) / float.Parse(Rows[0]["fired" + i].ToString())))
+                            : 0;
+                    Acc += tempAcc;
+                    Out.Add("wac-" + i, Math.Round(tempAcc, 0));
+                }
+
+                tempAcc = (Rows[0]["knifefired"].ToString() != "0")
+                            ? (100 * (float.Parse(Rows[0]["knifehit"].ToString()) / float.Parse(Rows[0]["knifefired"].ToString())))
+                            : 0;
+                Acc += tempAcc;
+                Out.Add("wac-9", Math.Round(tempAcc, 0));
+
+                tempAcc = (Rows[0]["shockpadfired"].ToString() != "0")
+                            ? (100 * (float.Parse(Rows[0]["shockpadhit"].ToString()) / float.Parse(Rows[0]["shockpadfired"].ToString())))
+                            : 0;
+                Acc += tempAcc;
+                Out.Add("wac-10", Math.Round(tempAcc));
+
+                int fired = (
+                    Int32.Parse(Rows[0]["c4fired"].ToString()) +
+                    Int32.Parse(Rows[0]["claymorefired"].ToString()) +
+                    Int32.Parse(Rows[0]["atminefired"].ToString())
+                );
+                if (fired != 0)
+                {
+                    int hits = (
+                        Int32.Parse(Rows[0]["c4hit"].ToString()) +
+                        Int32.Parse(Rows[0]["claymorehit"].ToString()) +
+                        Int32.Parse(Rows[0]["atminehit"].ToString())
+                    );
+                    tempAcc = (100 * (float.Parse(hits.ToString()) / float.Parse(fired.ToString())));
+                    Acc += tempAcc;
+                    Out.Add("wac-11", Math.Round(tempAcc, 0));
+                }
+                else
+                    Out.Add("wac-11", "0");
+
+
+                tempAcc = (Rows[0]["handgrenadefired"].ToString() != "0")
+                            ? (100 * (float.Parse(Rows[0]["handgrenadehit"].ToString()) / float.Parse(Rows[0]["handgrenadefired"].ToString())))
+                            : 0;
+                Acc += tempAcc;
+                Out.Add("wac-12", Math.Round(tempAcc));
+                Out.Add("wac-13", "0");
+
+                // Add Overall Small Arms Acc.
+                tempAcc = Math.Round((Acc / 12d), 2);
+                Out["osaa"] = tempAcc;
+
+                // Weapon kill/Death Ratio
+                int kills;
+                int deaths;
+                int den;
+
+                for (int i = 0; i < 9; i++)
+                {
+                    kills = Int32.Parse(Rows[0]["kills" + i].ToString());
+                    deaths = Int32.Parse(Rows[0]["deaths" + i].ToString());
+                    den = GetDenominator(kills, deaths);
+                    if (kills == 0 && deaths == 0)
+                        Out.Add("wkd-" + i, "0:0");
+                    else if (deaths != 0)
+                        Out.Add("wkd-" + i, kills / den + ":" + deaths / den);
+                    else
+                        Out.Add("wkd-" + i, kills + ":0");
+                }
+
+                // Knife
+                kills = Int32.Parse(Rows[0]["knifekills"].ToString());
+                deaths = Int32.Parse(Rows[0]["knifedeaths"].ToString());
+                den = GetDenominator(kills, deaths);
+                if (kills == 0 && deaths == 0)
+                    Out.Add("wkd-9", "0:0");
+                else if (deaths != 0)
+                    Out.Add("wkd-9", kills / den + ":" + deaths / den);
+                else
+                    Out.Add("wkd-9", kills + ":0");
+
+                // shockpad
+                kills = Int32.Parse(Rows[0]["shockpadkills"].ToString());
+                deaths = Int32.Parse(Rows[0]["shockpaddeaths"].ToString());
+                den = GetDenominator(kills, deaths);
+                if (kills == 0 && deaths == 0)
+                    Out.Add("wkd-10", "0:0");
+                else if (deaths != 0)
+                    Out.Add("wkd-10", kills / den + ":" + deaths / den);
+                else
+                    Out.Add("wkd-10", kills + ":0");
+
+                // explosives
+                kills = (
+                    Int32.Parse(Rows[0]["c4kills"].ToString()) + 
+                    Int32.Parse(Rows[0]["claymorekills"].ToString()) + 
+                    Int32.Parse(Rows[0]["atminekills"].ToString())
+                );
+                deaths = (
+                    Int32.Parse(Rows[0]["c4deaths"].ToString()) + 
+                    Int32.Parse(Rows[0]["claymoredeaths"].ToString()) + 
+                    Int32.Parse(Rows[0]["atminedeaths"].ToString())
+                );
+                den = GetDenominator(kills, deaths);
+                if (kills == 0 && deaths == 0)
+                    Out.Add("wkd-11", "0:0");
+                else if (deaths != 0)
+                    Out.Add("wkd-11", kills / den + ":" + deaths / den);
+                else
+                    Out.Add("wkd-11", kills + ":0");
+
+                // hand Grenade
+                kills = Int32.Parse(Rows[0]["handgrenadekills"].ToString());
+                deaths = Int32.Parse(Rows[0]["handgrenadedeaths"].ToString());
+                den = GetDenominator(kills, deaths);
+                if (kills == 0 && deaths == 0)
+                    Out.Add("wkd-12", "0:0");
+                else if (deaths != 0)
+                    Out.Add("wkd-12", kills / den + ":" + deaths / den);
+                else
+                    Out.Add("wkd-12", kills + ":0");
+                Out.Add("wkd-13", "0:0");
+            }
+
+            // Add SF Data
+            //Out.Add("de-6", Rows[0]["tacticaldeployed"]);
+            //Out.Add("de-7", Rows[0]["grapplinghookdeployed"]);
+            //Out.Add("de-8", Rows[0]["ziplinedeployed"]);
+            Out["fwea"] = Fav;
+        }
+
+        /// <summary>
+        /// Adds Vehicle Data to the Response
+        /// </summary>
+        private void AddVehicleData()
+        {
+            int TotalRoadKills = 0;
+            int Fav = 0;
+            int FavTime = 0;
+
+            Rows = Driver.Query("SELECT * FROM vehicles WHERE id={0}", Pid);
+            if (Rows.Count == 0)
+            {
+                // Vehicle Times
+                for (int i = 0; i < 7; i++)
+                    Out.Add("vtm-" + i, "0");
+
+                // Vehicle kills
+                for (int i = 0; i < 7; i++)
+                    Out.Add("vkl-" + i, "0");
+
+                // Vehicle Deaths
+                for (int i = 0; i < 7; i++)
+                    Out.Add("vdt-" + i, "0");
+
+                // Vehicle Kill Death Ratio
+                for (int i = 0; i < 7; i++)
+                    Out.Add("vkd-" + i, "0");
+
+                // Vehicle Roadkills
+                for (int i = 0; i < 7; i++)
+                    Out.Add("vkr-" + i, "0");
+            }
+            else
+            {
+                // Vehicle Times
+                for (int i = 0; i < 7; i++)
+                {
+                    int time = Int32.Parse(Rows[0]["time" + i].ToString());
+                    if (time > FavTime)
+                    {
+                        Fav = i;
+                        FavTime = time;
+                    }
+                    Out.Add("vtm-" + i, time);
+                }
+
+                // Vehicle kills
+                for (int i = 0; i < 7; i++)
+                    Out.Add("vkl-" + i, Rows[0]["kills" + i]);
+
+                // Vehicle Deaths
+                for (int i = 0; i < 7; i++)
+                    Out.Add("vdt-" + i, Rows[0]["deaths" + i]);
+
+                // Vehicle Kill Death Ratio
+                for (int i = 0; i < 7; i++)
+                {
+                    int kills = Int32.Parse(Rows[0]["kills" + i].ToString());
+                    int deaths = Int32.Parse(Rows[0]["deaths" + i].ToString());
+                    int den = GetDenominator(kills, deaths);
+                    if (kills == 0 && deaths == 0)
+                        Out.Add("vkd-" + i, "0");
+                    else if (deaths != 0)
+                        Out.Add("vkd-" + i, kills / den + ":" + deaths / den);
+                    else
+                        Out.Add("vkd-" + i, kills + ":0");
+                }
+
+                // Vehicle Roadkills
+                for (int i = 0; i < 7; i++)
+                {
+                    TotalRoadKills += int.Parse(Rows[0]["rk" + i].ToString());
+                    Out.Add("vkr-" + i, Rows[0]["rk" + i]);
+                } 
+            }
+
+            // Add total road kills
+            Out["vrk"] = TotalRoadKills;
+            Out["fveh"] = Fav;
+        }
+
+        /// <summary>
+        /// Adds Kit Data to the Response
+        /// </summary>
+        private void AddKitData()
+        {
+            int Fav = 0;
+            int FavTime = 0;
+
+            Rows = Driver.Query("SELECT * FROM kits WHERE id={0}", Pid);
+            if (Rows.Count == 0)
+            {
+                // Kit Times
+                for (int i = 0; i < 7; i++)
+                    Out.Add("ktm-" + i, "0");
+
+                // Kit kills
+                for (int i = 0; i < 7; i++)
+                    Out.Add("kkl-" + i, "0");
+
+                // Kit Deaths
+                for (int i = 0; i < 7; i++)
+                    Out.Add("kdt-" + i, "0");
+
+                // Kit Kill Death Ratio
+                for (int i = 0; i < 7; i++)
+                    Out.Add("kkd-" + i, "0:0");
+            }
+            else
+            {
+                // Kit Times
+                for (int i = 0; i < 7; i++)
+                {
+                    int time = Int32.Parse(Rows[0]["time" + i].ToString());
+                    if (time > FavTime)
+                    {
+                        Fav = i;
+                        FavTime = time;
+                    }
+                    Out.Add("ktm-" + i, time);
+                }
+
+                // Kit kills
+                for (int i = 0; i < 7; i++)
+                    Out.Add("kkl-" + i, Rows[0]["kills" + i]);
+
+                // Kit Deaths
+                for (int i = 0; i < 7; i++)
+                    Out.Add("kdt-" + i, Rows[0]["deaths" + i]);
+
+                // Kit Kill Death Ratio
+                for (int i = 0; i < 7; i++)
+                {
+                    int kills = Int32.Parse(Rows[0]["kills" + i].ToString());
+                    int deaths = Int32.Parse(Rows[0]["deaths" + i].ToString());
+                    int den = GetDenominator(kills, deaths);
+                    if (kills == 0 && deaths == 0)
+                        Out.Add("kkd-" + i, "0:0");
+                    else if (deaths != 0)
+                        Out.Add("kkd-" + i, kills / den + ":" + deaths / den);
+                    else
+                        Out.Add("kkd-" + i, kills + ":0");
+                }
+            }
+
+            Out["fkit"] = Fav;
+        }
+
+        /// <summary>
+        /// Adds Army Data to the Response
+        /// </summary>
+        private void AddArmyData()
+        {
+            int Limit = (Info.Contains("mods-")) ? 14 : 10;
+            Rows = Driver.Query("SELECT * FROM army WHERE id={0}", Pid);
+            if (Rows.Count == 0)
+            {
+                // Army Times
+                for (int i = 0; i < Limit; i++)
+                    Out.Add("atm-" + i, "0");
+
+                // Army Wins
+                for (int i = 0; i < Limit; i++)
+                    Out.Add("awn-" + i, "0");
+
+                // Army Losses
+                for (int i = 0; i < Limit; i++)
+                    Out.Add("alo-" + i, "0");
+
+                // Army Best Rounds
+                for (int i = 0; i < Limit; i++)
+                    Out.Add("abr-" + i, "0");
+            }
+            else
+            {
+                // Army Times
+                for (int i = 0; i < Limit; i++)
+                    Out.Add("atm-" + i, Rows[0]["time" + i]);
+
+                // Army Wins
+                for (int i = 0; i < Limit; i++)
+                    Out.Add("awn-" + i, Rows[0]["win" + i]);
+
+                // Army Losses
+                for (int i = 0; i < Limit; i++)
+                    Out.Add("alo-" + i, Rows[0]["loss" + i]);
+
+                // Army Best Rounds
+                for (int i = 0; i < Limit; i++)
+                    Out.Add("abr-" + i, Rows[0]["best" + i]);
+            }
+        }
+
+        /// <summary>
+        /// Fills the Top Opponent and Victim Variables
+        /// </summary>
+        private void GetPlayerTopVitcimAndOpp()
+        {
+            // Create a new DB Row
+            List<Dictionary<string, object>> Row;
+
+            // Victim
+            Rows = Driver.Query("SELECT victim, count FROM kills WHERE attacker={0} ORDER BY count DESC LIMIT 1", Pid);
+            if (Rows.Count != 0)
+            {
+                // Fetch Victim
+                Row = Driver.Query("SELECT name, rank FROM player WHERE id={0}", Rows[0]["victim"]);
+                if (Row.Count != 0)
+                {
+                    Out["tvcr"] = Rows[0]["victim"];
+                    Out["mvks"] = Rows[0]["count"];
+                    Out["mvns"] = Row[0]["name"];
+                    Out["mvrs"] = Row[0]["rank"];
+                }
+            }
+
+            // Opponent
+            Rows = Driver.Query("SELECT attacker, count FROM kills WHERE victim={0} ORDER BY count DESC LIMIT 1", Pid);
+            if (Rows.Count != 0)
+            {
+                // Fetch Opponent
+                Row = Driver.Query("SELECT name, rank FROM player WHERE id={0}", Rows[0]["attacker"]);
+                if (Row.Count != 0)
+                {
+                    Out["topr"] = Rows[0]["attacker"];
+                    Out["vmks"] = Rows[0]["count"];
+                    Out["vmns"] = Row[0]["name"];
+                    Out["vmrs"] = Row[0]["rank"];
+                }
+            }
+        }
+
+        private void GetFavMap()
+        {
+            Rows = Driver.Query("SELECT mapid FROM maps WHERE id={0} ORDER BY time DESC LIMIT 1", Pid);
+            if (Rows.Count == 0)
+                Out["fmap"] = 0;
+            else
+                Out["fmap"] = Rows[0]["mapid"];
+        }
+
+        /// <summary>
+        /// Returns the common denominator of 2 variables
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public int GetDenominator(int a, int b)
+        {
+            while (a != 0 && b != 0)
+            {
+                if (a > b)
+                    a %= b;
+                else
+                    b %= a;
+            }
+
+            return a == 0 ? b : a;
+        }
+    }
+}

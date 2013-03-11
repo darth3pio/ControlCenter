@@ -7,7 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Security.Cryptography;
 
-namespace BF2Statistics
+namespace BF2Statistics.Gamespy
 {
     /// <summary>
     /// Gamespy Client Manager
@@ -176,7 +176,7 @@ namespace BF2Statistics
 
         public void Dispose()
         {
-            if (_client.Client.Connected)
+            if (!_client.Client.Connected)
                 _client.Close();
 
             this.Disposed = true;
@@ -386,7 +386,7 @@ namespace BF2Statistics
             }
 
             // We need to decode the Gamespy specific encoding for the password
-            string Password = Utils.DecodeGamespyPassword(GetParameterValue(recv, "passwordenc"));
+            string Password = GamespyUtils.DecodePassword(GetParameterValue(recv, "passwordenc"));
             bool result = LoginServer.Database.CreateUser(Nick, Password, Email, "US");
             var Client = LoginServer.Database.GetUser(Nick);
 

@@ -11,26 +11,77 @@
     <Setting Name="ServerPath" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="DBEngine" Type="System.String" Scope="User">
+    <Setting Name="GamespyDBEngine" Type="System.String" Scope="User">
       <Value Profile="(Default)">Sqlite</Value>
     </Setting>
-    <Setting Name="DBHost" Type="System.String" Scope="User">
+    <Setting Name="GamespyDBHost" Type="System.String" Scope="User">
       <Value Profile="(Default)">localhost</Value>
     </Setting>
-    <Setting Name="DBPort" Type="System.Int32" Scope="User">
+    <Setting Name="GamespyDBPort" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">3306</Value>
     </Setting>
-    <Setting Name="DBUser" Type="System.String" Scope="User">
+    <Setting Name="GamespyDBUser" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="DBPass" Type="System.String" Scope="User">
+    <Setting Name="GamespyDBPass" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="DBName" Type="System.String" Scope="User">
+    <Setting Name="GamespyDBName" Type="System.String" Scope="User">
       <Value Profile="(Default)">gamespy</Value>
     </Setting>
     <Setting Name="DebugStream" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="StatsDBEngine" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Sqlite</Value>
+    </Setting>
+    <Setting Name="StatsDBHost" Type="System.String" Scope="User">
+      <Value Profile="(Default)">localhost</Value>
+    </Setting>
+    <Setting Name="StatsDBPort" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">3306</Value>
+    </Setting>
+    <Setting Name="StatsDBUser" Type="System.String" Scope="User">
+      <Value Profile="(Default)">admin</Value>
+    </Setting>
+    <Setting Name="StatsDBPass" Type="System.String" Scope="User">
+      <Value Profile="(Default)">admin</Value>
+    </Setting>
+    <Setting Name="StatsDBName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">bf2stats</Value>
+    </Setting>
+    <Setting Name="ASP_CustomMapID" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">700</Value>
+    </Setting>
+    <Setting Name="ASP_DefaultPID" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">29000000</Value>
+    </Setting>
+    <Setting Name="ASP_UnlocksMode" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="ASP_GameHosts" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ASP_IgnoreAI" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ASP_StatsRankCheck" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ASP_MinRoundTime" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="ASP_AwardsReqComplete" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ASP_SmocCheck" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="ASP_GeneralCheck" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="ASP_SpecialRankTenure" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">7</Value>
     </Setting>
   </Settings>
 </SettingsFile>

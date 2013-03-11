@@ -55,7 +55,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ASP\ASPResponse.cs" />
+    <Compile Include="ASP\AwardData.cs" />
+    <Compile Include="ASP\BackendAward.cs" />
+    <Compile Include="ASP\Requests\SnapshotPost.cs" />
+    <Compile Include="ASP\Requests\GetMapInfo.cs" />
+    <Compile Include="ASP\Requests\GetAwardsInfo.cs" />
+    <Compile Include="ASP\Requests\GetBackendInfo.cs" />
+    <Compile Include="ASP\Requests\GetClanInfo.cs" />
+    <Compile Include="ASP\Requests\GetLeaderBoard.cs" />
+    <Compile Include="ASP\Requests\GetPlayerID.cs" />
+    <Compile Include="ASP\Requests\GetPlayerInfo.cs" />
+    <Compile Include="ASP\Requests\GetRankInfo.cs" />
+    <Compile Include="ASP\Requests\GetUnlocksInfo.cs" />
+    <Compile Include="ASP\FormattedOutput.cs" />
+    <Compile Include="ASP\Requests\RankNotification.cs" />
+    <Compile Include="ASP\Requests\SearchForPlayers.cs" />
+    <Compile Include="ASP\Requests\SelectUnlock.cs" />
+    <Compile Include="ASP\Snapshot.cs" />
     <Compile Include="ClientStream.cs" />
+    <Compile Include="Database\SqlUpdateDictionary.cs" />
+    <Compile Include="Database\StatsDatabase.cs" />
+    <Compile Include="Events.cs" />
     <Compile Include="Forms\EditAcctForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -127,21 +148,43 @@
     <Compile Include="Forms\GetPlayerForm.Designer.cs">
       <DependentUpon>GetPlayerForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="GPCM\ClientList.cs" />
-    <Compile Include="GPCM\GpcmClient.cs" />
-    <Compile Include="GPCM\GpcmServer.cs" />
-    <Compile Include="GPSP\GpspClient.cs" />
-    <Compile Include="GPSP\GpspServer.cs" />
+    <Compile Include="Gamespy\GamespyUtils.cs" />
+    <Compile Include="Gamespy\Gpcm\ClientList.cs" />
+    <Compile Include="Gamespy\Gpcm\GpcmClient.cs" />
+    <Compile Include="Gamespy\Gpcm\GpcmServer.cs" />
+    <Compile Include="Gamespy\Gpsp\GpspClient.cs" />
+    <Compile Include="Gamespy\Gpsp\GpspServer.cs" />
     <Compile Include="Hosts\HostsFile.cs" />
     <Compile Include="Item.cs" />
     <Compile Include="KeyValueItem.cs" />
+    <Compile Include="Logging\LogMessage.cs" />
+    <Compile Include="Logging\LogWritter.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Forms\ProgressForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ProgressForm.Designer.cs">
+      <DependentUpon>ProgressForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="LoginServer.cs" />
+    <Compile Include="Gamespy\LoginServer.cs" />
     <Compile Include="SettingsParser.cs" />
+    <Compile Include="Forms\SnapshotViewForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SnapshotViewForm.Designer.cs">
+      <DependentUpon>SnapshotViewForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="SocketExtensions.cs" />
+    <Compile Include="Forms\UpdateProgressForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\UpdateProgressForm.Designer.cs">
+      <DependentUpon>UpdateProgressForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Utils.cs" />
     <Compile Include="Validator.cs" />
+    <Compile Include="ASP\ASPServer.cs" />
     <EmbeddedResource Include="Forms\CreateAcctForm.resx">
       <DependentUpon>CreateAcctForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -163,6 +206,9 @@
     <EmbeddedResource Include="Forms\MapList.resx">
       <DependentUpon>MapList.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ProgressForm.resx">
+      <DependentUpon>ProgressForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\ScoreSelectForm.resx">
       <DependentUpon>ScoreSelectForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -175,6 +221,12 @@
     <EmbeddedResource Include="Forms\GetPlayerForm.resx">
       <DependentUpon>GetPlayerForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\SnapshotViewForm.resx">
+      <DependentUpon>SnapshotViewForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\UpdateProgressForm.resx">
+      <DependentUpon>UpdateProgressForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -186,6 +238,10 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
+    <EmbeddedResource Include="ASP\Errors\403.tpl" />
+    <EmbeddedResource Include="ASP\Errors\501.tpl" />
+    <EmbeddedResource Include="ASP\Errors\503.tpl" />
+    <EmbeddedResource Include="ASP\Errors\400.tpl" />
     <None Include="Properties\Settings.settings">
       <Generator>PublicSettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -197,17 +253,22 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="ASP\Errors\404.tpl" />
     <Content Include="Logo.ico" />
+    <EmbeddedResource Include="SQL\SQLite.Stats.sql" />
     <None Include="Resources\e_logo.png" />
-    <Content Include="SQL\MySQL.CreateTables.sql">
+    <EmbeddedResource Include="SQL\Ip2nation.sql" />
+    <None Include="Resources\loading11.gif" />
+    <Content Include="SQL\MySQL.Gamespy.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <EmbeddedResource Include="SQL\SQLite.CreateTables.sql" />
+    <EmbeddedResource Include="SQL\SQLite.Gamespy.sql" />
     <None Include="Resources\BF2Stats_Logo.jpg" />
     <None Include="Resources\red-on-16.png" />
     <None Include="Resources\amber-on-16.png" />
     <None Include="Resources\green-on-16.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

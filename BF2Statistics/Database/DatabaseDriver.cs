@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
 using MySql;
@@ -32,34 +33,47 @@ namespace BF2Statistics.Database
         /// Only applies to SQLite databases, used to determine whether or not
         /// the specified file already existed prior to attempting the connection.
         /// </summary>
-        private bool IsNewDatabase = false;
+        public bool IsNewDatabase { get; protected set; }
 
-        public DatabaseDriver()
+        /// <summary>
+        /// Returns whether the Database connection is open
+        /// </summary>
+        public bool IsConnected
         {
-            this.DatabaseEngine = GetDatabaseEngine();
+            get
+            {
+                return (Connection.State == ConnectionState.Open);
+            }
+        }
 
+        /// <summary>
+        /// Event Fired if the DB connection goes offline
+        /// </summary>
+        public event StateChangeEventHandler ConnectionClosed;
+
+        public DatabaseDriver(string Engine, string Host, int Port, string DatabaseName, string User, string Pass)
+        {
+            // Set class variables, and create a new connection builder
+            this.DatabaseEngine = GetDatabaseEngine(Engine);
             DbConnectionStringBuilder Builder;
 
             if (this.DatabaseEngine == DatabaseEngine.Sqlite)
             {
-                Builder = new SQLiteConnectionStringBuilder();
-                string FullPath = Path.Combine(Utils.AssemblyPath, MainForm.Config.DBName + ".sqlite3");
+                string FullPath = Path.Combine(MainForm.Root, DatabaseName + ".sqlite3");
                 IsNewDatabase = !File.Exists(FullPath) || new FileInfo(FullPath).Length == 0;
-
+                Builder = new SQLiteConnectionStringBuilder();
                 Builder.Add("Data Source", FullPath);
-
                 Connection = new SQLiteConnection(Builder.ConnectionString);
             }
             else if (this.DatabaseEngine == DatabaseEngine.Mysql)
             {
+                IsNewDatabase = false;
                 Builder = new MySqlConnectionStringBuilder();
-
-                Builder.Add("Server", MainForm.Config.DBHost);
-                Builder.Add("Port", MainForm.Config.DBPort);
-                Builder.Add("User ID", MainForm.Config.DBUser);
-                Builder.Add("Password", MainForm.Config.DBPass);
-                Builder.Add("Database", MainForm.Config.DBName);
-
+                Builder.Add("Server", Host);
+                Builder.Add("Port", Port);
+                Builder.Add("User ID", User);
+                Builder.Add("Password", Pass);
+                Builder.Add("Database", DatabaseName);
                 Connection = new MySqlConnection(Builder.ConnectionString);
             }
             else
@@ -68,64 +82,97 @@ namespace BF2Statistics.Database
             }
         }
 
+        /// <summary>
+        /// Opens the database connection
+        /// </summary>
         public void Connect()
         {
             Connection.Open();
-            
-            // Create the SqlDatabase file if it doesnt exist
-            if (IsNewDatabase)
-            {
-                string SQL = Utils.GetResourceString("BF2Statistics.SQL.SQLite.CreateTables.sql");
+            Connection.StateChange += new StateChangeEventHandler(Connection_StateChange);
+        }
 
-                this.CreateCommand(SQL);
-                Command.ExecuteNonQuery();
-                Command.Dispose();
+        /// <summary>
+        /// Event fired when the connection is closed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void Connection_StateChange(object sender, StateChangeEventArgs e)
+        {
+            if (Connection.State == ConnectionState.Closed)
+            {
+                try
+                {
+                    ConnectionClosed(sender, e);
+                }
+                catch { }
             }
         }
 
+        /// <summary>
+        /// Closes the connection to the database
+        /// </summary>
         public void Close()
         {
             try
             {
                 Connection.Close();
-                Connection.Dispose();
             }
             catch { }
         }
 
+        /// <summary>
+        /// Queries the database, and returns a result set
+        /// </summary>
+        /// <param name="Sql">The SQL Statement to run on the database</param>
+        /// <returns></returns>
         public List<Dictionary<string, object>> Query(string Sql)
         {
+            // Create the SQL Command
             this.CreateCommand(Sql);
+
+            // Execute the query
+            List<Dictionary<string, object>> Rows = new List<Dictionary<string, object>>();
             DbDataReader Reader = Command.ExecuteReader();
 
-            if (!Reader.HasRows)
-                return null;
-
-            List<Dictionary<string, object>> Rows = new List<Dictionary<string, object>>();
-
-            while (Reader.Read())
+            // If we have rows, add them to the list
+            if (Reader.HasRows)
             {
-                Dictionary<string, object> Row = new Dictionary<string, object>(Reader.FieldCount);
+                // Add each row to the rows list
+                while (Reader.Read())
+                {
+                    Dictionary<string, object> Row = new Dictionary<string, object>(Reader.FieldCount);
+                    for (int i = 0; i < Reader.FieldCount; ++i)
+                        Row.Add(Reader.GetName(i), Reader.GetValue(i));
 
-                for (int i = 0; i < Reader.FieldCount; ++i)
-                    Row.Add(Reader.GetName(i), Reader.GetValue(i));
-
-                Rows.Add(Row);
+                    Rows.Add(Row);
+                }
             }
 
+            // Cleanup
             Reader.Close();
             Reader.Dispose();
             Command.Dispose();
 
+            // Return Rows
             return Rows;
         }
 
-        public List<Dictionary<string, object>> Query(string SqlFormat, params object[] Items)
+        /// <summary>
+        /// Queries the database, and returns a result set
+        /// </summary>
+        /// <param name="Sql">The SQL Statement to run on the database</param>
+        /// <returns></returns>
+        public List<Dictionary<string, object>> Query(string Sql, params object[] Items)
         {
-            string Formatted = string.Format(SqlFormat, Items);
+            string Formatted = string.Format(Sql, Items);
             return this.Query(Formatted);
         }
 
+        /// <summary>
+        /// Executes a statement on the database (Update, Delete, Insert)
+        /// </summary>
+        /// <param name="Sql">The SQL statement to be executes</param>
+        /// <returns>Returns the number of rows affected by the statement</returns>
         public int Execute(string Sql)
         {
             this.CreateCommand(Sql);
@@ -135,12 +182,100 @@ namespace BF2Statistics.Database
             return Result;
         }
 
-        public int Execute(string SqlFormat, params object[] Items)
+        /// <summary>
+        /// Executes a statement on the database (Update, Delete, Insert)
+        /// </summary>
+        /// <param name="Sql">The SQL statement to be executes</param>
+        /// <returns>Returns the number of rows affected by the statement</returns>
+        public int Execute(string Sql, params object[] Items)
         {
-            string Formatted = string.Format(SqlFormat, Items);
+            string Formatted = string.Format(Sql, Items);
             return this.Execute(Formatted);
         }
 
+        /// <summary>
+        /// Inserts a dictionary or ColName => ColValue into a table
+        /// </summary>
+        /// <param name="Table">The Table Name to insert into</param>
+        /// <param name="Items">List of ColName => Value</param>
+        /// <returns></returns>
+        public int Insert(string Table, Dictionary<string, object> Items)
+        {
+            char[] trim = new char[] { ',' };
+            string Cols = "";
+            string Values = "";
+
+            foreach (KeyValuePair<string, object> I in Items)
+            {
+                Cols += I.Key + ",";
+                Values += "'" + I.Value.ToString() + "',";
+            }
+
+            // Create out query command, and execute it
+            string Query = String.Format("INSERT INTO {0} ({1}) VALUES ({2})", Table, Cols.TrimEnd(trim), Values.TrimEnd(trim));
+            return this.Execute(Query);
+        }
+
+        public int Update(string Table, SqlUpdateDictionary Items, string Where)
+        {
+            char[] trim = new char[] { ',' };
+            string Cols = "";
+
+            foreach (KeyValuePair<string, SqlUpdateItem> I in Items)
+            {
+                if (I.Value.Mode != ValueMode.Set)
+                {
+                    string Sign = "";
+                    switch (I.Value.Mode)
+                    {
+                        case ValueMode.Add:
+                            Sign = "+";
+                            break;
+                        case ValueMode.Divide:
+                            Sign = "/";
+                            break;
+                        case ValueMode.Multiply:
+                            Sign = "*";
+                            break;
+                        case ValueMode.Subtract:
+                            Sign = "-";
+                            break;
+                    }
+
+                    Cols += String.Format("{0}=`{0}`{1}{2}{3}{2},", I.Key, Sign, ((I.Value.Quote) ? "'" : ""), I.Value.Value.ToString());
+                }
+                else
+                    Cols += String.Format("{0}={1}{2}{1},", I.Key, ((I.Value.Quote) ? "'" : ""), I.Value.Value.ToString());
+            }
+
+            string Query = String.Format("UPDATE {0} SET {1} WHERE {2}", Table, Cols.TrimEnd(trim), Where);
+            return this.Execute(Query);
+        }
+
+        public DbTransaction BeginTransaction()
+        {
+            return Connection.BeginTransaction();
+        }
+
+        public DbTransaction BeginTransaction(IsolationLevel Level)
+        {
+            return Connection.BeginTransaction(Level);
+        }
+
+        /// <summary>
+        /// Used to clean bad characters from a string
+        /// </summary>
+        /// <param name="QueryString">The string to be cleaned</param>
+        /// <returns></returns>
+        public static string Escape(string QueryString)
+        {
+            return QueryString.Replace("\x00", "\\x00").Replace("\r", "\\r").Replace("\n", "\\n").Replace("\\", "\\\\").Replace("'", "\\'").Replace("\"", "\\\"").Replace("\x1A", "\\x1A");
+        }
+
+        /// <summary>
+        /// Creates a new command to be executed on the database
+        /// </summary>
+        /// <param name="QueryString"></param>
         protected void CreateCommand(string QueryString)
         {
             if (DatabaseEngine == Database.DatabaseEngine.Sqlite)
@@ -149,9 +284,13 @@ namespace BF2Statistics.Database
                 Command = new MySqlCommand(QueryString, Connection as MySqlConnection);
         }
 
-        public static DatabaseEngine GetDatabaseEngine()
+        /// <summary>
+        /// Converts a database string name to a DatabaseEngine type.
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <returns></returns>
+        public static DatabaseEngine GetDatabaseEngine(string Name)
         {
-            string Name = MainForm.Config.DBEngine;
             Type EnumType = typeof(Database.DatabaseEngine);
             return ((Database.DatabaseEngine)Enum.Parse(EnumType, Name, true));
         }

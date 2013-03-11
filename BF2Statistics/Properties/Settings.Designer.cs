@@ -62,72 +62,72 @@ namespace BF2Statistics.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Sqlite")]
-        public string DBEngine {
+        public string GamespyDBEngine {
             get {
-                return ((string)(this["DBEngine"]));
+                return ((string)(this["GamespyDBEngine"]));
             }
             set {
-                this["DBEngine"] = value;
+                this["GamespyDBEngine"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("localhost")]
-        public string DBHost {
+        public string GamespyDBHost {
             get {
-                return ((string)(this["DBHost"]));
+                return ((string)(this["GamespyDBHost"]));
             }
             set {
-                this["DBHost"] = value;
+                this["GamespyDBHost"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("3306")]
-        public int DBPort {
+        public int GamespyDBPort {
             get {
-                return ((int)(this["DBPort"]));
+                return ((int)(this["GamespyDBPort"]));
             }
             set {
-                this["DBPort"] = value;
+                this["GamespyDBPort"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string DBUser {
+        public string GamespyDBUser {
             get {
-                return ((string)(this["DBUser"]));
+                return ((string)(this["GamespyDBUser"]));
             }
             set {
-                this["DBUser"] = value;
+                this["GamespyDBUser"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string DBPass {
+        public string GamespyDBPass {
             get {
-                return ((string)(this["DBPass"]));
+                return ((string)(this["GamespyDBPass"]));
             }
             set {
-                this["DBPass"] = value;
+                this["GamespyDBPass"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("gamespy")]
-        public string DBName {
+        public string GamespyDBName {
             get {
-                return ((string)(this["DBName"]));
+                return ((string)(this["GamespyDBName"]));
             }
             set {
-                this["DBName"] = value;
+                this["GamespyDBName"] = value;
             }
         }
         
@@ -140,6 +140,210 @@ namespace BF2Statistics.Properties {
             }
             set {
                 this["DebugStream"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Sqlite")]
+        public string StatsDBEngine {
+            get {
+                return ((string)(this["StatsDBEngine"]));
+            }
+            set {
+                this["StatsDBEngine"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("localhost")]
+        public string StatsDBHost {
+            get {
+                return ((string)(this["StatsDBHost"]));
+            }
+            set {
+                this["StatsDBHost"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3306")]
+        public int StatsDBPort {
+            get {
+                return ((int)(this["StatsDBPort"]));
+            }
+            set {
+                this["StatsDBPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("admin")]
+        public string StatsDBUser {
+            get {
+                return ((string)(this["StatsDBUser"]));
+            }
+            set {
+                this["StatsDBUser"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("admin")]
+        public string StatsDBPass {
+            get {
+                return ((string)(this["StatsDBPass"]));
+            }
+            set {
+                this["StatsDBPass"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("bf2stats")]
+        public string StatsDBName {
+            get {
+                return ((string)(this["StatsDBName"]));
+            }
+            set {
+                this["StatsDBName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("700")]
+        public int ASP_CustomMapID {
+            get {
+                return ((int)(this["ASP_CustomMapID"]));
+            }
+            set {
+                this["ASP_CustomMapID"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("29000000")]
+        public int ASP_DefaultPID {
+            get {
+                return ((int)(this["ASP_DefaultPID"]));
+            }
+            set {
+                this["ASP_DefaultPID"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ASP_UnlocksMode {
+            get {
+                return ((int)(this["ASP_UnlocksMode"]));
+            }
+            set {
+                this["ASP_UnlocksMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ASP_GameHosts {
+            get {
+                return ((string)(this["ASP_GameHosts"]));
+            }
+            set {
+                this["ASP_GameHosts"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ASP_IgnoreAI {
+            get {
+                return ((bool)(this["ASP_IgnoreAI"]));
+            }
+            set {
+                this["ASP_IgnoreAI"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ASP_StatsRankCheck {
+            get {
+                return ((bool)(this["ASP_StatsRankCheck"]));
+            }
+            set {
+                this["ASP_StatsRankCheck"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ASP_MinRoundTime {
+            get {
+                return ((int)(this["ASP_MinRoundTime"]));
+            }
+            set {
+                this["ASP_MinRoundTime"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ASP_AwardsReqComplete {
+            get {
+                return ((bool)(this["ASP_AwardsReqComplete"]));
+            }
+            set {
+                this["ASP_AwardsReqComplete"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ASP_SmocCheck {
+            get {
+                return ((bool)(this["ASP_SmocCheck"]));
+            }
+            set {
+                this["ASP_SmocCheck"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ASP_GeneralCheck {
+            get {
+                return ((bool)(this["ASP_GeneralCheck"]));
+            }
+            set {
+                this["ASP_GeneralCheck"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("7")]
+        public int ASP_SpecialRankTenure {
+            get {
+                return ((int)(this["ASP_SpecialRankTenure"]));
+            }
+            set {
+                this["ASP_SpecialRankTenure"] = value;
             }
         }
     }

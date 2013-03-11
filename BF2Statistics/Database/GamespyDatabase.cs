@@ -25,7 +25,7 @@ namespace BF2Statistics.Database
             CheckConnection();
             var Rows = Driver.Query("SELECT id, name, password, email, country, session FROM accounts WHERE name='{0}'", Nick);
             //Driver.Close();
-            return (Rows == null) ? null : Rows[0];
+            return (Rows.Count == 0) ? null : Rows[0];
         }
 
         public Dictionary<string, object> GetUser(string Email, string Password)
@@ -33,7 +33,7 @@ namespace BF2Statistics.Database
             CheckConnection();
             var Rows = Driver.Query("SELECT id, name, password, country, session FROM accounts WHERE email='{0}' AND password='{1}'", Email, Password);
             //Driver.Close();
-            return (Rows == null) ? null : Rows[0];
+            return (Rows.Count == 0) ? null : Rows[0];
         }
 
         public List<string> GetUsersLike(string Nick)
@@ -61,7 +61,7 @@ namespace BF2Statistics.Database
             var Rows = Driver.Query("SELECT id FROM accounts WHERE name='{0}'", Nick);
             //Driver.Close();
 
-            return (Rows == null) ? false : true;
+            return (Rows.Count == 0) ? false : true;
         }
 
         public bool UserExists(int PID)
@@ -71,7 +71,7 @@ namespace BF2Statistics.Database
             var Rows = Driver.Query("SELECT name FROM accounts WHERE id='{0}'", PID);
             //Driver.Close();
 
-            return (Rows == null) ? false : true;
+            return (Rows.Count == 0) ? false : true;
         }
 
         public bool CreateUser(string Nick, string Pass, string Email, string Country)
@@ -135,7 +135,7 @@ namespace BF2Statistics.Database
             var Rows = Driver.Query("SELECT id FROM accounts WHERE name='{0}'", Nick);
 
             // If we have no result, we need to create a new Player :)
-            if (Rows == null)
+            if (Rows.Count == 0)
             {
                 //Driver.Close();
                 return 0;
@@ -157,7 +157,7 @@ namespace BF2Statistics.Database
             var PidExists = Driver.Query("SELECT name FROM accounts WHERE id='{0}'", Pid);
 
             // If no user exists, return code -1
-            if (Rows == null)
+            if (Rows.Count == 0)
                 return -1;
 
             // If PID is false, the PID is not taken
@@ -190,11 +190,34 @@ namespace BF2Statistics.Database
         /// </summary>
         public void CheckConnection()
         {
-            if (Driver == null)
+            if(Driver == null || !Driver.IsConnected)
             {
                 try
                 {
-                    Driver = new DatabaseDriver();
+                    // First time connection
+                    if (Driver == null)
+                    {
+                        Driver = new DatabaseDriver(
+                            MainForm.Config.GamespyDBEngine,
+                            MainForm.Config.GamespyDBHost,
+                            MainForm.Config.GamespyDBPort,
+                            MainForm.Config.GamespyDBName,
+                            MainForm.Config.GamespyDBUser,
+                            MainForm.Config.GamespyDBPass
+                        );
+
+                        // Create SQL tables on new SQLite DB's
+                        if (Driver.IsNewDatabase)
+                        {
+                            // Connect to DB
+                            Driver.Connect();
+                            string SQL = Utils.GetResourceString("BF2Statistics.SQL.SQLite.Gamespy.sql");
+                            Driver.Execute(SQL);
+                            return;
+                        }
+                    }
+
+                    // Connect to DB
                     Driver.Connect();
                 }
                 catch (Exception E)

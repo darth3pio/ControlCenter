@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using BF2Statistics.Logging;
 
 namespace BF2Statistics
 {
@@ -26,9 +27,9 @@ namespace BF2Statistics
         private bool Debugging;
 
         /// <summary>
-        /// Log file stream
+        /// StreamLog Object
         /// </summary>
-        private static StreamWriter LogFile = File.AppendText(Path.Combine(MainForm.Root, "Logs", "stream.log"));
+        private static LogWritter StreamLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "Stream.log"), 3000);
 
         public ClientStream(TcpClient client)
         {
@@ -124,17 +125,7 @@ namespace BF2Statistics
         /// <param name="message"></param>
         private static void Log(string message)
         {
-            DateTime datet = DateTime.Now;
-            
-            try
-            {
-                LogFile.WriteLine(datet.ToString("MM/dd hh:mm") + "> " + message);
-                LogFile.Flush();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message.ToString());
-            }
+            StreamLog.Write(message);
         }
 
         /// <summary>
@@ -143,7 +134,7 @@ namespace BF2Statistics
         /// <param name="message"></param>
         private static void Log(string message, params object[] items)
         {
-            Log(String.Format(message, items));
+            StreamLog.Write(String.Format(message, items));
         }
     }
 }

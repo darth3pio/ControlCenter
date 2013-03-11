@@ -1,0 +1,8 @@
+CREATE TABLE "main"."accounts" (
+	"id"  INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+	"name"  TEXT NOT NULL UNIQUE COLLATE NOCASE,
+	"password"  TEXT NOT NULL,
+	"email"  TEXT NOT NULL,
+	"country"  TEXT NOT NULL,
+	"session"  INTEGER DEFAULT 0
+);
