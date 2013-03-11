@@ -216,6 +216,13 @@ namespace BF2Statistics.Database
             return this.Execute(Query);
         }
 
+        /// <summary>
+        /// Updates a set of rows in a table
+        /// </summary>
+        /// <param name="Table">The table name</param>
+        /// <param name="Items">A SqlUpdateDictionary of columns => values</param>
+        /// <param name="Where">The where statement (Excluding the "WHERE" word</param>
+        /// <returns></returns>
         public int Update(string Table, SqlUpdateDictionary Items, string Where)
         {
             char[] trim = new char[] { ',' };
@@ -252,11 +259,20 @@ namespace BF2Statistics.Database
             return this.Execute(Query);
         }
 
+        /// <summary>
+        /// Begins a new database transaction
+        /// </summary>
+        /// <returns></returns>
         public DbTransaction BeginTransaction()
         {
             return Connection.BeginTransaction();
         }
 
+        /// <summary>
+        /// Begins a new database transaction
+        /// </summary>
+        /// <param name="Level"></param>
+        /// <returns></returns>
         public DbTransaction BeginTransaction(IsolationLevel Level)
         {
             return Connection.BeginTransaction(Level);

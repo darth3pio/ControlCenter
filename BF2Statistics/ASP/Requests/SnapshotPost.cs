@@ -21,6 +21,9 @@ namespace BF2Statistics.ASP.Requests
 
         public SnapshotPost(HttpListenerRequest Request, ASPResponse Response)
         {
+            // Begin Output
+            FormattedOutput Out = new FormattedOutput("response");
+
             // First and foremost. Make sure that we are authorized to be here!
             IPEndPoint RemoteIP = Request.LocalEndPoint;
             if (!Request.IsLocal)
@@ -44,7 +47,16 @@ namespace BF2Statistics.ASP.Requests
                 // If we are not on the GameHost list, too bad sucka!
                 if (!IsValid)
                 {
-                    Response.StatusCode = 403;
+                    ASPServer.UpdateStatus("Denied snapshot data from " + RemoteIP.Address.ToString());
+                    if (Request.UserAgent == "GameSpyHTTP/1.0")
+                    {
+                        Out.AddRow("Unauthorised Gameserver");
+                        Response.AddData(Out);
+                        Response.IsValidData(false);
+                    }
+                    else
+                        Response.StatusCode = 403;
+
                     Response.Send();
                     return;
                 }
@@ -54,9 +66,21 @@ namespace BF2Statistics.ASP.Requests
             if (!Request.HasEntityBody)
             {
                 // No Post Data
-                Response.StatusCode = 400;
+                if (Request.UserAgent == "GameSpyHTTP/1.0")
+                {
+                    Out.AddRow("SNAPSHOT Data NOT found!");
+                    Response.AddData(Out);
+                    Response.IsValidData(false);
+                }
+                else
+                    Response.StatusCode = 400;
+
                 Response.Send();
+                return;
             }
+
+            // Report
+            ASPServer.UpdateStatus("Recieved snapshot from " + RemoteIP.Address.ToString());
 
             // Save the snapshot to the snapshots path
             string Snapshot;
@@ -72,9 +96,22 @@ namespace BF2Statistics.ASP.Requests
                 // Create the Snapshot Object
                 SnapObj = new Snapshot(Snapshot);
 
-                // Backup the snapshot
-                FileName = SnapObj.ServerPrefix + "-" + SnapObj.MapName + Utils.UnixTimestamp() + ".txt";
-                File.AppendAllText(Path.Combine(TempPath, FileName), Snapshot);
+                // Make sure data is valid!
+                if (SnapObj.IsValidSnapshot)
+                {
+                    // Backup the snapshot
+                    FileName = SnapObj.ServerPrefix + "-" + SnapObj.MapName + Utils.UnixTimestamp() + ".txt";
+                    File.AppendAllText(Path.Combine(TempPath, FileName), Snapshot);
+                }
+                else
+                {
+                    ASPServer.UpdateStatus("Snapshot recieved was invalid!");
+                    Out.AddRow("SNAPSHOT Data NOT complete or invalid!");
+                    Response.AddData(Out);
+                    Response.IsValidData(false);
+                    Response.Send();
+                    return;
+                }
             }
             catch (Exception)
             {
@@ -84,8 +121,7 @@ namespace BF2Statistics.ASP.Requests
             }
 
             // Tell the server we are good to go
-            FormattedOutput Out = new FormattedOutput("response", "mapname", "mapstart");
-            Out.AddRow("OK", SnapObj.MapName, SnapObj.MapStart);
+            Out.AddRow("OK");
             Response.AddData(Out);
             Response.Send();
 
@@ -97,6 +133,9 @@ namespace BF2Statistics.ASP.Requests
 
                 // Move the Temp snapshot to the Processed folder
                 File.Move(Path.Combine(TempPath, FileName), Path.Combine(ProcPath, FileName));
+
+                // Report
+                ASPServer.UpdateStatus("Processed snapshot from " + RemoteIP.Address.ToString());
             }
             catch (Exception E)
             {

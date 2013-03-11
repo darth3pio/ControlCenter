@@ -18,6 +18,12 @@ namespace BF2Statistics.ASP
             this.Criterias = Criterias;
         }
 
+        /// <summary>
+        /// Returns a bool stating whether the criteria for this award is met for a givin player
+        /// </summary>
+        /// <param name="Pid">The player ID</param>
+        /// <param name="Level">The award level if the criteria is met</param>
+        /// <returns></returns>
         public bool CriteriaMet(int Pid, out int Level)
         {
             DatabaseDriver Driver = ASPServer.Database.Driver;

@@ -213,7 +213,7 @@
             this.MinimizeBox = false;
             this.Name = "GamespyConfig";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "GamespyConfig";
+            this.Text = "Login Emulator Config";
             ((System.ComponentModel.ISupportInitialize)(this.Port)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

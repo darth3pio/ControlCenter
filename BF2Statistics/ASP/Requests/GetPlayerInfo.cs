@@ -534,13 +534,8 @@ namespace BF2Statistics.ASP.Requests
             Rows = Driver.Query("SELECT * FROM weapons WHERE id={0}", Pid);
             if (Rows.Count == 0)
             {
-                for (int i = 0; i < 9; i++)
+                for (int i = 0; i < 14; i++)
                     Out.Add("wkl-" + i, 0);
-
-                Out.Add("wkl-10", 0);
-                Out.Add("wkl-11", 0);
-                Out.Add("wkl-12", 0);
-                Out.Add("wkl-13", 0);
 
                 if(Info.Contains("de-"))
                 {
@@ -554,13 +549,14 @@ namespace BF2Statistics.ASP.Requests
                 for (int i = 0; i < 9; i++)
                     Out.Add("wkl-" + i, Rows[0]["kills" + i]);
 
-                Out.Add("wkl-10", Rows[0]["knifekills"]);
-                Out.Add("wkl-11", Rows[0]["shockpadkills"]);
-                Out.Add("wkl-12", 
+                Out.Add("wkl-9", Rows[0]["knifekills"]);
+                Out.Add("wkl-10", Rows[0]["shockpadkills"]);
+                Out.Add("wkl-11", 
                     int.Parse(Rows[0]["c4kills"].ToString()) +
                     int.Parse(Rows[0]["claymorekills"].ToString()) +
                     int.Parse(Rows[0]["atminekills"].ToString())
                 );
+                Out.Add("wkl-12", Rows[0]["handgrenadekills"]);
                 Out.Add("wkl-13", 0);
 
                 // Special Forces

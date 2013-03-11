@@ -30,6 +30,11 @@ namespace BF2Statistics.ASP
         public bool IsValidSnapshot { get; protected set; }
 
         /// <summary>
+        /// Is this a central update snapshot?
+        /// </summary>
+        public bool IsCentralUpdate { get; protected set; }
+
+        /// <summary>
         /// Snapshot Server prefix
         /// </summary>
         public string ServerPrefix { get; protected set; }
@@ -144,11 +149,21 @@ namespace BF2Statistics.ASP
             Snapshot = null;
 
             // Check for invalid snapshot string
-            if (Data.Length < 36 || Data.Length % 2 != 0 || Data[Data.Length - 2] != "EOF")
+            if (Data.Length < 36 || Data.Length % 2 != 0)
             {
                 IsValidSnapshot = false;
                 return;
             }
+
+            // Make sure we have an End of file
+            if (Data[Data.Length - 2] != "EOF" && Data[Data.Length - 4] != "EOF")
+            {
+                IsValidSnapshot = false;
+                return;
+            }
+
+            // Define if we are central update
+            this.IsCentralUpdate = (Data[Data.Length - 2] == "cdb_update");
 
             // Server data
             this.ServerPrefix = Data[0];

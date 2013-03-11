@@ -118,7 +118,7 @@ namespace BF2Statistics.ASP
         public static void UpdateStatus(string Message)
         {
             if (StatusBox.InvokeRequired)
-                StatusBox.Invoke((MethodInvoker)delegate { StatusBox.Text = Message; });
+                StatusBox.Invoke((MethodInvoker)delegate { StatusBox.Text += Message + "\r\n"; });
             else
                 StatusBox.Text += Message + "\r\n";
         }
