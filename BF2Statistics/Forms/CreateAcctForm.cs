@@ -71,7 +71,7 @@ namespace BF2Statistics
             try
             {
                 Success = LoginServer.Database.CreateUser(AccountName.Text, AccountPass.Text, AccountEmail.Text, "00");
-                if (PidSelect.SelectedIndex == 1)
+                if (Success && PidSelect.SelectedIndex == 1)
                     LoginServer.Database.SetPID(AccountName.Text, Pid);
             }
             catch(Exception E)

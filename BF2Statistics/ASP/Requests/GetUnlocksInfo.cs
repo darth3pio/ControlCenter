@@ -121,7 +121,7 @@ namespace BF2Statistics.ASP.Requests
         private int GetBonusUnlocks()
         {
             // Start with Kit unlocks (veteran awards and above)
-            string Query = "SELECT COUNT(id) AS count FROM awards WHERE id = {0} AND awd IN ({1}) AND level = 2";
+            string Query = "SELECT COUNT(id) AS count FROM awards WHERE id = {0} AND awd IN ({1}) AND level > 1";
             Rows = Driver.Query(Query, Pid, "1031119, 1031120, 1031109, 1031115, 1031121, 1031105, 1031113");
             int Unlocks = Int32.Parse(Rows[0]["count"].ToString());
 

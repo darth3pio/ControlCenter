@@ -23,6 +23,51 @@ namespace BF2Statistics.Database
         }
 
         /// <summary>
+        /// Returns a list of all table names in the stats database
+        /// </summary>
+        /// <returns></returns>
+        public static List<string> GetStatsTables()
+        {
+            return new List<string>()
+            {
+                { "army" },
+                { "awards" },
+                { "kills" },
+                { "kits" },
+                { "mapinfo" },
+                { "maps" },
+                { "player" },
+                { "player_history" },
+                { "round_history" },
+                { "servers" },
+                { "unlocks" },
+                { "vehicles" },
+                { "weapons" },
+            };
+        }
+
+        /// <summary>
+        /// Returns a list of player tables in the stats database
+        /// </summary>
+        /// <returns></returns>
+        public static List<string> GetPlayerTables()
+        {
+            return new List<string>()
+            {
+                { "army" },
+                { "awards" },
+                { "kills" },
+                { "kits" },
+                { "maps" },
+                { "player" },
+                { "player_history" },
+                { "unlocks" },
+                { "vehicles" },
+                { "weapons" },
+            };
+        }
+
+        /// <summary>
         /// Creates the connection to the database, and handles
         /// the excpetion (if any) that are thrown
         /// </summary>

@@ -45,7 +45,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_BDAB7CB33F434488926C44A4F75EE2FF"
+        "MsmKey" = "8:_CCF19A13772F4528A0858B34C68DAC7E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -58,13 +58,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_ACB36BDD39DA2C912B03DD49EF03738D"
+        "OwnerKey" = "8:_A63D17CF5EB3C952E6F74DA906FCE35A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A63D17CF5EB3C952E6F74DA906FCE35A"
+        "OwnerKey" = "8:_ACB36BDD39DA2C912B03DD49EF03738D"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -264,10 +264,10 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BDAB7CB33F434488926C44A4F75EE2FF"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CCF19A13772F4528A0858B34C68DAC7E"
             {
-            "SourcePath" = "8:..\\Libraries\\GamespyUtils\\GamespyUtils.dll"
-            "TargetName" = "8:GamespyUtils.dll"
+            "SourcePath" = "8:..\\Tools\\gspassenc.exe"
+            "TargetName" = "8:gspassenc.exe"
             "Tag" = "8:"
             "Folder" = "8:_1C5681D20B8C4DEDB2774728B254999B"
             "Condition" = "8:"

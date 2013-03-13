@@ -1318,5 +1318,21 @@ namespace BF2Statistics
         }
 
         #endregion Static Control Methods
+
+        private void EditASPDatabaseBtn_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void EditASPSettingsBtn_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void EditPlayerBtn_Click(object sender, EventArgs e)
+        {
+            PlayerSearchForm Form = new PlayerSearchForm();
+            Form.ShowDialog();
+        }
     }
 }

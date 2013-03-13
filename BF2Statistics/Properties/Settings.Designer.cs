@@ -346,5 +346,17 @@ namespace BF2Statistics.Properties {
                 this["ASP_SpecialRankTenure"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int ASP_DebugLevel {
+            get {
+                return ((int)(this["ASP_DebugLevel"]));
+            }
+            set {
+                this["ASP_DebugLevel"] = value;
+            }
+        }
     }
 }

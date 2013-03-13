@@ -450,7 +450,7 @@ namespace BF2Statistics.ASP
                             if (DbRank > CurRank)
                             {
                                 Player["rank"] = DbRank.ToString();
-                                DebugLog.Write("Rank Correction ({0}), Using database rank ({1})", Pid);
+                                DebugLog.Write("Rank Correction ({0}), Using database rank ({1})", Pid, DbRank);
                             }
                         }
 
@@ -1212,6 +1212,9 @@ namespace BF2Statistics.ASP
         /// <param name="Level"></param>
         private void Log(string Message, int Level)
         {
+            if (Level > MainForm.Config.ASP_DebugLevel)
+                return;
+
             string Lvl;
             switch (Level)
             {

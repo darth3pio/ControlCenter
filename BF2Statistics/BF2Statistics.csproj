@@ -159,6 +159,18 @@
     <Compile Include="KeyValueItem.cs" />
     <Compile Include="Logging\LogMessage.cs" />
     <Compile Include="Logging\LogWritter.cs" />
+    <Compile Include="Forms\PlayerSearchForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\PlayerSearchForm.Designer.cs">
+      <DependentUpon>PlayerSearchForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PlayerEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PlayerEditForm.Designer.cs">
+      <DependentUpon>PlayerEditForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Forms\ProgressForm.cs">
       <SubType>Form</SubType>
@@ -226,6 +238,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\UpdateProgressForm.resx">
       <DependentUpon>UpdateProgressForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\PlayerSearchForm.resx">
+      <DependentUpon>PlayerSearchForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PlayerEditForm.resx">
+      <DependentUpon>PlayerEditForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
