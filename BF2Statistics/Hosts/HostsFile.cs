@@ -41,7 +41,7 @@ namespace BF2Statistics
                 OrigContents = new List<string>(File.ReadAllLines(FilePath));
             }
             catch (Exception e) {
-                Log(e.Message);
+                MainForm.ErrorLog.Write("Unable to READ the HOST file! " + e.Message);
                 string message = "Unable to READ the HOST file! Please make sure this program is being ran as an administrator, or "
                     + "modify your HOSTS file permissions, allowing this program to read/modify it."
                     + Environment.NewLine + Environment.NewLine
@@ -118,7 +118,7 @@ namespace BF2Statistics
             }
             catch (Exception e)
             {
-                Log("Error writing to hosts file! Reason: " + e.Message);
+                MainForm.ErrorLog.Write("Error writing to hosts file! Reason: " + e.Message);
             }
         }
 
@@ -173,44 +173,9 @@ namespace BF2Statistics
             }
             catch (Exception e)
             {
-                Log("Error writing to hosts file! Reason: " + e.Message);
+                MainForm.ErrorLog.Write("Error writing to hosts file! Reason: " + e.Message);
                 throw e;
             }
-        }
-
-        /// <summary>
-        /// This method is used to store a message in the console.log file
-        /// </summary>
-        /// <param name="message">The message to be written to the log file</param>
-        public static void Log(string message)
-        {
-            DateTime datet = DateTime.Now;
-            String logFile = Path.Combine(MainForm.Root, "error.log");
-            if (!File.Exists(logFile))
-            {
-                FileStream files = File.Create(logFile);
-                files.Close();
-            }
-            try
-            {
-                StreamWriter sw = File.AppendText(logFile);
-                sw.WriteLine(datet.ToString("MM/dd hh:mm") + "> " + message);
-                sw.Flush();
-                sw.Close();
-            }
-            catch (Exception e)
-            {
-                Log(e.Message);
-            }
-        }
-
-        /// <summary>
-        /// This method is used to store a message in the console.log file
-        /// </summary>
-        /// <param name="message">The message to be written to the log file</param>
-        public static void Log(string message, params object[] items)
-        {
-            Log(String.Format(message, items));
         }
     }
 }

@@ -53,7 +53,7 @@
             this.TypeSelect.Items.AddRange(new object[] {
             "SQLite",
             "MySQL"});
-            this.TypeSelect.Location = new System.Drawing.Point(139, 29);
+            this.TypeSelect.Location = new System.Drawing.Point(137, 18);
             this.TypeSelect.Name = "TypeSelect";
             this.TypeSelect.Size = new System.Drawing.Size(166, 21);
             this.TypeSelect.TabIndex = 17;
@@ -62,7 +62,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(34, 32);
+            this.label4.Location = new System.Drawing.Point(32, 21);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(83, 13);
             this.label4.TabIndex = 16;
@@ -70,7 +70,7 @@
             // 
             // Username
             // 
-            this.Username.Location = new System.Drawing.Point(139, 123);
+            this.Username.Location = new System.Drawing.Point(137, 112);
             this.Username.Name = "Username";
             this.Username.Size = new System.Drawing.Size(166, 20);
             this.Username.TabIndex = 15;
@@ -78,7 +78,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(34, 126);
+            this.label3.Location = new System.Drawing.Point(32, 115);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(81, 13);
             this.label3.TabIndex = 14;
@@ -87,7 +87,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(34, 95);
+            this.label2.Location = new System.Drawing.Point(32, 84);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(78, 13);
             this.label2.TabIndex = 12;
@@ -95,7 +95,7 @@
             // 
             // Hostname
             // 
-            this.Hostname.Location = new System.Drawing.Point(139, 62);
+            this.Hostname.Location = new System.Drawing.Point(137, 51);
             this.Hostname.Name = "Hostname";
             this.Hostname.Size = new System.Drawing.Size(166, 20);
             this.Hostname.TabIndex = 11;
@@ -103,7 +103,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(34, 65);
+            this.label1.Location = new System.Drawing.Point(32, 54);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(81, 13);
             this.label1.TabIndex = 10;
@@ -111,7 +111,7 @@
             // 
             // Password
             // 
-            this.Password.Location = new System.Drawing.Point(139, 152);
+            this.Password.Location = new System.Drawing.Point(137, 141);
             this.Password.Name = "Password";
             this.Password.Size = new System.Drawing.Size(166, 20);
             this.Password.TabIndex = 19;
@@ -119,7 +119,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(34, 155);
+            this.label5.Location = new System.Drawing.Point(32, 144);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(82, 13);
             this.label5.TabIndex = 18;
@@ -127,7 +127,7 @@
             // 
             // DBName
             // 
-            this.DBName.Location = new System.Drawing.Point(139, 182);
+            this.DBName.Location = new System.Drawing.Point(137, 171);
             this.DBName.Name = "DBName";
             this.DBName.Size = new System.Drawing.Size(166, 20);
             this.DBName.TabIndex = 21;
@@ -135,7 +135,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(34, 185);
+            this.label6.Location = new System.Drawing.Point(32, 174);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(87, 13);
             this.label6.TabIndex = 20;
@@ -143,7 +143,7 @@
             // 
             // TestBtn
             // 
-            this.TestBtn.Location = new System.Drawing.Point(66, 249);
+            this.TestBtn.Location = new System.Drawing.Point(64, 238);
             this.TestBtn.Name = "TestBtn";
             this.TestBtn.Size = new System.Drawing.Size(100, 27);
             this.TestBtn.TabIndex = 22;
@@ -153,7 +153,7 @@
             // 
             // SaveBtn
             // 
-            this.SaveBtn.Location = new System.Drawing.Point(172, 249);
+            this.SaveBtn.Location = new System.Drawing.Point(170, 238);
             this.SaveBtn.Name = "SaveBtn";
             this.SaveBtn.Size = new System.Drawing.Size(100, 27);
             this.SaveBtn.TabIndex = 23;
@@ -163,7 +163,7 @@
             // 
             // Port
             // 
-            this.Port.Location = new System.Drawing.Point(139, 93);
+            this.Port.Location = new System.Drawing.Point(137, 82);
             this.Port.Maximum = new decimal(new int[] {
             99999,
             0,
@@ -181,7 +181,7 @@
             // Debug
             // 
             this.Debug.AutoSize = true;
-            this.Debug.Location = new System.Drawing.Point(39, 217);
+            this.Debug.Location = new System.Drawing.Point(37, 206);
             this.Debug.Name = "Debug";
             this.Debug.Size = new System.Drawing.Size(261, 17);
             this.Debug.TabIndex = 25;
@@ -192,7 +192,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(339, 288);
+            this.ClientSize = new System.Drawing.Size(334, 282);
             this.Controls.Add(this.Debug);
             this.Controls.Add(this.Port);
             this.Controls.Add(this.SaveBtn);

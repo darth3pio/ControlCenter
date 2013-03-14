@@ -165,10 +165,10 @@
     <Compile Include="Forms\PlayerSearchForm.Designer.cs">
       <DependentUpon>PlayerSearchForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="PlayerEditForm.cs">
+    <Compile Include="Forms\PlayerEditForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PlayerEditForm.Designer.cs">
+    <Compile Include="Forms\PlayerEditForm.Designer.cs">
       <DependentUpon>PlayerEditForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
@@ -193,6 +193,12 @@
     </Compile>
     <Compile Include="Forms\UpdateProgressForm.Designer.cs">
       <DependentUpon>UpdateProgressForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="StatsDbConfigForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StatsDbConfigForm.Designer.cs">
+      <DependentUpon>StatsDbConfigForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Utils.cs" />
     <Compile Include="Validator.cs" />
@@ -242,7 +248,7 @@
     <EmbeddedResource Include="Forms\PlayerSearchForm.resx">
       <DependentUpon>PlayerSearchForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PlayerEditForm.resx">
+    <EmbeddedResource Include="Forms\PlayerEditForm.resx">
       <DependentUpon>PlayerEditForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -255,6 +261,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="StatsDbConfigForm.resx">
+      <DependentUpon>StatsDbConfigForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="app.config" />
     <EmbeddedResource Include="ASP\Errors\403.tpl" />
     <EmbeddedResource Include="ASP\Errors\501.tpl" />

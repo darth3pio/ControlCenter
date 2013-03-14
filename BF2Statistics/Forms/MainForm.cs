@@ -39,7 +39,7 @@ namespace BF2Statistics
         /// <summary>
         /// The main form log file
         /// </summary>
-        protected static LogWritter ErrorLog;
+        public static LogWritter ErrorLog { get; protected set; }
 
         /// <summary>
         /// An array of found mods
@@ -1321,7 +1321,8 @@ namespace BF2Statistics
 
         private void EditASPDatabaseBtn_Click(object sender, EventArgs e)
         {
-
+            StatsDbConfigForm Form = new StatsDbConfigForm();
+            Form.ShowDialog();
         }
 
         private void EditASPSettingsBtn_Click(object sender, EventArgs e)
