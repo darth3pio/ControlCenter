@@ -53517,8 +53517,4 @@ INSERT INTO `ip2nationcountries` (`code`, `iso_code_2`, `iso_code_3`, `iso_count
 -- Dumping data for table `_version`
 --
 INSERT INTO `_version` (`dbver`, `dbdate`) VALUES
-('2.1.0', 1361120179);
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+('2.2.0', 1363280938);

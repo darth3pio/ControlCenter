@@ -15,20 +15,25 @@ using BF2Statistics.ASP.Requests;
 
 namespace BF2Statistics.ASP
 {
+    /// <summary>
+    /// The ASP Server is used to emulate the official Gamespy BF2 Stat
+    /// Server HTTP Requests, and provide players with the ability to run 
+    /// thier own BF2 Ranking system on thier personal PC's.
+    /// </summary>
     class ASPServer
     {
         /// <summary>
-        /// The TCP Listner for the webserver
+        /// The HTTPListner for the webserver
         /// </summary>
         private static HttpListener Listener = new HttpListener();
 
         /// <summary>
-        /// The stats database
+        /// The stats database object
         /// </summary>
         public static StatsDatabase Database;
 
         /// <summary>
-        /// ASP server log object
+        /// ASP server log writter
         /// </summary>
         private static LogWritter ServerLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspServer.log"));
 

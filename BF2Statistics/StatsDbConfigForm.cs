@@ -10,6 +10,7 @@ using System.Data.Common;
 using MySql.Data;
 using MySql.Data.Common;
 using MySql.Data.MySqlClient;
+using BF2Statistics.ASP;
 
 namespace BF2Statistics
 {

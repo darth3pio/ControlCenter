@@ -68,6 +68,16 @@ namespace BF2Statistics.Database
         }
 
         /// <summary>
+        /// Clears all stats data from the stats database
+        /// </summary>
+        public void Truncate()
+        {
+            List<string> Tables = GetStatsTables();
+            foreach (string Table in Tables)
+                Driver.Execute("TRUNCATE TABLE " + Table);
+        }
+
+        /// <summary>
         /// Creates the connection to the database, and handles
         /// the excpetion (if any) that are thrown
         /// </summary>
@@ -84,6 +94,7 @@ namespace BF2Statistics.Database
                     // First time connection
                     if (Driver == null)
                     {
+                        // Create database connection
                         Driver = new DatabaseDriver(
                             MainForm.Config.StatsDBEngine,
                             MainForm.Config.StatsDBHost,
@@ -92,41 +103,32 @@ namespace BF2Statistics.Database
                             MainForm.Config.StatsDBUser,
                             MainForm.Config.StatsDBPass
                         );
+                        Driver.Connect();
 
                         // Create SQL tables on new SQLite DB's
                         if (Driver.IsNewDatabase)
                         {
-                            // Connect to DB
-                            Driver.Connect();
-                            MainForm.Disable();
-                            UpdateProgressForm.ShowScreen("Creating Bf2Stats SQLite Database");
-
-                            // Create Tables
-                            UpdateProgressForm.Status("Creating Tables...");
-                            string SQL = Utils.GetResourceString("BF2Statistics.SQL.SQLite.Stats.sql");
-                            Driver.Execute(SQL);
-
-                            // Insert Ip2Nation data
-                            UpdateProgressForm.Status("Inserting Ip2Nation Data...");
-                            SQL = Utils.GetResourceString("BF2Statistics.SQL.Ip2nation.sql");
-                            DbTransaction Transaction = Driver.BeginTransaction();
-                            Driver.Execute(SQL);
-
-                            // Attempt to do the transaction
-                            try {
-                                Transaction.Commit();
-                            }
-                            catch (Exception E)
+                            CreateSqliteTables(Driver);
+                            return;
+                        }
+                        else
+                        {
+                            // Try and get database version
+                            try
                             {
-                                Transaction.Rollback();
-                                UpdateProgressForm.CloseForm();
-                                MainForm.Enable();
-                                throw E;
+                                var Rows = Driver.Query("SELECT dbver FROM _version LIMIT 1");
+                                if (Rows.Count == 0)
+                                    throw new Exception(); // Force insert of IP2Nation
+                            }
+                            catch
+                            {
+                                // Table doesnt contain a _version table, so run the createTables.sql
+                                if (Driver.DatabaseEngine == DatabaseEngine.Sqlite)
+                                    CreateSqliteTables(Driver);
+                                else
+                                    CreateMysqlTables(Driver);
                             }
 
-                            // Close update progress form
-                            UpdateProgressForm.CloseForm();
-                            MainForm.Enable();
                             return;
                         }
                     }
@@ -144,6 +146,81 @@ namespace BF2Statistics.Database
                     throw new Exception(Message);
                 }
             }
+        }
+
+        private void CreateSqliteTables(DatabaseDriver Driver)
+        {
+            // Show Progress Form
+            MainForm.Disable();
+            UpdateProgressForm.ShowScreen("Creating Bf2Stats SQLite Database");
+
+            // Create Tables
+            UpdateProgressForm.Status("Creating Tables...");
+            string SQL = Utils.GetResourceString("BF2Statistics.SQL.SQLite.Stats.sql");
+            Driver.Execute(SQL);
+
+            // Insert Ip2Nation data
+            UpdateProgressForm.Status("Inserting Ip2Nation Data...");
+            SQL = Utils.GetResourceString("BF2Statistics.SQL.Ip2nation.sql");
+            DbTransaction Transaction = Driver.BeginTransaction();
+            Driver.Execute(SQL);
+
+            // Attempt to do the transaction
+            try
+            {
+                Transaction.Commit();
+            }
+            catch (Exception E)
+            {
+                Transaction.Rollback();
+                UpdateProgressForm.CloseForm();
+                MainForm.Enable();
+                throw E;
+            }
+
+            // Close update progress form
+            UpdateProgressForm.CloseForm();
+            MainForm.Enable();
+        }
+
+        private void CreateMysqlTables(DatabaseDriver Driver)
+        {
+            // Show Progress Form
+            MainForm.Disable();
+            UpdateProgressForm.ShowScreen("Creating Bf2Stats Mysql Tables");
+
+            // Create Tables
+            UpdateProgressForm.Status("Creating Tables...");
+            string SQL = Utils.GetResourceString("BF2Statistics.SQL.MySQL.Stats.sql");
+            Driver.Execute(SQL);
+
+            // Insert Ip2Nation data
+            UpdateProgressForm.Status("Inserting Ip2Nation Data...");
+            SQL = Utils.GetResourceString("BF2Statistics.SQL.Ip2nation.sql");
+
+            // MySQL Will throw a packet size error here, so we need to increase this!
+            Driver.Execute("SET GLOBAL max_allowed_packet=2048;");
+
+            // Begin execution
+            DbTransaction Transaction = Driver.BeginTransaction();
+            Driver.Execute(SQL);
+
+            // Attempt to do the transaction
+            try
+            {
+                Transaction.Commit();
+            }
+            catch (Exception E)
+            {
+                Transaction.Rollback();
+                UpdateProgressForm.CloseForm();
+                MainForm.Enable();
+                throw E;
+            }
+
+            // Close update progress form
+            UpdateProgressForm.CloseForm();
+            MainForm.Enable();
         }
 
         public void Close()

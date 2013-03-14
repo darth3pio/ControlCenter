@@ -275,7 +275,7 @@ namespace BF2Statistics.ASP
             SqlUpdateDictionary UStmt;
             int TimeStamp = Utils.UnixTimestamp();
 
-            // Temporary Map Data
+            // Temporary Map Data (For Round history and Map info tables)
             int MapScore = 0;
             int MapKills = 0;
             int MapDeaths = 0;
@@ -292,6 +292,9 @@ namespace BF2Statistics.ASP
                 Log(String.Format("Standard Map ({0})...", MapId), 3);
 
             Log("Found " + PlayerData.Count + " Player(s)...", 3);
+
+            // MySQL could throw a packet size error here, so we need will increase it!
+            //Driver.Execute("SET GLOBAL max_allowed_packet=2048;");
 
             // Begin Transaction
             DbTransaction Transaction = Driver.BeginTransaction();

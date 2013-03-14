@@ -37,10 +37,15 @@
             this.LaunchEmuBtn = new System.Windows.Forms.Button();
             this.groupBox24 = new System.Windows.Forms.GroupBox();
             this.LoginStatusDesc = new System.Windows.Forms.Label();
+            this.LoginStatusPic = new System.Windows.Forms.PictureBox();
             this.AspStatusDesc = new System.Windows.Forms.Label();
+            this.AspStatusPic = new System.Windows.Forms.PictureBox();
             this.HostsStatusDesc = new System.Windows.Forms.Label();
             this.ServerStatusDesc = new System.Windows.Forms.Label();
+            this.HostsStatusPic = new System.Windows.Forms.PictureBox();
             this.StatsStatusDesc = new System.Windows.Forms.Label();
+            this.StatsStatusPic = new System.Windows.Forms.PictureBox();
+            this.ServerStatusPic = new System.Windows.Forms.PictureBox();
             this.groupBox15 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.ModSelectList = new System.Windows.Forms.ComboBox();
@@ -138,22 +143,24 @@
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.SetupBtn = new System.Windows.Forms.Button();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.Bf2StatisticsLink = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.LoginStatusPic = new System.Windows.Forms.PictureBox();
-            this.AspStatusPic = new System.Windows.Forms.PictureBox();
-            this.HostsStatusPic = new System.Windows.Forms.PictureBox();
-            this.StatsStatusPic = new System.Windows.Forms.PictureBox();
-            this.ServerStatusPic = new System.Windows.Forms.PictureBox();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.groupBox30 = new System.Windows.Forms.GroupBox();
+            this.ClearStatsBtn = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox16.SuspendLayout();
             this.groupBox24.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.LoginStatusPic)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AspStatusPic)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.HostsStatusPic)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.StatsStatusPic)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ServerStatusPic)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.LaunchWindow.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -189,13 +196,9 @@
             this.groupBox21.SuspendLayout();
             this.tabPage6.SuspendLayout();
             this.groupBox5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.LoginStatusPic)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AspStatusPic)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.HostsStatusPic)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.StatsStatusPic)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ServerStatusPic)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.groupBox30.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -297,6 +300,17 @@
             this.LoginStatusDesc.TabIndex = 8;
             this.LoginStatusDesc.Text = "Login Emulator Running";
             // 
+            // LoginStatusPic
+            // 
+            this.LoginStatusPic.Image = global::BF2Statistics.Properties.Resources.red;
+            this.LoginStatusPic.Location = new System.Drawing.Point(18, 89);
+            this.LoginStatusPic.Name = "LoginStatusPic";
+            this.LoginStatusPic.Size = new System.Drawing.Size(25, 24);
+            this.LoginStatusPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.LoginStatusPic.TabIndex = 7;
+            this.LoginStatusPic.TabStop = false;
+            this.LoginStatusPic.DoubleClick += new System.EventHandler(this.LoginStatusDesc_DoubleClick);
+            // 
             // AspStatusDesc
             // 
             this.AspStatusDesc.AutoSize = true;
@@ -306,6 +320,17 @@
             this.AspStatusDesc.TabIndex = 6;
             this.AspStatusDesc.Text = "ASP Server Running";
             this.AspStatusDesc.DoubleClick += new System.EventHandler(this.LoginStatusDesc_DoubleClick);
+            // 
+            // AspStatusPic
+            // 
+            this.AspStatusPic.Image = global::BF2Statistics.Properties.Resources.red;
+            this.AspStatusPic.Location = new System.Drawing.Point(18, 65);
+            this.AspStatusPic.Name = "AspStatusPic";
+            this.AspStatusPic.Size = new System.Drawing.Size(25, 24);
+            this.AspStatusPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.AspStatusPic.TabIndex = 5;
+            this.AspStatusPic.TabStop = false;
+            this.AspStatusPic.DoubleClick += new System.EventHandler(this.AspStatusDesc_DoubleClick);
             // 
             // HostsStatusDesc
             // 
@@ -327,6 +352,17 @@
             this.ServerStatusDesc.Text = "Battlefield 2 Server Running";
             this.ServerStatusDesc.DoubleClick += new System.EventHandler(this.ServerStatusDesc_DoubleClick);
             // 
+            // HostsStatusPic
+            // 
+            this.HostsStatusPic.Image = global::BF2Statistics.Properties.Resources.red;
+            this.HostsStatusPic.Location = new System.Drawing.Point(18, 17);
+            this.HostsStatusPic.Name = "HostsStatusPic";
+            this.HostsStatusPic.Size = new System.Drawing.Size(25, 24);
+            this.HostsStatusPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.HostsStatusPic.TabIndex = 2;
+            this.HostsStatusPic.TabStop = false;
+            this.HostsStatusPic.DoubleClick += new System.EventHandler(this.HostsFileStatusLabel_DoubleClick);
+            // 
             // StatsStatusDesc
             // 
             this.StatsStatusDesc.AutoSize = true;
@@ -336,6 +372,28 @@
             this.StatsStatusDesc.TabIndex = 4;
             this.StatsStatusDesc.Text = "Stats Enabled";
             this.StatsStatusDesc.DoubleClick += new System.EventHandler(this.StatsStatusDesc_DoubleClick);
+            // 
+            // StatsStatusPic
+            // 
+            this.StatsStatusPic.Image = global::BF2Statistics.Properties.Resources.red;
+            this.StatsStatusPic.Location = new System.Drawing.Point(18, 41);
+            this.StatsStatusPic.Name = "StatsStatusPic";
+            this.StatsStatusPic.Size = new System.Drawing.Size(25, 24);
+            this.StatsStatusPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.StatsStatusPic.TabIndex = 0;
+            this.StatsStatusPic.TabStop = false;
+            this.StatsStatusPic.DoubleClick += new System.EventHandler(this.StatsStatusDesc_DoubleClick);
+            // 
+            // ServerStatusPic
+            // 
+            this.ServerStatusPic.Image = global::BF2Statistics.Properties.Resources.red;
+            this.ServerStatusPic.Location = new System.Drawing.Point(18, 113);
+            this.ServerStatusPic.Name = "ServerStatusPic";
+            this.ServerStatusPic.Size = new System.Drawing.Size(25, 24);
+            this.ServerStatusPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.ServerStatusPic.TabIndex = 1;
+            this.ServerStatusPic.TabStop = false;
+            this.ServerStatusPic.DoubleClick += new System.EventHandler(this.ServerStatusDesc_DoubleClick);
             // 
             // groupBox15
             // 
@@ -1008,6 +1066,7 @@
             // 
             // groupBox25
             // 
+            this.groupBox25.Controls.Add(this.groupBox30);
             this.groupBox25.Controls.Add(this.groupBox26);
             this.groupBox25.Controls.Add(this.groupBox27);
             this.groupBox25.Controls.Add(this.groupBox28);
@@ -1079,29 +1138,29 @@
             // 
             // groupBox27
             // 
-            this.groupBox27.Controls.Add(this.EditPlayerBtn);
             this.groupBox27.Controls.Add(this.EditASPDatabaseBtn);
             this.groupBox27.Controls.Add(this.EditASPSettingsBtn);
             this.groupBox27.Location = new System.Drawing.Point(10, 178);
             this.groupBox27.Name = "groupBox27";
-            this.groupBox27.Size = new System.Drawing.Size(270, 135);
+            this.groupBox27.Size = new System.Drawing.Size(178, 135);
             this.groupBox27.TabIndex = 22;
             this.groupBox27.TabStop = false;
-            this.groupBox27.Text = "Options";
+            this.groupBox27.Text = "Settings";
             // 
             // EditPlayerBtn
             // 
-            this.EditPlayerBtn.Location = new System.Drawing.Point(57, 24);
+            this.EditPlayerBtn.Enabled = false;
+            this.EditPlayerBtn.Location = new System.Drawing.Point(14, 28);
             this.EditPlayerBtn.Name = "EditPlayerBtn";
             this.EditPlayerBtn.Size = new System.Drawing.Size(150, 28);
             this.EditPlayerBtn.TabIndex = 27;
-            this.EditPlayerBtn.Text = "View / Edit Player";
+            this.EditPlayerBtn.Text = "Manage Players";
             this.EditPlayerBtn.UseVisualStyleBackColor = true;
             this.EditPlayerBtn.Click += new System.EventHandler(this.EditPlayerBtn_Click);
             // 
             // EditASPDatabaseBtn
             // 
-            this.EditASPDatabaseBtn.Location = new System.Drawing.Point(57, 93);
+            this.EditASPDatabaseBtn.Location = new System.Drawing.Point(14, 96);
             this.EditASPDatabaseBtn.Name = "EditASPDatabaseBtn";
             this.EditASPDatabaseBtn.Size = new System.Drawing.Size(150, 28);
             this.EditASPDatabaseBtn.TabIndex = 26;
@@ -1111,7 +1170,7 @@
             // 
             // EditASPSettingsBtn
             // 
-            this.EditASPSettingsBtn.Location = new System.Drawing.Point(57, 58);
+            this.EditASPSettingsBtn.Location = new System.Drawing.Point(14, 28);
             this.EditASPSettingsBtn.Name = "EditASPSettingsBtn";
             this.EditASPSettingsBtn.Size = new System.Drawing.Size(150, 28);
             this.EditASPSettingsBtn.TabIndex = 0;
@@ -1124,16 +1183,16 @@
             this.groupBox28.Controls.Add(this.button9);
             this.groupBox28.Controls.Add(this.button10);
             this.groupBox28.Controls.Add(this.button11);
-            this.groupBox28.Location = new System.Drawing.Point(291, 178);
+            this.groupBox28.Location = new System.Drawing.Point(196, 178);
             this.groupBox28.Name = "groupBox28";
-            this.groupBox28.Size = new System.Drawing.Size(270, 135);
+            this.groupBox28.Size = new System.Drawing.Size(178, 135);
             this.groupBox28.TabIndex = 21;
             this.groupBox28.TabStop = false;
-            this.groupBox28.Text = "View Logs";
+            this.groupBox28.Text = "Logs";
             // 
             // button9
             // 
-            this.button9.Location = new System.Drawing.Point(57, 62);
+            this.button9.Location = new System.Drawing.Point(14, 28);
             this.button9.Name = "button9";
             this.button9.Size = new System.Drawing.Size(150, 28);
             this.button9.TabIndex = 27;
@@ -1143,7 +1202,7 @@
             // 
             // button10
             // 
-            this.button10.Location = new System.Drawing.Point(57, 96);
+            this.button10.Location = new System.Drawing.Point(14, 96);
             this.button10.Name = "button10";
             this.button10.Size = new System.Drawing.Size(150, 28);
             this.button10.TabIndex = 26;
@@ -1153,11 +1212,11 @@
             // 
             // button11
             // 
-            this.button11.Location = new System.Drawing.Point(57, 28);
+            this.button11.Location = new System.Drawing.Point(14, 62);
             this.button11.Name = "button11";
             this.button11.Size = new System.Drawing.Size(150, 28);
             this.button11.TabIndex = 25;
-            this.button11.Text = "View Access Log";
+            this.button11.Text = "View ASP Access Log";
             this.button11.UseVisualStyleBackColor = true;
             this.button11.Click += new System.EventHandler(this.ViewAccessLogBtn_Click);
             // 
@@ -1359,6 +1418,15 @@
             this.SetupBtn.UseVisualStyleBackColor = true;
             this.SetupBtn.Click += new System.EventHandler(this.SetupBtn_Click);
             // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Image = global::BF2Statistics.Properties.Resources.e_logo;
+            this.pictureBox2.Location = new System.Drawing.Point(6, 19);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(494, 100);
+            this.pictureBox2.TabIndex = 9;
+            this.pictureBox2.TabStop = false;
+            // 
             // textBox3
             // 
             this.textBox3.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -1406,69 +1474,28 @@
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
             // 
-            // LoginStatusPic
+            // groupBox30
             // 
-            this.LoginStatusPic.Image = global::BF2Statistics.Properties.Resources.red;
-            this.LoginStatusPic.Location = new System.Drawing.Point(18, 89);
-            this.LoginStatusPic.Name = "LoginStatusPic";
-            this.LoginStatusPic.Size = new System.Drawing.Size(25, 24);
-            this.LoginStatusPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-            this.LoginStatusPic.TabIndex = 7;
-            this.LoginStatusPic.TabStop = false;
-            this.LoginStatusPic.DoubleClick += new System.EventHandler(this.LoginStatusDesc_DoubleClick);
+            this.groupBox30.Controls.Add(this.ClearStatsBtn);
+            this.groupBox30.Controls.Add(this.EditPlayerBtn);
+            this.groupBox30.Location = new System.Drawing.Point(382, 178);
+            this.groupBox30.Name = "groupBox30";
+            this.groupBox30.Size = new System.Drawing.Size(178, 134);
+            this.groupBox30.TabIndex = 24;
+            this.groupBox30.TabStop = false;
+            this.groupBox30.Text = "Operations";
             // 
-            // AspStatusPic
+            // ClearStatsBtn
             // 
-            this.AspStatusPic.Image = global::BF2Statistics.Properties.Resources.red;
-            this.AspStatusPic.Location = new System.Drawing.Point(18, 65);
-            this.AspStatusPic.Name = "AspStatusPic";
-            this.AspStatusPic.Size = new System.Drawing.Size(25, 24);
-            this.AspStatusPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-            this.AspStatusPic.TabIndex = 5;
-            this.AspStatusPic.TabStop = false;
-            this.AspStatusPic.DoubleClick += new System.EventHandler(this.AspStatusDesc_DoubleClick);
-            // 
-            // HostsStatusPic
-            // 
-            this.HostsStatusPic.Image = global::BF2Statistics.Properties.Resources.red;
-            this.HostsStatusPic.Location = new System.Drawing.Point(18, 17);
-            this.HostsStatusPic.Name = "HostsStatusPic";
-            this.HostsStatusPic.Size = new System.Drawing.Size(25, 24);
-            this.HostsStatusPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-            this.HostsStatusPic.TabIndex = 2;
-            this.HostsStatusPic.TabStop = false;
-            this.HostsStatusPic.DoubleClick += new System.EventHandler(this.HostsFileStatusLabel_DoubleClick);
-            // 
-            // StatsStatusPic
-            // 
-            this.StatsStatusPic.Image = global::BF2Statistics.Properties.Resources.red;
-            this.StatsStatusPic.Location = new System.Drawing.Point(18, 41);
-            this.StatsStatusPic.Name = "StatsStatusPic";
-            this.StatsStatusPic.Size = new System.Drawing.Size(25, 24);
-            this.StatsStatusPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-            this.StatsStatusPic.TabIndex = 0;
-            this.StatsStatusPic.TabStop = false;
-            this.StatsStatusPic.DoubleClick += new System.EventHandler(this.StatsStatusDesc_DoubleClick);
-            // 
-            // ServerStatusPic
-            // 
-            this.ServerStatusPic.Image = global::BF2Statistics.Properties.Resources.red;
-            this.ServerStatusPic.Location = new System.Drawing.Point(18, 113);
-            this.ServerStatusPic.Name = "ServerStatusPic";
-            this.ServerStatusPic.Size = new System.Drawing.Size(25, 24);
-            this.ServerStatusPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-            this.ServerStatusPic.TabIndex = 1;
-            this.ServerStatusPic.TabStop = false;
-            this.ServerStatusPic.DoubleClick += new System.EventHandler(this.ServerStatusDesc_DoubleClick);
-            // 
-            // pictureBox2
-            // 
-            this.pictureBox2.Image = global::BF2Statistics.Properties.Resources.e_logo;
-            this.pictureBox2.Location = new System.Drawing.Point(6, 19);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(494, 100);
-            this.pictureBox2.TabIndex = 9;
-            this.pictureBox2.TabStop = false;
+            this.ClearStatsBtn.Enabled = false;
+            this.ClearStatsBtn.ForeColor = System.Drawing.Color.Firebrick;
+            this.ClearStatsBtn.Location = new System.Drawing.Point(14, 93);
+            this.ClearStatsBtn.Name = "ClearStatsBtn";
+            this.ClearStatsBtn.Size = new System.Drawing.Size(150, 28);
+            this.ClearStatsBtn.TabIndex = 28;
+            this.ClearStatsBtn.Text = "Clear Stats Database";
+            this.ClearStatsBtn.UseVisualStyleBackColor = true;
+            this.ClearStatsBtn.Click += new System.EventHandler(this.ClearStatsBtn_Click);
             // 
             // MainForm
             // 
@@ -1489,6 +1516,11 @@
             this.groupBox16.ResumeLayout(false);
             this.groupBox24.ResumeLayout(false);
             this.groupBox24.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.LoginStatusPic)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AspStatusPic)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.HostsStatusPic)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.StatsStatusPic)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ServerStatusPic)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.LaunchWindow.ResumeLayout(false);
             this.LaunchWindow.PerformLayout();
@@ -1539,13 +1571,9 @@
             this.tabPage6.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.LoginStatusPic)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AspStatusPic)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.HostsStatusPic)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.StatsStatusPic)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ServerStatusPic)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.groupBox30.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1672,6 +1700,8 @@
         private System.Windows.Forms.TextBox AspStatusBox;
         private System.Windows.Forms.TextBox TotalUnProcSnapCount;
         private System.Windows.Forms.TextBox TotalSnapCount;
+        private System.Windows.Forms.GroupBox groupBox30;
+        private System.Windows.Forms.Button ClearStatsBtn;
     }
 }
 

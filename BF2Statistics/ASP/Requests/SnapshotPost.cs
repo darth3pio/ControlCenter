@@ -100,7 +100,8 @@ namespace BF2Statistics.ASP.Requests
                 if (SnapObj.IsValidSnapshot)
                 {
                     // Backup the snapshot
-                    FileName = SnapObj.ServerPrefix + "-" + SnapObj.MapName + Utils.UnixTimestamp() + ".txt";
+                    DateTime Date = DateTime.Now;
+                    FileName = SnapObj.ServerPrefix + "-" + SnapObj.MapName + "_" + Date.ToString("yyyyMMdd_HHMM") + ".txt";
                     File.AppendAllText(Path.Combine(TempPath, FileName), Snapshot);
                 }
                 else
@@ -139,7 +140,9 @@ namespace BF2Statistics.ASP.Requests
             }
             catch (Exception E)
             {
-
+                // Report
+                ASPServer.UpdateStatus("Error processing snapshot!\r\n" + E.Message);
+                ASPServer.Log(E.Message);
             }
         }
     }

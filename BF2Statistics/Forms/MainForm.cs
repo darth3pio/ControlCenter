@@ -188,13 +188,14 @@ namespace BF2Statistics
                 MessageBox.Show(e.Message, "Error");
             }
 
-            // Register for login server events
+            // Register for ASP and Login server events
+            ASPServer.OnShutdown += new ShutdownEventHandler(ASPServer_OnShutdown);
             LoginServer.OnShutdown += new ShutdownEventHandler(LoginServer_OnShutdown);
             LoginServer.OnUpdate += new EventHandler(LoginServer_OnUpdate);
-            ASPServer.OnShutdown += new ShutdownEventHandler(ASPServer_OnShutdown);
 
-            // Set the ASP statusbox
+            // Set the ASP and Login Server statusbox boxes
             ASPServer.SetStatusBox(AspStatusBox);
+            LoginServer.SetStatusBox(EmuStatusWindow);
 
             // Set instance
             Instance = this;
@@ -300,8 +301,10 @@ namespace BF2Statistics
         {
             string[] Files = Directory.GetFiles(ASP.Requests.SnapshotPost.TempPath);
             TotalUnProcSnapCount.Text = Files.Length.ToString();
+            TotalUnProcSnapCount.Update();
             Files = Directory.GetFiles(ASP.Requests.SnapshotPost.ProcPath);
             TotalSnapCount.Text = Files.Length.ToString();
+            TotalSnapCount.Update();
         }
 
         /// <summary>
@@ -361,7 +364,8 @@ namespace BF2Statistics
             {
                 try
                 {
-                    LoginServer.Start(EmuStatusWindow);
+                    LoginStatusPic.Image = Resources.white;
+                    LoginServer.Start();
                     LoginStatusPic.Image = Properties.Resources.green;
                     LaunchEmuBtn.Text = "Shutdown Login Server";
                     CreateAcctBtn.Enabled = true;
@@ -1185,20 +1189,27 @@ namespace BF2Statistics
             {
                 try
                 {
+                    // Clear out old messages, and set status to a blank light
                     AspStatusBox.Clear();
+                    AspStatusPic.Image = Resources.white;
+
+                    // Start server, and enable the disabled buttons and vice versa
                     ASPServer.Start();
                     AspStatusPic.Image = Resources.green;
                     StartAspServerBtn.Text = "Shutdown ASP Server";
                     ViewSnapshotBtn.Enabled = true;
+                    EditPlayerBtn.Enabled = true;
+                    EditASPDatabaseBtn.Enabled = false;
+                    ClearStatsBtn.Enabled = true;
                 }
                 catch (HttpListenerException E)
                 {
                     // Custom port 80 in use message
-                    string Message;
+                    string Message = Environment.NewLine;
                     if (E.ErrorCode == 32)
-                        Message = "Port 80 is already in use by another program.";
+                        Message += "Port 80 is already in use by another program.";
                     else
-                        Message = E.Message;
+                        Message += E.Message;
 
                     AspStatusBox.Text += Message;
                     AspStatusPic.Image = Resources.amber;
@@ -1206,21 +1217,17 @@ namespace BF2Statistics
                 catch (Exception E)
                 {
                     // Check for specific error
-                    AspStatusBox.Text += E.Message;
+                    AspStatusBox.Text += Environment.NewLine + E.Message;
                     AspStatusPic.Image = Resources.amber;
                     ErrorLog.Write(E.Message);
                 }
             }
             else
             {
-                try
-                {
-
+                try {
                     ASPServer.Stop();
-                    ViewSnapshotBtn.Enabled = false;
                 }
-                catch(Exception E)
-                {
+                catch(Exception E) {
                     ErrorLog.Write(E.Message);
                 }
             }
@@ -1234,18 +1241,36 @@ namespace BF2Statistics
             AspStatusPic.Image = Resources.red;
             StartAspServerBtn.Text = "Start ASP Server";
             ViewSnapshotBtn.Enabled = false;
+            EditPlayerBtn.Enabled = false;
+            EditASPDatabaseBtn.Enabled = true;
+            ClearStatsBtn.Enabled = false;
         }
 
+        /// <summary>
+        /// View ASP Access Log Button Click Event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ViewAccessLogBtn_Click(object sender, EventArgs e)
         {
             Process.Start(Path.Combine(Root, "Logs", "AspAccess.log"));
         }
 
+        /// <summary>
+        /// View ASP Error Log Button Click Event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ViewErrorLogBtn_Click(object sender, EventArgs e)
         {
             Process.Start(Path.Combine(Root, "Logs", "AspServer.log"));
         }
 
+        /// <summary>
+        /// View Snapshot Logs Button Click Event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ViewSnapshotLogBtn_Click(object sender, EventArgs e)
         {
             // Make sure the log file exists... It doesnt get created on startup like the others
@@ -1256,11 +1281,70 @@ namespace BF2Statistics
             Process.Start(fPath);
         }
 
+        /// <summary>
+        /// View Snapshots Button Click Event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ViewSnapshotBtn_Click(object sender, EventArgs e)
         {
             SnapshotViewForm Form = new SnapshotViewForm();
             Form.ShowDialog();
             CountSnapshots();
+        }
+
+        /// <summary>
+        /// Edit Stats Database Settings Button Click Event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EditASPDatabaseBtn_Click(object sender, EventArgs e)
+        {
+            StatsDbConfigForm Form = new StatsDbConfigForm();
+            Form.ShowDialog();
+        }
+
+        /// <summary>
+        /// Edit ASP Settings Button Click Event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EditASPSettingsBtn_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// Edit Player Button Click Event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EditPlayerBtn_Click(object sender, EventArgs e)
+        {
+            PlayerSearchForm Form = new PlayerSearchForm();
+            Form.ShowDialog();
+        }
+
+        /// <summary>
+        /// Clear Stats Database Button Click Event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ClearStatsBtn_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Are you sure you want to clear the stats database? This will ERASE ALL stats data, and cannot be recovered!",
+                "Confirm", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                try
+                {
+                    ASPServer.Database.Truncate();
+                    MessageBox.Show("Database successfully cleared", "Success");
+                }
+                catch (Exception E)
+                {
+                    MessageBox.Show("An error occured while clearing the stats database!\r\n\r\nMessage: " + E.Message, "Error");
+                }
+            }
         }
 
         #endregion ASP Server
@@ -1299,6 +1383,11 @@ namespace BF2Statistics
             Process.Start("http://www.bf2statistics.com/");
         }
 
+        /// <summary>
+        /// Setup Button Click Event. Relaunches the setup client/server paths screen
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SetupBtn_Click(object sender, EventArgs e)
         {
             InstallForm IS = new InstallForm();
@@ -1307,33 +1396,22 @@ namespace BF2Statistics
 
         #region Static Control Methods
 
+        /// <summary>
+        /// Static call that can disable the main form
+        /// </summary>
         public static void Disable()
         {
             Instance.Enabled = false;
         }
 
+        /// <summary>
+        /// Static call that can enable the main form
+        /// </summary>
         public static void Enable()
         {
             Instance.Enabled = true;
         }
 
         #endregion Static Control Methods
-
-        private void EditASPDatabaseBtn_Click(object sender, EventArgs e)
-        {
-            StatsDbConfigForm Form = new StatsDbConfigForm();
-            Form.ShowDialog();
-        }
-
-        private void EditASPSettingsBtn_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void EditPlayerBtn_Click(object sender, EventArgs e)
-        {
-            PlayerSearchForm Form = new PlayerSearchForm();
-            Form.ShowDialog();
-        }
     }
 }
