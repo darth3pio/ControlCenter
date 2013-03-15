@@ -358,5 +358,89 @@ namespace BF2Statistics.Properties {
                 this["ASP_DebugLevel"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int ASP_MinRoundPlayers {
+            get {
+                return ((int)(this["ASP_MinRoundPlayers"]));
+            }
+            set {
+                this["ASP_MinRoundPlayers"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseGlobalSettings {
+            get {
+                return ((bool)(this["UseGlobalSettings"]));
+            }
+            set {
+                this["UseGlobalSettings"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("+fullscreen 1")]
+        public string ClientParams {
+            get {
+                return ((string)(this["ClientParams"]));
+            }
+            set {
+                this["ClientParams"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ShowServerConsole {
+            get {
+                return ((bool)(this["ShowServerConsole"]));
+            }
+            set {
+                this["ShowServerConsole"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool MinimizeServerConsole {
+            get {
+                return ((bool)(this["MinimizeServerConsole"]));
+            }
+            set {
+                this["MinimizeServerConsole"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ServerIgnoreAsserts {
+            get {
+                return ((bool)(this["ServerIgnoreAsserts"]));
+            }
+            set {
+                this["ServerIgnoreAsserts"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ServerFileMoniter {
+            get {
+                return ((bool)(this["ServerFileMoniter"]));
+            }
+            set {
+                this["ServerFileMoniter"] = value;
+            }
+        }
     }
 }

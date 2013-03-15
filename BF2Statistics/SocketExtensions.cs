@@ -7,8 +7,12 @@ namespace System.Net.Sockets
 {
     public static class SocketExtensions
     {
-        //Check to see if the connection to the machine on the other side of the socket is still active.
-        //Serves the same purpose as TcpClient.Connected and TcpListener.Connected.
+        /// <summary>
+        /// Determines if the connection to the machine on the other side of the socket is still active.
+        /// Serves the same purpose as TcpClient.Connected and TcpListener.Connected.
+        /// </summary>
+        /// <param name="iSocket"></param>
+        /// <returns>A bool of whether the remote client is still connected.</returns>
         public static bool IsConnected(this Socket iSocket)
         {
             try

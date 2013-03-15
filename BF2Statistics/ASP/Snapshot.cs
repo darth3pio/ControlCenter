@@ -265,6 +265,10 @@ namespace BF2Statistics.ASP
             if (!IsValidSnapshot)
                 throw new InvalidDataException("Invalid Snapshot data!");
 
+            // Make sure we meet the minimum player requirement
+            if (PlayerData.Count < MainForm.Config.ASP_MinRoundPlayers)
+                return;
+
             // Start a timer!
             Stopwatch Clock = new Stopwatch();
             Clock.Start();

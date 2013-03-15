@@ -36,6 +36,9 @@
   <PropertyGroup>
     <ApplicationIcon>Logo.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="MySql.Data, Version=6.5.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -57,6 +60,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Forms\ASPConfigForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ASPConfigForm.Designer.cs">
+      <DependentUpon>ASPConfigForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ASP\ASPResponse.cs" />
     <Compile Include="ASP\AwardData.cs" />
     <Compile Include="ASP\BackendAward.cs" />
@@ -196,15 +205,18 @@
     <Compile Include="Forms\UpdateProgressForm.Designer.cs">
       <DependentUpon>UpdateProgressForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="StatsDbConfigForm.cs">
+    <Compile Include="Forms\StatsDbConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="StatsDbConfigForm.Designer.cs">
+    <Compile Include="Forms\StatsDbConfigForm.Designer.cs">
       <DependentUpon>StatsDbConfigForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Utils.cs" />
     <Compile Include="Validator.cs" />
     <Compile Include="ASP\ASPServer.cs" />
+    <EmbeddedResource Include="Forms\ASPConfigForm.resx">
+      <DependentUpon>ASPConfigForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\CreateAcctForm.resx">
       <DependentUpon>CreateAcctForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -263,7 +275,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="StatsDbConfigForm.resx">
+    <EmbeddedResource Include="Forms\StatsDbConfigForm.resx">
       <DependentUpon>StatsDbConfigForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
@@ -271,6 +283,7 @@
     <EmbeddedResource Include="ASP\Errors\501.tpl" />
     <EmbeddedResource Include="ASP\Errors\503.tpl" />
     <EmbeddedResource Include="ASP\Errors\400.tpl" />
+    <None Include="app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>PublicSettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -289,7 +302,6 @@
     <None Include="Resources\e_logo.png" />
     <EmbeddedResource Include="SQL\Ip2nation.sql" />
     <None Include="Resources\loading11.gif" />
-    <None Include="Resources\white.png" />
     <None Include="Resources\white-on-16.png" />
     <Content Include="SQL\MySQL.Gamespy.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

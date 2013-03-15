@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
+using System.Security.Principal;
 using BF2Statistics.Properties;
 using BF2Statistics.ASP;
 using BF2Statistics.Gamespy;
@@ -22,12 +23,12 @@ namespace BF2Statistics
     public partial class MainForm : Form
     {
         /// <summary>
-        /// The User Config
+        /// The User Config object
         /// </summary>
         public static Settings Config = Settings.Default;
 
         /// <summary>
-        /// Startup root directory
+        /// Startup root directory for this application
         /// </summary>
         public static string Root = Application.StartupPath;
 
@@ -49,27 +50,17 @@ namespace BF2Statistics
         /// <summary>
         /// The current selected mod foldername
         /// </summary>
-        public static string SelectedMod = "";
+        public static string SelectedMod { get; protected set; }
 
         /// <summary>
         /// Is Stats Enabled?
         /// </summary>
-        public static bool StatsEnabled;
-
-        /// <summary>
-        /// Is the BF2Stats folder existant in the server root?
-        /// </summary>
-        public static bool BF2StatsFolderExists;
+        public static bool StatsEnabled { get; protected set; }
 
         /// <summary>
         /// The Battlefield 2 server process (when running)
         /// </summary>
         private Process ServerProccess;
-
-        /// <summary>
-        /// Root path to the bf2statistics folder
-        /// </summary>
-        public static string Bf2statisticsPath { get; protected set; }
 
         /// <summary>
         /// Full path to the current selected mod's settings folder
@@ -79,17 +70,17 @@ namespace BF2Statistics
         /// <summary>
         /// The bf2 python path
         /// </summary>
-        public static string PythonPath { get; protected set; }
+        public static string ServerPythonPath { get; protected set; }
 
         /// <summary>
         /// Full path to the stats python files
         /// </summary>
-        public static string StatsPythonPath { get; protected set; }
+        public static string RankedPythonPath { get; protected set; }
 
         /// <summary>
         /// Full path to the backup python files
         /// </summary>
-        public static string BackupPythonPath { get; protected set; }
+        public static string NonRankedPythonPath { get; protected set; }
 
         /// <summary>
         /// The HOSTS file object
@@ -106,6 +97,21 @@ namespace BF2Statistics
         /// </summary>
         private BackgroundWorker bWorker;
 
+        /// <summary>
+        /// Returns whether the app is running in administrator mode.
+        /// </summary>
+        public static bool IsAdministrator
+        {
+            get
+            {
+                WindowsPrincipal wp = new WindowsPrincipal(WindowsIdentity.GetCurrent());
+                return wp.IsInRole(WindowsBuiltInRole.Administrator);
+            }
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public MainForm()
         {
             InitializeComponent();
@@ -142,13 +148,10 @@ namespace BF2Statistics
             // Create ErrorLog file
             ErrorLog = new LogWritter(Path.Combine(Root, "Logs", "Error.log"), 3000);
 
-            // Define BF2Statistics Path
-            Bf2statisticsPath = Path.Combine(Config.ServerPath, "bf2statistics");
-
             // Define python paths
-            PythonPath = Path.Combine(Config.ServerPath, "python", "bf2");
-            BackupPythonPath = Path.Combine(Bf2statisticsPath, "python", "original");
-            StatsPythonPath = Path.Combine(Bf2statisticsPath, "python", "bf2statistics");
+            ServerPythonPath = Path.Combine(Config.ServerPath, "python", "bf2");
+            NonRankedPythonPath = Path.Combine(MainForm.Root, "Python", "NonRanked");
+            RankedPythonPath = Path.Combine(MainForm.Root, "Python", "Ranked", "Backup");
 
             // Load installed Mods
             LoadModList();
@@ -158,21 +161,6 @@ namespace BF2Statistics
 
             // Get snapshot counts
             CountSnapshots();
-
-            // Set whether the bf2statistics system is detected
-            BF2StatsFolderExists = Directory.Exists(Bf2statisticsPath);
-
-            // If the BF2s folder doesnt exist, lock its install buttons and such
-            if (!BF2StatsFolderExists)
-            {
-                InstallButton.Enabled = false;
-                InstallBox.Text = "BF2Statistics folder is not found!";
-                InstallBox.ForeColor = Color.Red;
-                BF2sConfigBtn.Enabled = false;
-                BF2sRestoreBtn.Enabled = false;
-                GlobalServerSettings.Enabled = false;
-                EditScoreSettingsBtn.Enabled = false;
-            }
 
             // Check if the server is already running
             CheckServerProcess();
@@ -188,6 +176,14 @@ namespace BF2Statistics
                 MessageBox.Show(e.Message, "Error");
             }
 
+            // Load Cross Session Settings
+            ParamBox.Text = Config.ClientParams;
+            GlobalServerSettings.Checked = Config.UseGlobalSettings;
+            ShowConsole.Checked = Config.ShowServerConsole;
+            MinimizeConsole.Checked = Config.MinimizeServerConsole;
+            IgnoreAsserts.Checked = Config.ServerIgnoreAsserts;
+            FileMoniter.Checked = Config.ServerFileMoniter;
+
             // Register for ASP and Login server events
             ASPServer.OnShutdown += new ShutdownEventHandler(ASPServer_OnShutdown);
             LoginServer.OnShutdown += new ShutdownEventHandler(LoginServer_OnShutdown);
@@ -199,14 +195,10 @@ namespace BF2Statistics
 
             // Set instance
             Instance = this;
-        }
 
-        /// <summary>
-        /// Event closes the form when fired
-        /// </summary>
-        private void MyForm_CloseOnStart(object sender, EventArgs e)
-        {
-            this.Close();
+            // Add administrator title to program title bar
+            if (IsAdministrator)
+                this.Text += " (Administrator)";
         }
 
         #region Startup Methods
@@ -439,8 +431,8 @@ namespace BF2Statistics
                 Info.Arguments = String.Format(" +modPath mods/{0}", mod.ToLower());
 
                 // Use the global server settings file?
-                if (GlobalServerSettings.Checked && BF2StatsFolderExists)
-                    Info.Arguments += " +config " + Path.Combine(Config.ServerPath, "bf2statistics", "ServerSettings.con");
+                if (GlobalServerSettings.Checked)
+                    Info.Arguments += " +config " + Path.Combine(MainForm.Root, "Python", "GlobalServerSettings.con");
 
                 // Moniter Con Files?
                 if (FileMoniter.Checked)
@@ -453,7 +445,7 @@ namespace BF2Statistics
                 // Hide window if user specifies this...
                 if (!ShowConsole.Checked)
                     Info.WindowStyle = ProcessWindowStyle.Hidden;
-                else
+                else if(Config.MinimizeServerConsole)
                     Info.WindowStyle = ProcessWindowStyle.Minimized;
 
                 Info.FileName = "bf2_w32ded.exe";
@@ -465,7 +457,7 @@ namespace BF2Statistics
                 ServerProccess.Exited += new EventHandler(BF2_Exited);
 
                 // Set status to online
-                ServerStatusPic.Image = Properties.Resources.green;
+                ServerStatusPic.Image = Resources.green;
                 LaunchServerBtn.Text = "Shutdown Server";
             }
             else
@@ -473,9 +465,6 @@ namespace BF2Statistics
                 try
                 {
                     ServerProccess.Kill();
-                    ServerProccess = null;
-                    ServerStatusPic.Image = Properties.Resources.red;
-                    LaunchServerBtn.Text = "Launch Server";
                 }
                 catch(Exception E)
                 {
@@ -499,7 +488,7 @@ namespace BF2Statistics
             }
             else
             {
-                ServerStatusPic.Image = Properties.Resources.red;
+                ServerStatusPic.Image = Resources.red;
                 LaunchServerBtn.Text = "Launch Server";
                 ServerProccess = null;
             }
@@ -654,12 +643,14 @@ namespace BF2Statistics
                 // Lock the console to prevent errors!
                 this.Enabled = false;
 
-                // Backup the original files
-                Directory.Delete(BackupPythonPath, true);
-                Directory.Move(PythonPath, BackupPythonPath);
+                // Remove current Python
+                Directory.Delete(ServerPythonPath, true);
 
-                // Install new BF2s Python
-                DirectoryHelper.Copy(StatsPythonPath, PythonPath, true);
+                // Make sure we dont have an empty backup folder
+                if (Directory.GetFiles(RankedPythonPath).Length == 0)
+                    DirectoryHelper.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), ServerPythonPath, true);
+                else
+                    DirectoryHelper.Copy(RankedPythonPath, ServerPythonPath, true);
 
                 // unlock now that we are done
                 this.Enabled = true;
@@ -672,11 +663,12 @@ namespace BF2Statistics
                 this.Enabled = false;
 
                 // Backup the users bf2s python files
-                Directory.Delete(StatsPythonPath, true);
-                Directory.Move(PythonPath, StatsPythonPath);
+                Directory.Delete(RankedPythonPath, true);
+                DirectoryHelper.Copy(ServerPythonPath, RankedPythonPath, true);
 
                 // Install default python files
-                DirectoryHelper.Copy(BackupPythonPath, PythonPath, true);
+                Directory.Delete(ServerPythonPath, true);
+                DirectoryHelper.Copy(NonRankedPythonPath, ServerPythonPath, true);
 
                 // Unlock now that we are done
                 this.Enabled = true;
@@ -705,8 +697,8 @@ namespace BF2Statistics
             {
                 // Lock the console to prevent errors!
                 this.Enabled = false;
-                Directory.Delete(StatsPythonPath, true);
-                DirectoryHelper.Copy(Path.Combine(Bf2statisticsPath, "python", "bf2statistics_original"), StatsPythonPath, true);
+                Directory.Delete(RankedPythonPath, true);
+                DirectoryHelper.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), RankedPythonPath, true);
                 MessageBox.Show("Your Stats python files have been restored successfully.", "Bf2 Statistics Server Launcher");
                 this.Enabled = true; // unlcok
             }
@@ -753,7 +745,7 @@ namespace BF2Statistics
         {
             string file;
             if (GlobalServerSettings.Checked)
-                file = Path.Combine(Bf2statisticsPath, "ServerSettings.con");
+                file = Path.Combine(MainForm.Root, "Python", "GlobalServerSettings.con");
             else
                 file = Path.Combine(SettingsPath, "ServerSettings.con");
 
@@ -1311,7 +1303,8 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void EditASPSettingsBtn_Click(object sender, EventArgs e)
         {
-
+            ASPConfigForm Form = new ASPConfigForm();
+            Form.ShowDialog();
         }
 
         /// <summary>
@@ -1378,6 +1371,8 @@ namespace BF2Statistics
 
         #endregion Status OnClick Events
 
+        #region About Tab
+
         private void Bf2StatisticsLink_Click(object sender, EventArgs e)
         {
             Process.Start("http://www.bf2statistics.com/");
@@ -1393,6 +1388,8 @@ namespace BF2Statistics
             InstallForm IS = new InstallForm();
             IS.ShowDialog();
         }
+
+        #endregion About Tab
 
         #region Static Control Methods
 
@@ -1413,5 +1410,30 @@ namespace BF2Statistics
         }
 
         #endregion Static Control Methods
+
+        /// <summary>
+        /// Event closes the form when fired
+        /// </summary>
+        private void MyForm_CloseOnStart(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        /// <summary>
+        /// Destructor
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // Save Cross Session Settings
+            Config.ClientParams = ParamBox.Text;
+            Config.UseGlobalSettings = GlobalServerSettings.Checked;
+            Config.ShowServerConsole = ShowConsole.Checked;
+            Config.MinimizeServerConsole = MinimizeConsole.Checked;
+            Config.ServerIgnoreAsserts = IgnoreAsserts.Checked;
+            Config.ServerFileMoniter = FileMoniter.Checked;
+            Config.Save();
+        }
     }
 }

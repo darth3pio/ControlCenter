@@ -52,8 +52,8 @@ namespace BF2Statistics
         {
             // First, we need to parse all 3 scoring files
             string file = File.ReadAllText(ScoringCommonPy);
-            string ModPath = Path.Combine(MainForm.Bf2statisticsPath, "default", MainForm.SelectedMod + "_scoringCommon.py");
-            string DefaultPath = Path.Combine(MainForm.Bf2statisticsPath, "default", "bf2_scoringCommon.py");
+            string ModPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", MainForm.SelectedMod + "_scoringCommon.py");
+            string DefaultPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", "bf2_scoringCommon.py");
 
             // First, we are going to check for a certain string... if it exists
             // Then these config file has been reformated already, else we need
@@ -184,8 +184,8 @@ namespace BF2Statistics
             {
                 // We need to replace the default file with the embedded one that
                 // Correctly formats the AI_ Scores
-                DefaultPath = Path.Combine(MainForm.Bf2statisticsPath, "default", "bf2_coop.py");
-                ModPath = Path.Combine(MainForm.Bf2statisticsPath, "default", MainForm.SelectedMod + "_coop.py");
+                DefaultPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", "bf2_coop.py");
+                ModPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", MainForm.SelectedMod + "_coop.py");
 
                 if (!File.Exists(ModPath))
                 {

@@ -5,8 +5,9 @@ namespace BF2Statistics
     static class RandomExtensions
     {
         /// <summary>
-        /// Thanks to this post http://stackoverflow.com/a/110570/841267
+        /// Shuffles the current List or array
         /// </summary>
+        /// <see cref="http://stackoverflow.com/a/110570/841267"/>
         public static void Shuffle<T>(this Random rng, T[] array)
         {
             int n = array.Length;

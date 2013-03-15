@@ -63,7 +63,9 @@
             this.label5 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.groupBox10 = new System.Windows.Forms.GroupBox();
+            this.label11 = new System.Windows.Forms.Label();
             this.groupBox14 = new System.Windows.Forms.GroupBox();
+            this.MinimizeConsole = new System.Windows.Forms.CheckBox();
             this.FileMoniter = new System.Windows.Forms.CheckBox();
             this.IgnoreAsserts = new System.Windows.Forms.CheckBox();
             this.ShowConsole = new System.Windows.Forms.CheckBox();
@@ -110,6 +112,9 @@
             this.InstallButton = new System.Windows.Forms.Button();
             this.tabPage7 = new System.Windows.Forms.TabPage();
             this.groupBox25 = new System.Windows.Forms.GroupBox();
+            this.groupBox30 = new System.Windows.Forms.GroupBox();
+            this.ClearStatsBtn = new System.Windows.Forms.Button();
+            this.EditPlayerBtn = new System.Windows.Forms.Button();
             this.groupBox26 = new System.Windows.Forms.GroupBox();
             this.TotalUnProcSnapCount = new System.Windows.Forms.TextBox();
             this.TotalSnapCount = new System.Windows.Forms.TextBox();
@@ -117,7 +122,6 @@
             this.label10 = new System.Windows.Forms.Label();
             this.ViewSnapshotBtn = new System.Windows.Forms.Button();
             this.groupBox27 = new System.Windows.Forms.GroupBox();
-            this.EditPlayerBtn = new System.Windows.Forms.Button();
             this.EditASPDatabaseBtn = new System.Windows.Forms.Button();
             this.EditASPSettingsBtn = new System.Windows.Forms.Button();
             this.groupBox28 = new System.Windows.Forms.GroupBox();
@@ -149,8 +153,6 @@
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.groupBox30 = new System.Windows.Forms.GroupBox();
-            this.ClearStatsBtn = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -186,6 +188,7 @@
             this.groupBox19.SuspendLayout();
             this.tabPage7.SuspendLayout();
             this.groupBox25.SuspendLayout();
+            this.groupBox30.SuspendLayout();
             this.groupBox26.SuspendLayout();
             this.groupBox27.SuspendLayout();
             this.groupBox28.SuspendLayout();
@@ -198,7 +201,6 @@
             this.groupBox5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            this.groupBox30.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -562,6 +564,7 @@
             // 
             // groupBox10
             // 
+            this.groupBox10.Controls.Add(this.label11);
             this.groupBox10.Controls.Add(this.groupBox14);
             this.groupBox10.Controls.Add(this.groupBox12);
             this.groupBox10.Controls.Add(this.groupBox13);
@@ -571,22 +574,45 @@
             this.groupBox10.TabIndex = 0;
             this.groupBox10.TabStop = false;
             // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label11.Location = new System.Drawing.Point(119, 18);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(333, 15);
+            this.label11.TabIndex = 6;
+            this.label11.Text = "Your selections and settings will be saved between sessions";
+            // 
             // groupBox14
             // 
+            this.groupBox14.Controls.Add(this.MinimizeConsole);
             this.groupBox14.Controls.Add(this.FileMoniter);
             this.groupBox14.Controls.Add(this.IgnoreAsserts);
             this.groupBox14.Controls.Add(this.ShowConsole);
-            this.groupBox14.Location = new System.Drawing.Point(140, 217);
+            this.groupBox14.Location = new System.Drawing.Point(140, 228);
             this.groupBox14.Name = "groupBox14";
             this.groupBox14.Size = new System.Drawing.Size(290, 80);
             this.groupBox14.TabIndex = 5;
             this.groupBox14.TabStop = false;
             this.groupBox14.Text = "Parameter Options";
             // 
+            // MinimizeConsole
+            // 
+            this.MinimizeConsole.AutoSize = true;
+            this.MinimizeConsole.Checked = true;
+            this.MinimizeConsole.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.MinimizeConsole.Location = new System.Drawing.Point(163, 25);
+            this.MinimizeConsole.Name = "MinimizeConsole";
+            this.MinimizeConsole.Size = new System.Drawing.Size(107, 17);
+            this.MinimizeConsole.TabIndex = 10;
+            this.MinimizeConsole.Text = "Minimize Console";
+            this.MinimizeConsole.UseVisualStyleBackColor = true;
+            // 
             // FileMoniter
             // 
             this.FileMoniter.AutoSize = true;
-            this.FileMoniter.Location = new System.Drawing.Point(178, 48);
+            this.FileMoniter.Location = new System.Drawing.Point(163, 48);
             this.FileMoniter.Name = "FileMoniter";
             this.FileMoniter.Size = new System.Drawing.Size(80, 17);
             this.FileMoniter.TabIndex = 9;
@@ -596,7 +622,7 @@
             // IgnoreAsserts
             // 
             this.IgnoreAsserts.AutoSize = true;
-            this.IgnoreAsserts.Location = new System.Drawing.Point(32, 48);
+            this.IgnoreAsserts.Location = new System.Drawing.Point(17, 48);
             this.IgnoreAsserts.Name = "IgnoreAsserts";
             this.IgnoreAsserts.Size = new System.Drawing.Size(129, 17);
             this.IgnoreAsserts.TabIndex = 8;
@@ -608,7 +634,7 @@
             this.ShowConsole.AutoSize = true;
             this.ShowConsole.Checked = true;
             this.ShowConsole.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.ShowConsole.Location = new System.Drawing.Point(32, 25);
+            this.ShowConsole.Location = new System.Drawing.Point(17, 25);
             this.ShowConsole.Name = "ShowConsole";
             this.ShowConsole.Size = new System.Drawing.Size(128, 17);
             this.ShowConsole.TabIndex = 7;
@@ -619,7 +645,7 @@
             // 
             this.groupBox12.Controls.Add(this.ShuffleMapListBtn);
             this.groupBox12.Controls.Add(this.EditMapListBtn);
-            this.groupBox12.Location = new System.Drawing.Point(140, 19);
+            this.groupBox12.Location = new System.Drawing.Point(140, 50);
             this.groupBox12.Name = "groupBox12";
             this.groupBox12.Size = new System.Drawing.Size(290, 70);
             this.groupBox12.TabIndex = 3;
@@ -651,7 +677,7 @@
             this.groupBox13.Controls.Add(this.EditScoreSettingsBtn);
             this.groupBox13.Controls.Add(this.EditServerSettingsBtn);
             this.groupBox13.Controls.Add(this.GlobalServerSettings);
-            this.groupBox13.Location = new System.Drawing.Point(140, 102);
+            this.groupBox13.Location = new System.Drawing.Point(140, 123);
             this.groupBox13.Name = "groupBox13";
             this.groupBox13.Size = new System.Drawing.Size(290, 100);
             this.groupBox13.TabIndex = 4;
@@ -1077,6 +1103,40 @@
             this.groupBox25.TabIndex = 2;
             this.groupBox25.TabStop = false;
             // 
+            // groupBox30
+            // 
+            this.groupBox30.Controls.Add(this.ClearStatsBtn);
+            this.groupBox30.Controls.Add(this.EditPlayerBtn);
+            this.groupBox30.Location = new System.Drawing.Point(382, 178);
+            this.groupBox30.Name = "groupBox30";
+            this.groupBox30.Size = new System.Drawing.Size(178, 134);
+            this.groupBox30.TabIndex = 24;
+            this.groupBox30.TabStop = false;
+            this.groupBox30.Text = "Operations";
+            // 
+            // ClearStatsBtn
+            // 
+            this.ClearStatsBtn.Enabled = false;
+            this.ClearStatsBtn.ForeColor = System.Drawing.Color.Firebrick;
+            this.ClearStatsBtn.Location = new System.Drawing.Point(14, 93);
+            this.ClearStatsBtn.Name = "ClearStatsBtn";
+            this.ClearStatsBtn.Size = new System.Drawing.Size(150, 28);
+            this.ClearStatsBtn.TabIndex = 28;
+            this.ClearStatsBtn.Text = "Clear Stats Database";
+            this.ClearStatsBtn.UseVisualStyleBackColor = true;
+            this.ClearStatsBtn.Click += new System.EventHandler(this.ClearStatsBtn_Click);
+            // 
+            // EditPlayerBtn
+            // 
+            this.EditPlayerBtn.Enabled = false;
+            this.EditPlayerBtn.Location = new System.Drawing.Point(14, 28);
+            this.EditPlayerBtn.Name = "EditPlayerBtn";
+            this.EditPlayerBtn.Size = new System.Drawing.Size(150, 28);
+            this.EditPlayerBtn.TabIndex = 27;
+            this.EditPlayerBtn.Text = "Manage Players";
+            this.EditPlayerBtn.UseVisualStyleBackColor = true;
+            this.EditPlayerBtn.Click += new System.EventHandler(this.EditPlayerBtn_Click);
+            // 
             // groupBox26
             // 
             this.groupBox26.Controls.Add(this.TotalUnProcSnapCount);
@@ -1146,17 +1206,6 @@
             this.groupBox27.TabIndex = 22;
             this.groupBox27.TabStop = false;
             this.groupBox27.Text = "Settings";
-            // 
-            // EditPlayerBtn
-            // 
-            this.EditPlayerBtn.Enabled = false;
-            this.EditPlayerBtn.Location = new System.Drawing.Point(14, 28);
-            this.EditPlayerBtn.Name = "EditPlayerBtn";
-            this.EditPlayerBtn.Size = new System.Drawing.Size(150, 28);
-            this.EditPlayerBtn.TabIndex = 27;
-            this.EditPlayerBtn.Text = "Manage Players";
-            this.EditPlayerBtn.UseVisualStyleBackColor = true;
-            this.EditPlayerBtn.Click += new System.EventHandler(this.EditPlayerBtn_Click);
             // 
             // EditASPDatabaseBtn
             // 
@@ -1474,29 +1523,6 @@
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
             // 
-            // groupBox30
-            // 
-            this.groupBox30.Controls.Add(this.ClearStatsBtn);
-            this.groupBox30.Controls.Add(this.EditPlayerBtn);
-            this.groupBox30.Location = new System.Drawing.Point(382, 178);
-            this.groupBox30.Name = "groupBox30";
-            this.groupBox30.Size = new System.Drawing.Size(178, 134);
-            this.groupBox30.TabIndex = 24;
-            this.groupBox30.TabStop = false;
-            this.groupBox30.Text = "Operations";
-            // 
-            // ClearStatsBtn
-            // 
-            this.ClearStatsBtn.Enabled = false;
-            this.ClearStatsBtn.ForeColor = System.Drawing.Color.Firebrick;
-            this.ClearStatsBtn.Location = new System.Drawing.Point(14, 93);
-            this.ClearStatsBtn.Name = "ClearStatsBtn";
-            this.ClearStatsBtn.Size = new System.Drawing.Size(150, 28);
-            this.ClearStatsBtn.TabIndex = 28;
-            this.ClearStatsBtn.Text = "Clear Stats Database";
-            this.ClearStatsBtn.UseVisualStyleBackColor = true;
-            this.ClearStatsBtn.Click += new System.EventHandler(this.ClearStatsBtn_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1510,6 +1536,7 @@
             this.MaximizeBox = false;
             this.Name = "MainForm";
             this.Text = "Battlefield 2 Statistics Control Center";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
@@ -1528,6 +1555,7 @@
             this.groupBox3.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.groupBox10.ResumeLayout(false);
+            this.groupBox10.PerformLayout();
             this.groupBox14.ResumeLayout(false);
             this.groupBox14.PerformLayout();
             this.groupBox12.ResumeLayout(false);
@@ -1557,6 +1585,7 @@
             this.groupBox19.PerformLayout();
             this.tabPage7.ResumeLayout(false);
             this.groupBox25.ResumeLayout(false);
+            this.groupBox30.ResumeLayout(false);
             this.groupBox26.ResumeLayout(false);
             this.groupBox26.PerformLayout();
             this.groupBox27.ResumeLayout(false);
@@ -1573,7 +1602,6 @@
             this.groupBox5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            this.groupBox30.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1702,6 +1730,8 @@
         private System.Windows.Forms.TextBox TotalSnapCount;
         private System.Windows.Forms.GroupBox groupBox30;
         private System.Windows.Forms.Button ClearStatsBtn;
+        private System.Windows.Forms.CheckBox MinimizeConsole;
+        private System.Windows.Forms.Label label11;
     }
 }
 
