@@ -100,8 +100,7 @@ namespace BF2Statistics.ASP.Requests
                 if (SnapObj.IsValidSnapshot)
                 {
                     // Backup the snapshot
-                    DateTime Date = DateTime.Now;
-                    FileName = SnapObj.ServerPrefix + "-" + SnapObj.MapName + "_" + Date.ToString("yyyyMMdd_HHMM") + ".txt";
+                    FileName = SnapObj.ServerPrefix + "-" + SnapObj.MapName + "_" + DateTime.Now.ToString("yyyyMMdd_HHMM") + ".txt";
                     File.AppendAllText(Path.Combine(TempPath, FileName), Snapshot);
                 }
                 else

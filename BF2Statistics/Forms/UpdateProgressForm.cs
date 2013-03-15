@@ -12,7 +12,11 @@ namespace BF2Statistics
 {
     public partial class UpdateProgressForm : Form
     {
-        private const int WS_SYSMENU = 0x80000;
+        const int WS_SYSMENU = 0x80000;
+
+        const int WM_SYSCOMMAND = 0x0112;
+
+        const int SC_MOVE = 0xF010;
 
         /// <summary>
         /// Our isntance of the update form
@@ -38,8 +42,6 @@ namespace BF2Statistics
         /// Temorary holder for update text
         /// </summary>
         private static string UpdateText;
-
-        private static Point Pos;
 
         /// <summary>
         /// Main calling method. Opens a new instance of the form, and displays it
@@ -140,6 +142,24 @@ namespace BF2Statistics
                 cp.Style &= ~WS_SYSMENU;
                 return cp;
             }
+        }
+
+        /// <summary>
+        /// Prevents the form from being dragable
+        /// </summary>
+        /// <param name="message"></param>
+        protected override void WndProc(ref Message message)
+        {
+            switch(message.Msg)
+            {
+                case WM_SYSCOMMAND:
+                    int command = message.WParam.ToInt32() & 0xfff0;
+                    if (command == SC_MOVE)
+                        return;
+                    break;
+            }
+
+            base.WndProc(ref message);
         }
     }
 }

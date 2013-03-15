@@ -33,7 +33,7 @@ namespace BF2Statistics.Gamespy
         /// <summary>
         /// The TcpClient for our connection
         /// </summary>
-        private TcpClient _client;
+        private TcpClient Connection;
 
         public IPAddress IpAddress = null;
 
@@ -135,11 +135,17 @@ namespace BF2Statistics.Gamespy
         private string serverChallengeKey;
         private string clientResponse;
 
+        /// <summary>
+        /// Returns the connected clients Nick
+        /// </summary>
         public string ClientNick
         {
             get { return clientNick; }
         }
 
+        /// <summary>
+        /// Returns the connected clients Player Id
+        /// </summary>
         public string ClientPID
         {
             get;
@@ -151,12 +157,24 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         private Dictionary<string, object> User;
 
+        /// <summary>
+        /// An Event for when we have successfully logged in.
+        /// </summary>
+        public static event ConnectionUpdate OnSuccessfulLogin;
+
+        /// <summary>
+        /// Event fired when that remote connection logs out, or
+        /// the socket gets disconnected. This event will not fire
+        /// unless OnSuccessfulLogin event was fired first.
+        /// </summary>
+        public static event ConnectionUpdate OnDisconnect;
+
         #endregion Variables
 
         public GpcmClient(TcpClient Client)
         {
-            this._client = Client;
-            this.IpAddress = ((IPEndPoint)_client.Client.RemoteEndPoint).Address;
+            this.Connection = Client;
+            this.IpAddress = ((IPEndPoint)Connection.Client.RemoteEndPoint).Address;
             this.Stream = new ClientStream(Client);
 
             this.Disposed = false;
@@ -176,9 +194,15 @@ namespace BF2Statistics.Gamespy
 
         public void Dispose()
         {
-            if (!_client.Client.Connected)
-                _client.Close();
+            // If connection is still alive, disconnect user
+            if (!Connection.Client.Connected)
+                Connection.Close();
 
+            // Call disconnect event
+            if(OnDisconnect != null)
+                OnDisconnect(this);
+
+            // Preapare to be unloaded from memory
             this.Disposed = true;
         }
 
@@ -191,14 +215,14 @@ namespace BF2Statistics.Gamespy
                 Stream.Read();
 
             // Get our client endpoint and Log thier connection
-            EndPoint ClientEP = _client.Client.RemoteEndPoint;
+            EndPoint ClientEP = Connection.Client.RemoteEndPoint;
             LoginServer.Log("[GPCM] Client Connected: {0}", ClientEP);
 
             // Start by sending the server challenge
             SendServerChallenge();
 
             // While client remains connected, continuelly check for updates
-            while (_client.Client.IsConnected())
+            while (Connection.Client.IsConnected())
             {
                 Update();
                 Thread.Sleep(200);
@@ -286,6 +310,9 @@ namespace BF2Statistics.Gamespy
                     "\\lc\\2\\sesskey\\{0}\\proof\\{1}\\userid\\{2}\\profileid\\{3}\\uniquenick\\{4}\\lt\\{5}__\\id\\1\\final\\",
                     GenerateSession(), proof, pid, pid, clientNick, clientLt
                 );
+
+                // Call successful login event
+                OnSuccessfulLogin(this);
             }
             else
             {
@@ -428,8 +455,6 @@ namespace BF2Statistics.Gamespy
         }
 
         #endregion
-
-
 
         #region Misc Methods
 

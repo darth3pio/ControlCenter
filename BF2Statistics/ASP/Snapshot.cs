@@ -265,9 +265,21 @@ namespace BF2Statistics.ASP
             if (!IsValidSnapshot)
                 throw new InvalidDataException("Invalid Snapshot data!");
 
+            // Begin Logging
+            Log(String.Format("Begin Processing ({0})...", MapName), 3);
+            if (IsCustomMap)
+                Log(String.Format("Custom Map ({0})...", MapId), 3);
+            else
+                Log(String.Format("Standard Map ({0})...", MapId), 3);
+
+            Log("Found " + PlayerData.Count + " Player(s)...", 3);
+
             // Make sure we meet the minimum player requirement
             if (PlayerData.Count < MainForm.Config.ASP_MinRoundPlayers)
+            {
+                Log("Minimum round Player count does not meet the ASP requirement... Aborting", 2);
                 return;
+            }
 
             // Start a timer!
             Stopwatch Clock = new Stopwatch();
@@ -287,15 +299,6 @@ namespace BF2Statistics.ASP
             int Team2Players = 0;
             int Team1PlayersEnd = 0;
             int Team2PlayersEnd = 0;
-
-            // Begin Logging
-            Log(String.Format("Begin Processing ({0})...", MapName), 3);
-            if(IsCustomMap)
-                Log(String.Format("Custom Map ({0})...", MapId), 3);
-            else
-                Log(String.Format("Standard Map ({0})...", MapId), 3);
-
-            Log("Found " + PlayerData.Count + " Player(s)...", 3);
 
             // MySQL could throw a packet size error here, so we need will increase it!
             //Driver.Execute("SET GLOBAL max_allowed_packet=2048;");

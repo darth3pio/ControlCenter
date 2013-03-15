@@ -215,7 +215,6 @@ namespace BF2Statistics
                 InstallBox.Text = "BF2 Statistics server files are currently installed.";
                 InstallButton.Text = "Uninstall BF2 Statistics Python";
                 BF2sConfigBtn.Enabled = true;
-                BF2sRestoreBtn.Enabled = false;
                 StatsStatusPic.Image = Properties.Resources.green;
             }
             else
@@ -225,7 +224,6 @@ namespace BF2Statistics
                 InstallBox.Text = "BF2 Statistics server files are currently NOT installed";
                 InstallButton.Text = "Install BF2 Statistics Python";
                 BF2sConfigBtn.Enabled = false;
-                BF2sRestoreBtn.Enabled = true;
                 StatsStatusPic.Image = Properties.Resources.red;
             }
         }
@@ -318,6 +316,9 @@ namespace BF2Statistics
                     // Set status to online
                     ServerStatusPic.Image = Properties.Resources.green;
                     LaunchServerBtn.Text = "Shutdown Server";
+
+                    // Disable the Restore bf2s python files while server is running
+                    BF2sRestoreBtn.Enabled = false;
                     break;
                 }
             }
@@ -459,6 +460,9 @@ namespace BF2Statistics
                 // Set status to online
                 ServerStatusPic.Image = Resources.green;
                 LaunchServerBtn.Text = "Shutdown Server";
+
+                // Disable the Restore bf2s python files while server is running
+                BF2sRestoreBtn.Enabled = false;
             }
             else
             {
@@ -491,6 +495,7 @@ namespace BF2Statistics
                 ServerStatusPic.Image = Resources.red;
                 LaunchServerBtn.Text = "Launch Server";
                 ServerProccess = null;
+                BF2sRestoreBtn.Enabled = true;
             }
         }
 
@@ -686,6 +691,9 @@ namespace BF2Statistics
             Form.ShowDialog();
         }
 
+        /// <summary>
+        /// This button restores the clients Ranked Python files to the original state
+        /// </summary>
         private void BF2sRestoreBtn_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show(
@@ -697,8 +705,18 @@ namespace BF2Statistics
             {
                 // Lock the console to prevent errors!
                 this.Enabled = false;
-                Directory.Delete(RankedPythonPath, true);
-                DirectoryHelper.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), RankedPythonPath, true);
+                if (StatsEnabled)
+                {
+                    Directory.Delete(ServerPythonPath, true);
+                    DirectoryHelper.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), ServerPythonPath, true);
+                }
+                else
+                {
+                    Directory.Delete(RankedPythonPath, true);
+                    DirectoryHelper.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), RankedPythonPath, true);
+                }
+
+                // Show Success Message
                 MessageBox.Show("Your Stats python files have been restored successfully.", "Bf2 Statistics Server Launcher");
                 this.Enabled = true; // unlcok
             }
@@ -1346,7 +1364,7 @@ namespace BF2Statistics
 
         private void HostsFileStatusLabel_DoubleClick(object sender, EventArgs e)
         {
-            tabControl1.SelectedIndex = 3;
+            tabControl1.SelectedIndex = 4;
         }
 
         private void LoginStatusDesc_DoubleClick(object sender, EventArgs e)
@@ -1356,12 +1374,12 @@ namespace BF2Statistics
 
         private void StatsStatusDesc_DoubleClick(object sender, EventArgs e)
         {
-            tabControl1.SelectedIndex = 4;
+            tabControl1.SelectedIndex = 1;
         }
 
         private void AspStatusDesc_DoubleClick(object sender, EventArgs e)
         {
-            tabControl1.SelectedIndex = 5;
+            tabControl1.SelectedIndex = 3;
         }
 
         private void ServerStatusDesc_DoubleClick(object sender, EventArgs e)
@@ -1411,6 +1429,8 @@ namespace BF2Statistics
 
         #endregion Static Control Methods
 
+        #region Closer Methods
+
         /// <summary>
         /// Event closes the form when fired
         /// </summary>
@@ -1434,6 +1454,19 @@ namespace BF2Statistics
             Config.ServerIgnoreAsserts = IgnoreAsserts.Checked;
             Config.ServerFileMoniter = FileMoniter.Checked;
             Config.Save();
+        }
+
+        #endregion Closer Methods
+
+        /// <summary>
+        /// Recounts the snapsots when the ASP Stats Server tab is opened
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tabControl1.SelectedIndex == 3)
+                CountSnapshots();
         }
     }
 }

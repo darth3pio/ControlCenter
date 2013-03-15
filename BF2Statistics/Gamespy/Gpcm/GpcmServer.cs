@@ -16,11 +16,6 @@ namespace BF2Statistics.Gamespy
         private TcpListener Listener;
 
         /// <summary>
-        /// Our client connection thread
-        /// </summary>
-        private Thread ConnectionsThread;
-
-        /// <summary>
         /// List of connected clients
         /// </summary>
         private List<GpcmClient> Clients = new List<GpcmClient>();
@@ -36,10 +31,9 @@ namespace BF2Statistics.Gamespy
             // Create a new thread to accept the connection
             Listener.BeginAcceptTcpClient(new AsyncCallback(AcceptClient), null);
 
-            // Start a new thread for accepting clients
-            ConnectionsThread = new Thread(new ThreadStart(UpdateConnections));
-            ConnectionsThread.IsBackground = true;
-            ConnectionsThread.Start();
+            // Enlist for events
+            GpcmClient.OnSuccessfulLogin += new ConnectionUpdate(Client_OnSuccessfulLogin);
+            GpcmClient.OnDisconnect += new ConnectionUpdate(GpcmClient_OnDisconnect);
         }
 
         /// <summary>
@@ -49,7 +43,7 @@ namespace BF2Statistics.Gamespy
         {
             // Stop updating client checks
             Listener.Stop();
-            ConnectionsThread.Abort();
+            GpcmClient.OnDisconnect -= new ConnectionUpdate(GpcmClient_OnDisconnect);
 
             // Disconnected all connected clients
             foreach (GpcmClient C in Clients)
@@ -69,29 +63,6 @@ namespace BF2Statistics.Gamespy
         }
 
         /// <summary>
-        /// Update the connected clients
-        /// </summary>
-        private void UpdateConnections()
-        {
-            // Keep looping
-            while (true)
-            {
-                // Remove from back to front
-                for (int i = Clients.Count - 1; i >= 0; i--)
-                {
-                    if (Clients[i].Disposed)
-                    {
-                        lock (Clients)
-                        Clients.RemoveAt(i);
-                    }
-                }
-
-                Thread.Sleep(1000);
-                OnUpdate(this, new ClientList(Clients));
-            }
-        }
-
-        /// <summary>
         /// Accepts a TcpClient
         /// </summary>
         /// <param name="ar"></param>
@@ -101,11 +72,26 @@ namespace BF2Statistics.Gamespy
             // the console.
             try
             {
+                // Hurry up and get ready to accept another client
                 TcpClient Client = Listener.EndAcceptTcpClient(ar);
                 Listener.BeginAcceptTcpClient(new AsyncCallback(AcceptClient), null);
+
+                // Convert the TcpClient to a GpcmClient, which will handle the client login info
                 Clients.Add(new GpcmClient(Client));
             }
             catch { }
+        }
+
+        private void Client_OnSuccessfulLogin(object sender)
+        {
+            OnUpdate(this, new ClientList(Clients));
+        }
+
+        private void GpcmClient_OnDisconnect(object sender)
+        {
+            // Remove client, and call OnUpdate Event
+            Clients.Remove((GpcmClient)sender);
+            OnUpdate(this, new ClientList(Clients));
         }
     }
 }

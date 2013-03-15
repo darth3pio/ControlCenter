@@ -49,17 +49,5 @@ namespace BF2Statistics
                 }
             }
         }
-
-        /// <summary>
-        /// Moves a folder and all its sub dirs and files cross volume.
-        /// </summary>
-        /// <param name="sourceDirName">The source folder, being copied</param>
-        /// <param name="destDirName">The destination dicrectoy, where all the copies will be stored. 
-        /// The directory does NOT have to exist.</param>
-        /// <param name="copySubDirs">Recursively copy sub folders?</param>
-        public static void Move(string sourceDirName, string destDirName, bool copySubDirs)
-        {
-
-        }
     }
 }

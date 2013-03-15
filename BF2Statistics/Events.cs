@@ -6,4 +6,6 @@ using System.Text;
 namespace BF2Statistics
 {
     public delegate void ShutdownEventHandler();
+
+    public delegate void ConnectionUpdate(object sender);
 }
