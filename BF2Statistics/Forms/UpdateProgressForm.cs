@@ -39,17 +39,20 @@ namespace BF2Statistics
         /// </summary>
         private static string UpdateText;
 
+        private static Point Pos;
+
         /// <summary>
         /// Main calling method. Opens a new instance of the form, and displays it
         /// </summary>
         /// <param name="WindowTitle"></param>
-        static public void ShowScreen(string WindowTitle)
+        static public void ShowScreen(string WindowTitle, Form Parent)
         {
             // Make sure it is currently not open and running.
             if (Instance != null && !Instance.IsDisposed)
                 return;
 
             Instance = new UpdateProgressForm(WindowTitle);
+            Instance.Location = new Point(Parent.Location.X + (Parent.Width / 2) - 150, Parent.Location.Y + (Parent.Height / 2) - 60);
             Thread thread = new Thread(new ThreadStart(UpdateProgressForm.ShowForm));
             thread.IsBackground = true;
             thread.SetApartmentState(ApartmentState.STA);

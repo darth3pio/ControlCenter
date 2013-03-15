@@ -64,7 +64,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "UpdateProgressForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Progress";
             ((System.ComponentModel.ISupportInitialize)(this.ProgBar)).EndInit();
             this.ResumeLayout(false);

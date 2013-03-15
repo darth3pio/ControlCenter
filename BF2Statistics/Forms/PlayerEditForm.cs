@@ -114,7 +114,7 @@ namespace BF2Statistics
             {
                 DbTransaction Transaction = Driver.BeginTransaction();
                 List<string> Tables = StatsDatabase.GetPlayerTables();
-                UpdateProgressForm.ShowScreen("Deleting Player...");
+                UpdateProgressForm.ShowScreen("Deleting Player...", this);
 
                 try
                 {

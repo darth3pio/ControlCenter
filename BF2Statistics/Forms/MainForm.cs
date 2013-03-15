@@ -35,7 +35,7 @@ namespace BF2Statistics
         /// <summary>
         /// The instance of this form
         /// </summary>
-        private static MainForm Instance;
+        public static MainForm Instance { get; protected set; }
 
         /// <summary>
         /// The main form log file

@@ -50,7 +50,7 @@ namespace BF2Statistics
                          select _File;
 
             // Loop through each snapshot, and process it
-            UpdateProgressForm.ShowScreen("Importing Snapshots");
+            UpdateProgressForm.ShowScreen("Importing Snapshots", this);
             this.Enabled = false;
             int Selected = Files.Count;
             int i = 1;

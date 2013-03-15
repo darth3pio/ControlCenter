@@ -74,7 +74,12 @@ namespace BF2Statistics.Database
         {
             List<string> Tables = GetStatsTables();
             foreach (string Table in Tables)
-                Driver.Execute("TRUNCATE TABLE " + Table);
+            {
+                if (Driver.DatabaseEngine == DatabaseEngine.Sqlite)
+                    Driver.Execute("DELETE FROM " + Table);
+                else
+                    Driver.Execute("TRUNCATE TABLE " + Table);
+            }
         }
 
         /// <summary>
@@ -152,7 +157,7 @@ namespace BF2Statistics.Database
         {
             // Show Progress Form
             MainForm.Disable();
-            UpdateProgressForm.ShowScreen("Creating Bf2Stats SQLite Database");
+            UpdateProgressForm.ShowScreen("Creating Bf2Stats SQLite Database", MainForm.Instance);
 
             // Create Tables
             UpdateProgressForm.Status("Creating Tables...");
@@ -187,7 +192,7 @@ namespace BF2Statistics.Database
         {
             // Show Progress Form
             MainForm.Disable();
-            UpdateProgressForm.ShowScreen("Creating Bf2Stats Mysql Tables");
+            UpdateProgressForm.ShowScreen("Creating Bf2Stats Mysql Tables", MainForm.Instance);
 
             // Create Tables
             UpdateProgressForm.Status("Creating Tables...");
