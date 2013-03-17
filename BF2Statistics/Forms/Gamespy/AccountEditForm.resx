@@ -123,13 +123,13 @@
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="label4.Location" type="System.Drawing.Point, System.Drawing">
-    <value>16, 28</value>
+    <value>16, 47</value>
   </data>
   <data name="label4.Size" type="System.Drawing.Size, System.Drawing">
     <value>86, 13</value>
   </data>
   <data name="label4.TabIndex" type="System.Int32, mscorlib">
-    <value>15</value>
+    <value>0</value>
   </data>
   <data name="label4.Text" xml:space="preserve">
     <value>Battlefield 2 PID:</value>
@@ -144,16 +144,16 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;label4.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>6</value>
   </data>
   <data name="UpdateBtn.Location" type="System.Drawing.Point, System.Drawing">
-    <value>159, 170</value>
+    <value>197, 170</value>
   </data>
   <data name="UpdateBtn.Size" type="System.Drawing.Size, System.Drawing">
-    <value>116, 28</value>
+    <value>80, 28</value>
   </data>
   <data name="UpdateBtn.TabIndex" type="System.Int32, mscorlib">
-    <value>14</value>
+    <value>6</value>
   </data>
   <data name="UpdateBtn.Text" xml:space="preserve">
     <value>Update</value>
@@ -168,16 +168,16 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;UpdateBtn.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>7</value>
   </data>
   <data name="AccountEmail.Location" type="System.Drawing.Point, System.Drawing">
-    <value>121, 117</value>
+    <value>121, 136</value>
   </data>
   <data name="AccountEmail.Size" type="System.Drawing.Size, System.Drawing">
     <value>166, 20</value>
   </data>
   <data name="AccountEmail.TabIndex" type="System.Int32, mscorlib">
-    <value>13</value>
+    <value>4</value>
   </data>
   <data name="&gt;&gt;AccountEmail.Name" xml:space="preserve">
     <value>AccountEmail</value>
@@ -189,13 +189,13 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;AccountEmail.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>8</value>
   </data>
   <data name="label3.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
   <data name="label3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>16, 120</value>
+    <value>16, 139</value>
   </data>
   <data name="label3.Size" type="System.Drawing.Size, System.Drawing">
     <value>78, 13</value>
@@ -216,16 +216,16 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;label3.ZOrder" xml:space="preserve">
-    <value>6</value>
+    <value>9</value>
   </data>
   <data name="AccountPass.Location" type="System.Drawing.Point, System.Drawing">
-    <value>121, 86</value>
+    <value>121, 105</value>
   </data>
   <data name="AccountPass.Size" type="System.Drawing.Size, System.Drawing">
     <value>166, 20</value>
   </data>
   <data name="AccountPass.TabIndex" type="System.Int32, mscorlib">
-    <value>11</value>
+    <value>3</value>
   </data>
   <data name="&gt;&gt;AccountPass.Name" xml:space="preserve">
     <value>AccountPass</value>
@@ -237,13 +237,13 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;AccountPass.ZOrder" xml:space="preserve">
-    <value>7</value>
+    <value>10</value>
   </data>
   <data name="label2.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
   <data name="label2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>16, 89</value>
+    <value>16, 108</value>
   </data>
   <data name="label2.Size" type="System.Drawing.Size, System.Drawing">
     <value>99, 13</value>
@@ -264,13 +264,13 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;label2.ZOrder" xml:space="preserve">
-    <value>8</value>
+    <value>11</value>
   </data>
   <data name="label1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
   <data name="label1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>16, 59</value>
+    <value>16, 78</value>
   </data>
   <data name="label1.Size" type="System.Drawing.Size, System.Drawing">
     <value>75, 13</value>
@@ -291,16 +291,16 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;label1.ZOrder" xml:space="preserve">
-    <value>9</value>
+    <value>12</value>
   </data>
   <data name="AccountNick.Location" type="System.Drawing.Point, System.Drawing">
-    <value>121, 56</value>
+    <value>121, 75</value>
   </data>
   <data name="AccountNick.Size" type="System.Drawing.Size, System.Drawing">
     <value>166, 20</value>
   </data>
   <data name="AccountNick.TabIndex" type="System.Int32, mscorlib">
-    <value>17</value>
+    <value>2</value>
   </data>
   <data name="&gt;&gt;AccountNick.Name" xml:space="preserve">
     <value>AccountNick</value>
@@ -312,16 +312,16 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;AccountNick.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>5</value>
   </data>
   <data name="DeleteBtn.Location" type="System.Drawing.Point, System.Drawing">
-    <value>28, 170</value>
+    <value>111, 170</value>
   </data>
   <data name="DeleteBtn.Size" type="System.Drawing.Size, System.Drawing">
-    <value>116, 28</value>
+    <value>80, 28</value>
   </data>
   <data name="DeleteBtn.TabIndex" type="System.Int32, mscorlib">
-    <value>18</value>
+    <value>5</value>
   </data>
   <data name="DeleteBtn.Text" xml:space="preserve">
     <value>Delete</value>
@@ -336,16 +336,16 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;DeleteBtn.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>4</value>
   </data>
   <data name="PlayerID.Location" type="System.Drawing.Point, System.Drawing">
-    <value>121, 26</value>
+    <value>121, 45</value>
   </data>
   <data name="PlayerID.Size" type="System.Drawing.Size, System.Drawing">
     <value>120, 20</value>
   </data>
   <data name="PlayerID.TabIndex" type="System.Int32, mscorlib">
-    <value>19</value>
+    <value>1</value>
   </data>
   <data name="&gt;&gt;PlayerID.Name" xml:space="preserve">
     <value>PlayerID</value>
@@ -357,6 +357,97 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;PlayerID.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="DisconnectBtn.Enabled" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="DisconnectBtn.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="DisconnectBtn.Location" type="System.Drawing.Point, System.Drawing">
+    <value>25, 170</value>
+  </data>
+  <data name="DisconnectBtn.Size" type="System.Drawing.Size, System.Drawing">
+    <value>80, 28</value>
+  </data>
+  <data name="DisconnectBtn.TabIndex" type="System.Int32, mscorlib">
+    <value>13</value>
+  </data>
+  <data name="DisconnectBtn.Text" xml:space="preserve">
+    <value>Disconnect</value>
+  </data>
+  <data name="&gt;&gt;DisconnectBtn.Name" xml:space="preserve">
+    <value>DisconnectBtn</value>
+  </data>
+  <data name="&gt;&gt;DisconnectBtn.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;DisconnectBtn.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;DisconnectBtn.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="label5.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label5.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label5.Location" type="System.Drawing.Point, System.Drawing">
+    <value>16, 17</value>
+  </data>
+  <data name="label5.Size" type="System.Drawing.Size, System.Drawing">
+    <value>40, 13</value>
+  </data>
+  <data name="label5.TabIndex" type="System.Int32, mscorlib">
+    <value>14</value>
+  </data>
+  <data name="label5.Text" xml:space="preserve">
+    <value>Status:</value>
+  </data>
+  <data name="&gt;&gt;label5.Name" xml:space="preserve">
+    <value>label5</value>
+  </data>
+  <data name="&gt;&gt;label5.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label5.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;label5.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="SatusLabel.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="SatusLabel.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="SatusLabel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>118, 17</value>
+  </data>
+  <data name="SatusLabel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>37, 13</value>
+  </data>
+  <data name="SatusLabel.TabIndex" type="System.Int32, mscorlib">
+    <value>15</value>
+  </data>
+  <data name="SatusLabel.Text" xml:space="preserve">
+    <value>Offline</value>
+  </data>
+  <data name="&gt;&gt;SatusLabel.Name" xml:space="preserve">
+    <value>SatusLabel</value>
+  </data>
+  <data name="&gt;&gt;SatusLabel.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;SatusLabel.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;SatusLabel.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
@@ -368,7 +459,6 @@
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
     <value>302, 210</value>
   </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
     <value>CenterParent</value>
   </data>
@@ -376,7 +466,7 @@
     <value>Edit Account</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
-    <value>EditAcctForm</value>
+    <value>AccountEditForm</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
     <value>System.Windows.Forms.Form, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

@@ -6,26 +6,29 @@ using System.Text.RegularExpressions;
 
 namespace BF2Statistics
 {
-    class SettingsParser
+    /// <summary>
+    /// The Server Settings Parse class is used to parse the Bf2
+    /// ServerSettings.con file.
+    /// </summary>
+    class ServerSettingsParser
     {
         /// <summary>
         ///  A list of config items
         /// </summary>
-        public Dictionary<string, string> Items { get; protected set; }
+        protected Dictionary<string, string> Items = new Dictionary<string, string>();
 
-        public SettingsParser(string FileName)
+        public ServerSettingsParser(string FileName)
         {
-            Items = new Dictionary<string, string>();
-
+            // Load the settings file
             string contents = File.ReadAllText(FileName);
 
+            // Get all Setting Matches
             Regex Reg = new Regex(@"sv.(?:set)?(?<name>[A-Za-z]+)[\s|\t]+([""]*)(?<value>.*)(?:\1)[\n|\r|\r\n]", RegexOptions.Multiline);
             MatchCollection Matches = Reg.Matches(contents);
             
-
+            // Add each found match to the Items Dictionary
             foreach (Match m in Matches)
                 Items.Add(m.Groups["name"].Value, m.Groups["value"].Value);
-
         }
 
         /// <summary>
@@ -37,12 +40,10 @@ namespace BF2Statistics
         {
             string value;
 
-            try
-            {
+            try {
                 value = Items[Name];
             }
-            catch (KeyNotFoundException)
-            {
+            catch (KeyNotFoundException) {
                 MainForm.Log("Settings Parser: Item not found \"{0}\"", Name);
                 value = null;
             }
@@ -58,6 +59,24 @@ namespace BF2Statistics
         public void SetValue(string Name, string Value)
         {
             Items[Name] = Value;
+        }
+
+        /// <summary>
+        /// Returns the number of found settings
+        /// </summary>
+        /// <returns></returns>
+        public int ItemCount()
+        {
+            return Items.Count;
+        }
+
+        /// <summary>
+        /// Returns a list of all settings
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<string, string> GetAllSettings()
+        {
+            return Items;
         }
     }
 }

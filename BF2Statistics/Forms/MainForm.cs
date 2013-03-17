@@ -627,7 +627,7 @@ namespace BF2Statistics
 
         private void EditAcctBtn_Click(object sender, EventArgs e)
         {
-            EditAcctForm Form = new EditAcctForm();
+            AccountListForm Form = new AccountListForm();
             Form.ShowDialog();
         }
 
@@ -653,9 +653,9 @@ namespace BF2Statistics
 
                 // Make sure we dont have an empty backup folder
                 if (Directory.GetFiles(RankedPythonPath).Length == 0)
-                    DirectoryHelper.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), ServerPythonPath, true);
+                    DirectoryExt.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), ServerPythonPath, true);
                 else
-                    DirectoryHelper.Copy(RankedPythonPath, ServerPythonPath, true);
+                    DirectoryExt.Copy(RankedPythonPath, ServerPythonPath, true);
 
                 // unlock now that we are done
                 this.Enabled = true;
@@ -669,11 +669,11 @@ namespace BF2Statistics
 
                 // Backup the users bf2s python files
                 Directory.Delete(RankedPythonPath, true);
-                DirectoryHelper.Copy(ServerPythonPath, RankedPythonPath, true);
+                DirectoryExt.Copy(ServerPythonPath, RankedPythonPath, true);
 
                 // Install default python files
                 Directory.Delete(ServerPythonPath, true);
-                DirectoryHelper.Copy(NonRankedPythonPath, ServerPythonPath, true);
+                DirectoryExt.Copy(NonRankedPythonPath, ServerPythonPath, true);
 
                 // Unlock now that we are done
                 this.Enabled = true;
@@ -708,12 +708,12 @@ namespace BF2Statistics
                 if (StatsEnabled)
                 {
                     Directory.Delete(ServerPythonPath, true);
-                    DirectoryHelper.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), ServerPythonPath, true);
+                    DirectoryExt.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), ServerPythonPath, true);
                 }
                 else
                 {
                     Directory.Delete(RankedPythonPath, true);
-                    DirectoryHelper.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), RankedPythonPath, true);
+                    DirectoryExt.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), RankedPythonPath, true);
                 }
 
                 // Show Success Message
@@ -1454,6 +1454,14 @@ namespace BF2Statistics
             Config.ServerIgnoreAsserts = IgnoreAsserts.Checked;
             Config.ServerFileMoniter = FileMoniter.Checked;
             Config.Save();
+
+            // Shutdown login servers
+            if (LoginServer.IsRunning)
+                LoginServer.Shutdown();
+
+            // Shutdown ASP Server
+            if (ASPServer.IsRunning)
+                ASPServer.Stop();
         }
 
         #endregion Closer Methods

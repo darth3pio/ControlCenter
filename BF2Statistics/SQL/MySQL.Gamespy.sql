@@ -4,5 +4,14 @@ CREATE TABLE `accounts` (
 	`password` VARCHAR(30) NOT NULL,
 	`email` VARCHAR(50) NOT NULL,
 	`country` VARCHAR(4) NOT NULL,
-	`session` INT NULL DEFAULT '0'
+	`lastip` VARCHAR(20) DEFAULT NULL,
+	`session` INT NULL DEFAULT 0
 ) DEFAULT CHARSET=latin1;
+
+CREATE TABLE `_version` (
+  `dbver` int(4) NOT NULL DEFAULT 0,
+  `dbdate` int(10) unsigned NOT NULL DEFAULT 0,
+  PRIMARY KEY (`dbver`)
+) DEFAULT CHARSET=latin1;
+
+INSERT INTO _version VALUES(2, 0);

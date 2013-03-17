@@ -49,8 +49,8 @@ namespace BF2Statistics.Gamespy
             foreach (GpcmClient C in Clients)
                 C.Dispose();
 
-            // Unbind the port
-            Listener.Stop();
+            // Update Connected Clients in the Database
+            LoginServer.Database.Driver.Execute("UPDATE accounts SET session=0");
         }
 
         /// <summary>
@@ -60,6 +60,19 @@ namespace BF2Statistics.Gamespy
         public int NumClients()
         {
             return Clients.Count;
+        }
+
+        public bool LogClientOut(int Pid)
+        {
+            foreach (GpcmClient C in Clients)
+            {
+                if (C.ClientPID == Pid)
+                {
+                    C.LogOut();
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>

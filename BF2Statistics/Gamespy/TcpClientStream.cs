@@ -7,9 +7,9 @@ using System.Net;
 using System.Net.Sockets;
 using BF2Statistics.Logging;
 
-namespace BF2Statistics
+namespace BF2Statistics.Gamespy
 {
-    class ClientStream
+    class TcpClientStream
     {
         /// <summary>
         /// The current clients stream
@@ -31,7 +31,7 @@ namespace BF2Statistics
         /// </summary>
         private static LogWritter StreamLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "Stream.log"), 3000);
 
-        public ClientStream(TcpClient client)
+        public TcpClientStream(TcpClient client)
         {
             this.Client = client;
             this.Stream = client.GetStream();

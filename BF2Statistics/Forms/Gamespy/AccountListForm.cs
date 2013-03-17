@@ -6,17 +6,17 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using BF2Statistics.ASP;
+using BF2Statistics.Gamespy;
 using BF2Statistics.Database;
 
 namespace BF2Statistics
 {
-    public partial class PlayerSearchForm : Form
+    public partial class AccountListForm : Form
     {
         /// <summary>
         /// Our database connection
         /// </summary>
-        private DatabaseDriver Driver = ASPServer.Database.Driver;
+        private DatabaseDriver Driver = LoginServer.Database.Driver;
 
         /// <summary>
         /// Current list page number
@@ -38,13 +38,16 @@ namespace BF2Statistics
         /// </summary>
         private ListSortDirection SortDir = ListSortDirection.Ascending;
 
-        public PlayerSearchForm()
+        public AccountListForm()
         {
             InitializeComponent();
             SortedCol = DataTable.Columns[0];
             LimitSelect.SelectedIndex = 2;
         }
 
+        /// <summary>
+        /// Fills the DataGridView with a list of accounts
+        /// </summary>
         private void BuildList()
         {
             // Define initial variables
@@ -71,7 +74,7 @@ namespace BF2Statistics
             DataTable.Rows.Clear();
 
             // Add players to data grid
-            Rows = Driver.Query("SELECT id, name, clantag, rank, score, country, permban FROM player{0}{1} LIMIT {2}, {3}", Like, OrderBy, Start, Limit);
+            Rows = Driver.Query("SELECT id, name, email, country, lastip, session FROM accounts{0}{1} LIMIT {2}, {3}", Like, OrderBy, Start, Limit);
             int RowCount = Rows.Count;
             int i = 0;
             foreach (Dictionary<string, object> P in Rows)
@@ -79,21 +82,20 @@ namespace BF2Statistics
                 DataTable.Rows.Add(new string[] { 
                     Rows[i]["id"].ToString(),
                     Rows[i]["name"].ToString(),
-                    Rows[i]["clantag"].ToString(),
-                    Rows[i]["rank"].ToString(),
-                    Rows[i]["score"].ToString(),
+                    Rows[i]["email"].ToString(),
                     Rows[i]["country"].ToString(),
-                    Rows[i]["permban"].ToString(),
+                    ((Rows[i]["session"].ToString() == "1") ? "Yes" : "No"),
+                    Rows[i]["lastip"].ToString(),
                 });
                 i++;
             }
 
             // Get Filtered Rows
-            Rows = Driver.Query("SELECT COUNT(id) AS count FROM player{0}", Like);
+            Rows = Driver.Query("SELECT COUNT(id) AS count FROM accounts{0}", Like);
             int TotalFilteredRows = Int32.Parse(Rows[0]["count"].ToString());
 
             // Get Total Player Count
-            Rows = Driver.Query("SELECT COUNT(id) AS count FROM player");
+            Rows = Driver.Query("SELECT COUNT(id) AS count FROM accounts");
             int TotalRows = Int32.Parse(Rows[0]["count"].ToString());
 
             // Stop Count
@@ -135,25 +137,35 @@ namespace BF2Statistics
             PageNumber.Value = ListPage;
 
             // Update Row Count Information
-            RowCountDesc.Text = String.Format("Showing {0} to {1} of {2} players", ++Start, Stop, TotalRows);
+            RowCountDesc.Text = String.Format("Showing {0} to {1} of {2} account(s)", ++Start, Stop, TotalFilteredRows);
             if (!String.IsNullOrWhiteSpace(Like))
-                RowCountDesc.Text += " (filtered from " + TotalFilteredRows + " total players)";
+                RowCountDesc.Text += " (filtered from " + TotalRows + " total account(s))";
 
             DataTable.Update();
         }
 
+        /// <summary>
+        /// Search OnKey Down function. Filters the List of accounts
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SearchBox_KeyDown(object sender, KeyEventArgs e)
         {
             BuildList();
         }
 
+        /// <summary>
+        /// Re-Filters the results when the limit is changed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void LimitSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
             BuildList();
         }
 
         /// <summary>
-        /// Event fired when a player is selected
+        /// When a row is double clicked, this method is called, opening the Account Edit Form
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -162,30 +174,50 @@ namespace BF2Statistics
             if (e.RowIndex < 0)
                 return;
 
-            int Pid = Int32.Parse(DataTable.Rows[e.RowIndex].Cells[0].Value.ToString());
-            PlayerEditForm Form = new PlayerEditForm(Pid);
+            int Id = Int32.Parse(DataTable.Rows[e.RowIndex].Cells[0].Value.ToString());
+            AccountEditForm Form = new AccountEditForm(Id);
             Form.ShowDialog();
             BuildList();
         }
 
+        /// <summary>
+        /// Sets the current page to 1
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FirstBtn_Click(object sender, EventArgs e)
         {
             ListPage = 1;
             BuildList();
         }
 
+        /// <summary>
+        /// Decrements the current page
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PreviousBtn_Click(object sender, EventArgs e)
         {
             ListPage -= 1;
             BuildList();
         }
 
+        /// <summary>
+        /// Increments the current page
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void NextBtn_Click(object sender, EventArgs e)
         {
             ListPage++;
             BuildList();
         }
 
+        /// <summary>
+        /// Sets the current page to the last page
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void LastBtn_Click(object sender, EventArgs e)
         {
             ListPage = TotalPages;
@@ -204,7 +236,7 @@ namespace BF2Statistics
             // Sort the same column again, reversing the SortOrder. 
             if (SortedCol == SelectedCol)
             {
-                SortDir = (SortDir == ListSortDirection.Ascending) 
+                SortDir = (SortDir == ListSortDirection.Ascending)
                     ? ListSortDirection.Descending
                     : ListSortDirection.Ascending;
             }
@@ -217,8 +249,8 @@ namespace BF2Statistics
             }
 
             // Set new Sort Glyph Direction
-            SortedCol.HeaderCell.SortGlyphDirection = ((SortDir == ListSortDirection.Ascending) 
-                ? SortOrder.Ascending 
+            SortedCol.HeaderCell.SortGlyphDirection = ((SortDir == ListSortDirection.Ascending)
+                ? SortOrder.Ascending
                 : SortOrder.Descending);
 
             // Build new List with database sort!

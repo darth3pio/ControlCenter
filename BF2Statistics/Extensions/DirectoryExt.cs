@@ -6,7 +6,7 @@ using System.IO;
 
 namespace BF2Statistics
 {
-    class DirectoryHelper
+    class DirectoryExt
     {
         /// <summary>
         /// Copies the contents of one folder, to another.

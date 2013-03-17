@@ -10,7 +10,14 @@ namespace BF2Statistics
 {
     public partial class ServerSettings : Form
     {
-        private SettingsParser Settings;
+        /// <summary>
+        /// Our Settings Object, which contains all of our settings
+        /// </summary>
+        private ServerSettingsParser Settings;
+
+        /// <summary>
+        /// Full path to our ServerSettings.con file
+        /// </summary>
         private string FileName;
 
         public ServerSettings(string File)
@@ -21,12 +28,10 @@ namespace BF2Statistics
             bool StartUpError = false;
 
             // First, we try to parse the Settings file
-            try
-            {
-                Settings = new SettingsParser(File);
+            try {
+                Settings = new ServerSettingsParser(File);
             }
-            catch(Exception e)
-            {
+            catch(Exception e) {
                 MessageBox.Show(e.Message.ToString(), "Server Settings File Error");
                 StartUpError = true;
             }
@@ -224,20 +229,21 @@ namespace BF2Statistics
         {
             SaveValues();
 
-            string[] lines = new string[Settings.Items.Count];
+            string[] lines = new string[Settings.ItemCount()];
             int i = 0;
             int dummy;
 
             // Write the lines one by one into an array
-            foreach (KeyValuePair<string, string> item in Settings.Items)
+            Dictionary<string, string> Items = Settings.GetAllSettings();
+            foreach (KeyValuePair<string, string> Item in Items)
             {
-                string value = item.Value.Trim();
+                string Value = Item.Value.Trim();
 
                 // Determine if the value is a string or number. Strings need wrapped in quotes
-                if(!String.IsNullOrEmpty(value) && Int32.TryParse(value, out dummy))
-                    lines[i] = String.Format("sv.{0} {1}", item.Key, value);
+                if(!String.IsNullOrEmpty(Value) && Int32.TryParse(Value, out dummy))
+                    lines[i] = String.Format("sv.{0} {1}", Item.Key, Value);
                 else
-                    lines[i] = String.Format("sv.{0} \"{1}\"", item.Key, @value.Replace(System.Environment.NewLine, "|"));
+                    lines[i] = String.Format("sv.{0} \"{1}\"", Item.Key, Value.Replace(System.Environment.NewLine, "|"));
 
                 i++;
             }
@@ -255,6 +261,9 @@ namespace BF2Statistics
             this.Close();
         }
 
+        /// <summary>
+        /// Save's all the forms settings into the ServerSettings.con file
+        /// </summary>
         private void SaveValues()
         {
             // General

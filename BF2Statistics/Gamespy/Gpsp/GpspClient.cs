@@ -11,7 +11,7 @@ namespace BF2Statistics.Gamespy
     public class GpspClient : IDisposable
     {
         public bool Disposed { get; protected set; }
-        private ClientStream Stream;
+        private TcpClientStream Stream;
         private TcpClient Client;
         private Thread ClientThread;
         private Dictionary<string, object> ClientData = null;
@@ -25,7 +25,7 @@ namespace BF2Statistics.Gamespy
             this.Client = client;
 
             // Init a new client stream class
-            Stream = new ClientStream(client);
+            Stream = new TcpClientStream(client);
 
             ClientThread = new Thread(new ThreadStart(Start));
             ClientThread.IsBackground = true;

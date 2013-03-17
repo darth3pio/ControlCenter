@@ -28,13 +28,16 @@ namespace BF2Statistics.Gamespy
         /// <summary>
         /// The clients socket network stream
         /// </summary>
-        private ClientStream Stream;
+        private TcpClientStream Stream;
 
         /// <summary>
         /// The TcpClient for our connection
         /// </summary>
         private TcpClient Connection;
 
+        /// <summary>
+        /// The Connected Clients IpAddress
+        /// </summary>
         public IPAddress IpAddress = null;
 
         /// <summary>
@@ -146,7 +149,7 @@ namespace BF2Statistics.Gamespy
         /// <summary>
         /// Returns the connected clients Player Id
         /// </summary>
-        public string ClientPID
+        public int ClientPID
         {
             get;
             protected set;
@@ -175,7 +178,7 @@ namespace BF2Statistics.Gamespy
         {
             this.Connection = Client;
             this.IpAddress = ((IPEndPoint)Connection.Client.RemoteEndPoint).Address;
-            this.Stream = new ClientStream(Client);
+            this.Stream = new TcpClientStream(Client);
 
             this.Disposed = false;
 
@@ -195,7 +198,7 @@ namespace BF2Statistics.Gamespy
         public void Dispose()
         {
             // If connection is still alive, disconnect user
-            if (!Connection.Client.Connected)
+            if (Connection.Client.Connected)
                 Connection.Close();
 
             // Call disconnect event
@@ -291,10 +294,10 @@ namespace BF2Statistics.Gamespy
             }
 
             // Make sure the id is a string!
-            int pid;
+            int pid = 0;
             Int32.TryParse(User["id"].ToString(), out pid);
             User["id"] = pid.ToString();
-            ClientPID = pid.ToString();
+            ClientPID = pid;
 
             // Use the GenerateRepsonseValue method to compare with the "response" value.
             // this validates the given password
@@ -313,6 +316,7 @@ namespace BF2Statistics.Gamespy
 
                 // Call successful login event
                 OnSuccessfulLogin(this);
+                LoginServer.Database.Driver.Execute("UPDATE accounts SET session=1, lastip='{0}' WHERE id={1}", this.IpAddress, ClientPID);
             }
             else
             {
@@ -449,8 +453,9 @@ namespace BF2Statistics.Gamespy
         /// <summary>
         /// Kills the current Client session, and disconnects from the client
         /// </summary>
-        private void LogOut()
+        public void LogOut()
         {
+            LoginServer.Database.Driver.Execute("UPDATE accounts SET session=0 WHERE id=" + ClientPID);
             Dispose();
         }
 

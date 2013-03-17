@@ -60,10 +60,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Forms\ASPConfigForm.cs">
+    <Compile Include="Forms\ASP\ASPConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ASPConfigForm.Designer.cs">
+    <Compile Include="Forms\ASP\ASPConfigForm.Designer.cs">
       <DependentUpon>ASPConfigForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ASP\ASPResponse.cs" />
@@ -84,31 +84,31 @@
     <Compile Include="ASP\Requests\SearchForPlayers.cs" />
     <Compile Include="ASP\Requests\SelectUnlock.cs" />
     <Compile Include="ASP\Snapshot.cs" />
-    <Compile Include="ClientStream.cs" />
+    <Compile Include="Gamespy\TcpClientStream.cs" />
     <Compile Include="Database\SqlUpdateDictionary.cs" />
     <Compile Include="Database\StatsDatabase.cs" />
     <Compile Include="Events.cs" />
-    <Compile Include="Forms\EditAcctForm.cs">
+    <Compile Include="Forms\Gamespy\AccountEditForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\EditAcctForm.Designer.cs">
-      <DependentUpon>EditAcctForm.cs</DependentUpon>
+    <Compile Include="Forms\Gamespy\AccountEditForm.Designer.cs">
+      <DependentUpon>AccountEditForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\CreateAcctForm.cs">
+    <Compile Include="Forms\Gamespy\CreateAcctForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\CreateAcctForm.Designer.cs">
+    <Compile Include="Forms\Gamespy\CreateAcctForm.Designer.cs">
       <DependentUpon>CreateAcctForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Database\DatabaseDriver.cs" />
     <Compile Include="Database\DatabaseEngine.cs" />
     <Compile Include="Database\GamespyDatabase.cs" />
-    <Compile Include="DirectoryHelper.cs" />
-    <Compile Include="Extensions.cs" />
-    <Compile Include="Forms\BF2sConfig.cs">
+    <Compile Include="Extensions\DirectoryExt.cs" />
+    <Compile Include="Extensions\Extensions.cs" />
+    <Compile Include="Forms\Server\BF2sConfig.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\BF2sConfig.designer.cs">
+    <Compile Include="Forms\Server\BF2sConfig.designer.cs">
       <DependentUpon>BF2sConfig.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\MainForm.cs">
@@ -123,41 +123,41 @@
     <Compile Include="Forms\InstallForm.Designer.cs">
       <DependentUpon>InstallForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\MapList.cs">
+    <Compile Include="Forms\Server\MapList.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\MapList.designer.cs">
+    <Compile Include="Forms\Server\MapList.designer.cs">
       <DependentUpon>MapList.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\ScoreSelectForm.cs">
+    <Compile Include="Forms\Server\ScoreSelectForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ScoreSelectForm.designer.cs">
+    <Compile Include="Forms\Server\ScoreSelectForm.designer.cs">
       <DependentUpon>ScoreSelectForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\ScoreSettings.cs">
+    <Compile Include="Forms\Server\ScoreSettings.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ScoreSettings.designer.cs">
+    <Compile Include="Forms\Server\ScoreSettings.designer.cs">
       <DependentUpon>ScoreSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\ServerSettings.cs">
+    <Compile Include="Forms\Server\ServerSettings.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ServerSettings.designer.cs">
+    <Compile Include="Forms\Server\ServerSettings.designer.cs">
       <DependentUpon>ServerSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\GamespyConfig.cs">
+    <Compile Include="Forms\Gamespy\GamespyConfig.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\GamespyConfig.Designer.cs">
+    <Compile Include="Forms\Gamespy\GamespyConfig.Designer.cs">
       <DependentUpon>GamespyConfig.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\GetPlayerForm.cs">
+    <Compile Include="Forms\Gamespy\AccountListForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\GetPlayerForm.Designer.cs">
-      <DependentUpon>GetPlayerForm.cs</DependentUpon>
+    <Compile Include="Forms\Gamespy\AccountListForm.Designer.cs">
+      <DependentUpon>AccountListForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Gamespy\GamespyUtils.cs" />
     <Compile Include="Gamespy\Gpcm\ClientList.cs" />
@@ -166,67 +166,61 @@
     <Compile Include="Gamespy\Gpsp\GpspClient.cs" />
     <Compile Include="Gamespy\Gpsp\GpspServer.cs" />
     <Compile Include="Hosts\HostsFile.cs" />
-    <Compile Include="Item.cs" />
-    <Compile Include="KeyValueItem.cs" />
+    <Compile Include="Utilities\Item.cs" />
+    <Compile Include="Utilities\KeyValueItem.cs" />
     <Compile Include="Logging\LogMessage.cs" />
     <Compile Include="Logging\LogWritter.cs" />
-    <Compile Include="Forms\PlayerSearchForm.cs">
+    <Compile Include="Forms\ASP\PlayerSearchForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\PlayerSearchForm.Designer.cs">
+    <Compile Include="Forms\ASP\PlayerSearchForm.Designer.cs">
       <DependentUpon>PlayerSearchForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\PlayerEditForm.cs">
+    <Compile Include="Forms\ASP\PlayerEditForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\PlayerEditForm.Designer.cs">
+    <Compile Include="Forms\ASP\PlayerEditForm.Designer.cs">
       <DependentUpon>PlayerEditForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
-    <Compile Include="Forms\ProgressForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\ProgressForm.Designer.cs">
-      <DependentUpon>ProgressForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Gamespy\LoginServer.cs" />
-    <Compile Include="SettingsParser.cs" />
-    <Compile Include="Forms\SnapshotViewForm.cs">
+    <Compile Include="Utilities\ServerSettingsParser.cs" />
+    <Compile Include="Forms\ASP\SnapshotViewForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\SnapshotViewForm.Designer.cs">
+    <Compile Include="Forms\ASP\SnapshotViewForm.Designer.cs">
       <DependentUpon>SnapshotViewForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="SocketExtensions.cs" />
+    <Compile Include="Extensions\SocketExtensions.cs" />
     <Compile Include="Forms\UpdateProgressForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\UpdateProgressForm.Designer.cs">
       <DependentUpon>UpdateProgressForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\StatsDbConfigForm.cs">
+    <Compile Include="Forms\ASP\StatsDbConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\StatsDbConfigForm.Designer.cs">
+    <Compile Include="Forms\ASP\StatsDbConfigForm.Designer.cs">
       <DependentUpon>StatsDbConfigForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Utils.cs" />
-    <Compile Include="Validator.cs" />
+    <Compile Include="Utilities\Utils.cs" />
+    <Compile Include="Utilities\Validator.cs" />
     <Compile Include="ASP\ASPServer.cs" />
-    <EmbeddedResource Include="Forms\ASPConfigForm.resx">
+    <EmbeddedResource Include="Forms\ASP\ASPConfigForm.resx">
       <DependentUpon>ASPConfigForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\CreateAcctForm.resx">
+    <EmbeddedResource Include="Forms\Gamespy\CreateAcctForm.resx">
       <DependentUpon>CreateAcctForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\BF2sConfig.resx">
+    <EmbeddedResource Include="Forms\Server\BF2sConfig.resx">
       <DependentUpon>BF2sConfig.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\EditAcctForm.resx">
-      <DependentUpon>EditAcctForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\Gamespy\AccountEditForm.resx">
+      <DependentUpon>AccountEditForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\GamespyConfig.resx">
+    <EmbeddedResource Include="Forms\Gamespy\GamespyConfig.resx">
       <DependentUpon>GamespyConfig.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\InstallForm.resx">
@@ -235,34 +229,31 @@
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\MapList.resx">
+    <EmbeddedResource Include="Forms\Server\MapList.resx">
       <DependentUpon>MapList.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ProgressForm.resx">
-      <DependentUpon>ProgressForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ScoreSelectForm.resx">
+    <EmbeddedResource Include="Forms\Server\ScoreSelectForm.resx">
       <DependentUpon>ScoreSelectForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ScoreSettings.resx">
+    <EmbeddedResource Include="Forms\Server\ScoreSettings.resx">
       <DependentUpon>ScoreSettings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ServerSettings.resx">
+    <EmbeddedResource Include="Forms\Server\ServerSettings.resx">
       <DependentUpon>ServerSettings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\GetPlayerForm.resx">
-      <DependentUpon>GetPlayerForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\Gamespy\AccountListForm.resx">
+      <DependentUpon>AccountListForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\SnapshotViewForm.resx">
+    <EmbeddedResource Include="Forms\ASP\SnapshotViewForm.resx">
       <DependentUpon>SnapshotViewForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\UpdateProgressForm.resx">
       <DependentUpon>UpdateProgressForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\PlayerSearchForm.resx">
+    <EmbeddedResource Include="Forms\ASP\PlayerSearchForm.resx">
       <DependentUpon>PlayerSearchForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\PlayerEditForm.resx">
+    <EmbeddedResource Include="Forms\ASP\PlayerEditForm.resx">
       <DependentUpon>PlayerEditForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -275,7 +266,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Forms\StatsDbConfigForm.resx">
+    <EmbeddedResource Include="Forms\ASP\StatsDbConfigForm.resx">
       <DependentUpon>StatsDbConfigForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
@@ -295,6 +286,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="SQL\Updates\MySQL\Gamespy.Update_1.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SQL\Updates\SQLite\Gamespy.Update_1.sql" />
     <EmbeddedResource Include="SQL\MySQL.Stats.sql" />
     <EmbeddedResource Include="ASP\Errors\404.tpl" />
     <Content Include="Logo.ico" />

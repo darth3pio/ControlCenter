@@ -145,6 +145,11 @@ namespace BF2Statistics.Gamespy
             StatusWindow.Text += "Server shutdown Successfully";
         }
 
+        public static bool LogClientOut(int Pid)
+        {
+            return (IsRunning) ? CmServer.LogClientOut(Pid) : false;
+        }
+
         /// <summary>
         /// This method is used to store a message in the console.log file
         /// </summary>

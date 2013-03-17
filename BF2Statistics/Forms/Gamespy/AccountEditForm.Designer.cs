@@ -1,6 +1,6 @@
 ﻿namespace BF2Statistics
 {
-    partial class EditAcctForm
+    partial class AccountEditForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditAcctForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AccountEditForm));
             this.label4 = new System.Windows.Forms.Label();
             this.UpdateBtn = new System.Windows.Forms.Button();
             this.AccountEmail = new System.Windows.Forms.TextBox();
@@ -39,6 +39,9 @@
             this.AccountNick = new System.Windows.Forms.TextBox();
             this.DeleteBtn = new System.Windows.Forms.Button();
             this.PlayerID = new System.Windows.Forms.NumericUpDown();
+            this.DisconnectBtn = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
+            this.SatusLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.PlayerID)).BeginInit();
             this.SuspendLayout();
             // 
@@ -101,10 +104,30 @@
             0});
             this.PlayerID.Name = "PlayerID";
             // 
-            // EditAcctForm
+            // DisconnectBtn
+            // 
+            resources.ApplyResources(this.DisconnectBtn, "DisconnectBtn");
+            this.DisconnectBtn.Name = "DisconnectBtn";
+            this.DisconnectBtn.UseVisualStyleBackColor = true;
+            this.DisconnectBtn.Click += new System.EventHandler(this.DisconnectBtn_Click);
+            // 
+            // label5
+            // 
+            resources.ApplyResources(this.label5, "label5");
+            this.label5.Name = "label5";
+            // 
+            // SatusLabel
+            // 
+            resources.ApplyResources(this.SatusLabel, "SatusLabel");
+            this.SatusLabel.Name = "SatusLabel";
+            // 
+            // AccountEditForm
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.SatusLabel);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.DisconnectBtn);
             this.Controls.Add(this.PlayerID);
             this.Controls.Add(this.DeleteBtn);
             this.Controls.Add(this.AccountNick);
@@ -118,7 +141,8 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "EditAcctForm";
+            this.Name = "AccountEditForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AccountEditForm_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.PlayerID)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -137,6 +161,9 @@
         private System.Windows.Forms.TextBox AccountNick;
         private System.Windows.Forms.Button DeleteBtn;
         private System.Windows.Forms.NumericUpDown PlayerID;
+        private System.Windows.Forms.Button DisconnectBtn;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label SatusLabel;
 
 
     }

@@ -70,9 +70,11 @@ namespace BF2Statistics
             bool Success;
             try
             {
-                Success = LoginServer.Database.CreateUser(AccountName.Text, AccountPass.Text, AccountEmail.Text, "00");
-                if (Success && PidSelect.SelectedIndex == 1)
-                    LoginServer.Database.SetPID(AccountName.Text, Pid);
+                // Attempt to create the account
+                if (PidSelect.SelectedIndex == 1)
+                    Success = LoginServer.Database.CreateUser(Pid, AccountName.Text, AccountPass.Text, AccountEmail.Text, "00");
+                else
+                    Success = LoginServer.Database.CreateUser(AccountName.Text, AccountPass.Text, AccountEmail.Text, "00");
             }
             catch(Exception E)
             {
