@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using System.Net;
 using BF2Statistics.ASP;
 using BF2Statistics.Database;
 using BF2Statistics.Logging;
@@ -133,6 +134,11 @@ namespace BF2Statistics.ASP
         /// All of player kill data (this can get quite huge)
         /// </summary>
         private List<Dictionary<string, string>> KillData;
+
+        /// <summary>
+        /// A List of local IP addresses for this machine
+        /// </summary>
+        private List<IPAddress> LocalIPs = Dns.GetHostAddresses(Dns.GetHostName()).ToList();
 
         /// <summary>
         /// On Finish Event
@@ -330,6 +336,7 @@ namespace BF2Statistics.ASP
                     bool IsAi = (Int32.Parse(Player["ai"]) != 0);
                     bool CompletedRound = (Int32.Parse(Player["c"]) == 1);
                     bool OnWinningTeam = (Int32.Parse(Player["t"]) == WinningTeam);
+                    IPAddress PlayerIp = IPAddress.Loopback;
 
                     // Player meets min round time or are we ignoring AI?
                     if ((Time < MainForm.Config.ASP_MinRoundTime) || (MainForm.Config.ASP_IgnoreAI && IsAi))
@@ -363,12 +370,8 @@ namespace BF2Statistics.ASP
                         Log(String.Format("Adding NEW Player ({0})", Pid), 3);
 
                         // Get playres country code
-                        string CC;
-                        Rows = Driver.Query("SELECT country FROM ip2nation WHERE ip < {0} ORDER BY ip DESC LIMIT 1", Utils.IP2Long(Player["ip"]));
-                        if (Rows.Count == 0)
-                            CC = "xx";
-                        else
-                            CC = Rows[0]["country"].ToString();
+                        IPAddress.TryParse(Player["ip"], out PlayerIp);
+                        string CC = GetCountryCode(PlayerIp);
 
                         // Build insert data
                         IStmt = new Dictionary<string, object>();
@@ -446,12 +449,9 @@ namespace BF2Statistics.ASP
                         int DbRank = Int32.Parse(DataRow["rank"].ToString());
 
                         // Update country if the ip has changed
-                        if (DataRow["ip"].ToString() != Player["ip"] && Player["ip"] != "127.0.0.1")
-                        {
-                            Rows = Driver.Query("SELECT country FROM ip2nation WHERE ip < {0} ORDER BY ip DESC LIMIT 1", Utils.IP2Long(Player["ip"]));
-                            if (Rows.Count != 0)
-                               CC = Rows[0]["country"].ToString();
-                        }
+                        IPAddress.TryParse(Player["ip"], out PlayerIp);
+                        if (DataRow["ip"].ToString() != Player["ip"])
+                            CC = GetCountryCode(PlayerIp);
 
                         // Verify/Correct Rank
                         if (MainForm.Config.ASP_StatsRankCheck)
@@ -1084,6 +1084,25 @@ namespace BF2Statistics.ASP
             Timer = new TimeSpan(Clock.ElapsedTicks);
             Log(String.Format("Snapshot ({0}) processed in {1} milliseconds", MapName, Timer.Milliseconds), -1);
             OnCallFinish();
+        }
+
+        /// <summary>
+        /// Gets the country code for a string IP address
+        /// </summary>
+        /// <param name="IP"></param>
+        /// <returns></returns>
+        private string GetCountryCode(IPAddress IP)
+        {
+            // Return default config Country Code
+            if (IPAddress.IsLoopback(IP) || LocalIPs.Contains(IP))
+                return MainForm.Config.ASP_LocalIpCountryCode;
+
+            // Fetch country code from Ip2Nation
+            List<Dictionary<string, object>> Rows = Driver.Query("SELECT country FROM ip2nation WHERE ip < {0} ORDER BY ip DESC LIMIT 1", Utils.IP2Long(IP.ToString()));
+            string CC = (Rows.Count == 0) ? "xx" : Rows[0]["country"].ToString();
+
+            // Fix country!
+            return (CC == "xx" || CC == "01") ? MainForm.Config.ASP_LocalIpCountryCode : CC;
         }
 
         /// <summary>

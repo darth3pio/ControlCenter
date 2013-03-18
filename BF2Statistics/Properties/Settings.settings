@@ -107,5 +107,8 @@
     <Setting Name="ServerFileMoniter" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="ASP_LocalIpCountryCode" Type="System.String" Scope="User">
+      <Value Profile="(Default)">us</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

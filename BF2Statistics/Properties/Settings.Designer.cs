@@ -442,5 +442,17 @@ namespace BF2Statistics.Properties {
                 this["ServerFileMoniter"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("us")]
+        public string ASP_LocalIpCountryCode {
+            get {
+                return ((string)(this["ASP_LocalIpCountryCode"]));
+            }
+            set {
+                this["ASP_LocalIpCountryCode"] = value;
+            }
+        }
     }
 }

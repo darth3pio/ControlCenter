@@ -7,5 +7,7 @@ namespace BF2Statistics
 {
     public delegate void ShutdownEventHandler();
 
+    public delegate void StartupEventHandler();
+
     public delegate void ConnectionUpdate(object sender);
 }

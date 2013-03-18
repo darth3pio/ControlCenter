@@ -74,10 +74,29 @@ namespace BF2Statistics.ASP.Requests
                     Output = new FormattedOutput("id", "state");
 
                     // Add each unlock's state
-                    Rows = Driver.Query("SELECT kit, state FROM unlocks WHERE id={0}", Pid);
+                    Dictionary<string, bool> Unlocks = new Dictionary<string, bool>();
+                    Rows = Driver.Query("SELECT kit, state FROM unlocks WHERE id={0} ORDER BY kit ASC", Pid);
                     foreach (Dictionary<string, object> Unlock in Rows)
-                        Output.AddRow(Unlock["kit"], Unlock["state"]);
+                    {
+                        // Add unlock to output if its a base unlock
+                        int Id = Int32.Parse(Unlock["kit"].ToString());
+                        if (Id < 78)
+                            Output.AddRow(Unlock["kit"], Unlock["state"]);
 
+                        // Add Unlock to list
+                        Unlocks.Add(Unlock["kit"].ToString(), (Unlock["state"].ToString() == "s"));
+                    }
+
+                    // Add SF Unlocks... We need the base class unlock unlocked first
+                    CheckUnlock(88, 22, Unlocks, Output);
+                    CheckUnlock(99, 33, Unlocks, Output);
+                    CheckUnlock(111, 44, Unlocks, Output);
+                    CheckUnlock(222, 55, Unlocks, Output);
+                    CheckUnlock(333, 66, Unlocks, Output);
+                    CheckUnlock(444, 11, Unlocks, Output);
+                    CheckUnlock(555, 77, Unlocks, Output);
+
+                    // Add unlock data
                     Response.AddData(Output);
                     break;
 
@@ -118,6 +137,10 @@ namespace BF2Statistics.ASP.Requests
             Response.Send();
         }
 
+        /// <summary>
+        /// Gets the total unlocks a player can have based off of rank, and awards
+        /// </summary>
+        /// <returns></returns>
         private int GetBonusUnlocks()
         {
             // Start with Kit unlocks (veteran awards and above)
@@ -134,6 +157,25 @@ namespace BF2Statistics.ASP.Requests
             else if (Rank >= 3) return Unlocks + 2;
             else if (Rank >= 2) return Unlocks + 1;
             else return Unlocks;
+        }
+
+        /// <summary>
+        /// This method adds special forces unlocks to the output, only if the base
+        /// class unlock is unlocked. We dont add the unlock if the base class unlock
+        /// is NOT unlocked, because if we do, then the user will be able to choose
+        /// the unlock, without earning the base unlock first
+        /// </summary>
+        /// <param name="Want">The SF unlock ID</param>
+        /// <param name="Need">The base class unlock ID</param>
+        /// <param name="Unlocks">All the unlocks, and status</param>
+        /// <param name="Output">Current FormatedOutput</param>
+        private void CheckUnlock(int Want, int Need, Dictionary<string, bool> Unlocks, FormattedOutput Output)
+        {
+            // If we have base unlock, add SF unlock to formatted output
+            if (Unlocks.ContainsKey(Need.ToString()) && Unlocks[Need.ToString()] == true)
+            {
+                Output.AddRow(Want, (Unlocks.ContainsKey(Want.ToString()) && Unlocks[Want.ToString()]) ? "s" : "n");
+            }
         }
     }
 }

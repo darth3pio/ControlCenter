@@ -53,6 +53,12 @@ namespace BF2Statistics.ASP.Requests
                 int.Parse(Rows[0]["usedunlocks"].ToString()) + 1,
                 Pid
             );
+
+            // Send Response
+            Output = new FormattedOutput("response");
+            Output.AddRow("OK");
+            Response.AddData(Output);
+            Response.Send();
         }
     }
 }

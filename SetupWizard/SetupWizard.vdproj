@@ -304,13 +304,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_ACB36BDD39DA2C912B03DD49EF03738D"
+        "OwnerKey" = "8:_A63D17CF5EB3C952E6F74DA906FCE35A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A63D17CF5EB3C952E6F74DA906FCE35A"
+        "OwnerKey" = "8:_ACB36BDD39DA2C912B03DD49EF03738D"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -1025,6 +1025,11 @@
             "AssemblyAsmDisplayName" = "8:System.Data.SQLite, Version=1.0.84.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
+                    "_A63D17CF5EB3C952E6F74DA906FCE35A"
+                    {
+                    "Name" = "8:System.Data.SQLite.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:System.Data.SQLite.dll"
             "TargetName" = "8:"
@@ -1051,6 +1056,11 @@
             "AssemblyAsmDisplayName" = "8:MySql.Data, Version=6.6.5.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_ACB36BDD39DA2C912B03DD49EF03738D"
+                    {
+                    "Name" = "8:MySql.Data.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:MySql.Data.dll"
             "TargetName" = "8:"
@@ -1560,15 +1570,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:BF2Statistics Control Center"
-        "ProductCode" = "8:{6EF0637E-F7A1-4D75-AA53-E38BF4011D29}"
-        "PackageCode" = "8:{7E3FA0B0-59A7-462F-B450-C7D83DB64A9C}"
+        "ProductCode" = "8:{011E5DA6-9BE6-49AA-8784-F0D88BD30601}"
+        "PackageCode" = "8:{28555188-3023-4FB9-B8EA-2237734A10C7}"
         "UpgradeCode" = "8:{2BC7A7AA-61E6-4E3E-9CC7-E199CC638CEB}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.2.0"
+        "ProductVersion" = "8:1.2.1"
         "Manufacturer" = "8:BF2Statistics"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.bf2statistics.com"

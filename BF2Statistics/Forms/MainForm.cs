@@ -185,7 +185,10 @@ namespace BF2Statistics
             FileMoniter.Checked = Config.ServerFileMoniter;
 
             // Register for ASP and Login server events
+            ASPServer.OnStart += new StartupEventHandler(ASPServer_OnStart);
             ASPServer.OnShutdown += new ShutdownEventHandler(ASPServer_OnShutdown);
+
+            LoginServer.OnStart += new StartupEventHandler(LoginServer_OnStart);
             LoginServer.OnShutdown += new ShutdownEventHandler(LoginServer_OnShutdown);
             LoginServer.OnUpdate += new EventHandler(LoginServer_OnUpdate);
 
@@ -359,10 +362,6 @@ namespace BF2Statistics
                 {
                     LoginStatusPic.Image = Resources.white;
                     LoginServer.Start();
-                    LoginStatusPic.Image = Properties.Resources.green;
-                    LaunchEmuBtn.Text = "Shutdown Login Server";
-                    CreateAcctBtn.Enabled = true;
-                    EditAcctBtn.Enabled = true;
                 }
                 catch
                 {
@@ -372,28 +371,6 @@ namespace BF2Statistics
             else
             {
                 LoginServer.Shutdown();
-                ConnectedClients.Clear();
-                ClientCountLabel.Text = "Number of Connected Clients: 0";
-                LaunchEmuBtn.Text = "Start Login Server";
-                CreateAcctBtn.Enabled = false;
-                EditAcctBtn.Enabled = false;
-            }
-        }
-
-        /// <summary>
-        /// Event fired when the login emulator shutsdown
-        /// </summary>
-        private void LoginServer_OnShutdown()
-        {
-            // Make this cross thread safe
-            if (LoginStatusPic.InvokeRequired)
-            {
-                this.Invoke(new Action(LoginServer_OnShutdown));
-            }
-            else
-            {
-                LoginStatusPic.Image = Properties.Resources.red;
-                LaunchEmuBtn.Text = "Start Login Server";
             }
         }
 
@@ -569,6 +546,46 @@ namespace BF2Statistics
         #region Login Emulator Tab
 
         /// <summary>
+        /// Event fired when the login server starts
+        /// </summary>
+        private void LoginServer_OnStart()
+        {
+            // Make this cross thread safe
+            if (LoginStatusPic.InvokeRequired)
+            {
+                this.Invoke(new Action(LoginServer_OnShutdown));
+            }
+            else
+            {
+                LoginStatusPic.Image = Properties.Resources.green;
+                LaunchEmuBtn.Text = "Shutdown Login Server";
+                CreateAcctBtn.Enabled = true;
+                EditAcctBtn.Enabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Event fired when the login emulator shutsdown
+        /// </summary>
+        private void LoginServer_OnShutdown()
+        {
+            // Make this cross thread safe
+            if (LoginStatusPic.InvokeRequired)
+            {
+                this.Invoke(new Action(LoginServer_OnShutdown));
+            }
+            else
+            {
+                ConnectedClients.Clear();
+                LoginStatusPic.Image = Properties.Resources.red;
+                ClientCountLabel.Text = "Number of Connected Clients: 0";
+                LaunchEmuBtn.Text = "Start Login Server";
+                CreateAcctBtn.Enabled = false;
+                EditAcctBtn.Enabled = false;
+            }
+        }
+
+        /// <summary>
         /// This method updates the connected clients area of the login emulator tab
         /// </summary>
         /// <param name="sender"></param>
@@ -580,37 +597,13 @@ namespace BF2Statistics
             foreach (GpcmClient C in Clients.Clients)
                 SB.AppendFormat(" {0} ({1}) - {2}{3}", C.ClientNick, C.ClientPID, C.IpAddress, Environment.NewLine);
 
-            UpdateClientCount("Number of Connected Clients: " + Clients.Clients.Count);
-            UpdateClientList(SB.ToString());
-        }
-
-        /// <summary>
-        /// Updates the client count label
-        /// </summary>
-        /// <param name="text"></param>
-        public void UpdateClientCount(string text)
-        {
-            if (ClientCountLabel.InvokeRequired)
-                this.Invoke(new Action<string>(UpdateClientCount), new object[] { text });
-            else
-                ClientCountLabel.Text = text;
-        }
-
-        /// <summary>
-        /// Updates the connected  clients list
-        /// </summary>
-        /// <param name="list"></param>
-        public void UpdateClientList(string list)
-        {
-            if (ConnectedClients.InvokeRequired)
+            // Update connected clients count, and list
+            this.Invoke((MethodInvoker)delegate
             {
-                this.Invoke(new Action<string>(UpdateClientList), new object[] { list });
-            }
-            else
-            {
+                ClientCountLabel.Text = "Number of Connected Clients: " + Clients.Clients.Count;
                 ConnectedClients.Clear();
-                ConnectedClients.Text = list;
-            }
+                ConnectedClients.Text = SB.ToString();
+            });
         }
 
         private void CreateAcctBtn_Click(object sender, EventArgs e)
@@ -1205,12 +1198,6 @@ namespace BF2Statistics
 
                     // Start server, and enable the disabled buttons and vice versa
                     ASPServer.Start();
-                    AspStatusPic.Image = Resources.green;
-                    StartAspServerBtn.Text = "Shutdown ASP Server";
-                    ViewSnapshotBtn.Enabled = true;
-                    EditPlayerBtn.Enabled = true;
-                    EditASPDatabaseBtn.Enabled = false;
-                    ClearStatsBtn.Enabled = true;
                 }
                 catch (HttpListenerException E)
                 {
@@ -1241,6 +1228,19 @@ namespace BF2Statistics
                     ErrorLog.Write(E.Message);
                 }
             }
+        }
+
+        /// <summary>
+        /// Update the GUI when the ASP starts up
+        /// </summary>
+        private void ASPServer_OnStart()
+        {
+            AspStatusPic.Image = Resources.green;
+            StartAspServerBtn.Text = "Shutdown ASP Server";
+            ViewSnapshotBtn.Enabled = true;
+            EditPlayerBtn.Enabled = true;
+            EditASPDatabaseBtn.Enabled = false;
+            ClearStatsBtn.Enabled = true;
         }
 
         /// <summary>

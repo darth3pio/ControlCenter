@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.Common;
+using System.IO;
 
 namespace BF2Statistics.Database
 {
@@ -77,12 +78,19 @@ namespace BF2Statistics.Database
         /// </summary>
         public void Truncate()
         {
-            List<string> Tables = GetStatsTables();
-            foreach (string Table in Tables)
+            // Sqlite Database doesnt have a truncate method, so we will just recreate the database
+            if (Driver.DatabaseEngine == DatabaseEngine.Sqlite)
             {
-                if (Driver.DatabaseEngine == DatabaseEngine.Sqlite)
-                    Driver.Execute("DELETE FROM " + Table);
-                else
+                ASP.ASPServer.Stop();
+                File.Delete(Path.Combine(MainForm.Root, MainForm.Config.StatsDBName + ".sqlite3"));
+                System.Threading.Thread.Sleep(500); // Make sure the file deletes before the ASP server starts again!
+                ASP.ASPServer.Start();
+            }
+            else
+            {
+                // Use MySQL's truncate method to clear the tables
+                List<string> Tables = GetStatsTables();
+                foreach (string Table in Tables)
                     Driver.Execute("TRUNCATE TABLE " + Table);
             }
         }

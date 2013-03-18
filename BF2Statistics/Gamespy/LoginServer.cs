@@ -55,6 +55,11 @@ namespace BF2Statistics.Gamespy
         public static TextBox StatusWindow;
 
         /// <summary>
+        /// Event that is fired when the login server is started
+        /// </summary>
+        public static event StartupEventHandler OnStart;
+
+        /// <summary>
         /// Event that is fired when the login server is shutdown
         /// </summary>
         public static event ShutdownEventHandler OnShutdown;
@@ -109,6 +114,9 @@ namespace BF2Statistics.Gamespy
             // Let the client know we are ready for connections
             isRunning = true;
             StatusWindow.Text += Environment.NewLine + "Ready for connections!" + Environment.NewLine;
+
+            // Fire event
+            OnStart();
         }
 
         /// <summary>

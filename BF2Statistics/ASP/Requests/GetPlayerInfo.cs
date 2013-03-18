@@ -91,12 +91,6 @@ namespace BF2Statistics.ASP.Requests
                 Response.Send();
                 return;
             }
-            else
-            {
-                Output = new FormattedOutput("asof");
-                Output.AddRow(Utils.UnixTimestamp());
-                Response.AddData(Output);
-            }
 
             // Get Missing keys for a standard request
             List<string> ReqKeys = RequiredKeys.Split(',').ToList<string>();
@@ -135,6 +129,12 @@ namespace BF2Statistics.ASP.Requests
                 Response.IsValidData(false);
                 Response.Send();
                 return;
+            }
+            else
+            {
+                Output = new FormattedOutput("asof");
+                Output.AddRow(Utils.UnixTimestamp());
+                Response.AddData(Output);
             }
 
             // Add Player Data
@@ -258,6 +258,12 @@ namespace BF2Statistics.ASP.Requests
                 Response.IsValidData(false);
                 Response.Send();
                 return;
+            }
+            else
+            {
+                Output = new FormattedOutput("asof");
+                Output.AddRow(Utils.UnixTimestamp());
+                Response.AddData(Output);
             }
 
             // Prepare output
@@ -492,6 +498,12 @@ namespace BF2Statistics.ASP.Requests
                 Response.IsValidData(false);
                 Response.Send();
                 return;
+            }
+            else
+            {
+                Output = new FormattedOutput("asof");
+                Output.AddRow(Utils.UnixTimestamp());
+                Response.AddData(Output);
             }
 
             // Add default player data

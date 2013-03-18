@@ -43,6 +43,11 @@ namespace BF2Statistics.ASP
         public static event ShutdownEventHandler OnShutdown;
 
         /// <summary>
+        /// Event fired when ASP server is started
+        /// </summary>
+        public static event StartupEventHandler OnStart;
+
+        /// <summary>
         /// Is the webserver running?
         /// </summary>
         public static bool IsRunning
@@ -86,6 +91,9 @@ namespace BF2Statistics.ASP
                 Listener.Start();
                 Listener.BeginGetContext(new AsyncCallback(AcceptClient), Listener);
                 StatusBox.Text += "\r\nReady for Connections!\r\n";
+                
+                // Fire Startup Event
+                OnStart();
             }
         }
 
@@ -221,6 +229,9 @@ namespace BF2Statistics.ASP
                         break;
                     case "searchforplayers.aspx":
                         new SearchForPlayers(Response, QueryString);
+                        break;
+                    case "selectunlock.aspx":
+                        new SelectUnlock(Response, QueryString);
                         break;
                     default:
                         Response.StatusCode = 404;
