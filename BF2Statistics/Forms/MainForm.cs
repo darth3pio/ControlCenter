@@ -53,7 +53,7 @@ namespace BF2Statistics
         public static string SelectedMod { get; protected set; }
 
         /// <summary>
-        /// Is Stats Enabled?
+        /// Returns a bool stating whether the stats enabled python files are installed
         /// </summary>
         public static bool StatsEnabled { get; protected set; }
 
@@ -73,12 +73,12 @@ namespace BF2Statistics
         public static string ServerPythonPath { get; protected set; }
 
         /// <summary>
-        /// Full path to the stats python files
+        /// Full path to the stats enabled python files
         /// </summary>
         public static string RankedPythonPath { get; protected set; }
 
         /// <summary>
-        /// Full path to the backup python files
+        /// Full path to the Non-Ranked (default) python files
         /// </summary>
         public static string NonRankedPythonPath { get; protected set; }
 
@@ -619,7 +619,7 @@ namespace BF2Statistics
             Form.ShowDialog();
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void EditGamespyConfigBtn_Click(object sender, EventArgs e)
         {
             GamespyConfig Form = new GamespyConfig();
             Form.ShowDialog();
@@ -1405,6 +1405,16 @@ namespace BF2Statistics
         {
             InstallForm IS = new InstallForm();
             IS.ShowDialog();
+        }
+
+        /// <summary>
+        /// Open Program Folder Click Event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OpenRootBtn_Click(object sender, EventArgs e)
+        {
+            Process.Start(Root);
         }
 
         #endregion About Tab

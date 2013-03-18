@@ -134,6 +134,9 @@ namespace BF2Statistics.Gamespy
             CmServer.Shutdown();
             SpServer.Shutdown();
 
+            // Unregister events
+            CmServer.OnUpdate -= new EventHandler(CmServer_OnUpdate);
+
             // Close the database connection
             Database.Close();
 
@@ -145,9 +148,14 @@ namespace BF2Statistics.Gamespy
             StatusWindow.Text += "Server shutdown Successfully";
         }
 
-        public static bool LogClientOut(int Pid)
+        /// <summary>
+        /// Forces the logout of a connected client
+        /// </summary>
+        /// <param name="Pid"></param>
+        /// <returns></returns>
+        public static bool ForceLogout(int Pid)
         {
-            return (IsRunning) ? CmServer.LogClientOut(Pid) : false;
+            return (IsRunning) ? CmServer.ForceLogout(Pid) : false;
         }
 
         /// <summary>

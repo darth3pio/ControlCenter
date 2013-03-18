@@ -15,13 +15,19 @@ namespace BF2Statistics.Database
         /// <summary>
         /// Our expected Database Version
         /// </summary>
-        int ExpectedVersion = 2;
+        public static readonly int ExpectedVersion = 2;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public GamespyDatabase()
         {
             CheckConnection();
         }
 
+        /// <summary>
+        /// Destructor
+        /// </summary>
         ~GamespyDatabase()
         {
             Close();
@@ -190,8 +196,8 @@ namespace BF2Statistics.Database
         /// <summary>
         /// Updates an Account's information by ID
         /// </summary>
-        /// <param name="Id">The Account Player ID</param>
-        /// <param name="NewPid">New Account Player ID</param>
+        /// <param name="Id">The Current Account ID</param>
+        /// <param name="NewPid">New Account ID</param>
         /// <param name="NewNick">New Account Name</param>
         /// <param name="NewPassword">New Account Password</param>
         /// <param name="NewEmail">New Account Email Address</param>
@@ -336,6 +342,10 @@ namespace BF2Statistics.Database
             }
         }
 
+        /// <summary>
+        /// Checks the Gamespy database, making sure the tables exist within,
+        /// and that the database is up to date.
+        /// </summary>
         private void CheckDatabase()
         {
             // Make sure our tables still exist
@@ -367,6 +377,9 @@ namespace BF2Statistics.Database
             }
         }
 
+        /// <summary>
+        /// Closes the Gamespy Database Connection
+        /// </summary>
         public void Close()
         {
             if (Driver != null)

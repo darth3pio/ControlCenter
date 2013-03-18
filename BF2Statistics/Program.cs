@@ -1,4 +1,13 @@
-﻿using System;
+﻿/// <summary>
+/// ---------------------------------------
+/// Battlefield 2 Statistics Control Center
+/// ---------------------------------------
+/// Created By: Steven Wilson <Wilson212>
+/// Copyright (C) 2013, Steven Wilson. All Rights Reserved
+/// ---------------------------------------
+/// </summary>
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -15,11 +24,7 @@ namespace BF2Statistics
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            try
-            {
-                Application.Run(new MainForm());
-            }
-            catch (ObjectDisposedException) { }
+            Application.Run(new MainForm());
         }
     }
 }

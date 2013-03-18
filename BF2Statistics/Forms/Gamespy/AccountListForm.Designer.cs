@@ -76,8 +76,8 @@
             this.richTextBox1.Name = "richTextBox1";
             this.richTextBox1.Size = new System.Drawing.Size(739, 24);
             this.richTextBox1.TabIndex = 21;
-            this.richTextBox1.Text = "Below is a list of all the players in your stats database. Select a player to edi" +
-                "t or view by double clicking on a player below";
+            this.richTextBox1.Text = "Below is a list of all the gamespy accounts in your database. Select an account t" +
+                "o edit or view by double clicking on a player below";
             // 
             // PageNumber
             // 

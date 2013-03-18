@@ -14,7 +14,7 @@ namespace BF2Statistics
     public partial class AccountListForm : Form
     {
         /// <summary>
-        /// Our database connection
+        /// The Gamespy database driver
         /// </summary>
         private DatabaseDriver Driver = LoginServer.Database.Driver;
 

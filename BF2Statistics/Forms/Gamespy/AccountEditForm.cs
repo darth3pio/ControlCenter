@@ -47,13 +47,17 @@ namespace BF2Statistics
             }
         }
 
+        /// <summary>
+        /// We cant modify connected client accounts. When the account goes offline,
+        /// we re-enable the update button and status
+        /// </summary>
+        /// <param name="sender"></param>
         private void GpcmClient_OnDisconnect(object sender)
         {
             GpcmClient Client = (GpcmClient)sender;
             if (Client.ClientPID == AccountId)
             {
                 // Since we are in a different thread, Invoke
-                //SatusLabel.Invoke((MethodInvoker)delegate { SatusLabel.Text = "Offline"; });
                 Invoke(new Action( () =>
                 {
                     SatusLabel.Text = "Offline";
@@ -64,13 +68,17 @@ namespace BF2Statistics
             }
         }
 
+        /// <summary>
+        /// We cant modify connected client accounts. When the account logs in,
+        /// we disable the update buttonn and update the status
+        /// </summary>
+        /// <param name="sender"></param>
         private void GpcmClient_OnSuccessfulLogin(object sender)
         {
             GpcmClient Client = (GpcmClient)sender;
             if (Client.ClientPID == AccountId)
             {
                 // Since we are in a different thread, Invoke
-                //SatusLabel.Invoke((MethodInvoker)delegate { SatusLabel.Text = "Online (IP: " + Client.IpAddress.ToString() + ")"; });
                 Invoke(new Action( () =>
                 {
                     SatusLabel.Text = "Online (IP: " + Client.IpAddress.ToString() + ")";
@@ -145,11 +153,23 @@ namespace BF2Statistics
             }
         }
 
+        /// <summary>
+        /// Event fire when disconnect button is pushed. Forces the account
+        /// to log out.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DisconnectBtn_Click(object sender, EventArgs e)
         {
-            LoginServer.LogClientOut(AccountId);
+            LoginServer.ForceLogout(AccountId);
         }
 
+        /// <summary>
+        /// When the form starts to close, we need to unregister for the OnDisconnect
+        /// event.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AccountEditForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             GpcmClient.OnDisconnect -= new ConnectionUpdate(GpcmClient_OnDisconnect);

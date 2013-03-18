@@ -15,6 +15,11 @@ namespace BF2Statistics.Database
             CheckConnection();
         }
 
+        /// <summary>
+        /// Returns a list of awards a player has earned
+        /// </summary>
+        /// <param name="Pid"></param>
+        /// <returns></returns>
         public List<Dictionary<string, object>> GetPlayerAwards(int Pid)
         {
             CheckConnection();
@@ -153,6 +158,10 @@ namespace BF2Statistics.Database
             }
         }
 
+        /// <summary>
+        /// On a new Sqlite database, this method will create the default tables
+        /// </summary>
+        /// <param name="Driver"></param>
         private void CreateSqliteTables(DatabaseDriver Driver)
         {
             // Show Progress Form
@@ -188,6 +197,10 @@ namespace BF2Statistics.Database
             MainForm.Enable();
         }
 
+        /// <summary>
+        /// On a new Mysql database, this method will create the default tables
+        /// </summary>
+        /// <param name="Driver"></param>
         private void CreateMysqlTables(DatabaseDriver Driver)
         {
             // Show Progress Form
@@ -228,6 +241,9 @@ namespace BF2Statistics.Database
             MainForm.Enable();
         }
 
+        /// <summary>
+        /// Closes the database connection
+        /// </summary>
         public void Close()
         {
             if (Driver != null)

@@ -20,6 +20,9 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         private List<GpcmClient> Clients = new List<GpcmClient>();
 
+        /// <summary>
+        /// An event called everytime a client connects, or disconnects from the server
+        /// </summary>
         public event EventHandler OnUpdate;
 
         public GpcmServer()
@@ -62,7 +65,12 @@ namespace BF2Statistics.Gamespy
             return Clients.Count;
         }
 
-        public bool LogClientOut(int Pid)
+        /// <summary>
+        /// Forces the logout of a connected client
+        /// </summary>
+        /// <param name="Pid">The account ID</param>
+        /// <returns></returns>
+        public bool ForceLogout(int Pid)
         {
             foreach (GpcmClient C in Clients)
             {

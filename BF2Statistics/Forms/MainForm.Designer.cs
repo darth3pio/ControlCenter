@@ -86,7 +86,7 @@
             this.groupBox9 = new System.Windows.Forms.GroupBox();
             this.CreateAcctBtn = new System.Windows.Forms.Button();
             this.EditAcctBtn = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.EditGamespyConfigBtn = new System.Windows.Forms.Button();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.EmuStatusWindow = new System.Windows.Forms.TextBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
@@ -143,6 +143,7 @@
             this.Bf2webAddress = new System.Windows.Forms.TextBox();
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.OpenRootBtn = new System.Windows.Forms.Button();
             this.SetupBtn = new System.Windows.Forms.Button();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
@@ -790,7 +791,7 @@
             // 
             this.groupBox9.Controls.Add(this.CreateAcctBtn);
             this.groupBox9.Controls.Add(this.EditAcctBtn);
-            this.groupBox9.Controls.Add(this.button3);
+            this.groupBox9.Controls.Add(this.EditGamespyConfigBtn);
             this.groupBox9.Location = new System.Drawing.Point(20, 189);
             this.groupBox9.Name = "groupBox9";
             this.groupBox9.Size = new System.Drawing.Size(260, 125);
@@ -816,19 +817,19 @@
             this.EditAcctBtn.Name = "EditAcctBtn";
             this.EditAcctBtn.Size = new System.Drawing.Size(140, 28);
             this.EditAcctBtn.TabIndex = 23;
-            this.EditAcctBtn.Text = "Edit Account";
+            this.EditAcctBtn.Text = "Manage Accounts";
             this.EditAcctBtn.UseVisualStyleBackColor = true;
             this.EditAcctBtn.Click += new System.EventHandler(this.EditAcctBtn_Click);
             // 
-            // button3
+            // EditGamespyConfigBtn
             // 
-            this.button3.Location = new System.Drawing.Point(60, 19);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(140, 28);
-            this.button3.TabIndex = 21;
-            this.button3.Text = "Edit Server Config";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.EditGamespyConfigBtn.Location = new System.Drawing.Point(60, 19);
+            this.EditGamespyConfigBtn.Name = "EditGamespyConfigBtn";
+            this.EditGamespyConfigBtn.Size = new System.Drawing.Size(140, 28);
+            this.EditGamespyConfigBtn.TabIndex = 21;
+            this.EditGamespyConfigBtn.Text = "Edit Server Config";
+            this.EditGamespyConfigBtn.UseVisualStyleBackColor = true;
+            this.EditGamespyConfigBtn.Click += new System.EventHandler(this.EditGamespyConfigBtn_Click);
             // 
             // groupBox7
             // 
@@ -1409,6 +1410,7 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.OpenRootBtn);
             this.groupBox5.Controls.Add(this.SetupBtn);
             this.groupBox5.Controls.Add(this.pictureBox2);
             this.groupBox5.Controls.Add(this.textBox3);
@@ -1420,6 +1422,16 @@
             this.groupBox5.Size = new System.Drawing.Size(570, 325);
             this.groupBox5.TabIndex = 9;
             this.groupBox5.TabStop = false;
+            // 
+            // OpenRootBtn
+            // 
+            this.OpenRootBtn.Location = new System.Drawing.Point(283, 200);
+            this.OpenRootBtn.Name = "OpenRootBtn";
+            this.OpenRootBtn.Size = new System.Drawing.Size(125, 25);
+            this.OpenRootBtn.TabIndex = 11;
+            this.OpenRootBtn.Text = "Open Program Folder";
+            this.OpenRootBtn.UseVisualStyleBackColor = true;
+            this.OpenRootBtn.Click += new System.EventHandler(this.OpenRootBtn_Click);
             // 
             // SetupBtn
             // 
@@ -1598,7 +1610,7 @@
         private System.Windows.Forms.GroupBox groupBox6;
         private System.Windows.Forms.GroupBox groupBox7;
         private System.Windows.Forms.GroupBox groupBox8;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button EditGamespyConfigBtn;
         private System.Windows.Forms.GroupBox groupBox9;
         private System.Windows.Forms.Button EditAcctBtn;
         private System.Windows.Forms.GroupBox groupBox10;
@@ -1690,6 +1702,7 @@
         private System.Windows.Forms.Button BF2sConfigBtn;
         private System.Windows.Forms.TextBox InstallBox;
         private System.Windows.Forms.Button InstallButton;
+        private System.Windows.Forms.Button OpenRootBtn;
     }
 }
 

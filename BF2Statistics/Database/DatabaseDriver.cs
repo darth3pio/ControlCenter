@@ -113,8 +113,7 @@ namespace BF2Statistics.Database
         /// </summary>
         public void Close()
         {
-            try
-            {
+            try {
                 Connection.Close();
             }
             catch { }

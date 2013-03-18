@@ -59,7 +59,7 @@ namespace BF2Statistics.ASP
         }
 
         /// <summary>
-        /// The status box
+        /// The status box the ASP server will update status on
         /// </summary>
         private static TextBox StatusBox;
 
@@ -154,11 +154,12 @@ namespace BF2Statistics.ASP
                             throw new Exception();
                         }
                     }
-                    catch(Exception)
+                    catch
                     {
                         // Set service is unavialable
                         Client.Response.StatusCode = 503;
                         Client.Response.Close();
+                        Stop(); // Dont accept anymore connections if the database is offline
                         return;
                     }
                 }

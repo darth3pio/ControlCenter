@@ -149,11 +149,7 @@ namespace BF2Statistics.Gamespy
         /// <summary>
         /// Returns the connected clients Player Id
         /// </summary>
-        public int ClientPID
-        {
-            get;
-            protected set;
-        }
+        public int ClientPID { get; protected set; }
 
         /// <summary>
         /// Current user information
@@ -161,7 +157,7 @@ namespace BF2Statistics.Gamespy
         private Dictionary<string, object> User;
 
         /// <summary>
-        /// An Event for when we have successfully logged in.
+        /// An Event that is fired when the client successfully logs in.
         /// </summary>
         public static event ConnectionUpdate OnSuccessfulLogin;
 
@@ -176,12 +172,13 @@ namespace BF2Statistics.Gamespy
 
         public GpcmClient(TcpClient Client)
         {
+            // Set default variable values
             this.Connection = Client;
             this.IpAddress = ((IPEndPoint)Connection.Client.RemoteEndPoint).Address;
             this.Stream = new TcpClientStream(Client);
-
             this.Disposed = false;
 
+            // Handle client in a new thread
             ClientThread = new Thread(new ThreadStart(HandleClient));
             ClientThread.IsBackground = true;
             ClientThread.Start();
@@ -195,10 +192,13 @@ namespace BF2Statistics.Gamespy
             this.Dispose();
         }
 
+        /// <summary>
+        /// Closes the connection, and disposes of the client object
+        /// </summary>
         public void Dispose()
         {
             // If connection is still alive, disconnect user
-            if (Connection.Client.Connected)
+            if (Connection.Client.IsConnected())
                 Connection.Close();
 
             // Call disconnect event
@@ -211,6 +211,9 @@ namespace BF2Statistics.Gamespy
 
         #region Steps
 
+        /// <summary>
+        /// Main loop for handling the client stream
+        /// </summary>
         private void HandleClient()
         {
             // If there is data in the stream, clear it out!
@@ -276,12 +279,10 @@ namespace BF2Statistics.Gamespy
         {
             // Get user data from database
             // Database will handle console print out on exception
-            try
-            {
+            try {
                 User = LoginServer.Database.GetUser(clientNick);
             }
-            catch
-            {
+            catch {
                 Dispose();
                 return;
             }
@@ -309,8 +310,7 @@ namespace BF2Statistics.Gamespy
 
                 // Use the GenerateResponseValue method to create the proof string
                 string proof = GenerateResponseValue(clientNick, (string)User["password"], serverChallengeKey, clientChallengeKey);
-                Stream.Write(
-                    "\\lc\\2\\sesskey\\{0}\\proof\\{1}\\userid\\{2}\\profileid\\{3}\\uniquenick\\{4}\\lt\\{5}__\\id\\1\\final\\",
+                Stream.Write("\\lc\\2\\sesskey\\{0}\\proof\\{1}\\userid\\{2}\\profileid\\{3}\\uniquenick\\{4}\\lt\\{5}__\\id\\1\\final\\",
                     GenerateSession(), proof, pid, pid, clientNick, clientLt
                 );
 
@@ -332,8 +332,7 @@ namespace BF2Statistics.Gamespy
         /// <param name="retrieve">Determines the return ID</param>
         private void SendProfile(bool retrieve)
         {
-            Stream.Write(
-                    "\\pi\\\\profileid\\{0}\\nick\\{1}\\userid\\{2}\\email\\{3}\\sig\\{4}\\uniquenick\\{5}\\pid\\0\\firstname\\\\lastname\\" +
+            Stream.Write("\\pi\\\\profileid\\{0}\\nick\\{1}\\userid\\{2}\\email\\{3}\\sig\\{4}\\uniquenick\\{5}\\pid\\0\\firstname\\\\lastname\\" +
                     "\\countrycode\\{6}\\birthday\\16844722\\lon\\0.000000\\lat\\0.000000\\loc\\\\id\\{7}\\final\\",
                     (string)User["id"], clientNick, (string)User["id"], (string)User["email"], GenerateSig(), clientNick, (string)User["country"], 
                     (retrieve ? "5" : "2"));

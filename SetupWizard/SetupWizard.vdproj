@@ -304,13 +304,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A63D17CF5EB3C952E6F74DA906FCE35A"
+        "OwnerKey" = "8:_ACB36BDD39DA2C912B03DD49EF03738D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_ACB36BDD39DA2C912B03DD49EF03738D"
+        "OwnerKey" = "8:_A63D17CF5EB3C952E6F74DA906FCE35A"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -1025,11 +1025,6 @@
             "AssemblyAsmDisplayName" = "8:System.Data.SQLite, Version=1.0.84.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
-                    "_A63D17CF5EB3C952E6F74DA906FCE35A"
-                    {
-                    "Name" = "8:System.Data.SQLite.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:System.Data.SQLite.dll"
             "TargetName" = "8:"
@@ -1056,11 +1051,6 @@
             "AssemblyAsmDisplayName" = "8:MySql.Data, Version=6.6.5.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_ACB36BDD39DA2C912B03DD49EF03738D"
-                    {
-                    "Name" = "8:MySql.Data.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:MySql.Data.dll"
             "TargetName" = "8:"
@@ -1570,15 +1560,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:BF2Statistics Control Center"
-        "ProductCode" = "8:{2E9E53A6-D946-4BDB-A755-A15F87C8B064}"
-        "PackageCode" = "8:{99DEC9B6-A3BF-4E90-8942-0EF549C43F49}"
+        "ProductCode" = "8:{6EF0637E-F7A1-4D75-AA53-E38BF4011D29}"
+        "PackageCode" = "8:{7E3FA0B0-59A7-462F-B450-C7D83DB64A9C}"
         "UpgradeCode" = "8:{2BC7A7AA-61E6-4E3E-9CC7-E199CC638CEB}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.1.0"
+        "ProductVersion" = "8:1.2.0"
         "Manufacturer" = "8:BF2Statistics"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.bf2statistics.com"
@@ -1695,7 +1685,7 @@
             {
             "Name" = "8:Battlefield 2 Statistics Control Center"
             "Arguments" = "8:"
-            "Description" = "8:"
+            "Description" = "8:Click here to launch Bf2Statistics Control Center"
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
@@ -2120,7 +2110,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_466C0CA44ECD4B9DA55729F17C117922"
             {
-            "SourcePath" = "8:..\\BF2Statistics\\obj\\x86\\Debug\\BF2Statistics.exe"
+            "SourcePath" = "8:..\\BF2Statistics\\obj\\x86\\Release\\BF2Statistics.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_1C5681D20B8C4DEDB2774728B254999B"
