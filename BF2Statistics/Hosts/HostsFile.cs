@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Security.AccessControl;
+using System.Security.Principal;
+using System.Net;
 
 namespace BF2Statistics
 {
@@ -17,7 +19,12 @@ namespace BF2Statistics
         /// <summary>
         /// Hosts file security object
         /// </summary>
-        protected FileSecurity Fs;
+        protected FileSecurity Security;
+
+        /// <summary>
+        /// The windows permission that represents everyone
+        /// </summary>
+        protected SecurityIdentifier WorldSid;
 
         /// <summary>
         /// Each line of the hosts file stored in a list. ALl redirects are removed
@@ -33,7 +40,10 @@ namespace BF2Statistics
         public HostsFile()
         {
             // Get the hosts file access control
-            Fs = File.GetAccessControl(FilePath);
+            Security = File.GetAccessControl(FilePath);
+
+            // Get our "Everyone" user permission ID
+            WorldSid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
 
             // Make sure we can read the file amd write to it!
             try {
@@ -73,21 +83,28 @@ namespace BF2Statistics
             Backup();
         }
 
+        /// <summary>
+        /// Removes the "Deny" read permissions, and adds the "Allow" read permission
+        /// on the HOSTS file
+        /// </summary>
         public void UnLock()
         {
             // Allow ReadData
-            Fs.RemoveAccessRule(new FileSystemAccessRule("users", FileSystemRights.ReadData, AccessControlType.Deny));
-            Fs.AddAccessRule(new FileSystemAccessRule("users", FileSystemRights.ReadData, AccessControlType.Allow));
-            File.SetAccessControl(FilePath, Fs);
+            Security.RemoveAccessRule(new FileSystemAccessRule(WorldSid, FileSystemRights.ReadData, AccessControlType.Deny));
+            Security.AddAccessRule(new FileSystemAccessRule(WorldSid, FileSystemRights.ReadData, AccessControlType.Allow));
+            File.SetAccessControl(FilePath, Security);
         }
 
+        /// <summary>
+        /// Removes the "Allow" read permissions, and adds the "Deny" read permission
+        /// on the HOSTS file
+        /// </summary>
         public void Lock()
         {
-            Fs.RemoveAccessRule(new FileSystemAccessRule("users", FileSystemRights.ReadData, AccessControlType.Allow));
-            Fs.AddAccessRule(new FileSystemAccessRule("users", FileSystemRights.ReadData, AccessControlType.Deny));
-            File.SetAccessControl(FilePath, Fs);
+            Security.RemoveAccessRule(new FileSystemAccessRule(WorldSid, FileSystemRights.ReadData, AccessControlType.Allow));
+            Security.AddAccessRule(new FileSystemAccessRule(WorldSid, FileSystemRights.ReadData, AccessControlType.Deny));
+            File.SetAccessControl(FilePath, Security);
         }
-
 
         /// <summary>
         /// Adds lines to the hosts file
@@ -101,18 +118,15 @@ namespace BF2Statistics
                 foreach (KeyValuePair<String, String> line in add)
                 {
                     if (Lines.ContainsKey(line.Key))
-                    {
                         Lines[line.Key] = line.Value;
-                        continue;
-                    }
-
-                    Lines.Add(line.Key, line.Value);
+                    else
+                        Lines.Add(line.Key, line.Value);
                 }
 
                 // Convert the dictionary of lines to a list of lines
                 List<string> lns = new List<string>();
                 foreach (KeyValuePair<String, String> line in Lines)
-                    lns.Add( String.Format("{0}\t{1}", line.Value, line.Key) );
+                    lns.Add(String.Format("{0}\t{1}", line.Value, line.Key));
 
                 File.WriteAllLines(FilePath, lns);
             }
@@ -143,6 +157,14 @@ namespace BF2Statistics
                     Lines.Add(M.Groups["hostname"].Value.ToLower().Trim(), M.Groups["address"].Value.Trim());
             }
 
+            // Make sure we have a localhost loopback! Save aswell, so its available for future
+            if (!Lines.ContainsKey("localhost"))
+            {
+                OrigContents.Add("127.0.0.1\tlocalhost");
+                Lines.Add("localhost", IPAddress.Loopback.ToString());
+                File.WriteAllLines(FilePath, OrigContents);
+            }
+
             // Remove old dirty redirects from the Backup
             for (int i = OrigContents.Count - 1; i >= 0; i--)
             {
@@ -152,13 +174,6 @@ namespace BF2Statistics
                     OrigContents.RemoveAt(i);
                 else if (OrigContents[i].Contains("gpsp.gamespy.com"))
                     OrigContents.RemoveAt(i);
-            }
-
-            // Make sure we have a localhost loopback!
-            if (!Lines.ContainsKey("localhost"))
-            {
-                OrigContents.Add("127.0.0.1\tlocalhost");
-                Lines.Add("localhost", System.Net.IPAddress.Loopback.ToString());
             }
         }
 

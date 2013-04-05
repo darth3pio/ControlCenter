@@ -14,7 +14,12 @@ namespace BF2Statistics
         /// <summary>
         /// Path to the BF2StatisticsConfig.py file
         /// </summary>
-        private string CFile;
+        private string CFile = Path.Combine(MainForm.Config.ServerPath, "python", "bf2", "BF2StatisticsConfig.py");
+
+        /// <summary>
+        /// Path to the python stats folder
+        /// </summary>
+        private string PythonPath = Path.Combine(MainForm.Config.ServerPath, "python", "bf2", "stats");
 
         /// <summary>
         /// Array of medal data files
@@ -30,10 +35,25 @@ namespace BF2Statistics
         {
             InitializeComponent();
 
+            // Make sure path exists!
+            if (!File.Exists(CFile))
+            {
+                this.Load += new EventHandler(CloseOnStart);
+                MessageBox.Show("Bf2Statistics Config python file is missing! Please re-install the stats python", "Error");
+                return;
+            }
+
+            // Make sure the stats folder exists!
+            if (!Directory.Exists(PythonPath))
+            {
+                this.Load += new EventHandler(CloseOnStart);
+                MessageBox.Show("The 'python/stats' folder is missing. Please re-install the stats enabled python before continuing", "Error");
+                return;
+            }
+
             // Get a list of all medal data
-            string PythonPath = Path.Combine(MainForm.Config.ServerPath, "python", "bf2", "stats");
-            string[] medalList = Directory.GetFiles(PythonPath, "medal_data_*.py");
             int i = 0;
+            string[] medalList = Directory.GetFiles(PythonPath, "medal_data_*.py");
             foreach (string file in medalList)
             {
                 // Remove the path to the file
@@ -50,8 +70,6 @@ namespace BF2Statistics
                 i++;
             }
 
-            // Path to the config file
-            CFile = Path.Combine(MainForm.Config.ServerPath, "python", "bf2", "BF2StatisticsConfig.py");
             LoadConfig();
         }
 
@@ -449,5 +467,12 @@ namespace BF2Statistics
 
         #endregion
 
+        /// <summary>
+        /// Event closes the form when fired
+        /// </summary>
+        private void CloseOnStart(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }

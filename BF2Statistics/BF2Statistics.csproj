@@ -297,15 +297,15 @@
     <None Include="Resources\e_logo.png" />
     <EmbeddedResource Include="SQL\Ip2nation.sql" />
     <None Include="Resources\loading11.gif" />
-    <None Include="Resources\white-on-16.png" />
+    <None Include="Resources\check.png" />
+    <None Include="Resources\error.png" />
+    <None Include="Resources\warning.png" />
+    <None Include="Resources\loading.gif" />
     <Content Include="SQL\MySQL.Gamespy.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="SQL\SQLite.Gamespy.sql" />
     <None Include="Resources\BF2Stats_Logo.jpg" />
-    <None Include="Resources\red-on-16.png" />
-    <None Include="Resources\amber-on-16.png" />
-    <None Include="Resources\green-on-16.png" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

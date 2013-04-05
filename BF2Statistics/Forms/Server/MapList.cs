@@ -31,6 +31,22 @@ namespace BF2Statistics
             LevelsPath = Path.Combine(ModPath, "levels");
             MaplistFile = Path.Combine(ModPath, "settings", "maplist.con");
 
+            // Make sure maplist.con file exists!
+            if (!File.Exists(MaplistFile))
+            {
+                this.Load += new EventHandler(CloseOnStart);
+                MessageBox.Show("Maplist.con file is missing! Please make sure your server path is set properly", "Error");
+                return;
+            }
+
+            // Make sure the levels folder exists!
+            if (!Directory.Exists(LevelsPath))
+            {
+                this.Load += new EventHandler(CloseOnStart);
+                MessageBox.Show("The current selected mod does not contain a 'levels' folder. Please select a valid mod.", "Error");
+                return;
+            }
+
             // Fetch all maps for the selected mod
             int i = 0;
             Maps = Directory.GetDirectories(LevelsPath);
@@ -179,5 +195,13 @@ namespace BF2Statistics
         }
 
         #endregion
+
+        /// <summary>
+        /// Event closes the form when fired
+        /// </summary>
+        private void CloseOnStart(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }

@@ -42,10 +42,10 @@
       <Value Profile="(Default)">3306</Value>
     </Setting>
     <Setting Name="StatsDBUser" Type="System.String" Scope="User">
-      <Value Profile="(Default)">admin</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="StatsDBPass" Type="System.String" Scope="User">
-      <Value Profile="(Default)">admin</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="StatsDBName" Type="System.String" Scope="User">
       <Value Profile="(Default)">bf2stats</Value>
@@ -109,6 +109,12 @@
     </Setting>
     <Setting Name="ASP_LocalIpCountryCode" Type="System.String" Scope="User">
       <Value Profile="(Default)">us</Value>
+    </Setting>
+    <Setting Name="LastStatsServerAddress" Type="System.String" Scope="User">
+      <Value Profile="(Default)">localhost</Value>
+    </Setting>
+    <Setting Name="LastLoginServerAddress" Type="System.String" Scope="User">
+      <Value Profile="(Default)">localhost</Value>
     </Setting>
   </Settings>
 </SettingsFile>

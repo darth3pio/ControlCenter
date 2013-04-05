@@ -60,16 +60,16 @@ namespace BF2Statistics.Properties {
             }
         }
         
-        internal static System.Drawing.Bitmap amber {
+        internal static System.Drawing.Bitmap BF2Stats_Logo {
             get {
-                object obj = ResourceManager.GetObject("amber", resourceCulture);
+                object obj = ResourceManager.GetObject("BF2Stats_Logo", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap BF2Stats_Logo {
+        internal static System.Drawing.Bitmap check {
             get {
-                object obj = ResourceManager.GetObject("BF2Stats_Logo", resourceCulture);
+                object obj = ResourceManager.GetObject("check", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -81,9 +81,16 @@ namespace BF2Statistics.Properties {
             }
         }
         
-        internal static System.Drawing.Bitmap green {
+        internal static System.Drawing.Bitmap error {
             get {
-                object obj = ResourceManager.GetObject("green", resourceCulture);
+                object obj = ResourceManager.GetObject("error", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap loading {
+            get {
+                object obj = ResourceManager.GetObject("loading", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -95,16 +102,9 @@ namespace BF2Statistics.Properties {
             }
         }
         
-        internal static System.Drawing.Bitmap red {
+        internal static System.Drawing.Bitmap warning {
             get {
-                object obj = ResourceManager.GetObject("red", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        internal static System.Drawing.Bitmap white {
-            get {
-                object obj = ResourceManager.GetObject("white", resourceCulture);
+                object obj = ResourceManager.GetObject("warning", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

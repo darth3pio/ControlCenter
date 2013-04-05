@@ -79,7 +79,7 @@
             this.ClientBtn.Name = "ClientBtn";
             this.ClientBtn.Size = new System.Drawing.Size(90, 25);
             this.ClientBtn.TabIndex = 4;
-            this.ClientBtn.Text = "Select File";
+            this.ClientBtn.Text = "Select Path";
             this.ClientBtn.UseVisualStyleBackColor = true;
             this.ClientBtn.Click += new System.EventHandler(this.ClientBtn_Click);
             // 
@@ -89,7 +89,7 @@
             this.ServerBtn.Name = "ServerBtn";
             this.ServerBtn.Size = new System.Drawing.Size(90, 25);
             this.ServerBtn.TabIndex = 5;
-            this.ServerBtn.Text = "Select File";
+            this.ServerBtn.Text = "Select Path";
             this.ServerBtn.UseVisualStyleBackColor = true;
             this.ServerBtn.Click += new System.EventHandler(this.ServerBtn_Click);
             // 
@@ -144,7 +144,7 @@
             this.MinimizeBox = false;
             this.Name = "InstallForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Setup";
+            this.Text = "Client and Server Path Setup";
             this.ResumeLayout(false);
             this.PerformLayout();
 

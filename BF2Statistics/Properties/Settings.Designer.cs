@@ -181,7 +181,7 @@ namespace BF2Statistics.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("admin")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string StatsDBUser {
             get {
                 return ((string)(this["StatsDBUser"]));
@@ -193,7 +193,7 @@ namespace BF2Statistics.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("admin")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string StatsDBPass {
             get {
                 return ((string)(this["StatsDBPass"]));
@@ -452,6 +452,30 @@ namespace BF2Statistics.Properties {
             }
             set {
                 this["ASP_LocalIpCountryCode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("localhost")]
+        public string LastStatsServerAddress {
+            get {
+                return ((string)(this["LastStatsServerAddress"]));
+            }
+            set {
+                this["LastStatsServerAddress"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("localhost")]
+        public string LastLoginServerAddress {
+            get {
+                return ((string)(this["LastLoginServerAddress"]));
+            }
+            set {
+                this["LastLoginServerAddress"] = value;
             }
         }
     }

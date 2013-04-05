@@ -34,7 +34,8 @@ namespace BF2Statistics
             if (!File.Exists(ScoringCommonPy) || !File.Exists(ScoringConqPy) || !File.Exists(ScoringCoopPy))
             {
                 MessageBox.Show("One or more scoring files are missing. Unable to modify scoring.", "Scoring Editor Error");
-                this.Close();
+                this.Load += new EventHandler(CloseOnStart);
+                return;
             }
 
             // Are we doing AI scoring?
@@ -241,6 +242,14 @@ namespace BF2Statistics
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Event closes the form when fired
+        /// </summary>
+        private void CloseOnStart(object sender, EventArgs e)
+        {
+            this.Close();
         }
 
         #region Events

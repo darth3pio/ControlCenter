@@ -14,8 +14,15 @@ namespace BF2Statistics
 {
     public partial class InstallForm : Form
     {
-        protected string bf2InstallPath = "";
-        protected string serverInstallPath = "";
+        /// <summary>
+        /// The installation path for the bf2 client
+        /// </summary>
+        protected string ClientInstallPath = "";
+
+        /// <summary>
+        /// The installation path for the dedicated server
+        /// </summary>
+        protected string ServerInstallPath = "";
 
         public InstallForm()
         {
@@ -25,91 +32,101 @@ namespace BF2Statistics
             IntroTextBox.SelectAll();
             IntroTextBox.SelectionColor = Color.Black;
 
-            // Check for BF2 Installation (32 bit)
+            // Check for BF2 Client Installation (32 bit)
             try
             {
-                bf2InstallPath = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Electronic Arts\EA Games\Battlefield 2", "InstallDir", "").ToString();
-                ClientPath.Text = bf2InstallPath;
+                ClientInstallPath = Registry.GetValue(
+                    @"HKEY_LOCAL_MACHINE\SOFTWARE\Electronic Arts\EA Games\Battlefield 2", 
+                    "InstallDir", 
+                    String.Empty).ToString();
+                ClientPath.Text = ClientInstallPath;
             }
-            catch(IOException) // Doesnt Exist
+            catch(IOException) // Entry Doesnt Exist, Try 64 Bit Installation
             {
                 try
                 {
-                    bf2InstallPath = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Electronic Arts\EA Games\Battlefield 2", "InstallDir", "").ToString();
-                    ClientPath.Text = bf2InstallPath;
+                    ClientInstallPath = Registry.GetValue(
+                        @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Electronic Arts\EA Games\Battlefield 2", 
+                        "InstallDir", 
+                        String.Empty).ToString();
+                    ClientPath.Text = ClientInstallPath;
                 }
-                catch (IOException)
-                {
-                    // Doesnt Exist. Do nothing for now i suppose...
-                }
-                catch (SecurityException)
-                {
-                    // We dont have registry permissions :(
-                }
+                catch { }
             }
-            catch (SecurityException)
-            {
-                // We dont have registry permissions :(
-            }
+            catch { }
 
             // Check for BF2 Server Installation (32 bit)
             try
             {
-                serverInstallPath = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\EA Games\Battlefield 2 Server", "GAMEDIR", "").ToString();
-                ServerPath.Text = serverInstallPath;
+                ServerInstallPath = Registry.GetValue(
+                    @"HKEY_LOCAL_MACHINE\SOFTWARE\EA Games\Battlefield 2 Server", 
+                    "GAMEDIR", 
+                    String.Empty).ToString();
+                ServerPath.Text = ServerInstallPath;
             }
-            catch (IOException) // Doesnt Exist
+            catch (IOException) // Entry Doesnt Exist, Try 64 Bit Installation
             {
                 try
                 {
-                    serverInstallPath = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\EA Games\Battlefield 2 Server", "GAMEDIR", "").ToString();
-                    ServerPath.Text = serverInstallPath;
+                    ServerInstallPath = Registry.GetValue(
+                        @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\EA Games\Battlefield 2 Server", 
+                        "GAMEDIR", 
+                        String.Empty).ToString();
+                    ServerPath.Text = ServerInstallPath;
                 }
-                catch (IOException)
-                {
-                    // Doesnt Exist. Do nothing for now i suppose...
-                }
-                catch (SecurityException)
-                {
-                    // We dont have registry permissions :(
-                }
+                catch { }
             }
-            catch (SecurityException)
-            {
-                // We dont have registry permissions :(
-            }
+            catch { }
         }
 
+        /// <summary>
+        /// Event fired when the Client Path button is clicked... Opens the Dialog to select
+        /// the Client executable
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ClientBtn_Click(object sender, EventArgs e)
         {
             OpenFileDialog Dialog = new OpenFileDialog();
             Dialog.FileName = "bf2.exe";
             Dialog.Filter = "BF2 Executable|bf2.exe";
-            if (!String.IsNullOrWhiteSpace(bf2InstallPath))
-                Dialog.InitialDirectory = bf2InstallPath;
+
+            // Set the initial search directory if we found an install path via registry
+            if (!String.IsNullOrWhiteSpace(ClientInstallPath))
+                Dialog.InitialDirectory = ClientInstallPath;
 
             if (Dialog.ShowDialog() == DialogResult.OK)
-            {
                 ClientPath.Text = Path.GetDirectoryName(Dialog.FileName);
-            }
         }
 
+        /// <summary>
+        /// Event fired when the Server Path button is clicked... Opens the Dialog to select
+        /// the Server executable
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ServerBtn_Click(object sender, EventArgs e)
         {
             OpenFileDialog Dialog = new OpenFileDialog();
             Dialog.FileName = "bf2_w32ded.exe";
             Dialog.Filter = "BF2 Server Executable|bf2_w32ded.exe";
-            if (!String.IsNullOrWhiteSpace(serverInstallPath))
-                Dialog.InitialDirectory = serverInstallPath;
+
+            // Set the initial search directory if we found an install path via registry
+            if (!String.IsNullOrWhiteSpace(ServerInstallPath))
+                Dialog.InitialDirectory = ServerInstallPath;
 
             if (Dialog.ShowDialog() == DialogResult.OK)
-            {
                 ServerPath.Text = Path.GetDirectoryName(Dialog.FileName);
-            }
         }
 
+        /// <summary>
+        /// Event fired when the Save button is clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SaveBtn_Click(object sender, EventArgs e)
         {
+            // Make sure both paths are not empty
             if (String.IsNullOrWhiteSpace(ClientPath.Text) || String.IsNullOrWhiteSpace(ServerPath.Text))
             {
                 MessageBox.Show("You must set client and server paths before continuing.");
@@ -122,7 +139,7 @@ namespace BF2Statistics
                 MessageBox.Show("BF2 Client path is not a valid directory", "Error");
                 return;
             }
-            if (!Directory.Exists(ServerPath.Text))
+            else if (!Directory.Exists(ServerPath.Text))
             {
                 MessageBox.Show("BF2 Server path is not a valid directory", "Error");
                 return;

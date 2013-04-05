@@ -22,9 +22,22 @@ namespace BF2Statistics
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            try
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new MainForm());
+            }
+            catch (Exception E)
+            {
+                MessageBox.Show("A Startup error has occured!" 
+                    + Environment.NewLine 
+                    + Environment.NewLine 
+                    + "Exception Message: " + E.Message 
+                    + "Target Method: " + E.TargetSite.ToString() 
+                    + "Stack Trace: " + E.StackTrace.ToString(),
+                    "Startup Error");
+            }
         }
     }
 }

@@ -37,7 +37,7 @@ namespace BF2Statistics
             }
 
             if (StartUpError)
-                this.Close();
+                this.Load += new EventHandler(CloseOnStart);
             else
                 Init();
         }
@@ -362,5 +362,13 @@ namespace BF2Statistics
         }
 
         #endregion
+
+        /// <summary>
+        /// Event closes the form when fired
+        /// </summary>
+        private void CloseOnStart(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }
