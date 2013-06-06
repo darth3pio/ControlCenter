@@ -194,7 +194,7 @@
             this.MinimizeBox = false;
             this.Name = "MapList";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "MapList Editor";
+            this.Text = "Maplist Editor";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);

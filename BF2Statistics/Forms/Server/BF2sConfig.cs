@@ -162,7 +162,7 @@ namespace BF2Statistics
                 MessageBox.Show("The config key \"http_backend_port\" was not formated correctly.", "Config Parse Error");
                 throw new Exception("");
             }
-            AspPort.Text = Match.Groups["value"].Value;
+            AspPort.Value = Int32.Parse(Match.Groups["value"].Value);
 
             // ASP Callback
             Match = Regex.Match(FileContents, @"http_backend_asp = '(?<value>.*)'");
@@ -189,7 +189,7 @@ namespace BF2Statistics
                 MessageBox.Show("The config key \"http_central_port\" was not formated correctly.", "Config Parse Error");
                 throw new Exception("");
             }
-            CentralPort.Text = Match.Groups["value"].Value;
+            CentralPort.Value = Int32.Parse(Match.Groups["value"].Value);
 
             // Central Callback
             Match = Regex.Match(FileContents, @"http_central_asp = '(?<value>.*)'");
@@ -246,7 +246,7 @@ namespace BF2Statistics
                 MessageBox.Show("The config key \"criteria_data => score\" was not formated correctly.", "Config Parse Error");
                 throw new Exception("");
             }
-            CmGlobalScore.Text = Match.Groups["value"].Value;
+            CmGlobalScore.Value = Int32.Parse(Match.Groups["value"].Value);
 
             // time
             Match = Regex.Match(FileContents, @"'time',[\s|\t]+(?<value>[0-9]+)");
@@ -255,7 +255,7 @@ namespace BF2Statistics
                 MessageBox.Show("The config key \"criteria_data => time\" was not formated correctly.", "Config Parse Error");
                 throw new Exception("");
             }
-            CmGlobalTime.Text = Match.Groups["value"].Value;
+            CmGlobalTime.Value = Int32.Parse(Match.Groups["value"].Value);
 
             // K/D Ratio
             Match = Regex.Match(FileContents, @"'kdratio',[\s|\t]+(?<value>[0-9.]+)");
@@ -264,7 +264,7 @@ namespace BF2Statistics
                 MessageBox.Show("The config key \"criteria_data => kdratio\" was not formated correctly.", "Config Parse Error");
                 throw new Exception("");
             }
-            CmKDRatio.Text = Match.Groups["value"].Value;
+            CmKDRatio.Value = decimal.Parse(Match.Groups["value"].Value);
 
             // Banned
             Match = Regex.Match(FileContents, @"'banned',[\s|\t]+(?<value>[0-9]+)");
@@ -273,7 +273,7 @@ namespace BF2Statistics
                 MessageBox.Show("The config key \"criteria_data => banned\" was not formated correctly.", "Config Parse Error");
                 throw new Exception("");
             }
-            CmBanCount.Text = Match.Groups["value"].Value;
+            CmBanCount.Value = Int32.Parse(Match.Groups["value"].Value);
 
             // Country
             Match = Regex.Match(FileContents, @"'country',[\s|\t]+'(?<value>[A_Za-z]*)'");
@@ -322,17 +322,17 @@ namespace BF2Statistics
             FileContents = Regex.Replace(FileContents, @"medals_force_keystring = ([0-1])", "medals_force_keystring = " + ForceKeyString.SelectedIndex);
             FileContents = Regex.Replace(FileContents, @"http_backend_addr = '(.*)'", String.Format("http_backend_addr = '{0}'", AspAddress.Text));
             FileContents = Regex.Replace(FileContents, @"http_central_addr = '(.*)'", String.Format("http_central_addr = '{0}'", CentralAddress.Text));
-            FileContents = Regex.Replace(FileContents, @"http_backend_port = ([0-9]+)", "http_backend_port = " + AspPort.Text);
-            FileContents = Regex.Replace(FileContents, @"http_central_port = ([0-9]+)", "http_central_port = " + CentralPort.Text);
+            FileContents = Regex.Replace(FileContents, @"http_backend_port = ([0-9]+)", "http_backend_port = " + AspPort.Value);
+            FileContents = Regex.Replace(FileContents, @"http_central_port = ([0-9]+)", "http_central_port = " + CentralPort.Value);
             FileContents = Regex.Replace(FileContents, @"http_backend_asp = '(.*)'", String.Format("http_backend_asp = '{0}'", AspCallback.Text));
             FileContents = Regex.Replace(FileContents, @"http_central_asp = '(.*)'", String.Format("http_central_asp = '{0}'", CentralCallback.Text));
             FileContents = Regex.Replace(FileContents, @"enableClanManager = ([0-1])", "enableClanManager = " + ClanManager.SelectedIndex);
             FileContents = Regex.Replace(FileContents, @"serverMode = ([0-4])", "serverMode = " + CmServerMode.SelectedIndex);
             FileContents = Regex.Replace(FileContents, @"'clantag',[\s|\t]+'([A-Za-z0-9_=-\|\s\[\]]*)'", String.Format("'clantag', '{0}'", CmClanTag.Text));
-            FileContents = Regex.Replace(FileContents, @"'score',[\s|\t]+([0-9]+)", String.Format("'score', {0}", CmGlobalScore.Text));
-            FileContents = Regex.Replace(FileContents, @"'time',[\s|\t]+([0-9]+)", String.Format("'time', {0}", CmGlobalTime.Text));
-            FileContents = Regex.Replace(FileContents, @"'kdratio',[\s|\t]+([0-9.]+)", String.Format("'kdratio', {0}", CmKDRatio.Text));
-            FileContents = Regex.Replace(FileContents, @"'banned',[\s|\t]+([0-9]+)", String.Format("'banned', {0}", CmGlobalTime.Text));
+            FileContents = Regex.Replace(FileContents, @"'score',[\s|\t]+([0-9]+)", String.Format("'score', {0}", CmGlobalScore.Value));
+            FileContents = Regex.Replace(FileContents, @"'time',[\s|\t]+([0-9]+)", String.Format("'time', {0}", CmGlobalTime.Value));
+            FileContents = Regex.Replace(FileContents, @"'kdratio',[\s|\t]+([0-9.]+)", String.Format("'kdratio', {0}", CmKDRatio.Value));
+            FileContents = Regex.Replace(FileContents, @"'banned',[\s|\t]+([0-9]+)", String.Format("'banned', {0}", CmGlobalTime.Value));
             FileContents = Regex.Replace(FileContents, @"'country',[\s|\t]+'([A_Za-z]*)'", String.Format("'country', '{0}'", CmCountry.Text));
             FileContents = Regex.Replace(FileContents, @"'rank',[\s|\t]+([0-9]+)", String.Format("'rank', {0}", CmMinRank.SelectedIndex));
             File.WriteAllText(CFile, FileContents);
@@ -393,14 +393,6 @@ namespace BF2Statistics
             }
         }
 
-        private void CmKDRatio_Validating(object sender, CancelEventArgs e)
-        {
-            if (!Validator.IsFloat(CmKDRatio.Text))
-            {
-                MessageBox.Show("Invalid format for Criteria > K/D Ratio. Must be a float or integer number!", "Validation Error");
-            }
-        }
-
         private void CmCountry_Validating(object sender, CancelEventArgs e)
         {
             if (!Validator.IsAlphaOnly(CmCountry.Text))
@@ -414,54 +406,6 @@ namespace BF2Statistics
             if (!Validator.IsValidPrefix(SnapshotPrefix.Text))
             {
                 MessageBox.Show("Invalid format for Snapshot Prefix. Must only characters: ( a-z0-9._-=[] )!", "Validation Error");
-            }
-        }
-
-        private void AspPort_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void CentralPort_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void AiScoreModMult_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void CmGlobalTime_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void CmGlobalScore_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void CmBanCount_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
-            {
-                e.Handled = true;
             }
         }
 

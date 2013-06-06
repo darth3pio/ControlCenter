@@ -44,9 +44,9 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(21, 59);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(119, 13);
+            this.label1.Size = new System.Drawing.Size(167, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Battlefield 2 Client Path:";
+            this.label1.Text = "Battlefield 2 Client Path (Optional):";
             // 
             // label2
             // 

@@ -117,6 +117,9 @@ namespace BF2Statistics
         {
             InitializeComponent();
 
+            // Set instance
+            Instance = this;
+
             // Check for needed settings upgrade
             if (!Config.SettingsUpdated)
             {
@@ -126,7 +129,7 @@ namespace BF2Statistics
             }
 
             // If this is the first run, Get client and server install paths
-            if (String.IsNullOrWhiteSpace(Config.ClientPath))
+            if (String.IsNullOrWhiteSpace(Config.ServerPath) || !File.Exists(Path.Combine(Config.ServerPath, "bf2_w32ded.exe")))
             {
                 InstallForm IS = new InstallForm();
                 if (IS.ShowDialog() != DialogResult.OK)
@@ -189,6 +192,9 @@ namespace BF2Statistics
             GpcmAddress.Text = Config.LastLoginServerAddress;
             Bf2webAddress.Text = Config.LastStatsServerAddress;
 
+            // If we dont have a client path, disable the Launch Client button
+            LaunchClientBtn.Enabled = (!String.IsNullOrWhiteSpace(Config.ClientPath) && File.Exists(Path.Combine(Config.ClientPath, "bf2.exe")));
+
             // Register for ASP events
             ASPServer.OnStart += new StartupEventHandler(ASPServer_OnStart);
             ASPServer.OnShutdown += new ShutdownEventHandler(ASPServer_OnShutdown);
@@ -201,9 +207,6 @@ namespace BF2Statistics
             // Set the ASP and Login Server statusbox boxes
             ASPServer.SetStatusBox(AspStatusBox);
             LoginServer.SetStatusBox(EmuStatusWindow);
-
-            // Set instance
-            Instance = this;
 
             // Add administrator title to program title bar
             if (IsAdministrator)
@@ -224,6 +227,7 @@ namespace BF2Statistics
                 InstallBox.Text = "BF2 Statistics server files are currently installed.";
                 InstallButton.Text = "Uninstall BF2 Statistics Python";
                 BF2sConfigBtn.Enabled = true;
+                BF2sEditMedalDataBtn.Enabled = true;
                 StatsStatusPic.Image = Resources.check;
             }
             else
@@ -233,6 +237,7 @@ namespace BF2Statistics
                 InstallBox.Text = "BF2 Statistics server files are currently NOT installed";
                 InstallButton.Text = "Install BF2 Statistics Python";
                 BF2sConfigBtn.Enabled = false;
+                BF2sEditMedalDataBtn.Enabled = false;
                 StatsStatusPic.Image = Resources.error;
             }
         }
@@ -242,7 +247,7 @@ namespace BF2Statistics
         /// </summary>
         private bool LoadModList()
         {
-            string path = Path.Combine(Config.ClientPath, "mods");
+            string path = Path.Combine(Config.ServerPath, "mods");
 
             // Make sure the levels folder exists!
             if (!Directory.Exists(path))
@@ -700,6 +705,17 @@ namespace BF2Statistics
         private void BF2sConfig_Click(object sender, EventArgs e)
         {
             BF2sConfig Form = new BF2sConfig();
+            Form.ShowDialog();
+        }
+
+        /// <summary>
+        /// This button opens up the Medal Data Editor
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BF2sEditMedalDataBtn_Click(object sender, EventArgs e)
+        {
+            MedalData.MedalDataEditor Form = new MedalData.MedalDataEditor();
             Form.ShowDialog();
         }
 

@@ -35,7 +35,9 @@ namespace BF2Statistics
                     + Environment.NewLine 
                     + "Exception Message: " + E.Message 
                     + "Target Method: " + E.TargetSite.ToString() 
-                    + "Stack Trace: " + E.StackTrace.ToString(),
+                    + "Stack Trace: "
+                    + Environment.NewLine 
+                    + E.StackTrace.ToString(),
                     "Startup Error");
             }
         }

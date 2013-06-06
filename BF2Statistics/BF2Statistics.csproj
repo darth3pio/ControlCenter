@@ -84,6 +84,51 @@
     <Compile Include="ASP\Requests\SearchForPlayers.cs" />
     <Compile Include="ASP\Requests\SelectUnlock.cs" />
     <Compile Include="ASP\Snapshot.cs" />
+    <Compile Include="Forms\MedalData\ConditionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MedalData\ConditionListForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MedalData\ConditionListForm.designer.cs">
+      <DependentUpon>ConditionListForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MedalData\GenerateDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MedalData\GenerateDialog.designer.cs">
+      <DependentUpon>GenerateDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MedalData\GlobalStatMultTimesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MedalData\GlobalStatMultTimesForm.designer.cs">
+      <DependentUpon>GlobalStatMultTimesForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MedalData\MedalConditionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MedalData\MedalConditionForm.designer.cs">
+      <DependentUpon>MedalConditionForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MedalData\NewCriteriaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MedalData\NewCriteriaForm.designer.cs">
+      <DependentUpon>NewCriteriaForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MedalData\ObjectStatForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MedalData\ObjectStatForm.designer.cs">
+      <DependentUpon>ObjectStatForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MedalData\ScoreStatForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MedalData\ScoreStatForm.designer.cs">
+      <DependentUpon>ScoreStatForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Gamespy\TcpClientStream.cs" />
     <Compile Include="Database\SqlUpdateDictionary.cs" />
     <Compile Include="Database\StatsDatabase.cs" />
@@ -165,7 +210,49 @@
     <Compile Include="Gamespy\Gpcm\GpcmServer.cs" />
     <Compile Include="Gamespy\Gpsp\GpspClient.cs" />
     <Compile Include="Gamespy\Gpsp\GpspServer.cs" />
-    <Compile Include="Hosts\HostsFile.cs" />
+    <Compile Include="Forms\MedalData\MedalDataEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MedalData\MedalDataEditor.Designer.cs">
+      <DependentUpon>MedalDataEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\LoadingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\LoadingForm.Designer.cs">
+      <DependentUpon>LoadingForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MedalData\Award.cs" />
+    <Compile Include="MedalData\AwardCache.cs" />
+    <Compile Include="MedalData\Condition.cs" />
+    <Compile Include="MedalData\ConditionList.cs" />
+    <Compile Include="MedalData\Conditions\ConditionValue.cs" />
+    <Compile Include="MedalData\Conditions\GlobalStatMultTimes.cs" />
+    <Compile Include="MedalData\Conditions\MedalCondition.cs" />
+    <Compile Include="MedalData\Conditions\ObjectStat.cs" />
+    <Compile Include="MedalData\Conditions\PlayerStat.cs" />
+    <Compile Include="MedalData\Data.cs" />
+    <Compile Include="MedalData\IAward.cs" />
+    <Compile Include="MedalData\Item.cs" />
+    <Compile Include="MedalData\Parser\ISourcePart.cs" />
+    <Compile Include="MedalData\Parser\ParseException.cs" />
+    <Compile Include="MedalData\Parser\MedalDataParser.cs" />
+    <Compile Include="MedalData\Parser\Token.cs" />
+    <Compile Include="MedalData\Rank.cs" />
+    <Compile Include="MedalData\SelectItem.cs" />
+    <Compile Include="Forms\MedalData\NewProfilePrompt.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MedalData\NewProfilePrompt.Designer.cs">
+      <DependentUpon>NewProfilePrompt.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\S2hmsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\S2hmsForm.Designer.cs">
+      <DependentUpon>S2hmsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Utilities\HostsFile.cs" />
     <Compile Include="Utilities\Item.cs" />
     <Compile Include="Utilities\KeyValueItem.cs" />
     <Compile Include="Logging\LogMessage.cs" />
@@ -213,6 +300,39 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Gamespy\CreateAcctForm.resx">
       <DependentUpon>CreateAcctForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\LoadingForm.resx">
+      <DependentUpon>LoadingForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MedalData\ConditionListForm.resx">
+      <DependentUpon>ConditionListForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MedalData\GenerateDialog.resx">
+      <DependentUpon>GenerateDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MedalData\GlobalStatMultTimesForm.resx">
+      <DependentUpon>GlobalStatMultTimesForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MedalData\MedalConditionForm.resx">
+      <DependentUpon>MedalConditionForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MedalData\MedalDataEditor.resx">
+      <DependentUpon>MedalDataEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MedalData\NewCriteriaForm.resx">
+      <DependentUpon>NewCriteriaForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MedalData\NewProfilePrompt.resx">
+      <DependentUpon>NewProfilePrompt.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MedalData\ObjectStatForm.resx">
+      <DependentUpon>ObjectStatForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MedalData\ScoreStatForm.resx">
+      <DependentUpon>ScoreStatForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\S2hmsForm.resx">
+      <DependentUpon>S2hmsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Server\BF2sConfig.resx">
       <DependentUpon>BF2sConfig.cs</DependentUpon>
@@ -275,6 +395,9 @@
     <EmbeddedResource Include="ASP\Errors\503.tpl" />
     <EmbeddedResource Include="ASP\Errors\400.tpl" />
     <None Include="app.manifest" />
+    <EmbeddedResource Include="MedalData\PyFiles\functions.py" />
+    <EmbeddedResource Include="MedalData\PyFiles\medal_data.py" />
+    <EmbeddedResource Include="MedalData\PyFiles\medal_data_xpack.py" />
     <None Include="Properties\Settings.settings">
       <Generator>PublicSettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -301,6 +424,153 @@
     <None Include="Resources\error.png" />
     <None Include="Resources\warning.png" />
     <None Include="Resources\loading.gif" />
+    <EmbeddedResource Include="Resources\1.jpg" />
+    <EmbeddedResource Include="Resources\10.jpg" />
+    <EmbeddedResource Include="Resources\1031105_1.jpg" />
+    <EmbeddedResource Include="Resources\1031105_2.jpg" />
+    <EmbeddedResource Include="Resources\1031105_3.jpg" />
+    <EmbeddedResource Include="Resources\1031109_1.jpg" />
+    <EmbeddedResource Include="Resources\1031109_2.jpg" />
+    <EmbeddedResource Include="Resources\1031109_3.jpg" />
+    <EmbeddedResource Include="Resources\1031113_1.jpg" />
+    <EmbeddedResource Include="Resources\1031113_2.jpg" />
+    <EmbeddedResource Include="Resources\1031113_3.jpg" />
+    <EmbeddedResource Include="Resources\1031115_1.jpg" />
+    <EmbeddedResource Include="Resources\1031115_2.jpg" />
+    <EmbeddedResource Include="Resources\1031115_3.jpg" />
+    <EmbeddedResource Include="Resources\1031119_1.jpg" />
+    <EmbeddedResource Include="Resources\1031119_2.jpg" />
+    <EmbeddedResource Include="Resources\1031119_3.jpg" />
+    <EmbeddedResource Include="Resources\1031120_1.jpg" />
+    <EmbeddedResource Include="Resources\1031120_2.jpg" />
+    <EmbeddedResource Include="Resources\1031120_3.jpg" />
+    <EmbeddedResource Include="Resources\1031121_1.jpg" />
+    <EmbeddedResource Include="Resources\1031121_2.jpg" />
+    <EmbeddedResource Include="Resources\1031121_3.jpg" />
+    <EmbeddedResource Include="Resources\1031406_1.jpg" />
+    <EmbeddedResource Include="Resources\1031406_2.jpg" />
+    <EmbeddedResource Include="Resources\1031406_3.jpg" />
+    <EmbeddedResource Include="Resources\1031619_1.jpg" />
+    <EmbeddedResource Include="Resources\1031619_2.jpg" />
+    <EmbeddedResource Include="Resources\1031619_3.jpg" />
+    <EmbeddedResource Include="Resources\1031923_1.jpg" />
+    <EmbeddedResource Include="Resources\1031923_2.jpg" />
+    <EmbeddedResource Include="Resources\1031923_3.jpg" />
+    <EmbeddedResource Include="Resources\1032415_1.jpg" />
+    <EmbeddedResource Include="Resources\1032415_2.jpg" />
+    <EmbeddedResource Include="Resources\1032415_3.jpg" />
+    <EmbeddedResource Include="Resources\11.jpg" />
+    <EmbeddedResource Include="Resources\1190304_1.jpg" />
+    <EmbeddedResource Include="Resources\1190304_2.jpg" />
+    <EmbeddedResource Include="Resources\1190304_3.jpg" />
+    <EmbeddedResource Include="Resources\1190507_1.jpg" />
+    <EmbeddedResource Include="Resources\1190507_2.jpg" />
+    <EmbeddedResource Include="Resources\1190507_3.jpg" />
+    <EmbeddedResource Include="Resources\1190601_1.jpg" />
+    <EmbeddedResource Include="Resources\1190601_2.jpg" />
+    <EmbeddedResource Include="Resources\1190601_3.jpg" />
+    <EmbeddedResource Include="Resources\1191819_1.jpg" />
+    <EmbeddedResource Include="Resources\1191819_2.jpg" />
+    <EmbeddedResource Include="Resources\1191819_3.jpg" />
+    <EmbeddedResource Include="Resources\12.jpg" />
+    <EmbeddedResource Include="Resources\1220104_1.jpg" />
+    <EmbeddedResource Include="Resources\1220104_2.jpg" />
+    <EmbeddedResource Include="Resources\1220104_3.jpg" />
+    <EmbeddedResource Include="Resources\1220118_1.jpg" />
+    <EmbeddedResource Include="Resources\1220118_2.jpg" />
+    <EmbeddedResource Include="Resources\1220118_3.jpg" />
+    <EmbeddedResource Include="Resources\1220122_1.jpg" />
+    <EmbeddedResource Include="Resources\1220122_2.jpg" />
+    <EmbeddedResource Include="Resources\1220122_3.jpg" />
+    <EmbeddedResource Include="Resources\1220803_1.jpg" />
+    <EmbeddedResource Include="Resources\1220803_2.jpg" />
+    <EmbeddedResource Include="Resources\1220803_3.jpg" />
+    <EmbeddedResource Include="Resources\1222016_1.jpg" />
+    <EmbeddedResource Include="Resources\1222016_2.jpg" />
+    <EmbeddedResource Include="Resources\1222016_3.jpg" />
+    <EmbeddedResource Include="Resources\1260602_1.jpg" />
+    <EmbeddedResource Include="Resources\1260602_2.jpg" />
+    <EmbeddedResource Include="Resources\1260602_3.jpg" />
+    <EmbeddedResource Include="Resources\1260708_1.jpg" />
+    <EmbeddedResource Include="Resources\1260708_2.jpg" />
+    <EmbeddedResource Include="Resources\1260708_3.jpg" />
+    <EmbeddedResource Include="Resources\1261105_1.jpg" />
+    <EmbeddedResource Include="Resources\1261105_2.jpg" />
+    <EmbeddedResource Include="Resources\1261105_3.jpg" />
+    <EmbeddedResource Include="Resources\1261109_1.jpg" />
+    <EmbeddedResource Include="Resources\1261109_2.jpg" />
+    <EmbeddedResource Include="Resources\1261109_3.jpg" />
+    <EmbeddedResource Include="Resources\1261113_1.jpg" />
+    <EmbeddedResource Include="Resources\1261113_2.jpg" />
+    <EmbeddedResource Include="Resources\1261113_3.jpg" />
+    <EmbeddedResource Include="Resources\1261115_1.jpg" />
+    <EmbeddedResource Include="Resources\1261115_2.jpg" />
+    <EmbeddedResource Include="Resources\1261115_3.jpg" />
+    <EmbeddedResource Include="Resources\1261119_1.jpg" />
+    <EmbeddedResource Include="Resources\1261119_2.jpg" />
+    <EmbeddedResource Include="Resources\1261119_3.jpg" />
+    <EmbeddedResource Include="Resources\1261120_1.jpg" />
+    <EmbeddedResource Include="Resources\1261120_2.jpg" />
+    <EmbeddedResource Include="Resources\1261120_3.jpg" />
+    <EmbeddedResource Include="Resources\1261121_1.jpg" />
+    <EmbeddedResource Include="Resources\1261121_2.jpg" />
+    <EmbeddedResource Include="Resources\1261121_3.jpg" />
+    <EmbeddedResource Include="Resources\1262612_1.jpg" />
+    <EmbeddedResource Include="Resources\1262612_2.jpg" />
+    <EmbeddedResource Include="Resources\1262612_3.jpg" />
+    <EmbeddedResource Include="Resources\13.jpg" />
+    <EmbeddedResource Include="Resources\14.jpg" />
+    <EmbeddedResource Include="Resources\15.jpg" />
+    <EmbeddedResource Include="Resources\16.jpg" />
+    <EmbeddedResource Include="Resources\17.jpg" />
+    <EmbeddedResource Include="Resources\18.jpg" />
+    <EmbeddedResource Include="Resources\19.jpg" />
+    <EmbeddedResource Include="Resources\2.jpg" />
+    <EmbeddedResource Include="Resources\20.jpg" />
+    <EmbeddedResource Include="Resources\2020419.jpg" />
+    <EmbeddedResource Include="Resources\2020903.jpg" />
+    <EmbeddedResource Include="Resources\2020913.jpg" />
+    <EmbeddedResource Include="Resources\2020919.jpg" />
+    <EmbeddedResource Include="Resources\2021322.jpg" />
+    <EmbeddedResource Include="Resources\21.jpg" />
+    <EmbeddedResource Include="Resources\2190303.jpg" />
+    <EmbeddedResource Include="Resources\2190308.jpg" />
+    <EmbeddedResource Include="Resources\2190309.jpg" />
+    <EmbeddedResource Include="Resources\2190318.jpg" />
+    <EmbeddedResource Include="Resources\2190703.jpg" />
+    <EmbeddedResource Include="Resources\2191319.jpg" />
+    <EmbeddedResource Include="Resources\2191608.jpg" />
+    <EmbeddedResource Include="Resources\3.jpg" />
+    <EmbeddedResource Include="Resources\3040109.jpg" />
+    <EmbeddedResource Include="Resources\3040718.jpg" />
+    <EmbeddedResource Include="Resources\3150914.jpg" />
+    <EmbeddedResource Include="Resources\3151920.jpg" />
+    <EmbeddedResource Include="Resources\3190105.jpg" />
+    <EmbeddedResource Include="Resources\3190118.jpg" />
+    <EmbeddedResource Include="Resources\3190318.jpg" />
+    <EmbeddedResource Include="Resources\3190409.jpg" />
+    <EmbeddedResource Include="Resources\3190803.jpg" />
+    <EmbeddedResource Include="Resources\3211305.jpg" />
+    <EmbeddedResource Include="Resources\3212201.jpg" />
+    <EmbeddedResource Include="Resources\3240102.jpg" />
+    <EmbeddedResource Include="Resources\3240301.jpg" />
+    <EmbeddedResource Include="Resources\3240703.jpg" />
+    <EmbeddedResource Include="Resources\3241213.jpg" />
+    <EmbeddedResource Include="Resources\3242303.jpg" />
+    <EmbeddedResource Include="Resources\3260105.jpg" />
+    <EmbeddedResource Include="Resources\3260118.jpg" />
+    <EmbeddedResource Include="Resources\3260318.jpg" />
+    <EmbeddedResource Include="Resources\3260803.jpg" />
+    <EmbeddedResource Include="Resources\4.jpg" />
+    <EmbeddedResource Include="Resources\5.jpg" />
+    <EmbeddedResource Include="Resources\6.jpg" />
+    <EmbeddedResource Include="Resources\7.jpg" />
+    <EmbeddedResource Include="Resources\8.jpg" />
+    <EmbeddedResource Include="Resources\9.jpg" />
+    <None Include="Resources\cross.png" />
+    <None Include="Resources\plus.png" />
+    <None Include="Resources\Save.png" />
+    <None Include="Resources\power.png" />
     <Content Include="SQL\MySQL.Gamespy.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

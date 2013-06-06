@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Reflection;
 using System.IO;
@@ -106,6 +107,36 @@ namespace BF2Statistics
                 }
             }
             return (long)num;
+        }
+
+        /// <summary>
+        /// Converts a Timespan of seconds into Hours, Minutes, and Seconds
+        /// </summary>
+        /// <param name="seconds">Seconds to convert</param>
+        /// <returns></returns>
+        public static string Sec2hms(int seconds)
+        {
+            TimeSpan t = TimeSpan.FromSeconds(seconds);
+            StringBuilder SB = new StringBuilder();
+            char[] trim = new char[] { ',', ' ' };
+            int Hours = t.Hours;
+
+            // If we have more then 24 hours, then we need to
+            // convert the days to hours
+            if (t.Days > 0)
+                Hours += t.Days * 24;
+
+            // Format
+            if (Hours > 0)
+                SB.AppendFormat("{0} Hours, ", Hours);
+
+            if (t.Minutes > 0)
+                SB.AppendFormat("{0} Minutes, ", t.Minutes);
+
+            if (t.Seconds > 0)
+                SB.AppendFormat("{0} Seconds, ", t.Seconds);
+
+            return SB.ToString().TrimEnd(trim);
         }
     }
 }

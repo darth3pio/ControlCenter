@@ -35,6 +35,11 @@ namespace BF2Statistics
             get { return _value; }
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="Key">The item key</param>
+        /// <param name="Value">The item value</param>
         public KeyValueItem(string Key, string Value)
         {
             this._key = Key;

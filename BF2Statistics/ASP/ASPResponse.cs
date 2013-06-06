@@ -28,7 +28,7 @@ namespace BF2Statistics.ASP
         private DataType ResponseType = DataType.OK;
 
         /// <summary>
-        /// Response Body
+        /// The Response Body to send to the client
         /// </summary>
         private string ResponseBody = "";
 

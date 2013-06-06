@@ -126,22 +126,10 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void SaveBtn_Click(object sender, EventArgs e)
         {
-            // Make sure both paths are not empty
-            if (String.IsNullOrWhiteSpace(ClientPath.Text) || String.IsNullOrWhiteSpace(ServerPath.Text))
+            // Make sure the server path is not empty
+            if (String.IsNullOrWhiteSpace(ServerPath.Text))
             {
-                MessageBox.Show("You must set client and server paths before continuing.");
-                return;
-            }
-
-            // Make sure directories exist!
-            if (!Directory.Exists(ClientPath.Text))
-            {
-                MessageBox.Show("BF2 Client path is not a valid directory", "Error");
-                return;
-            }
-            else if (!Directory.Exists(ServerPath.Text))
-            {
-                MessageBox.Show("BF2 Server path is not a valid directory", "Error");
+                MessageBox.Show("You must set the server path before continuing.");
                 return;
             }
 

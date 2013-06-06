@@ -17,9 +17,19 @@ namespace BF2Statistics
         /// </summary>
         protected Dictionary<string, string> Items = new Dictionary<string, string>();
 
+        /// <summary>
+        /// Full path to our ServerSettings.con file
+        /// </summary>
+        private string FileName;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="FileName">The full path to the settings.con file</param>
         public ServerSettingsParser(string FileName)
         {
             // Load the settings file
+            this.FileName = FileName;
             string contents = File.ReadAllText(FileName);
 
             // Get all Setting Matches
@@ -34,21 +44,29 @@ namespace BF2Statistics
         /// <summary>
         /// Method for returning the string value of a settings item
         /// </summary>
-        /// <param name="Name"></param>
-        /// <returns>The value, or Null if unset</returns>
+        /// <param name="Name">The name of the config item</param>
+        /// <returns>The value of the settings item</returns>
+        /// <exception cref="KeyNotFoundException">Thrown if the named item doesnt exist</exception>
         public string GetValue(string Name)
         {
-            string value;
-
             try {
-                value = Items[Name];
+                return Items[Name];
             }
-            catch (KeyNotFoundException) {
+            catch (KeyNotFoundException e) {
                 MainForm.Log("Settings Parser: Item not found \"{0}\"", Name);
-                value = null;
+                throw e;
             }
+        }
 
-            return value;
+        /// <summary>
+        /// Method for returning the string value of a settings item
+        /// </summary>
+        /// <param name="Name">The name of the config item</param>
+        /// <param name="DefaultValue">The default value to return if the item doesnt exist</param>
+        /// <returns>The value of the settings item</returns>
+        public string GetValue(string Name, string DefaultValue)
+        {
+            return (Items.ContainsKey(Name)) ? Items[Name] : DefaultValue;
         }
 
         /// <summary>
@@ -58,7 +76,10 @@ namespace BF2Statistics
         /// <param name="Value">String value of the item</param>
         public void SetValue(string Name, string Value)
         {
-            Items[Name] = Value;
+            if (!Items.ContainsKey(Name))
+                Items.Add(Name, Value);
+            else
+                Items[Name] = Value;
         }
 
         /// <summary>
@@ -71,12 +92,30 @@ namespace BF2Statistics
         }
 
         /// <summary>
-        /// Returns a list of all settings
+        /// Saves the current settings to the Server Settings file
         /// </summary>
-        /// <returns></returns>
-        public Dictionary<string, string> GetAllSettings()
+        public void Save()
         {
-            return Items;
+            string[] lines = new string[Items.Count];
+            int i = 0;
+            int dummy;
+
+            // Write the lines one by one into an array
+            foreach (KeyValuePair<string, string> Item in Items)
+            {
+                string Value = Item.Value.Trim();
+
+                // Determine if the value is a string or number. Strings need wrapped in quotes
+                if (!String.IsNullOrEmpty(Value) && Int32.TryParse(Value, out dummy))
+                    lines[i] = String.Format("sv.{0} {1}", Item.Key, Value);
+                else
+                    lines[i] = String.Format("sv.{0} \"{1}\"", Item.Key, Value.Replace(Environment.NewLine, "|"));
+
+                i++;
+            }
+
+            // Save the file
+            File.WriteAllLines(FileName, lines);
         }
     }
 }

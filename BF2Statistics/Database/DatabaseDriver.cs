@@ -96,7 +96,7 @@ namespace BF2Statistics.Database
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void Connection_StateChange(object sender, StateChangeEventArgs e)
+        private void Connection_StateChange(object sender, StateChangeEventArgs e)
         {
             if (Connection.State == ConnectionState.Closed)
             {

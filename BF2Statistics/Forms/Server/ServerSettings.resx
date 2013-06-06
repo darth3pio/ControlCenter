@@ -117,4 +117,23 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <metadata name="Tipsy.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <metadata name="Tipsy.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <data name="label6.ToolTip" xml:space="preserve">
+    <value>Your server sends information about settings and status through this port. You only need to change this if 
+it is in conflict with another port being used on your system. For best results, this value should stay 
+between 29900 and 29950.</value>
+  </data>
+  <data name="NotEnoughPlayersBar.ToolTip" xml:space="preserve">
+    <value>When the number of players on the server drops below the number of players needed to start, the server will 
+wait for this number of seconds for more players to join. If no players join within this time, the round will end.</value>
+  </data>
+  <data name="VoipServerPort.ToolTip" xml:space="preserve">
+    <value>The VOIP server uses this port to receive BF2 server data. When using an external VOIP server, this should be set to the port associated with the 
+shared password from the VOIP server's configuration.</value>
+  </data>
 </root>

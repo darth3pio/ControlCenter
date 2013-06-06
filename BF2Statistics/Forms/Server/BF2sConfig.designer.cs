@@ -28,17 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BF2sConfig));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.AspCallback = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.AspPort = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.AspAddress = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.CentralCallback = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.CentralPort = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.CentralAddress = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
@@ -60,15 +60,11 @@
             this.label21 = new System.Windows.Forms.Label();
             this.CmCountry = new System.Windows.Forms.TextBox();
             this.label20 = new System.Windows.Forms.Label();
-            this.CmBanCount = new System.Windows.Forms.TextBox();
             this.label19 = new System.Windows.Forms.Label();
-            this.CmKDRatio = new System.Windows.Forms.TextBox();
             this.label18 = new System.Windows.Forms.Label();
             this.CmMinRank = new System.Windows.Forms.ComboBox();
             this.label16 = new System.Windows.Forms.Label();
-            this.CmGlobalTime = new System.Windows.Forms.TextBox();
             this.label14 = new System.Windows.Forms.Label();
-            this.CmGlobalScore = new System.Windows.Forms.TextBox();
             this.label15 = new System.Windows.Forms.Label();
             this.CmClanTag = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
@@ -77,18 +73,31 @@
             this.ClanManager = new System.Windows.Forms.ComboBox();
             this.SaveButton = new System.Windows.Forms.Button();
             this.Cancel = new System.Windows.Forms.Button();
+            this.AspPort = new System.Windows.Forms.NumericUpDown();
+            this.CentralPort = new System.Windows.Forms.NumericUpDown();
+            this.CmGlobalScore = new System.Windows.Forms.NumericUpDown();
+            this.CmGlobalTime = new System.Windows.Forms.NumericUpDown();
+            this.CmBanCount = new System.Windows.Forms.NumericUpDown();
+            this.Tipsy = new System.Windows.Forms.ToolTip(this.components);
+            this.CmKDRatio = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.AspPort)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CentralPort)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CmGlobalScore)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CmGlobalTime)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CmBanCount)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CmKDRatio)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.AspPort);
             this.groupBox1.Controls.Add(this.AspCallback);
             this.groupBox1.Controls.Add(this.label4);
-            this.groupBox1.Controls.Add(this.AspPort);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.AspAddress);
             this.groupBox1.Controls.Add(this.label2);
@@ -105,6 +114,8 @@
             this.AspCallback.Name = "AspCallback";
             this.AspCallback.Size = new System.Drawing.Size(197, 20);
             this.AspCallback.TabIndex = 7;
+            this.Tipsy.SetToolTip(this.AspCallback, "The relative path to the bf2statistics.php file on the ASP backend address\r\n\r\nNot" +
+                    " Recomended To Change!");
             // 
             // label4
             // 
@@ -114,14 +125,8 @@
             this.label4.Size = new System.Drawing.Size(139, 13);
             this.label4.TabIndex = 6;
             this.label4.Text = "BF2Statistics ASP Callback:";
-            // 
-            // AspPort
-            // 
-            this.AspPort.Location = new System.Drawing.Point(183, 61);
-            this.AspPort.Name = "AspPort";
-            this.AspPort.Size = new System.Drawing.Size(197, 20);
-            this.AspPort.TabIndex = 5;
-            this.AspPort.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.AspPort_KeyPress);
+            this.Tipsy.SetToolTip(this.label4, "The relative path to the bf2statistics.php file on the ASP backend address\r\n\r\nNot" +
+                    " Recomended To Change!");
             // 
             // label3
             // 
@@ -131,6 +136,7 @@
             this.label3.Size = new System.Drawing.Size(131, 13);
             this.label3.TabIndex = 4;
             this.label3.Text = "ASP Backend HTTP Port:";
+            this.Tipsy.SetToolTip(this.label3, "Asp backend server port (default: 80)");
             // 
             // AspAddress
             // 
@@ -138,6 +144,7 @@
             this.AspAddress.Name = "AspAddress";
             this.AspAddress.Size = new System.Drawing.Size(197, 20);
             this.AspAddress.TabIndex = 3;
+            this.Tipsy.SetToolTip(this.AspAddress, "Asp Backend server address");
             // 
             // label2
             // 
@@ -147,12 +154,13 @@
             this.label2.Size = new System.Drawing.Size(150, 13);
             this.label2.TabIndex = 2;
             this.label2.Text = "ASP Backend HTTP Address:";
+            this.Tipsy.SetToolTip(this.label2, "Asp Backend server address");
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.CentralPort);
             this.groupBox2.Controls.Add(this.CentralCallback);
             this.groupBox2.Controls.Add(this.label5);
-            this.groupBox2.Controls.Add(this.CentralPort);
             this.groupBox2.Controls.Add(this.label6);
             this.groupBox2.Controls.Add(this.CentralAddress);
             this.groupBox2.Controls.Add(this.label7);
@@ -171,6 +179,8 @@
             this.CentralCallback.Name = "CentralCallback";
             this.CentralCallback.Size = new System.Drawing.Size(197, 20);
             this.CentralCallback.TabIndex = 7;
+            this.Tipsy.SetToolTip(this.CentralCallback, "The relative path to the bf2statistics.php file on the ASP Central backend addres" +
+                    "s\r\n\r\nNot Recomended To Change!");
             // 
             // label5
             // 
@@ -180,14 +190,8 @@
             this.label5.Size = new System.Drawing.Size(175, 13);
             this.label5.TabIndex = 6;
             this.label5.Text = "BF2Statistics Central ASP Callback:";
-            // 
-            // CentralPort
-            // 
-            this.CentralPort.Location = new System.Drawing.Point(185, 98);
-            this.CentralPort.Name = "CentralPort";
-            this.CentralPort.Size = new System.Drawing.Size(197, 20);
-            this.CentralPort.TabIndex = 5;
-            this.CentralPort.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.CentralPort_KeyPress);
+            this.Tipsy.SetToolTip(this.label5, "The relative path to the bf2statistics.php file on the ASP Central backend addres" +
+                    "s");
             // 
             // label6
             // 
@@ -197,6 +201,7 @@
             this.label6.Size = new System.Drawing.Size(121, 13);
             this.label6.TabIndex = 4;
             this.label6.Text = "ASP Central HTTP Port:";
+            this.Tipsy.SetToolTip(this.label6, "Asp Central backend server port (default: 80)");
             // 
             // CentralAddress
             // 
@@ -204,6 +209,7 @@
             this.CentralAddress.Name = "CentralAddress";
             this.CentralAddress.Size = new System.Drawing.Size(197, 20);
             this.CentralAddress.TabIndex = 3;
+            this.Tipsy.SetToolTip(this.CentralAddress, "Asp Central Backend server address");
             // 
             // label7
             // 
@@ -213,6 +219,7 @@
             this.label7.Size = new System.Drawing.Size(140, 13);
             this.label7.TabIndex = 2;
             this.label7.Text = "ASP Central HTTP Address:";
+            this.Tipsy.SetToolTip(this.label7, "Asp Central Backend server address");
             // 
             // label8
             // 
@@ -222,6 +229,7 @@
             this.label8.Size = new System.Drawing.Size(92, 13);
             this.label8.TabIndex = 1;
             this.label8.Text = "Central Database:";
+            this.Tipsy.SetToolTip(this.label8, resources.GetString("label8.ToolTip"));
             // 
             // CentralDatabase
             // 
@@ -235,6 +243,7 @@
             this.CentralDatabase.Name = "CentralDatabase";
             this.CentralDatabase.Size = new System.Drawing.Size(146, 21);
             this.CentralDatabase.TabIndex = 0;
+            this.Tipsy.SetToolTip(this.CentralDatabase, resources.GetString("CentralDatabase.ToolTip"));
             this.CentralDatabase.SelectedIndexChanged += new System.EventHandler(this.CentralDatabase_SelectedIndexChanged);
             // 
             // groupBox3
@@ -264,6 +273,8 @@
             this.label12.Size = new System.Drawing.Size(115, 13);
             this.label12.TabIndex = 11;
             this.label12.Text = "Force Medal Keystring:";
+            this.Tipsy.SetToolTip(this.label12, "Removing medal requirements can mess up the keystring, Use this to force the corr" +
+                    "ect string\r\n\r\nRecommended to br enabled if some medal requirements are removed.");
             // 
             // ForceKeyString
             // 
@@ -276,15 +287,19 @@
             this.ForceKeyString.Name = "ForceKeyString";
             this.ForceKeyString.Size = new System.Drawing.Size(146, 21);
             this.ForceKeyString.TabIndex = 10;
+            this.Tipsy.SetToolTip(this.ForceKeyString, "Removing medal requirements can mess up the keystring, Use this to force the corr" +
+                    "ect string\r\n\r\nRecommended to br enabled if some medal requirements are removed.");
             // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(57, 120);
+            this.label11.Location = new System.Drawing.Point(44, 120);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(84, 13);
+            this.label11.Size = new System.Drawing.Size(97, 13);
             this.label11.TabIndex = 9;
-            this.label11.Text = "Medal Data File:";
+            this.label11.Text = "Medal Data Profile:";
+            this.Tipsy.SetToolTip(this.label11, "The chosen profile\'s medal criteria\'s will be used the next time the server is st" +
+                    "arted");
             // 
             // MedalData
             // 
@@ -296,6 +311,8 @@
             this.MedalData.Name = "MedalData";
             this.MedalData.Size = new System.Drawing.Size(146, 21);
             this.MedalData.TabIndex = 8;
+            this.Tipsy.SetToolTip(this.MedalData, "The chosen profile\'s medal criteria\'s will be used the next time the server is st" +
+                    "arted");
             // 
             // SnapshotPrefix
             // 
@@ -303,6 +320,8 @@
             this.SnapshotPrefix.Name = "SnapshotPrefix";
             this.SnapshotPrefix.Size = new System.Drawing.Size(146, 20);
             this.SnapshotPrefix.TabIndex = 7;
+            this.Tipsy.SetToolTip(this.SnapshotPrefix, "Prefix Snapshots with this tag. This is also your Server\'s Prefix. Multiple \r\nser" +
+                    "vers on the same IP Must use different Prefix\'s to tell which is which");
             this.SnapshotPrefix.Validating += new System.ComponentModel.CancelEventHandler(this.SnapshotPrefix_Validating);
             // 
             // label10
@@ -313,6 +332,8 @@
             this.label10.Size = new System.Drawing.Size(84, 13);
             this.label10.TabIndex = 6;
             this.label10.Text = "Snapshot Prefix:";
+            this.Tipsy.SetToolTip(this.label10, "Prefix Snapshots with this tag. This is also your Server\'s Prefix. Multiple \r\nser" +
+                    "vers on the same IP Must use different Prefix\'s to tell which is which");
             // 
             // label9
             // 
@@ -322,6 +343,7 @@
             this.label9.Size = new System.Drawing.Size(96, 13);
             this.label9.TabIndex = 5;
             this.label9.Text = "Snapshot Logging:";
+            this.Tipsy.SetToolTip(this.label9, "Enables server to make snapshot backups");
             // 
             // Logging
             // 
@@ -335,6 +357,7 @@
             this.Logging.Name = "Logging";
             this.Logging.Size = new System.Drawing.Size(146, 21);
             this.Logging.TabIndex = 4;
+            this.Tipsy.SetToolTip(this.Logging, "Enables server to make snapshot backups");
             // 
             // label1
             // 
@@ -344,6 +367,7 @@
             this.label1.Size = new System.Drawing.Size(62, 13);
             this.label1.TabIndex = 3;
             this.label1.Text = "Debugging:";
+            this.Tipsy.SetToolTip(this.label1, "Enable server debugging?");
             // 
             // Debugging
             // 
@@ -356,6 +380,7 @@
             this.Debugging.Name = "Debugging";
             this.Debugging.Size = new System.Drawing.Size(146, 21);
             this.Debugging.TabIndex = 2;
+            this.Tipsy.SetToolTip(this.Debugging, "Enable server debugging?");
             // 
             // groupBox4
             // 
@@ -373,18 +398,18 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.CmKDRatio);
+            this.groupBox5.Controls.Add(this.CmBanCount);
+            this.groupBox5.Controls.Add(this.CmGlobalTime);
+            this.groupBox5.Controls.Add(this.CmGlobalScore);
             this.groupBox5.Controls.Add(this.label21);
             this.groupBox5.Controls.Add(this.CmCountry);
             this.groupBox5.Controls.Add(this.label20);
-            this.groupBox5.Controls.Add(this.CmBanCount);
             this.groupBox5.Controls.Add(this.label19);
-            this.groupBox5.Controls.Add(this.CmKDRatio);
             this.groupBox5.Controls.Add(this.label18);
             this.groupBox5.Controls.Add(this.CmMinRank);
             this.groupBox5.Controls.Add(this.label16);
-            this.groupBox5.Controls.Add(this.CmGlobalTime);
             this.groupBox5.Controls.Add(this.label14);
-            this.groupBox5.Controls.Add(this.CmGlobalScore);
             this.groupBox5.Controls.Add(this.label15);
             this.groupBox5.Controls.Add(this.CmClanTag);
             this.groupBox5.Location = new System.Drawing.Point(17, 84);
@@ -402,6 +427,7 @@
             this.label21.Size = new System.Drawing.Size(46, 13);
             this.label21.TabIndex = 18;
             this.label21.Text = "Country:";
+            this.Tipsy.SetToolTip(this.label21, "Registered Country of Origin Code (Separate multiple by comma \',\')");
             // 
             // CmCountry
             // 
@@ -410,6 +436,7 @@
             this.CmCountry.Name = "CmCountry";
             this.CmCountry.Size = new System.Drawing.Size(91, 20);
             this.CmCountry.TabIndex = 19;
+            this.Tipsy.SetToolTip(this.CmCountry, "Registered Country of Origin Code (Separate multiple by comma \',\')");
             this.CmCountry.Validating += new System.ComponentModel.CancelEventHandler(this.CmCountry_Validating);
             // 
             // label20
@@ -420,14 +447,8 @@
             this.label20.Size = new System.Drawing.Size(83, 13);
             this.label20.TabIndex = 16;
             this.label20.Text = "Max Ban Count:";
-            // 
-            // CmBanCount
-            // 
-            this.CmBanCount.Location = new System.Drawing.Point(300, 74);
-            this.CmBanCount.Name = "CmBanCount";
-            this.CmBanCount.Size = new System.Drawing.Size(91, 20);
-            this.CmBanCount.TabIndex = 17;
-            this.CmBanCount.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.CmBanCount_KeyPress);
+            this.Tipsy.SetToolTip(this.label20, "A player with more then this many bans, will not be allowed to join your server.\r" +
+                    "\n\r\nPermBan is ALWAY BlackListed.");
             // 
             // label19
             // 
@@ -438,14 +459,6 @@
             this.label19.TabIndex = 14;
             this.label19.Text = "K/D Ratio:";
             // 
-            // CmKDRatio
-            // 
-            this.CmKDRatio.Location = new System.Drawing.Point(300, 48);
-            this.CmKDRatio.Name = "CmKDRatio";
-            this.CmKDRatio.Size = new System.Drawing.Size(91, 20);
-            this.CmKDRatio.TabIndex = 15;
-            this.CmKDRatio.Validating += new System.ComponentModel.CancelEventHandler(this.CmKDRatio_Validating);
-            // 
             // label18
             // 
             this.label18.AutoSize = true;
@@ -454,6 +467,7 @@
             this.label18.Size = new System.Drawing.Size(80, 13);
             this.label18.TabIndex = 13;
             this.label18.Text = "Minimum Rank:";
+            this.Tipsy.SetToolTip(this.label18, "Player must have this Global Rank as a minimum.");
             // 
             // CmMinRank
             // 
@@ -486,6 +500,7 @@
             this.CmMinRank.Name = "CmMinRank";
             this.CmMinRank.Size = new System.Drawing.Size(184, 21);
             this.CmMinRank.TabIndex = 12;
+            this.Tipsy.SetToolTip(this.CmMinRank, "Player must have this Global Rank as a minimum.");
             // 
             // label16
             // 
@@ -495,14 +510,7 @@
             this.label16.Size = new System.Drawing.Size(101, 13);
             this.label16.TabIndex = 10;
             this.label16.Text = "Global Time Played:";
-            // 
-            // CmGlobalTime
-            // 
-            this.CmGlobalTime.Location = new System.Drawing.Point(300, 22);
-            this.CmGlobalTime.Name = "CmGlobalTime";
-            this.CmGlobalTime.Size = new System.Drawing.Size(91, 20);
-            this.CmGlobalTime.TabIndex = 11;
-            this.CmGlobalTime.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.CmGlobalTime_KeyPress);
+            this.Tipsy.SetToolTip(this.label16, "Player must have a minimum of this amount of seconds played");
             // 
             // label14
             // 
@@ -512,14 +520,7 @@
             this.label14.Size = new System.Drawing.Size(71, 13);
             this.label14.TabIndex = 8;
             this.label14.Text = "Global Score:";
-            // 
-            // CmGlobalScore
-            // 
-            this.CmGlobalScore.Location = new System.Drawing.Point(93, 49);
-            this.CmGlobalScore.Name = "CmGlobalScore";
-            this.CmGlobalScore.Size = new System.Drawing.Size(91, 20);
-            this.CmGlobalScore.TabIndex = 9;
-            this.CmGlobalScore.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.CmGlobalScore_KeyPress);
+            this.Tipsy.SetToolTip(this.label14, "Player must have this Global score as a minimum to join your server");
             // 
             // label15
             // 
@@ -529,6 +530,7 @@
             this.label15.Size = new System.Drawing.Size(53, 13);
             this.label15.TabIndex = 6;
             this.label15.Text = "Clan Tag:";
+            this.Tipsy.SetToolTip(this.label15, "Clan Tag (Matches First Part of Player Name, used for Whitelist)");
             // 
             // CmClanTag
             // 
@@ -536,6 +538,7 @@
             this.CmClanTag.Name = "CmClanTag";
             this.CmClanTag.Size = new System.Drawing.Size(91, 20);
             this.CmClanTag.TabIndex = 7;
+            this.Tipsy.SetToolTip(this.CmClanTag, "Clan Tag (Matches First Part of Player Name, used for Whitelist)");
             this.CmClanTag.Validating += new System.ComponentModel.CancelEventHandler(this.CmClanTag_Validating);
             // 
             // label13
@@ -570,6 +573,7 @@
             this.label17.Size = new System.Drawing.Size(112, 13);
             this.label17.TabIndex = 3;
             this.label17.Text = "Enable Clan Manager:";
+            this.Tipsy.SetToolTip(this.label17, "Use the Clan Manager to control Access to your server.");
             // 
             // ClanManager
             // 
@@ -582,6 +586,7 @@
             this.ClanManager.Name = "ClanManager";
             this.ClanManager.Size = new System.Drawing.Size(146, 21);
             this.ClanManager.TabIndex = 2;
+            this.Tipsy.SetToolTip(this.ClanManager, "Use the Clan Manager to control Access to your server.");
             this.ClanManager.SelectedIndexChanged += new System.EventHandler(this.ClanManager_SelectedIndexChanged);
             // 
             // SaveButton
@@ -603,6 +608,109 @@
             this.Cancel.Text = "Cancel";
             this.Cancel.UseVisualStyleBackColor = true;
             this.Cancel.Click += new System.EventHandler(this.Cancel_Click);
+            // 
+            // AspPort
+            // 
+            this.AspPort.Location = new System.Drawing.Point(183, 62);
+            this.AspPort.Maximum = new decimal(new int[] {
+            65535,
+            0,
+            0,
+            0});
+            this.AspPort.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.AspPort.Name = "AspPort";
+            this.AspPort.Size = new System.Drawing.Size(60, 20);
+            this.AspPort.TabIndex = 19;
+            this.Tipsy.SetToolTip(this.AspPort, "Asp backend server port (default: 80)");
+            this.AspPort.Value = new decimal(new int[] {
+            80,
+            0,
+            0,
+            0});
+            // 
+            // CentralPort
+            // 
+            this.CentralPort.Location = new System.Drawing.Point(185, 99);
+            this.CentralPort.Maximum = new decimal(new int[] {
+            65535,
+            0,
+            0,
+            0});
+            this.CentralPort.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.CentralPort.Name = "CentralPort";
+            this.CentralPort.Size = new System.Drawing.Size(60, 20);
+            this.CentralPort.TabIndex = 20;
+            this.Tipsy.SetToolTip(this.CentralPort, "Asp Central backend server port (default: 80)");
+            this.CentralPort.Value = new decimal(new int[] {
+            80,
+            0,
+            0,
+            0});
+            // 
+            // CmGlobalScore
+            // 
+            this.CmGlobalScore.Location = new System.Drawing.Point(93, 48);
+            this.CmGlobalScore.Maximum = new decimal(new int[] {
+            9999999,
+            0,
+            0,
+            0});
+            this.CmGlobalScore.Name = "CmGlobalScore";
+            this.CmGlobalScore.Size = new System.Drawing.Size(91, 20);
+            this.CmGlobalScore.TabIndex = 20;
+            this.CmGlobalScore.ThousandsSeparator = true;
+            this.Tipsy.SetToolTip(this.CmGlobalScore, "Player must have this Global score as a minimum to join your server");
+            // 
+            // CmGlobalTime
+            // 
+            this.CmGlobalTime.Location = new System.Drawing.Point(300, 23);
+            this.CmGlobalTime.Maximum = new decimal(new int[] {
+            9999999,
+            0,
+            0,
+            0});
+            this.CmGlobalTime.Name = "CmGlobalTime";
+            this.CmGlobalTime.Size = new System.Drawing.Size(91, 20);
+            this.CmGlobalTime.TabIndex = 21;
+            this.CmGlobalTime.ThousandsSeparator = true;
+            this.Tipsy.SetToolTip(this.CmGlobalTime, "Player must have a minimum of this amount of seconds played");
+            // 
+            // CmBanCount
+            // 
+            this.CmBanCount.Location = new System.Drawing.Point(300, 75);
+            this.CmBanCount.Maximum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            0});
+            this.CmBanCount.Name = "CmBanCount";
+            this.CmBanCount.Size = new System.Drawing.Size(91, 20);
+            this.CmBanCount.TabIndex = 22;
+            this.CmBanCount.ThousandsSeparator = true;
+            this.Tipsy.SetToolTip(this.CmBanCount, "A player with more then this many bans, will not be allowed to join your server.\r" +
+                    "\n\r\nPermBan is ALWAY BlackListed.");
+            // 
+            // Tipsy
+            // 
+            this.Tipsy.AutoPopDelay = 10000;
+            this.Tipsy.InitialDelay = 500;
+            this.Tipsy.ReshowDelay = 100;
+            // 
+            // CmKDRatio
+            // 
+            this.CmKDRatio.DecimalPlaces = 1;
+            this.CmKDRatio.Location = new System.Drawing.Point(300, 49);
+            this.CmKDRatio.Name = "CmKDRatio";
+            this.CmKDRatio.Size = new System.Drawing.Size(91, 20);
+            this.CmKDRatio.TabIndex = 23;
             // 
             // BF2sConfig
             // 
@@ -631,6 +739,12 @@
             this.groupBox4.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.AspPort)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CentralPort)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CmGlobalScore)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CmGlobalTime)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CmBanCount)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CmKDRatio)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -640,13 +754,11 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TextBox AspCallback;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox AspPort;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox AspAddress;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TextBox CentralPort;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox CentralAddress;
         private System.Windows.Forms.Label label7;
@@ -674,17 +786,20 @@
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.ComboBox CmMinRank;
         private System.Windows.Forms.Label label16;
-        private System.Windows.Forms.TextBox CmGlobalTime;
         private System.Windows.Forms.Label label14;
-        private System.Windows.Forms.TextBox CmGlobalScore;
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.TextBox CmCountry;
         private System.Windows.Forms.Label label20;
-        private System.Windows.Forms.TextBox CmBanCount;
         private System.Windows.Forms.Label label19;
-        private System.Windows.Forms.TextBox CmKDRatio;
         private System.Windows.Forms.Button SaveButton;
         private System.Windows.Forms.Button Cancel;
         private System.Windows.Forms.TextBox CentralCallback;
+        private System.Windows.Forms.NumericUpDown AspPort;
+        private System.Windows.Forms.NumericUpDown CentralPort;
+        private System.Windows.Forms.NumericUpDown CmGlobalScore;
+        private System.Windows.Forms.NumericUpDown CmBanCount;
+        private System.Windows.Forms.NumericUpDown CmGlobalTime;
+        private System.Windows.Forms.ToolTip Tipsy;
+        private System.Windows.Forms.NumericUpDown CmKDRatio;
     }
 }

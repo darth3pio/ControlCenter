@@ -76,7 +76,7 @@
             this.MinimizeBox = false;
             this.Name = "ScoreSelectForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "ScoreSelectForm";
+            this.Text = "Select Scoring Optoin";
             this.ResumeLayout(false);
 
         }
