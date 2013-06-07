@@ -93,12 +93,6 @@
     <Compile Include="Forms\MedalData\ConditionListForm.designer.cs">
       <DependentUpon>ConditionListForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\MedalData\GenerateDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\MedalData\GenerateDialog.designer.cs">
-      <DependentUpon>GenerateDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\MedalData\GlobalStatMultTimesForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -252,6 +246,12 @@
     <Compile Include="Forms\S2hmsForm.Designer.cs">
       <DependentUpon>S2hmsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\MedalData\SaveForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MedalData\SaveForm.Designer.cs">
+      <DependentUpon>SaveForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Utilities\HostsFile.cs" />
     <Compile Include="Utilities\Item.cs" />
     <Compile Include="Utilities\KeyValueItem.cs" />
@@ -307,9 +307,6 @@
     <EmbeddedResource Include="Forms\MedalData\ConditionListForm.resx">
       <DependentUpon>ConditionListForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\MedalData\GenerateDialog.resx">
-      <DependentUpon>GenerateDialog.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\MedalData\GlobalStatMultTimesForm.resx">
       <DependentUpon>GlobalStatMultTimesForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -327,6 +324,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\MedalData\ObjectStatForm.resx">
       <DependentUpon>ObjectStatForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MedalData\SaveForm.resx">
+      <DependentUpon>SaveForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\MedalData\ScoreStatForm.resx">
       <DependentUpon>ScoreStatForm.cs</DependentUpon>

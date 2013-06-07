@@ -51,14 +51,14 @@ namespace BF2Statistics.MedalData
         protected string ActiveProfile;
 
         /// <summary>
-        /// A list of all found medal data profiles
+        /// A list of all found medal data profiles, lowercased to prevent duplicates.
         /// </summary>
         public static List<string> Profiles { get; protected set; }
 
         /// <summary>
         /// Indicates the last selected profile
         /// </summary>
-        protected int LastSelectedProfile = -1;
+        protected string LastSelectedProfile = null;
 
         /// <summary>
         /// Indicates whether changes have been made to any criteria
@@ -126,7 +126,7 @@ namespace BF2Statistics.MedalData
                 // Remove .py extension, and add it to the list of files
                 fileF = fileF.Remove(fileF.Length - 3, 3).Replace("medal_data_", "").Replace("_xpack", "");
                 ProfileSelector.Items.Add(fileF);
-                Profiles.Add(fileF);
+                Profiles.Add(fileF.ToLower());
             }
         }
 
@@ -362,39 +362,37 @@ namespace BF2Statistics.MedalData
         #region Bottom Menu
 
         /// <summary>
-        /// This method is called upon selecting a Medal Data File.
+        /// This method is called upon selecting a new Medal Data Profile.
         /// It loads the new medal data, and calls the parser to parse it.
         /// </summary>
         private void ProfileSelector_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // Make sure we have an index! Also make sure we didnt select the same again
-            if (ProfileSelector.SelectedIndex == -1 || ProfileSelector.SelectedIndex == LastSelectedProfile)
+            // Make sure we have an index! Also make sure we didnt select the same profile again
+            if (ProfileSelector.SelectedIndex == -1 || ProfileSelector.SelectedItem.ToString() == LastSelectedProfile)
                 return;
+
+            // Get current profile
+            string Profile = ProfileSelector.SelectedItem.ToString();
 
             // Make sure the user wants to commit without saving changes
             if (ChangesMade && MessageBox.Show("Some changes have not been saved. Are you sure you want to continue?",
                 "Confirm", MessageBoxButtons.YesNo) != DialogResult.Yes)
             {
-                ProfileSelector.SelectedIndex = LastSelectedProfile;
+                ProfileSelector.SelectedIndex = Profiles.IndexOf(LastSelectedProfile.ToLower());
                 return;
             }
 
-            // Disable the form to prevent errors
+            // Disable the form to prevent errors. Show loading screen
             this.Enabled = false;
             LoadingForm.ShowScreen(this);
-
-            // Get current profile
-            string Profile = ProfileSelector.SelectedItem.ToString();
 
             // Suppress repainting the TreeView until all the objects have been created.
             AwardConditionsTree.Nodes.Clear();
             AwardTree.BeginUpdate();
 
-            // Remove old garbage from previous medal data file if applicable
-            AwardTree.Nodes[0].Nodes.Clear();
-            AwardTree.Nodes[1].Nodes.Clear();
-            AwardTree.Nodes[2].Nodes.Clear();
-            AwardTree.Nodes[3].Nodes.Clear();
+            // Remove old medal data if applicable
+            for(int i = 0; i <= 3; i++)
+                AwardTree.Nodes[i].Nodes.Clear();
 
             // Get Medal Data
             try {
@@ -409,6 +407,7 @@ namespace BF2Statistics.MedalData
                 return;
             }
 
+            // Add all awards to the corresponding Node
             foreach (Award A in AwardCache.GetBadges())
                 AwardTree.Nodes[0].Nodes.Add(A.Id, A.Name);
 
@@ -422,40 +421,38 @@ namespace BF2Statistics.MedalData
                 AwardTree.Nodes[3].Nodes.Add(R.Id.ToString(), R.Name);
 
             // Begin repainting the TreeView.
+            AwardTree.CollapseAll();
             AwardTree.EndUpdate();
 
-            // Reset current award
-            AwardNameBox.Text = "";
-            AwardTypeBox.Text = "";
+            // Reset current award data
+            AwardNameBox.Text = null;
+            AwardTypeBox.Text = null;
             AwardPictureBox.Image = null;
             AwardTree.SelectedNode = AwardTree.Nodes[0];
 
             // Process Active profile button
             if (Profile == ActiveProfile)
             {
-                ActivateProfileBtn.Text = "Current Active Profile";
+                ActivateProfileBtn.Text = "Current Server Profile";
                 ActivateProfileBtn.BackgroundImage = Resources.check;
-                ActivateProfileBtn.Enabled = false;
             }
             else
             {
-                ActivateProfileBtn.Text = "Set as Active Profile";
+                ActivateProfileBtn.Text = "Set as Server Profile";
                 ActivateProfileBtn.BackgroundImage = Resources.power;
-                ActivateProfileBtn.Enabled = true;
             }
 
-            // Enable stuff
-            DelProfileBtn.Enabled = true;
-            SaveBtn.Enabled = true;
-
-            // Enable form
+            // Enable form controls
             AwardTree.Enabled = true;
             AwardConditionsTree.Enabled = true;
+            DelProfileBtn.Enabled = true;
+            ActivateProfileBtn.Enabled = true;
+            SaveBtn.Enabled = true;
             this.Enabled = true;
             LoadingForm.CloseForm();
 
-            // Set this as the last index
-            LastSelectedProfile = ProfileSelector.SelectedIndex;
+            // Set this profile as the last selected profile
+            LastSelectedProfile = Profile;
             ChangesMade = false;
         }
 
@@ -467,13 +464,10 @@ namespace BF2Statistics.MedalData
         private void NewProfileBtn_Click(object sender, EventArgs e)
         {
             NewProfilePrompt Form = new NewProfilePrompt();
-            DialogResult Result = Form.ShowDialog();
-
-            if (Result == DialogResult.OK)
+            if (Form.ShowDialog() == DialogResult.OK)
             {
                 LoadProfiles();
-                int Index = Profiles.IndexOf(NewProfilePrompt.LastProfileName);
-                ProfileSelector.SelectedIndex = Index;
+                ProfileSelector.SelectedIndex = Profiles.IndexOf(NewProfilePrompt.LastProfileName);
             }
         }
 
@@ -497,6 +491,18 @@ namespace BF2Statistics.MedalData
                     // Delete medal data files
                     File.Delete(Path.Combine(PythonPath, "medal_data_" + Profile + ".py"));
                     File.Delete(Path.Combine(PythonPath, "medal_data_" + Profile + "_xpack.py"));
+
+                    // Unselect this as the default profile
+                    ActiveProfile = null;
+
+                    // Set current selected profile to null in the Bf2sConfig
+                    string FileContents = File.ReadAllText(ConfigFile);
+                    FileContents = Regex.Replace(FileContents, @"medals_custom_data = '([A-Za-z0-9_]*)'", "medals_custom_data = ''");
+                    File.WriteAllText(ConfigFile, FileContents);
+
+                    // Update form
+                    ActivateProfileBtn.Text = "Set as Server Profile";
+                    ActivateProfileBtn.BackgroundImage = Resources.power;
                 }
                 catch (Exception ex)
                 {
@@ -511,11 +517,9 @@ namespace BF2Statistics.MedalData
                 AwardConditionsTree.Nodes.Clear();
                 AwardTree.BeginUpdate();
 
-                // Remove old garbage from previous medal data file if applicable
-                AwardTree.Nodes[0].Nodes.Clear();
-                AwardTree.Nodes[1].Nodes.Clear();
-                AwardTree.Nodes[2].Nodes.Clear();
-                AwardTree.Nodes[3].Nodes.Clear();
+                // Remove old medal data if applicable
+                for (int i = 0; i <= 3; i++)
+                    AwardTree.Nodes[i].Nodes.Clear();
                 AwardTree.EndUpdate();
 
                 // Disable some form controls
@@ -525,9 +529,12 @@ namespace BF2Statistics.MedalData
                 ActivateProfileBtn.Enabled = false;
                 SaveBtn.Enabled = false;
 
-                // Reset selector
+                // Reset controls
+                AwardNameBox.Text = null;
+                AwardTypeBox.Text = null;
+                AwardPictureBox.Image = null;
                 ProfileSelector.SelectedIndex = -1;
-                LastSelectedProfile = -1;
+                LastSelectedProfile = null;
                 LoadProfiles();
                 this.Enabled = true;
 
@@ -558,7 +565,7 @@ namespace BF2Statistics.MedalData
                 File.WriteAllText(ConfigFile, FileContents);
 
                 // Update form
-                ActivateProfileBtn.Text = "Set as Active Profile";
+                ActivateProfileBtn.Text = "Set as Server Profile";
                 ActivateProfileBtn.BackgroundImage = Resources.power;
             }
             else
@@ -576,7 +583,7 @@ namespace BF2Statistics.MedalData
                 File.WriteAllText(ConfigFile, FileContents);
 
                 // Update form
-                ActivateProfileBtn.Text = "Current Active Profile";
+                ActivateProfileBtn.Text = "Current Server Profile";
                 ActivateProfileBtn.BackgroundImage = Resources.check;
             }
         }
@@ -589,6 +596,11 @@ namespace BF2Statistics.MedalData
         private void SaveButton_Click(object sender, EventArgs e)
         {
             string Profile = ProfileSelector.SelectedItem.ToString();
+
+            // Show save dialog
+            SaveForm Form = new SaveForm();
+            if (Form.ShowDialog() != DialogResult.OK)
+                return;
 
             // Add base medal data functions
             StringBuilder MedalData = new StringBuilder();
@@ -630,7 +642,9 @@ namespace BF2Statistics.MedalData
                 // Write to the Non SF file
                 File.WriteAllText(
                     Path.Combine(PythonPath, "medal_data_" + Profile + ".py"),
-                    MedalData.ToString() + RankData.ToString().TrimEnd()
+                    (SaveForm.IncludeSFData)
+                        ? MedalData.ToString() + MedalDataSF.ToString() + RankData.ToString().TrimEnd()
+                        : MedalData.ToString() + RankData.ToString().TrimEnd()
                 );
 
                 // Write to the SF file
@@ -640,7 +654,6 @@ namespace BF2Statistics.MedalData
                 );
 
                 ChangesMade = false;
-                MessageBox.Show("Medal data requirements Saved!");
             }
             catch (Exception ex)
             {
@@ -812,8 +825,7 @@ namespace BF2Statistics.MedalData
                 Child = new NewCriteriaForm();
             }
 
-            // If not a condition list, cancel action
-
+            // Show child form
             Child.FormClosing += new FormClosingEventHandler(NewCriteria_Closing);
             Child.Show();
         }

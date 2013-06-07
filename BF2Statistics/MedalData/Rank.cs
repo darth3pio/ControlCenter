@@ -76,16 +76,28 @@ namespace BF2Statistics.MedalData
             Conditions = AwardCache.GetDefaultAwardCondition(this.Id.ToString());
         }
 
+        /// <summary>
+        /// Returns the name of the rank
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return this.Name;
         }
 
+        /// <summary>
+        /// Converts the rank data into python code
+        /// </summary>
+        /// <returns></returns>
         public string ToPython()
         {
             return String.Format("({0}, 'rank', {1}),#stop", Id, Conditions.ToPython());
         }
 
+        /// <summary>
+        /// Converts the condition into a viewable TreeNode for the Criteria Editor
+        /// </summary>
+        /// <returns></returns>
         public TreeNode ToTree()
         {
             if (Conditions == null)

@@ -21,22 +21,26 @@ namespace BF2Statistics.MedalData
 
         private void CreateBtn_Click(object sender, EventArgs e)
         {
-            // Make sure the named profile doesnt exist!
-            if (MedalDataEditor.Profiles.Contains(ProfileName.Text))
-            {
-                MessageBox.Show("This profile name already exists. Please try a different profile name.", "Error");
-                return;
-            }
+            // Trim input
+            string Name = ProfileName.Text.Trim();
 
-            if (String.IsNullOrWhiteSpace(ProfileName.Text))
+            // Make sure we dont have an empty string!
+            if (String.IsNullOrEmpty(Name))
             {
                 MessageBox.Show("Please enter a profile name.", "Error");
                 return;
             }
 
+            // Make sure the named profile doesnt exist!
+            if (MedalDataEditor.Profiles.Contains(Name.ToLower()))
+            {
+                MessageBox.Show("This profile name already exists. Please try a different profile name.", "Error");
+                return;
+            }
+
             // Define paths
-            string file = Path.Combine(MedalDataEditor.PythonPath, "medal_data_" + ProfileName.Text + ".py");
-            string sfFile = Path.Combine(MedalDataEditor.PythonPath, "medal_data_" + ProfileName.Text + "_xpack.py");
+            string file = Path.Combine(MedalDataEditor.PythonPath, "medal_data_" + Name + ".py");
+            string sfFile = Path.Combine(MedalDataEditor.PythonPath, "medal_data_" + Name + "_xpack.py");
             string Functions = Utils.GetResourceString("BF2Statistics.MedalData.PyFiles.functions.py");
 
             // Write default medal data
@@ -58,7 +62,7 @@ namespace BF2Statistics.MedalData
             }
 
             // and close!
-            LastProfileName = ProfileName.Text;
+            LastProfileName = Name;
             this.DialogResult = DialogResult.OK;
             this.Close();
         }

@@ -1149,7 +1149,7 @@ namespace BF2Statistics
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void RebuildDNSCache(object sender, DoWorkEventArgs e)
+        private void RebuildDNSCache(object sender, DoWorkEventArgs e)
         {
             UpdateHostFileStatus("- Rebuilding DNS Cache... ", false);
             foreach (KeyValuePair<String, String> IP in HostFile.Lines)

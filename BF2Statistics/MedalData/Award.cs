@@ -34,7 +34,7 @@ namespace BF2Statistics.MedalData
         protected string StrId;
 
         /// <summary>
-        /// The award type
+        /// The award earn type
         /// </summary>
         protected int Type;
 
@@ -43,7 +43,10 @@ namespace BF2Statistics.MedalData
         /// <summary>
         /// Class Constructor. Constructs a new award
         /// </summary>
-        /// <param name="AwardId">The award ID</param>
+        /// <param name="AwardId">The award id as a string</param>
+        /// <param name="StrId">The short name of the award</param>
+        /// <param name="Type">The award earn type. 0 = Purple heart, 1 = Earned only once per player, 2 = Earnable multiple times</param>
+        /// <param name="Condition">The condition to earn this award</param>
         public Award(string AwardId, string StrId, string Type, Condition Condition)
         {
             // Throw an exception if the award is non-existant
@@ -58,8 +61,6 @@ namespace BF2Statistics.MedalData
             this.Conditions = Condition;
             this.OrigConditions = (Condition)Condition.Clone();
         }
-
-        public Award() { }
 
         /// <summary>
         /// Sets the Condition, or Condition list to earn the award

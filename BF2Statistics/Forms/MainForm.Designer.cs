@@ -1506,7 +1506,7 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(451, 13);
             this.textBox1.TabIndex = 5;
-            this.textBox1.Text = "Battlefield 2 Statistics Control Center v1.4";
+            this.textBox1.Text = "Battlefield 2 Statistics Control Center v1.4.1";
             // 
             // pictureBox1
             // 

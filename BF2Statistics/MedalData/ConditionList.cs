@@ -7,7 +7,7 @@ using System.Windows.Forms;
 namespace BF2Statistics.MedalData
 {
     /// <summary>
-    /// Different condition types
+    /// Different condition list types
     /// </summary>
     public enum ConditionType : int
     {
@@ -30,6 +30,9 @@ namespace BF2Statistics.MedalData
         /// </summary>
         protected List<Condition> SubConditions = new List<Condition>();
 
+        /// <summary>
+        /// A list of "ConditionType" => "Name"
+        /// </summary>
         public static Dictionary<int, string> Names = new Dictionary<int, string>()
         {
             {0, "Generic"},
@@ -39,23 +42,36 @@ namespace BF2Statistics.MedalData
             {4, "Division"},
         };
 
-
-
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="Type">The list ConditionType</param>
         public ConditionList(ConditionType Type) 
         {
             this.Type = Type;
         }
 
+        /// <summary>
+        ///  Adds a new sub condition under this list
+        /// </summary>
+        /// <param name="Condition"></param>
         public void Add(Condition Condition)
         {
             SubConditions.Add(Condition);
         }
 
+        /// <summary>
+        /// Removes all sub-conditions under this list
+        /// </summary>
         public void Clear()
         {
             SubConditions.Clear();
         }
 
+        /// <summary>
+        /// Returns a list of sub-conditions under this list
+        /// </summary>
+        /// <returns></returns>
         public List<Condition> GetConditions()
         {
             return this.SubConditions;
@@ -71,13 +87,10 @@ namespace BF2Statistics.MedalData
         }
 
         /// <summary>
-        /// Sets the params for this condition
+        /// Required by Condition abstract class. Donot use.
         /// </summary>
         /// <param name="Params"></param>
-        public override void SetParams(List<string> Params)
-        {
-            
-        }
+        public override void SetParams(List<string> Params) { }
 
         /// <summary>
         /// Returns a copy (clone) of this object
@@ -92,16 +105,20 @@ namespace BF2Statistics.MedalData
             return Clone as object;
         }
 
+        /// <summary>
+        /// Converts this list and all sub-conditions into a python string
+        /// </summary>
+        /// <returns></returns>
         public override string ToPython() 
         {
+            // If there is no sub conditions, return true by default...
             if (SubConditions.Count == 0)
                 return "true";
+            // If there is only 1 sub condition in a AND list, just return it
             else if (Type == ConditionType.And && SubConditions.Count == 1)
                 return SubConditions[0].ToPython();
 
-            char[] trim = new char[2] { ',', ' ' };
             StringBuilder SB = new StringBuilder();
-
             switch (Type)
             {
                 case ConditionType.And:
@@ -125,7 +142,7 @@ namespace BF2Statistics.MedalData
             foreach (Condition C in SubConditions)
                 SB.Append(C.ToPython() + ", ");
 
-            return SB.ToString().TrimEnd(trim) + ")"; 
+            return SB.ToString().TrimEnd(new char[2] { ',', ' ' }) + ")"; 
         }
 
         /// <summary>
@@ -136,22 +153,24 @@ namespace BF2Statistics.MedalData
         /// <returns></returns>
         public TreeNode ToTreeNoCollapse()
         {
-            // Get Name
+            // Define vars
             string Name = "Meets All Requirements:";
             bool Trim = false;
+            int i = 0;
+
+            // Build the name which will be displayed in the criteria view
             switch (this.Type)
             {
                 case ConditionType.Div:
                     if (SubConditions.Count == 3)
                     {
+                        // If a div condition has 3 conditions, the last is always a condition value
                         ConditionValue Cnd = (ConditionValue)SubConditions.Last();
-                        Name = "Conditions Divided >= " + Cnd.Value;
+                        Name = "Conditions Divided Equal to or Greater than " + Cnd.Value;
                         Trim = true;
                     }
                     else
-                    {
                         Name = "Divided Value Of:";
-                    }
                     break;
                 case ConditionType.Not:
                     Name = "Does Not Meet Criteria:";
@@ -162,33 +181,32 @@ namespace BF2Statistics.MedalData
                 case ConditionType.Plus:
                     if (SubConditions.Count == 3)
                     {
+                        // If a plus condition has 3 conditions, the last is always a condition value
                         ConditionValue Cnd = (ConditionValue)SubConditions.Last();
-                        Name = "Condtions Add Up To " + String.Format("{0:N0}", Int32.Parse(Cnd.Value));
+                        Name = "Condtions Equal to or Greater than " + String.Format("{0:N0}", Int32.Parse(Cnd.Value));
                         Trim = true;
                     }
                     else
-                    {
-                        Name = "Sum Of:";
-                    }
+                        Name = "The Sum Of:";
                     break;
             }
 
+            // Start the TreeNode, and add this condition list in the tag
             TreeNode Me = new TreeNode(Name);
             Me.Tag = this;
 
-            int i = 0;
+            // Add sub conditions to the nodes of this condition's tree node
             foreach (Condition C in SubConditions)
             {
-                // Make sure not to add the last element on a plus
-                if (Trim)
-                {
-                    if (C is ConditionValue)
-                        break;
-                }
-
+                // Obviously dont add null items
                 if (C == null)
                     continue;
 
+                // Make sure not to add the last element on a plus conditionlist
+                if (Trim && C is ConditionValue)
+                    break;
+
+                // Convert sub-condition to tree
                 TreeNode N = C.ToTree();
                 if (N == null)
                     continue;
@@ -212,7 +230,5 @@ namespace BF2Statistics.MedalData
 
             return ToTreeNoCollapse();
         }
-
-        //public string override ToString() { return " ";  }
     }
 }

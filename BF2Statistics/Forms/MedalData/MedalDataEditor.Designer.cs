@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.TreeNode treeNode17 = new System.Windows.Forms.TreeNode("Badges");
-            System.Windows.Forms.TreeNode treeNode18 = new System.Windows.Forms.TreeNode("Medals");
-            System.Windows.Forms.TreeNode treeNode19 = new System.Windows.Forms.TreeNode("Ribbons");
-            System.Windows.Forms.TreeNode treeNode20 = new System.Windows.Forms.TreeNode("Ranks");
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Badges");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Medals");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Ribbons");
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Ranks");
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -172,6 +172,7 @@
             this.AwardTypeBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.AwardTypeBox.Location = new System.Drawing.Point(16, 270);
             this.AwardTypeBox.Name = "AwardTypeBox";
+            this.AwardTypeBox.ReadOnly = true;
             this.AwardTypeBox.Size = new System.Drawing.Size(153, 13);
             this.AwardTypeBox.TabIndex = 5;
             // 
@@ -181,6 +182,7 @@
             this.AwardNameBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.AwardNameBox.Location = new System.Drawing.Point(16, 225);
             this.AwardNameBox.Name = "AwardNameBox";
+            this.AwardNameBox.ReadOnly = true;
             this.AwardNameBox.Size = new System.Drawing.Size(195, 13);
             this.AwardNameBox.TabIndex = 4;
             // 
@@ -230,19 +232,19 @@
             this.AwardTree.Enabled = false;
             this.AwardTree.Location = new System.Drawing.Point(9, 20);
             this.AwardTree.Name = "AwardTree";
-            treeNode17.Name = "BadgeNode";
-            treeNode17.Text = "Badges";
-            treeNode18.Name = "MedalNode";
-            treeNode18.Text = "Medals";
-            treeNode19.Name = "RibbonNode";
-            treeNode19.Text = "Ribbons";
-            treeNode20.Name = "RankNode";
-            treeNode20.Text = "Ranks";
+            treeNode1.Name = "BadgeNode";
+            treeNode1.Text = "Badges";
+            treeNode2.Name = "MedalNode";
+            treeNode2.Text = "Medals";
+            treeNode3.Name = "RibbonNode";
+            treeNode3.Text = "Ribbons";
+            treeNode4.Name = "RankNode";
+            treeNode4.Text = "Ranks";
             this.AwardTree.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode17,
-            treeNode18,
-            treeNode19,
-            treeNode20});
+            treeNode1,
+            treeNode2,
+            treeNode3,
+            treeNode4});
             this.AwardTree.Size = new System.Drawing.Size(230, 260);
             this.AwardTree.TabIndex = 0;
             this.AwardTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.AwardTree_AfterSelect);
@@ -271,7 +273,7 @@
             this.ActivateProfileBtn.Padding = new System.Windows.Forms.Padding(7, 0, 0, 0);
             this.ActivateProfileBtn.Size = new System.Drawing.Size(150, 24);
             this.ActivateProfileBtn.TabIndex = 5;
-            this.ActivateProfileBtn.Text = "Set as Active Profile";
+            this.ActivateProfileBtn.Text = "Set as Server Profile";
             this.Tipsy.SetToolTip(this.ActivateProfileBtn, "Set current profile as the active medal data profile. The active profile\'s\r\nmedal" +
                     " data is used when the server is started.");
             this.ActivateProfileBtn.UseVisualStyleBackColor = true;
