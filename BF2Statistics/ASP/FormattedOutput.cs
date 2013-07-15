@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace BF2Statistics.ASP
@@ -21,6 +20,12 @@ namespace BF2Statistics.ASP
         /// A list of rows for the Headers
         /// </summary>
         List<List<string>> Rows = new List<List<string>>();
+
+        /// <summary>
+        /// Gets or sets whether output will be tranposed
+        /// (Output in an alternate, easy to read format)
+        /// </summary>
+        public bool Transpose = false;
 
         /// <summary>
         /// The size of the headers. Each header column needs a value
@@ -90,26 +95,54 @@ namespace BF2Statistics.ASP
             // Return data
             StringBuilder Ret = new StringBuilder();
 
-            // Add Headers
-            Ret.AppendFormat("{0}", "H\t");
-            foreach (string Item in Headers)
-                Ret.AppendFormat("{0}\t", Item);
-
-            // Get our headers in a string
-            string Head = Ret.ToString().TrimEnd(new char[] { '\t' });
-            Ret = new StringBuilder();
-
-            foreach (List<string> Items in Rows)
+            // Transpose is a special format used with &transpose=1
+            if (Transpose)
             {
-                string Row = "";
-                foreach (string Item in Items)
-                    Row += Item + "\t";
-                
-                Ret.AppendFormat("D\t{0}\n", Row.TrimEnd(new char[] { '\t' }));
-            }
+                // Start off with header... for each row, we need a \tD
+                String D = "\tD";
+                Ret.Append("\nH" + D.Repeat(Rows.Count));
 
-            string Data = Ret.ToString();
-            return Head + "\n" + Data;
+                // Each header gets its own line, with data lines seperated by a tab
+                int i = 0;
+                foreach (string Header in Headers)
+                {
+                    string Line = "\n" + Header;
+                    foreach (List<string> Row in Rows)
+                    {
+                        Line = String.Concat(Line, "\t", Row[i]);
+                    }
+
+                    i++;
+
+                    // Append header and data line
+                    Ret.Append(Line);
+                }
+
+                return Ret.ToString();
+            }
+            else
+            {
+                // Add Headers
+                Ret.AppendFormat("{0}", "H\t");
+                foreach (string Item in Headers)
+                    Ret.AppendFormat("{0}\t", Item);
+
+                // Get our headers in a string
+                string Head = Ret.ToString().TrimEnd('\t');
+                Ret = new StringBuilder();
+
+                foreach (List<string> Items in Rows)
+                {
+                    string Row = "";
+                    foreach (string Item in Items)
+                        Row += Item + "\t";
+
+                    Ret.AppendFormat("D\t{0}\n", Row.TrimEnd('\t'));
+                }
+
+                string Data = Ret.ToString();
+                return Head + "\n" + Data;
+            }
         }
     }
 }

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BF2Statistics.Database;
 
 namespace BF2Statistics.ASP.Requests
@@ -25,7 +23,7 @@ namespace BF2Statistics.ASP.Requests
             if (Pid == 0 || Unlock == 0)
             {
                 Output = new FormattedOutput("asof", "err");
-                Output.AddRow(Utils.UnixTimestamp(), "Invalid Syntax!");
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
                 Response.AddData(Output);
                 Response.IsValidData(false);
                 Response.Send();
@@ -33,11 +31,11 @@ namespace BF2Statistics.ASP.Requests
             }
 
             // Fetch Player
-            Rows = Driver.Query("SELECT availunlocks, usedunlocks FROM player WHERE id={0}", Pid);
+            Rows = Driver.Query("SELECT availunlocks, usedunlocks FROM player WHERE id=@P0", Pid);
             if (Rows.Count == 0)
             {
                 Output = new FormattedOutput("asof", "err");
-                Output.AddRow(Utils.UnixTimestamp(), "Player Doesnt Exist!");
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist!");
                 Response.AddData(Output);
                 Response.IsValidData(false);
                 Response.Send();
@@ -45,10 +43,10 @@ namespace BF2Statistics.ASP.Requests
             }
 
             // Update Unlock
-            Driver.Execute("UPDATE unlocks SET state = 's' WHERE id = {0} AND kit = {1}", Pid, Unlock);
+            Driver.Execute("UPDATE unlocks SET state = 's' WHERE id = @P0 AND kit = @P1", Pid, Unlock);
 
             // Subtract 1 unlock
-            Driver.Execute("UPDATE player SET availunlocks = {0}, usedunlocks = {1} WHERE id = {2}", 
+            Driver.Execute("UPDATE player SET availunlocks = @P0, usedunlocks = @P1 WHERE id = @P2", 
                 int.Parse(Rows[0]["availunlocks"].ToString()) - 1,
                 int.Parse(Rows[0]["usedunlocks"].ToString()) + 1,
                 Pid

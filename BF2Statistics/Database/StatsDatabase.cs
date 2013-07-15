@@ -25,7 +25,7 @@ namespace BF2Statistics.Database
         {
             CheckConnection();
 
-            return Driver.Query("SELECT awd, level, earned, first FROM awards WHERE id = {0} ORDER BY id", Pid);
+            return Driver.Query("SELECT awd, level, earned, first FROM awards WHERE id = @P0 ORDER BY id", Pid);
         }
 
         /// <summary>
@@ -81,9 +81,13 @@ namespace BF2Statistics.Database
             // Sqlite Database doesnt have a truncate method, so we will just recreate the database
             if (Driver.DatabaseEngine == DatabaseEngine.Sqlite)
             {
+                // Stop the server to delete the file
                 ASP.ASPServer.Stop();
                 File.Delete(Path.Combine(MainForm.Root, MainForm.Config.StatsDBName + ".sqlite3"));
                 System.Threading.Thread.Sleep(500); // Make sure the file deletes before the ASP server starts again!
+
+                // Reset driver, start ASP again
+                Driver = null;
                 ASP.ASPServer.Start();
             }
             else
@@ -156,12 +160,13 @@ namespace BF2Statistics.Database
                 }
                 catch (Exception E)
                 {
-                    string Message = "Database Connect Error: " +
+                    throw new Exception(
+                        "Database Connect Error: " +
                         Environment.NewLine +
                         E.Message +
-                        Environment.NewLine
-                        + "Forcing Server Shutdown...";
-                    throw new Exception(Message);
+                        Environment.NewLine +
+                        "Forcing Server Shutdown..."
+                    );
                 }
             }
         }
@@ -174,16 +179,18 @@ namespace BF2Statistics.Database
         {
             // Show Progress Form
             MainForm.Disable();
-            UpdateProgressForm.ShowScreen("Creating Bf2Stats SQLite Database", MainForm.Instance);
+            bool TaskFormWasOpen = TaskForm.IsOpen;
+            if(!TaskFormWasOpen)
+                TaskForm.Show(MainForm.Instance, "Create Database", "Creating Bf2Stats SQLite Database...", false);
 
             // Create Tables
-            UpdateProgressForm.Status("Creating Tables...");
-            string SQL = Utils.GetResourceString("BF2Statistics.SQL.SQLite.Stats.sql");
+            TaskForm.UpdateStatus("Creating Stats Tables");
+            string SQL = Utils.GetResourceAsString("BF2Statistics.SQL.SQLite.Stats.sql");
             Driver.Execute(SQL);
 
             // Insert Ip2Nation data
-            UpdateProgressForm.Status("Inserting Ip2Nation Data...");
-            SQL = Utils.GetResourceString("BF2Statistics.SQL.Ip2nation.sql");
+            TaskForm.UpdateStatus("Inserting Ip2Nation Data");
+            SQL = Utils.GetResourceAsString("BF2Statistics.SQL.Ip2nation.sql");
             DbTransaction Transaction = Driver.BeginTransaction();
             Driver.Execute(SQL);
 
@@ -195,13 +202,14 @@ namespace BF2Statistics.Database
             catch (Exception E)
             {
                 Transaction.Rollback();
-                UpdateProgressForm.CloseForm();
+                if(!TaskFormWasOpen)
+                    TaskForm.CloseForm();
                 MainForm.Enable();
                 throw E;
             }
 
             // Close update progress form
-            UpdateProgressForm.CloseForm();
+            if(!TaskFormWasOpen) TaskForm.CloseForm();
             MainForm.Enable();
         }
 
@@ -213,39 +221,67 @@ namespace BF2Statistics.Database
         {
             // Show Progress Form
             MainForm.Disable();
-            UpdateProgressForm.ShowScreen("Creating Bf2Stats Mysql Tables", MainForm.Instance);
+            bool TaskFormWasOpen = TaskForm.IsOpen;
+            if (!TaskFormWasOpen)
+                TaskForm.Show(MainForm.Instance, "Create Database", "Creating Bf2Stats Mysql Tables...", false);
 
-            // Create Tables
-            UpdateProgressForm.Status("Creating Tables...");
-            string SQL = Utils.GetResourceString("BF2Statistics.SQL.MySQL.Stats.sql");
-            Driver.Execute(SQL);
+            // To prevent packet size errors
+            Driver.Execute("SET GLOBAL max_allowed_packet=51200");
 
-            // Insert Ip2Nation data
-            UpdateProgressForm.Status("Inserting Ip2Nation Data...");
-            SQL = Utils.GetResourceString("BF2Statistics.SQL.Ip2nation.sql");
-
-            // MySQL Will throw a packet size error here, so we need to increase this!
-            Driver.Execute("SET GLOBAL max_allowed_packet=2048;");
-
-            // Begin execution
+            // Start Transaction
             DbTransaction Transaction = Driver.BeginTransaction();
-            Driver.Execute(SQL);
+            TaskForm.UpdateStatus("Creating Stats Tables");
+
+            // Gets Table Queries
+            string[] SQL = Utils.GetResourceFileLines("BF2Statistics.SQL.MySQL.Stats.sql");
+            List<string> Queries = Utilities.Sql.ExtractQueries(SQL);
 
             // Attempt to do the transaction
             try
             {
+                // Create Tables
+                foreach (string Query in Queries)
+                    Driver.Execute(Query);
+
+                // Commit
                 Transaction.Commit();
             }
             catch (Exception E)
             {
                 Transaction.Rollback();
-                UpdateProgressForm.CloseForm();
+                if (!TaskFormWasOpen)
+                    TaskForm.CloseForm();
+                MainForm.Enable();
+                throw E;
+            }
+
+            // Insert Ip2Nation data
+            Transaction = Driver.BeginTransaction();
+            TaskForm.UpdateStatus("Inserting Ip2Nation Data");
+            SQL = Utils.GetResourceFileLines("BF2Statistics.SQL.Ip2nation.sql");
+            Queries = Utilities.Sql.ExtractQueries(SQL);
+
+            // Attempt to do the transaction
+            try
+            {
+                // Insert rows
+                foreach (string Query in Queries)
+                    Driver.Execute(Query);
+
+                // Commit
+                Transaction.Commit();
+            }
+            catch (Exception E)
+            {
+                Transaction.Rollback();
+                if(!TaskFormWasOpen)
+                    TaskForm.CloseForm();
                 MainForm.Enable();
                 throw E;
             }
 
             // Close update progress form
-            UpdateProgressForm.CloseForm();
+            if (!TaskFormWasOpen) TaskForm.CloseForm();
             MainForm.Enable();
         }
 
@@ -257,5 +293,13 @@ namespace BF2Statistics.Database
             if (Driver != null)
                 Driver.Close();
         }
+
+        /*
+        private void ASPServer_OnStart()
+        {
+            ASP.ASPServer.OnStart -= new StartupEventHandler(ASPServer_OnStart);
+            this.Driver = ASP.ASPServer.Database.Driver;
+        }
+         */
     }
 }

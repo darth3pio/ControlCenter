@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using BF2Statistics.ASP;
 using BF2Statistics.Database;
+using BF2Statistics.Database.QueryBuilder;
 
 namespace BF2Statistics
 {
@@ -51,59 +52,62 @@ namespace BF2Statistics
         private void BuildList()
         {
             // Define initial variables
-            int Start = 0;
-            int Stop = 0;
             int Limit = Int32.Parse(LimitSelect.SelectedItem.ToString());
-            string Like = " ";
+            string Like = SearchBox.Text.Replace("'", "").Trim();
             List<Dictionary<string, object>> Rows;
-
-            // Sorting
-            string OrderBy = String.Format("ORDER BY {0} {1}", SortedCol.Name, ((SortDir == ListSortDirection.Ascending) ? "ASC" : "DESC"));
+            WhereClause Where = null;
 
             // Start Record
-            if (ListPage == 1)
-                Start = 0;
-            else
-                Start = (ListPage - 1) * Limit;
+            int Start = (ListPage == 1) ? 0 : (ListPage - 1) * Limit;
+
+            // Build Query
+            SelectQueryBuilder Query = new SelectQueryBuilder(Driver);
+            Query.SelectColumns("id", "name", "clantag", "rank", "score", "country", "permban");
+            Query.SelectFromTable("player");
+            Query.AddOrderBy(SortedCol.Name, ((SortDir == ListSortDirection.Ascending) ? Sorting.Ascending : Sorting.Descending));
+            Query.Limit(Limit, Start);
 
             // User entered search
-            if (!String.IsNullOrWhiteSpace(SearchBox.Text.Replace("'", "")))
-                Like = String.Format(" WHERE name LIKE '%{0}%' ", SearchBox.Text.Trim().Replace("'", ""));
+            if (!String.IsNullOrWhiteSpace(Like))
+                Where = Query.AddWhere("name", Comparison.Like, "%" + Like + "%");
 
             // Clear out old junk
             DataTable.Rows.Clear();
 
             // Add players to data grid
-            Rows = Driver.Query("SELECT id, name, clantag, rank, score, country, permban FROM player{0}{1} LIMIT {2}, {3}", Like, OrderBy, Start, Limit);
-            int RowCount = Rows.Count;
-            int i = 0;
-            foreach (Dictionary<string, object> P in Rows)
+            int RowCount = 0;
+            foreach (Dictionary<string, object> Row in Driver.QueryReader(Query.BuildCommand()))
             {
                 DataTable.Rows.Add(new string[] { 
-                    Rows[i]["id"].ToString(),
-                    Rows[i]["name"].ToString(),
-                    Rows[i]["clantag"].ToString(),
-                    Rows[i]["rank"].ToString(),
-                    Rows[i]["score"].ToString(),
-                    Rows[i]["country"].ToString(),
-                    Rows[i]["permban"].ToString(),
+                    Row["id"].ToString(),
+                    Row["name"].ToString(),
+                    Row["clantag"].ToString(),
+                    Row["rank"].ToString(),
+                    Row["score"].ToString(),
+                    Row["country"].ToString(),
+                    Row["permban"].ToString(),
                 });
-                i++;
+                RowCount++;
             }
 
             // Get Filtered Rows
-            Rows = Driver.Query("SELECT COUNT(id) AS count FROM player{0}", Like);
+            Query = new SelectQueryBuilder(Driver);
+            Query.SelectCount();
+            Query.SelectFromTable("player");
+            if (Where != null)
+                Query.AddWhere(Where);
+            Rows = Driver.ExecuteReader(Query.BuildCommand());
             int TotalFilteredRows = Int32.Parse(Rows[0]["count"].ToString());
 
             // Get Total Player Count
-            Rows = Driver.Query("SELECT COUNT(id) AS count FROM player");
+            Query = new SelectQueryBuilder(Driver);
+            Query.SelectCount();
+            Query.SelectFromTable("player");
+            Rows = Driver.ExecuteReader(Query.BuildCommand());
             int TotalRows = Int32.Parse(Rows[0]["count"].ToString());
 
             // Stop Count
-            if (ListPage == 1)
-                Stop = RowCount;
-            else
-                Stop = (ListPage - 1) * Limit + RowCount;
+            int Stop = (ListPage == 1) ? RowCount : ((ListPage - 1) * Limit) + RowCount;
 
             // First / Previous button
             if (ListPage == 1)
@@ -138,11 +142,21 @@ namespace BF2Statistics
             PageNumber.Value = ListPage;
 
             // Update Row Count Information
-            RowCountDesc.Text = String.Format("Showing {0} to {1} of {2} players", ++Start, Stop, TotalFilteredRows);
-            if (!String.IsNullOrWhiteSpace(Like))
-                RowCountDesc.Text += " (filtered from " + TotalRows + " total players)";
+            RowCountDesc.Text = String.Format(
+                "Showing {0} to {1} of {2} player{3}",
+                ++Start,
+                Stop,
+                TotalFilteredRows,
+                ((TotalFilteredRows > 1) ? "s " : " ")
+            );
 
+            // Add Total row count
+            if (!String.IsNullOrWhiteSpace(Like))
+                RowCountDesc.Text += String.Format("(filtered from " + TotalRows + " total player{0})", ((TotalRows > 1) ? "s" : ""));
+
+            // Update and Focus
             DataTable.Update();
+            DataTable.Focus();
         }
 
         /// <summary>
@@ -150,7 +164,7 @@ namespace BF2Statistics
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SearchBox_KeyDown(object sender, KeyEventArgs e)
+        private void SearchBox_TextChanged(object sender, EventArgs e)
         {
             BuildList();
         }

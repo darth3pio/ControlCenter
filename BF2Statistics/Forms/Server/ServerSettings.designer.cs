@@ -126,6 +126,9 @@
             this.Cancel = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.RadioBlockTimeBox = new System.Windows.Forms.TextBox();
+            this.label25 = new System.Windows.Forms.Label();
+            this.RadioBlockTimeBar = new System.Windows.Forms.TrackBar();
             this.RadioMaxSpamBox = new System.Windows.Forms.NumericUpDown();
             this.RadioSpamIntBox = new System.Windows.Forms.NumericUpDown();
             this.label24 = new System.Windows.Forms.Label();
@@ -179,9 +182,6 @@
             this.EnableAutoRecord = new System.Windows.Forms.CheckBox();
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.Tipsy = new System.Windows.Forms.ToolTip(this.components);
-            this.RadioBlockTimeBox = new System.Windows.Forms.TextBox();
-            this.label25 = new System.Windows.Forms.Label();
-            this.RadioBlockTimeBar = new System.Windows.Forms.TrackBar();
             this.groupBox1.SuspendLayout();
             this.groupBox13.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.TeamRatioBar)).BeginInit();
@@ -230,6 +230,7 @@
             this.groupBox22.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SoldierFFBar)).BeginInit();
             this.groupBox8.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.RadioBlockTimeBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RadioMaxSpamBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RadioSpamIntBox)).BeginInit();
             this.tabControl1.SuspendLayout();
@@ -253,7 +254,6 @@
             this.groupBox5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DemoQualityBar)).BeginInit();
             this.tabPage6.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.RadioBlockTimeBar)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -342,6 +342,7 @@
             // 
             // TeamRatioBox
             // 
+            this.TeamRatioBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.TeamRatioBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.TeamRatioBox.Location = new System.Drawing.Point(252, 19);
             this.TeamRatioBox.Name = "TeamRatioBox";
@@ -353,6 +354,7 @@
             // TeamRatioBar
             // 
             this.TeamRatioBar.AutoSize = false;
+            this.TeamRatioBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.TeamRatioBar.LargeChange = 10;
             this.TeamRatioBar.Location = new System.Drawing.Point(7, 19);
             this.TeamRatioBar.Maximum = 100;
@@ -380,6 +382,7 @@
             // 
             // ScoreLimitBox
             // 
+            this.ScoreLimitBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.ScoreLimitBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.ScoreLimitBox.Location = new System.Drawing.Point(252, 19);
             this.ScoreLimitBox.Name = "ScoreLimitBox";
@@ -391,6 +394,7 @@
             // ScoreLimitBar
             // 
             this.ScoreLimitBar.AutoSize = false;
+            this.ScoreLimitBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.ScoreLimitBar.Location = new System.Drawing.Point(7, 19);
             this.ScoreLimitBar.Maximum = 300;
             this.ScoreLimitBar.Name = "ScoreLimitBar";
@@ -413,6 +417,7 @@
             // 
             // TicketRatioBox
             // 
+            this.TicketRatioBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.TicketRatioBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.TicketRatioBox.Location = new System.Drawing.Point(251, 19);
             this.TicketRatioBox.Name = "TicketRatioBox";
@@ -424,6 +429,7 @@
             // TicketRatioBar
             // 
             this.TicketRatioBar.AutoSize = false;
+            this.TicketRatioBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.TicketRatioBar.LargeChange = 25;
             this.TicketRatioBar.Location = new System.Drawing.Point(6, 19);
             this.TicketRatioBar.Maximum = 1000;
@@ -450,6 +456,7 @@
             // MaxPlayersBar
             // 
             this.MaxPlayersBar.AutoSize = false;
+            this.MaxPlayersBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.MaxPlayersBar.LargeChange = 8;
             this.MaxPlayersBar.Location = new System.Drawing.Point(6, 19);
             this.MaxPlayersBar.Maximum = 64;
@@ -464,6 +471,7 @@
             // 
             // MaxPlayersBox
             // 
+            this.MaxPlayersBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.MaxPlayersBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.MaxPlayersBox.Location = new System.Drawing.Point(252, 19);
             this.MaxPlayersBox.Name = "MaxPlayersBox";
@@ -486,6 +494,7 @@
             // PlayersToStartSlider
             // 
             this.PlayersToStartSlider.AutoSize = false;
+            this.PlayersToStartSlider.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.PlayersToStartSlider.LargeChange = 8;
             this.PlayersToStartSlider.Location = new System.Drawing.Point(6, 19);
             this.PlayersToStartSlider.Maximum = 64;
@@ -502,6 +511,7 @@
             // 
             // PlayersToStartValueBox
             // 
+            this.PlayersToStartValueBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.PlayersToStartValueBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.PlayersToStartValueBox.Location = new System.Drawing.Point(252, 19);
             this.PlayersToStartValueBox.Name = "PlayersToStartValueBox";
@@ -713,6 +723,7 @@
             // TimeB4RestartMapBar
             // 
             this.TimeB4RestartMapBar.AutoSize = false;
+            this.TimeB4RestartMapBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.TimeB4RestartMapBar.LargeChange = 15;
             this.TimeB4RestartMapBar.Location = new System.Drawing.Point(6, 19);
             this.TimeB4RestartMapBar.Maximum = 60;
@@ -728,6 +739,7 @@
             // 
             // TimeB4RestartMapBox
             // 
+            this.TimeB4RestartMapBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.TimeB4RestartMapBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.TimeB4RestartMapBox.Location = new System.Drawing.Point(252, 19);
             this.TimeB4RestartMapBox.Name = "TimeB4RestartMapBox";
@@ -750,6 +762,7 @@
             // NotEnoughPlayersBar
             // 
             this.NotEnoughPlayersBar.AutoSize = false;
+            this.NotEnoughPlayersBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.NotEnoughPlayersBar.LargeChange = 15;
             this.NotEnoughPlayersBar.Location = new System.Drawing.Point(6, 19);
             this.NotEnoughPlayersBar.Maximum = 60;
@@ -764,6 +777,7 @@
             // 
             // NotEnoughPlayersBox
             // 
+            this.NotEnoughPlayersBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.NotEnoughPlayersBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.NotEnoughPlayersBox.Location = new System.Drawing.Point(252, 19);
             this.NotEnoughPlayersBox.Name = "NotEnoughPlayersBox";
@@ -786,6 +800,7 @@
             // EORBar
             // 
             this.EORBar.AutoSize = false;
+            this.EORBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.EORBar.LargeChange = 15;
             this.EORBar.Location = new System.Drawing.Point(6, 19);
             this.EORBar.Maximum = 120;
@@ -801,6 +816,7 @@
             // 
             // EORBox
             // 
+            this.EORBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.EORBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.EORBox.Location = new System.Drawing.Point(252, 19);
             this.EORBox.Name = "EORBox";
@@ -823,6 +839,7 @@
             // EndDelayBar
             // 
             this.EndDelayBar.AutoSize = false;
+            this.EndDelayBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.EndDelayBar.LargeChange = 15;
             this.EndDelayBar.Location = new System.Drawing.Point(6, 19);
             this.EndDelayBar.Maximum = 60;
@@ -838,6 +855,7 @@
             // 
             // EndDelayBox
             // 
+            this.EndDelayBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.EndDelayBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.EndDelayBox.Location = new System.Drawing.Point(252, 19);
             this.EndDelayBox.Name = "EndDelayBox";
@@ -860,6 +878,7 @@
             // StartDelayBar
             // 
             this.StartDelayBar.AutoSize = false;
+            this.StartDelayBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.StartDelayBar.LargeChange = 15;
             this.StartDelayBar.Location = new System.Drawing.Point(6, 19);
             this.StartDelayBar.Maximum = 60;
@@ -875,6 +894,7 @@
             // 
             // StartDelayBox
             // 
+            this.StartDelayBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.StartDelayBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.StartDelayBox.Location = new System.Drawing.Point(252, 19);
             this.StartDelayBox.Name = "StartDelayBox";
@@ -897,6 +917,7 @@
             // ManDownBar
             // 
             this.ManDownBar.AutoSize = false;
+            this.ManDownBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.ManDownBar.LargeChange = 15;
             this.ManDownBar.Location = new System.Drawing.Point(6, 19);
             this.ManDownBar.Maximum = 60;
@@ -912,6 +933,7 @@
             // 
             // ManDownBox
             // 
+            this.ManDownBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.ManDownBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.ManDownBox.Location = new System.Drawing.Point(252, 19);
             this.ManDownBox.Name = "ManDownBox";
@@ -934,6 +956,7 @@
             // SpawnTimeBar
             // 
             this.SpawnTimeBar.AutoSize = false;
+            this.SpawnTimeBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.SpawnTimeBar.LargeChange = 15;
             this.SpawnTimeBar.Location = new System.Drawing.Point(6, 19);
             this.SpawnTimeBar.Maximum = 60;
@@ -949,6 +972,7 @@
             // 
             // SpawnTimeBox
             // 
+            this.SpawnTimeBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.SpawnTimeBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.SpawnTimeBox.Location = new System.Drawing.Point(252, 19);
             this.SpawnTimeBox.Name = "SpawnTimeBox";
@@ -971,6 +995,7 @@
             // TimeLimitBar
             // 
             this.TimeLimitBar.AutoSize = false;
+            this.TimeLimitBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.TimeLimitBar.LargeChange = 60;
             this.TimeLimitBar.Location = new System.Drawing.Point(6, 19);
             this.TimeLimitBar.Maximum = 7200;
@@ -985,6 +1010,7 @@
             // 
             // TimeLimitBox
             // 
+            this.TimeLimitBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.TimeLimitBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.TimeLimitBox.Location = new System.Drawing.Point(252, 19);
             this.TimeLimitBox.Name = "TimeLimitBox";
@@ -1148,6 +1174,7 @@
             // 
             // VoipQualityBox
             // 
+            this.VoipQualityBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.VoipQualityBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.VoipQualityBox.Location = new System.Drawing.Point(251, 250);
             this.VoipQualityBox.Name = "VoipQualityBox";
@@ -1172,6 +1199,7 @@
             // VoipQualityBar
             // 
             this.VoipQualityBar.AutoSize = false;
+            this.VoipQualityBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.VoipQualityBar.Location = new System.Drawing.Point(9, 250);
             this.VoipQualityBar.Maximum = 5;
             this.VoipQualityBar.Minimum = 1;
@@ -1312,6 +1340,7 @@
             // 
             // VehicleSplashFFBox
             // 
+            this.VehicleSplashFFBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.VehicleSplashFFBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.VehicleSplashFFBox.Location = new System.Drawing.Point(250, 19);
             this.VehicleSplashFFBox.Name = "VehicleSplashFFBox";
@@ -1323,6 +1352,7 @@
             // VehicleSplashFFBar
             // 
             this.VehicleSplashFFBar.AutoSize = false;
+            this.VehicleSplashFFBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.VehicleSplashFFBar.LargeChange = 25;
             this.VehicleSplashFFBar.Location = new System.Drawing.Point(6, 19);
             this.VehicleSplashFFBar.Maximum = 100;
@@ -1347,6 +1377,7 @@
             // 
             // SoldierSplashFFBox
             // 
+            this.SoldierSplashFFBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.SoldierSplashFFBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.SoldierSplashFFBox.Location = new System.Drawing.Point(250, 19);
             this.SoldierSplashFFBox.Name = "SoldierSplashFFBox";
@@ -1358,6 +1389,7 @@
             // SoldierSplashFFBar
             // 
             this.SoldierSplashFFBar.AutoSize = false;
+            this.SoldierSplashFFBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.SoldierSplashFFBar.LargeChange = 25;
             this.SoldierSplashFFBar.Location = new System.Drawing.Point(6, 19);
             this.SoldierSplashFFBar.Maximum = 100;
@@ -1382,6 +1414,7 @@
             // 
             // VehicleFFBox
             // 
+            this.VehicleFFBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.VehicleFFBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.VehicleFFBox.Location = new System.Drawing.Point(250, 19);
             this.VehicleFFBox.Name = "VehicleFFBox";
@@ -1393,6 +1426,7 @@
             // VehicleFFBar
             // 
             this.VehicleFFBar.AutoSize = false;
+            this.VehicleFFBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.VehicleFFBar.LargeChange = 25;
             this.VehicleFFBar.Location = new System.Drawing.Point(6, 19);
             this.VehicleFFBar.Maximum = 100;
@@ -1417,6 +1451,7 @@
             // 
             // SoldierFFBox
             // 
+            this.SoldierFFBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.SoldierFFBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.SoldierFFBox.Location = new System.Drawing.Point(250, 19);
             this.SoldierFFBox.Name = "SoldierFFBox";
@@ -1428,6 +1463,7 @@
             // SoldierFFBar
             // 
             this.SoldierFFBar.AutoSize = false;
+            this.SoldierFFBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.SoldierFFBar.LargeChange = 25;
             this.SoldierFFBar.Location = new System.Drawing.Point(6, 19);
             this.SoldierFFBar.Maximum = 100;
@@ -1479,6 +1515,43 @@
             this.groupBox8.TabIndex = 9;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Misc";
+            // 
+            // RadioBlockTimeBox
+            // 
+            this.RadioBlockTimeBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.RadioBlockTimeBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.RadioBlockTimeBox.Location = new System.Drawing.Point(526, 129);
+            this.RadioBlockTimeBox.Name = "RadioBlockTimeBox";
+            this.RadioBlockTimeBox.ReadOnly = true;
+            this.RadioBlockTimeBox.Size = new System.Drawing.Size(20, 13);
+            this.RadioBlockTimeBox.TabIndex = 43;
+            this.RadioBlockTimeBox.Text = "30";
+            // 
+            // label25
+            // 
+            this.label25.AutoSize = true;
+            this.label25.Location = new System.Drawing.Point(342, 112);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(142, 13);
+            this.label25.TabIndex = 42;
+            this.label25.Text = "Radio Block Time (Seconds)";
+            this.label25.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.Tipsy.SetToolTip(this.label25, "This is the amount of time a player will be blocked from posting any further mess" +
+                    "ages after violating the Radio Max Spam Count \r\nwithin the Radio Spam Interval t" +
+                    "ime frame");
+            // 
+            // RadioBlockTimeBar
+            // 
+            this.RadioBlockTimeBar.AutoSize = false;
+            this.RadioBlockTimeBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.RadioBlockTimeBar.Location = new System.Drawing.Point(280, 128);
+            this.RadioBlockTimeBar.Maximum = 120;
+            this.RadioBlockTimeBar.Name = "RadioBlockTimeBar";
+            this.RadioBlockTimeBar.Size = new System.Drawing.Size(240, 24);
+            this.RadioBlockTimeBar.TabIndex = 41;
+            this.RadioBlockTimeBar.TickFrequency = 15;
+            this.RadioBlockTimeBar.Value = 30;
+            this.RadioBlockTimeBar.ValueChanged += new System.EventHandler(this.RadioBlockTimeBar_ValueChanged);
             // 
             // RadioMaxSpamBox
             // 
@@ -1602,6 +1675,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.tabPage1.Controls.Add(this.groupBox1);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
@@ -1609,10 +1683,10 @@
             this.tabPage1.Size = new System.Drawing.Size(605, 349);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "General";
-            this.tabPage1.UseVisualStyleBackColor = true;
             // 
             // tabPage2
             // 
+            this.tabPage2.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.tabPage2.Controls.Add(this.groupBox3);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
@@ -1620,27 +1694,26 @@
             this.tabPage2.Size = new System.Drawing.Size(605, 349);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Timers";
-            this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // tabPage4
             // 
+            this.tabPage4.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.tabPage4.Controls.Add(this.groupBox6);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Size = new System.Drawing.Size(605, 349);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Friendly Fire";
-            this.tabPage4.UseVisualStyleBackColor = true;
             // 
             // tabPage3
             // 
+            this.tabPage3.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.tabPage3.Controls.Add(this.groupBox26);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Size = new System.Drawing.Size(605, 349);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "COOP";
-            this.tabPage3.UseVisualStyleBackColor = true;
             // 
             // groupBox26
             // 
@@ -1667,6 +1740,7 @@
             // BotCountBar
             // 
             this.BotCountBar.AutoSize = false;
+            this.BotCountBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.BotCountBar.LargeChange = 8;
             this.BotCountBar.Location = new System.Drawing.Point(6, 19);
             this.BotCountBar.Maximum = 64;
@@ -1681,6 +1755,7 @@
             // 
             // BotCountBox
             // 
+            this.BotCountBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.BotCountBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.BotCountBox.Location = new System.Drawing.Point(252, 19);
             this.BotCountBox.Name = "BotCountBox";
@@ -1702,6 +1777,7 @@
             // 
             // BotRatioBox
             // 
+            this.BotRatioBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.BotRatioBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.BotRatioBox.Location = new System.Drawing.Point(250, 19);
             this.BotRatioBox.Name = "BotRatioBox";
@@ -1713,6 +1789,7 @@
             // BotRatioBar
             // 
             this.BotRatioBar.AutoSize = false;
+            this.BotRatioBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.BotRatioBar.LargeChange = 10;
             this.BotRatioBar.Location = new System.Drawing.Point(6, 19);
             this.BotRatioBar.Maximum = 100;
@@ -1737,6 +1814,7 @@
             // 
             // BotDifficultyBox
             // 
+            this.BotDifficultyBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.BotDifficultyBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.BotDifficultyBox.Location = new System.Drawing.Point(250, 19);
             this.BotDifficultyBox.Name = "BotDifficultyBox";
@@ -1748,6 +1826,7 @@
             // BotDifficultyBar
             // 
             this.BotDifficultyBar.AutoSize = false;
+            this.BotDifficultyBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.BotDifficultyBar.LargeChange = 10;
             this.BotDifficultyBar.Location = new System.Drawing.Point(6, 19);
             this.BotDifficultyBar.Maximum = 100;
@@ -1761,6 +1840,7 @@
             // 
             // tabPage7
             // 
+            this.tabPage7.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.tabPage7.Controls.Add(this.groupBox7);
             this.tabPage7.Controls.Add(this.groupBox4);
             this.tabPage7.Location = new System.Drawing.Point(4, 22);
@@ -1768,7 +1848,6 @@
             this.tabPage7.Size = new System.Drawing.Size(605, 349);
             this.tabPage7.TabIndex = 6;
             this.tabPage7.Text = "Voting / Voip";
-            this.tabPage7.UseVisualStyleBackColor = true;
             // 
             // groupBox7
             // 
@@ -1789,6 +1868,7 @@
             // 
             // PlayersVotingBox
             // 
+            this.PlayersVotingBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.PlayersVotingBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.PlayersVotingBox.Location = new System.Drawing.Point(253, 148);
             this.PlayersVotingBox.Name = "PlayersVotingBox";
@@ -1811,6 +1891,7 @@
             // PlayersVotingBar
             // 
             this.PlayersVotingBar.AutoSize = false;
+            this.PlayersVotingBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.PlayersVotingBar.Location = new System.Drawing.Point(7, 147);
             this.PlayersVotingBar.Maximum = 30;
             this.PlayersVotingBar.Name = "PlayersVotingBar";
@@ -1822,6 +1903,7 @@
             // 
             // VoteTimeBox
             // 
+            this.VoteTimeBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.VoteTimeBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.VoteTimeBox.Location = new System.Drawing.Point(253, 88);
             this.VoteTimeBox.Name = "VoteTimeBox";
@@ -1845,6 +1927,7 @@
             // VoteTimeBar
             // 
             this.VoteTimeBar.AutoSize = false;
+            this.VoteTimeBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.VoteTimeBar.Location = new System.Drawing.Point(7, 87);
             this.VoteTimeBar.Maximum = 120;
             this.VoteTimeBar.Name = "VoteTimeBar";
@@ -1879,6 +1962,7 @@
             // 
             // tabPage5
             // 
+            this.tabPage5.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.tabPage5.Controls.Add(this.groupBox30);
             this.tabPage5.Controls.Add(this.groupBox5);
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
@@ -1886,7 +1970,6 @@
             this.tabPage5.Size = new System.Drawing.Size(605, 349);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Demo & Urls";
-            this.tabPage5.UseVisualStyleBackColor = true;
             // 
             // groupBox30
             // 
@@ -2018,6 +2101,7 @@
             // 
             // DemoQualityBox
             // 
+            this.DemoQualityBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.DemoQualityBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.DemoQualityBox.Location = new System.Drawing.Point(420, 32);
             this.DemoQualityBox.Name = "DemoQualityBox";
@@ -2041,6 +2125,7 @@
             // DemoQualityBar
             // 
             this.DemoQualityBar.AutoSize = false;
+            this.DemoQualityBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.DemoQualityBar.Location = new System.Drawing.Point(178, 32);
             this.DemoQualityBar.Minimum = 1;
             this.DemoQualityBar.Name = "DemoQualityBar";
@@ -2061,54 +2146,19 @@
             // 
             // tabPage6
             // 
+            this.tabPage6.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.tabPage6.Controls.Add(this.groupBox8);
             this.tabPage6.Location = new System.Drawing.Point(4, 22);
             this.tabPage6.Name = "tabPage6";
             this.tabPage6.Size = new System.Drawing.Size(605, 349);
             this.tabPage6.TabIndex = 5;
             this.tabPage6.Text = "Misc";
-            this.tabPage6.UseVisualStyleBackColor = true;
             // 
             // Tipsy
             // 
             this.Tipsy.AutoPopDelay = 10000;
             this.Tipsy.InitialDelay = 500;
             this.Tipsy.ReshowDelay = 100;
-            // 
-            // RadioBlockTimeBox
-            // 
-            this.RadioBlockTimeBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.RadioBlockTimeBox.Location = new System.Drawing.Point(526, 129);
-            this.RadioBlockTimeBox.Name = "RadioBlockTimeBox";
-            this.RadioBlockTimeBox.ReadOnly = true;
-            this.RadioBlockTimeBox.Size = new System.Drawing.Size(20, 13);
-            this.RadioBlockTimeBox.TabIndex = 43;
-            this.RadioBlockTimeBox.Text = "30";
-            // 
-            // label25
-            // 
-            this.label25.AutoSize = true;
-            this.label25.Location = new System.Drawing.Point(342, 112);
-            this.label25.Name = "label25";
-            this.label25.Size = new System.Drawing.Size(142, 13);
-            this.label25.TabIndex = 42;
-            this.label25.Text = "Radio Block Time (Seconds)";
-            this.label25.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.Tipsy.SetToolTip(this.label25, "This is the amount of time a player will be blocked from posting any further mess" +
-                    "ages after violating the Radio Max Spam Count \r\nwithin the Radio Spam Interval t" +
-                    "ime frame");
-            // 
-            // RadioBlockTimeBar
-            // 
-            this.RadioBlockTimeBar.AutoSize = false;
-            this.RadioBlockTimeBar.Location = new System.Drawing.Point(280, 128);
-            this.RadioBlockTimeBar.Maximum = 120;
-            this.RadioBlockTimeBar.Name = "RadioBlockTimeBar";
-            this.RadioBlockTimeBar.Size = new System.Drawing.Size(240, 24);
-            this.RadioBlockTimeBar.TabIndex = 41;
-            this.RadioBlockTimeBar.TickFrequency = 15;
-            this.RadioBlockTimeBar.Value = 30;
-            this.RadioBlockTimeBar.ValueChanged += new System.EventHandler(this.RadioBlockTimeBar_ValueChanged);
             // 
             // ServerSettings
             // 
@@ -2195,6 +2245,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.SoldierFFBar)).EndInit();
             this.groupBox8.ResumeLayout(false);
             this.groupBox8.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.RadioBlockTimeBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.RadioMaxSpamBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.RadioSpamIntBox)).EndInit();
             this.tabControl1.ResumeLayout(false);
@@ -2224,7 +2275,6 @@
             this.groupBox5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DemoQualityBar)).EndInit();
             this.tabPage6.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.RadioBlockTimeBar)).EndInit();
             this.ResumeLayout(false);
 
         }

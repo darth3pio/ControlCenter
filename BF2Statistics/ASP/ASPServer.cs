@@ -7,8 +7,7 @@ using System.Text;
 using System.Web;
 using System.Net;
 using System.Net.Sockets;
-using System.Windows.Forms;
-using System.Threading;
+using System.Diagnostics;
 using BF2Statistics.Database;
 using BF2Statistics.Logging;
 using BF2Statistics.ASP.Requests;
@@ -35,7 +34,12 @@ namespace BF2Statistics.ASP
         /// <summary>
         /// ASP server log writter
         /// </summary>
-        private static LogWritter ServerLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspServer.log"));
+        private static LogWritter ServerLog;
+
+        /// <summary>
+        /// Our Access log
+        /// </summary>
+        public static LogWritter AccessLog { get; protected set; }
 
         /// <summary>
         /// Event fired when ASP server is shutdown
@@ -46,6 +50,26 @@ namespace BF2Statistics.ASP
         /// Event fired when ASP server is started
         /// </summary>
         public static event StartupEventHandler OnStart;
+
+        /// <summary>
+        /// Event fired when ASP server recieves a connection
+        /// </summary>
+        public static event AspRequest ClientConnected;
+
+        /// <summary>
+        /// Number of session web requests
+        /// </summary>
+        public static int SessionRequests { get; protected set; }
+
+        /// <summary>
+        /// Static constructor
+        /// </summary>
+        static ASPServer()
+        {
+            ServerLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspServer.log"), 3000);
+            AccessLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspAccess.log"), 3000);
+            SessionRequests = 0;
+        }
 
         /// <summary>
         /// Is the webserver running?
@@ -64,22 +88,17 @@ namespace BF2Statistics.ASP
         }
 
         /// <summary>
-        /// The status box the ASP server will update status on
-        /// </summary>
-        private static TextBox StatusBox;
-
-        /// <summary>
         /// Start the ASP listener, and Connects to the stats database
         /// </summary>
         public static void Start()
         {
             if (!IsRunning)
             {
-                // Update Status
-                StatusBox.Text = String.Format("Connecting to Stats Database ({0})\r\n", MainForm.Config.StatsDBEngine);
-
                 // Try to connect to the database
-                Database = new StatsDatabase();
+                if (Database == null)
+                    Database = new StatsDatabase();
+                else
+                    Database.CheckConnection();
                 Database.Driver.ConnectionClosed += new StateChangeEventHandler(Driver_ConnectionClosed);
 
                 // Make sure we have the ASP prefix set
@@ -87,10 +106,8 @@ namespace BF2Statistics.ASP
                 Listener.Prefixes.Add("http://*/ASP/");
 
                 // Start the Listener and accept new connections
-                StatusBox.Text += "Binding on port 80\r\n";
                 Listener.Start();
                 Listener.BeginGetContext(new AsyncCallback(AcceptClient), Listener);
-                StatusBox.Text += "\r\nReady for Connections!\r\n";
                 
                 // Fire Startup Event
                 OnStart();
@@ -110,30 +127,13 @@ namespace BF2Statistics.ASP
                     Database.Driver.ConnectionClosed -= new StateChangeEventHandler(Driver_ConnectionClosed);
                     Database.Close();
                     Listener = null;
-
-                    // Update Status
-                    UpdateStatus("\r\nServer Shutdown Successfully");
                     OnShutdown();
                 }
                 catch(Exception E)
                 {
                     ServerLog.Write(E.Message);
-                    UpdateStatus("\r\nError Shutting Down Server!");
-                    UpdateStatus("\r\n" + E.Message);
                 }
             }
-        }
-
-        /// <summary>
-        /// Invoking method to update the status window
-        /// </summary>
-        /// <param name="Message"></param>
-        public static void UpdateStatus(string Message)
-        {
-            if (StatusBox.InvokeRequired)
-                StatusBox.Invoke((MethodInvoker)delegate { StatusBox.Text += Message + "\r\n"; });
-            else
-                StatusBox.Text += Message + "\r\n";
         }
 
         /// <summary>
@@ -142,9 +142,12 @@ namespace BF2Statistics.ASP
         /// <param name="Sync"></param>
         private static void AcceptClient(IAsyncResult Sync)
         {
+            Stopwatch Clock = new Stopwatch();
+            Clock.Start();
+
             try
             {
-                // Grab our connecting client
+                // Finish accepting the client
                 HttpListenerContext Client = Listener.EndGetContext(Sync);
 
                 // Make sure our stats Database is online
@@ -157,7 +160,6 @@ namespace BF2Statistics.ASP
                         if (!Database.Driver.IsConnected)
                         {
                             string Message = "Unable to establish database connection";
-                            UpdateStatus(Message);
                             ServerLog.Write(Message);
                             throw new Exception();
                         }
@@ -175,8 +177,17 @@ namespace BF2Statistics.ASP
                 // Tell the listener to continue
                 Listener.BeginGetContext(new AsyncCallback(AcceptClient), Listener);
 
+                // Update client count, and fire connection event
+                SessionRequests++;
+                ClientConnected();
+
+                // Create a better QueryString object
+                Dictionary<string, string> QueryString = Client.Request.QueryString.Cast<string>()
+                         .Select(s => new { Key = s, Value = Client.Request.QueryString[s] })
+                         .ToDictionary(p => p.Key, p => p.Value);
+
                 // Create an ASP Response
-                ASPResponse Response = new ASPResponse(Client.Request, Client.Response);
+                ASPResponse Response = new ASPResponse(Client.Request, Client.Response, QueryString, Clock);
 
                 // Make sure request method is supported
                 if (Client.Request.HttpMethod != "GET" && Client.Request.HttpMethod != "POST")
@@ -184,11 +195,6 @@ namespace BF2Statistics.ASP
                     Response.StatusCode = 501;
                     Response.Send();
                 }
-
-                // Create a better QueryString object
-                Dictionary<string, string> QueryString = Client.Request.QueryString.Cast<string>()
-                         .Select(s => new { Key = s, Value = Client.Request.QueryString[s] })
-                         .ToDictionary(p => p.Key, p => p.Value);
 
                 // Process Request
                 string Doc = Client.Request.Url.AbsolutePath.Replace("/ASP/", "").ToLower();
@@ -239,7 +245,7 @@ namespace BF2Statistics.ASP
                         break;
                 }
             }
-            catch {}
+            catch { }
         }
 
         private static void Driver_ConnectionClosed(object sender, StateChangeEventArgs e)
@@ -251,15 +257,6 @@ namespace BF2Statistics.ASP
             catch {
                 Stop();
             }
-        }
-
-        /// <summary>
-        /// Sets the status window box
-        /// </summary>
-        /// <param name="statusBox"></param>
-        public static void SetStatusBox(TextBox statusBox)
-        {
-            StatusBox = statusBox;
         }
 
         /// <summary>

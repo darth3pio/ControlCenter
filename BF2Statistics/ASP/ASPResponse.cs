@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Net;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.IO;
-using BF2Statistics.Logging;
+using System.Diagnostics;
 
 namespace BF2Statistics.ASP
 {
@@ -43,9 +40,14 @@ namespace BF2Statistics.ASP
         private HttpListenerRequest Request;
 
         /// <summary>
-        /// Our Access log
+        /// Query String
         /// </summary>
-        private static LogWritter AccessLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspAccess.log"), 3000);
+        Dictionary<string, string> QueryString;
+
+        /// <summary>
+        /// Our connection timer
+        /// </summary>
+        private Stopwatch Clock;
 
         /// <summary>
         /// The HTTP Status Code to Send
@@ -69,10 +71,12 @@ namespace BF2Statistics.ASP
         /// Constructor
         /// </summary>
         /// <param name="Stream"></param>
-        public ASPResponse(HttpListenerRequest Request, HttpListenerResponse Response)
+        public ASPResponse(HttpListenerRequest Request, HttpListenerResponse Response, Dictionary<string, string> QueryString, Stopwatch Clock)
         {
             this.Response = Response;
             this.Request = Request;
+            this.QueryString = QueryString;
+            this.Clock = Clock;
         }
 
         /// <summary>
@@ -90,6 +94,7 @@ namespace BF2Statistics.ASP
         /// <param name="Data"></param>
         public void AddData(FormattedOutput Data)
         {
+            Data.Transpose = (QueryString.ContainsKey("transpose") && QueryString["transpose"] == "1");
             ResponseBody += "\n" + Data.ToString().Trim();
         }
 
@@ -109,6 +114,7 @@ namespace BF2Statistics.ASP
 
             FormattedOutput Output = new FormattedOutput(Head);
             Output.AddRow(Body);
+            Output.Transpose = (QueryString.ContainsKey("transpose") && QueryString["transpose"] == "1");
             ResponseBody += "\n" + Output.ToString().Trim();
         }
 
@@ -119,15 +125,6 @@ namespace BF2Statistics.ASP
         public void WriteLine(string Message)
         {
             ResponseBody += "\n" + Message;
-        }
-
-        /// <summary>
-        /// Write's clean data to the stream
-        /// </summary>
-        /// <param name="Message"></param>
-        public void AddString(string Message, params object[] Items)
-        {
-            ResponseBody += "\n" + String.Format(Message, Items);
         }
 
         /// <summary>
@@ -156,11 +153,13 @@ namespace BF2Statistics.ASP
             Response.KeepAlive = false;
 
             // Log Request
-            AccessLog.Write("{0} - \"{1}\" {2} {3}", 
+            Clock.Stop();
+            ASPServer.AccessLog.Write("{0} - \"{1}\" [S: {2}, L: {3}, T: {4}ms]", 
                 Request.RemoteEndPoint.Address, 
                 Request.HttpMethod + " " + Request.Url.PathAndQuery + " HTTP/" + Request.ProtocolVersion.ToString(),
                 StatusCode,
-                Final.Length
+                Final.Length,
+                Clock.ElapsedMilliseconds
             );
 
             // Send Response
@@ -191,14 +190,17 @@ namespace BF2Statistics.ASP
             }
         }
 
+        /// <summary>
+        /// Displays an error page, based off of the set HttpStatusCode
+        /// </summary>
         private void ShowError()
         {
             // Prepare Output Message
-            byte[] Message = Encoding.UTF8.GetBytes(Utils.GetResourceString("BF2Statistics.ASP.Errors." + StatusCode + ".tpl"));
+            byte[] Message = Encoding.UTF8.GetBytes(Utils.GetResourceAsString("BF2Statistics.ASP.Errors." + StatusCode + ".tpl"));
             int Len = Message.Length;
 
             // Log Request
-            AccessLog.Write("{0} - \"{1}\" {2} {3}",
+            ASPServer.AccessLog.Write("{0} - \"{1}\" {2} {3}",
                 Request.RemoteEndPoint.Address,
                 Request.HttpMethod + " " + Request.Url.PathAndQuery + " HTTP/" + Request.ProtocolVersion.ToString(),
                 StatusCode,

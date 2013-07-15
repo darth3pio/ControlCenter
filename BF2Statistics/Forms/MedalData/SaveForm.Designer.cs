@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.NoRadio = new System.Windows.Forms.RadioButton();
             this.YesRadio = new System.Windows.Forms.RadioButton();
+            this.NoRadio = new System.Windows.Forms.RadioButton();
             this.label1 = new System.Windows.Forms.Label();
             this.SaveBtn = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
@@ -47,6 +47,16 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             // 
+            // YesRadio
+            // 
+            this.YesRadio.AutoSize = true;
+            this.YesRadio.Location = new System.Drawing.Point(12, 41);
+            this.YesRadio.Name = "YesRadio";
+            this.YesRadio.Size = new System.Drawing.Size(43, 17);
+            this.YesRadio.TabIndex = 1;
+            this.YesRadio.Text = "Yes";
+            this.YesRadio.UseVisualStyleBackColor = true;
+            // 
             // NoRadio
             // 
             this.NoRadio.AutoSize = true;
@@ -58,16 +68,6 @@
             this.NoRadio.TabStop = true;
             this.NoRadio.Text = "No (Default)";
             this.NoRadio.UseVisualStyleBackColor = true;
-            // 
-            // YesRadio
-            // 
-            this.YesRadio.AutoSize = true;
-            this.YesRadio.Location = new System.Drawing.Point(12, 41);
-            this.YesRadio.Name = "YesRadio";
-            this.YesRadio.Size = new System.Drawing.Size(43, 17);
-            this.YesRadio.TabIndex = 1;
-            this.YesRadio.Text = "Yes";
-            this.YesRadio.UseVisualStyleBackColor = true;
             // 
             // label1
             // 
@@ -106,6 +106,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(254, 137);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.SaveBtn);

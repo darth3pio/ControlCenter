@@ -457,7 +457,7 @@ namespace BF2Statistics.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("localhost")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string LastStatsServerAddress {
             get {
                 return ((string)(this["LastStatsServerAddress"]));
@@ -469,13 +469,25 @@ namespace BF2Statistics.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("localhost")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string LastLoginServerAddress {
             get {
                 return ((string)(this["LastLoginServerAddress"]));
             }
             set {
                 this["LastLoginServerAddress"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int TotalASPRequests {
+            get {
+                return ((int)(this["TotalASPRequests"]));
+            }
+            set {
+                this["TotalASPRequests"] = value;
             }
         }
     }

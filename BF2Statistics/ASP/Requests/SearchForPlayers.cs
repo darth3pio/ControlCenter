@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BF2Statistics.Database;
 
 namespace BF2Statistics.ASP.Requests
@@ -19,7 +17,7 @@ namespace BF2Statistics.ASP.Requests
             if (!QueryString.ContainsKey("nick"))
             {
                 Output = new FormattedOutput("asof", "err");
-                Output.AddRow(Utils.UnixTimestamp(), "Invalid Syntax!");
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
                 Response.AddData(Output);
                 Response.IsValidData(false);
                 Response.Send();
@@ -30,12 +28,12 @@ namespace BF2Statistics.ASP.Requests
 
             // Timestamp Header
             Output = new FormattedOutput("asof");
-            Output.AddRow(Utils.UnixTimestamp());
+            Output.AddRow(DateTime.UtcNow.ToUnixTimestamp());
             Response.AddData(Output);
 
             // Output status
             Output = new FormattedOutput("pid", "nick", "score");
-            Rows = Driver.Query("SELECT id, name, score FROM player WHERE name LIKE '%{0}%'", Nick);
+            Rows = Driver.Query("SELECT id, name, score FROM player WHERE name LIKE @P0", "%" + Nick + "%");
             foreach(Dictionary<string, object> Player in Rows)
                 Output.AddRow(Rows[0]["id"], Rows[0]["name"].ToString().Trim(), Rows[0]["score"]);
 

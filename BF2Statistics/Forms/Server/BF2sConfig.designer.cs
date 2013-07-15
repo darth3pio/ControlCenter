@@ -31,12 +31,14 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BF2sConfig));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.AspPort = new System.Windows.Forms.NumericUpDown();
             this.AspCallback = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.AspAddress = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.CentralPort = new System.Windows.Forms.NumericUpDown();
             this.CentralCallback = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
@@ -57,6 +59,10 @@
             this.Debugging = new System.Windows.Forms.ComboBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.CmKDRatio = new System.Windows.Forms.NumericUpDown();
+            this.CmBanCount = new System.Windows.Forms.NumericUpDown();
+            this.CmGlobalTime = new System.Windows.Forms.NumericUpDown();
+            this.CmGlobalScore = new System.Windows.Forms.NumericUpDown();
             this.label21 = new System.Windows.Forms.Label();
             this.CmCountry = new System.Windows.Forms.TextBox();
             this.label20 = new System.Windows.Forms.Label();
@@ -73,28 +79,23 @@
             this.ClanManager = new System.Windows.Forms.ComboBox();
             this.SaveButton = new System.Windows.Forms.Button();
             this.Cancel = new System.Windows.Forms.Button();
-            this.AspPort = new System.Windows.Forms.NumericUpDown();
-            this.CentralPort = new System.Windows.Forms.NumericUpDown();
-            this.CmGlobalScore = new System.Windows.Forms.NumericUpDown();
-            this.CmGlobalTime = new System.Windows.Forms.NumericUpDown();
-            this.CmBanCount = new System.Windows.Forms.NumericUpDown();
             this.Tipsy = new System.Windows.Forms.ToolTip(this.components);
-            this.CmKDRatio = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.AspPort)).BeginInit();
             this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.CentralPort)).BeginInit();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.AspPort)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CentralPort)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CmGlobalScore)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CmGlobalTime)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CmBanCount)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.CmKDRatio)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CmBanCount)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CmGlobalTime)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CmGlobalScore)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
+            this.groupBox1.BackColor = System.Drawing.SystemColors.Window;
             this.groupBox1.Controls.Add(this.AspPort);
             this.groupBox1.Controls.Add(this.AspCallback);
             this.groupBox1.Controls.Add(this.label4);
@@ -107,6 +108,29 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "ASP Settings";
+            // 
+            // AspPort
+            // 
+            this.AspPort.Location = new System.Drawing.Point(183, 62);
+            this.AspPort.Maximum = new decimal(new int[] {
+            65535,
+            0,
+            0,
+            0});
+            this.AspPort.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.AspPort.Name = "AspPort";
+            this.AspPort.Size = new System.Drawing.Size(60, 20);
+            this.AspPort.TabIndex = 19;
+            this.Tipsy.SetToolTip(this.AspPort, "Asp backend server port (default: 80)");
+            this.AspPort.Value = new decimal(new int[] {
+            80,
+            0,
+            0,
+            0});
             // 
             // AspCallback
             // 
@@ -158,6 +182,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.BackColor = System.Drawing.SystemColors.Window;
             this.groupBox2.Controls.Add(this.CentralPort);
             this.groupBox2.Controls.Add(this.CentralCallback);
             this.groupBox2.Controls.Add(this.label5);
@@ -172,6 +197,29 @@
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Central Database";
+            // 
+            // CentralPort
+            // 
+            this.CentralPort.Location = new System.Drawing.Point(185, 99);
+            this.CentralPort.Maximum = new decimal(new int[] {
+            65535,
+            0,
+            0,
+            0});
+            this.CentralPort.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.CentralPort.Name = "CentralPort";
+            this.CentralPort.Size = new System.Drawing.Size(60, 20);
+            this.CentralPort.TabIndex = 20;
+            this.Tipsy.SetToolTip(this.CentralPort, "Asp Central backend server port (default: 80)");
+            this.CentralPort.Value = new decimal(new int[] {
+            80,
+            0,
+            0,
+            0});
             // 
             // CentralCallback
             // 
@@ -248,6 +296,7 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.BackColor = System.Drawing.SystemColors.Window;
             this.groupBox3.Controls.Add(this.label12);
             this.groupBox3.Controls.Add(this.ForceKeyString);
             this.groupBox3.Controls.Add(this.label11);
@@ -384,6 +433,7 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.BackColor = System.Drawing.SystemColors.Window;
             this.groupBox4.Controls.Add(this.groupBox5);
             this.groupBox4.Controls.Add(this.label13);
             this.groupBox4.Controls.Add(this.CmServerMode);
@@ -398,6 +448,7 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.BackColor = System.Drawing.Color.WhiteSmoke;
             this.groupBox5.Controls.Add(this.CmKDRatio);
             this.groupBox5.Controls.Add(this.CmBanCount);
             this.groupBox5.Controls.Add(this.CmGlobalTime);
@@ -418,6 +469,57 @@
             this.groupBox5.TabIndex = 10;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Criteria";
+            // 
+            // CmKDRatio
+            // 
+            this.CmKDRatio.DecimalPlaces = 1;
+            this.CmKDRatio.Location = new System.Drawing.Point(300, 49);
+            this.CmKDRatio.Name = "CmKDRatio";
+            this.CmKDRatio.Size = new System.Drawing.Size(91, 20);
+            this.CmKDRatio.TabIndex = 23;
+            // 
+            // CmBanCount
+            // 
+            this.CmBanCount.Location = new System.Drawing.Point(300, 75);
+            this.CmBanCount.Maximum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            0});
+            this.CmBanCount.Name = "CmBanCount";
+            this.CmBanCount.Size = new System.Drawing.Size(91, 20);
+            this.CmBanCount.TabIndex = 22;
+            this.CmBanCount.ThousandsSeparator = true;
+            this.Tipsy.SetToolTip(this.CmBanCount, "A player with more then this many bans, will not be allowed to join your server.\r" +
+                    "\n\r\nPermBan is ALWAY BlackListed.");
+            // 
+            // CmGlobalTime
+            // 
+            this.CmGlobalTime.Location = new System.Drawing.Point(300, 23);
+            this.CmGlobalTime.Maximum = new decimal(new int[] {
+            9999999,
+            0,
+            0,
+            0});
+            this.CmGlobalTime.Name = "CmGlobalTime";
+            this.CmGlobalTime.Size = new System.Drawing.Size(91, 20);
+            this.CmGlobalTime.TabIndex = 21;
+            this.CmGlobalTime.ThousandsSeparator = true;
+            this.Tipsy.SetToolTip(this.CmGlobalTime, "Player must have a minimum of this amount of seconds played");
+            // 
+            // CmGlobalScore
+            // 
+            this.CmGlobalScore.Location = new System.Drawing.Point(93, 48);
+            this.CmGlobalScore.Maximum = new decimal(new int[] {
+            9999999,
+            0,
+            0,
+            0});
+            this.CmGlobalScore.Name = "CmGlobalScore";
+            this.CmGlobalScore.Size = new System.Drawing.Size(91, 20);
+            this.CmGlobalScore.TabIndex = 20;
+            this.CmGlobalScore.ThousandsSeparator = true;
+            this.Tipsy.SetToolTip(this.CmGlobalScore, "Player must have this Global score as a minimum to join your server");
             // 
             // label21
             // 
@@ -609,113 +711,17 @@
             this.Cancel.UseVisualStyleBackColor = true;
             this.Cancel.Click += new System.EventHandler(this.Cancel_Click);
             // 
-            // AspPort
-            // 
-            this.AspPort.Location = new System.Drawing.Point(183, 62);
-            this.AspPort.Maximum = new decimal(new int[] {
-            65535,
-            0,
-            0,
-            0});
-            this.AspPort.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.AspPort.Name = "AspPort";
-            this.AspPort.Size = new System.Drawing.Size(60, 20);
-            this.AspPort.TabIndex = 19;
-            this.Tipsy.SetToolTip(this.AspPort, "Asp backend server port (default: 80)");
-            this.AspPort.Value = new decimal(new int[] {
-            80,
-            0,
-            0,
-            0});
-            // 
-            // CentralPort
-            // 
-            this.CentralPort.Location = new System.Drawing.Point(185, 99);
-            this.CentralPort.Maximum = new decimal(new int[] {
-            65535,
-            0,
-            0,
-            0});
-            this.CentralPort.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.CentralPort.Name = "CentralPort";
-            this.CentralPort.Size = new System.Drawing.Size(60, 20);
-            this.CentralPort.TabIndex = 20;
-            this.Tipsy.SetToolTip(this.CentralPort, "Asp Central backend server port (default: 80)");
-            this.CentralPort.Value = new decimal(new int[] {
-            80,
-            0,
-            0,
-            0});
-            // 
-            // CmGlobalScore
-            // 
-            this.CmGlobalScore.Location = new System.Drawing.Point(93, 48);
-            this.CmGlobalScore.Maximum = new decimal(new int[] {
-            9999999,
-            0,
-            0,
-            0});
-            this.CmGlobalScore.Name = "CmGlobalScore";
-            this.CmGlobalScore.Size = new System.Drawing.Size(91, 20);
-            this.CmGlobalScore.TabIndex = 20;
-            this.CmGlobalScore.ThousandsSeparator = true;
-            this.Tipsy.SetToolTip(this.CmGlobalScore, "Player must have this Global score as a minimum to join your server");
-            // 
-            // CmGlobalTime
-            // 
-            this.CmGlobalTime.Location = new System.Drawing.Point(300, 23);
-            this.CmGlobalTime.Maximum = new decimal(new int[] {
-            9999999,
-            0,
-            0,
-            0});
-            this.CmGlobalTime.Name = "CmGlobalTime";
-            this.CmGlobalTime.Size = new System.Drawing.Size(91, 20);
-            this.CmGlobalTime.TabIndex = 21;
-            this.CmGlobalTime.ThousandsSeparator = true;
-            this.Tipsy.SetToolTip(this.CmGlobalTime, "Player must have a minimum of this amount of seconds played");
-            // 
-            // CmBanCount
-            // 
-            this.CmBanCount.Location = new System.Drawing.Point(300, 75);
-            this.CmBanCount.Maximum = new decimal(new int[] {
-            99,
-            0,
-            0,
-            0});
-            this.CmBanCount.Name = "CmBanCount";
-            this.CmBanCount.Size = new System.Drawing.Size(91, 20);
-            this.CmBanCount.TabIndex = 22;
-            this.CmBanCount.ThousandsSeparator = true;
-            this.Tipsy.SetToolTip(this.CmBanCount, "A player with more then this many bans, will not be allowed to join your server.\r" +
-                    "\n\r\nPermBan is ALWAY BlackListed.");
-            // 
             // Tipsy
             // 
             this.Tipsy.AutoPopDelay = 10000;
             this.Tipsy.InitialDelay = 500;
             this.Tipsy.ReshowDelay = 100;
             // 
-            // CmKDRatio
-            // 
-            this.CmKDRatio.DecimalPlaces = 1;
-            this.CmKDRatio.Location = new System.Drawing.Point(300, 49);
-            this.CmKDRatio.Name = "CmKDRatio";
-            this.CmKDRatio.Size = new System.Drawing.Size(91, 20);
-            this.CmKDRatio.TabIndex = 23;
-            // 
             // BF2sConfig
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(829, 462);
             this.Controls.Add(this.Cancel);
             this.Controls.Add(this.SaveButton);
@@ -731,20 +737,20 @@
             this.Text = "BF2Statistics Config";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.AspPort)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.CentralPort)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.AspPort)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CentralPort)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CmGlobalScore)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CmGlobalTime)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CmBanCount)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.CmKDRatio)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CmBanCount)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CmGlobalTime)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CmGlobalScore)).EndInit();
             this.ResumeLayout(false);
 
         }

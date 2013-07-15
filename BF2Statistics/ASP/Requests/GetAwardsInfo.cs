@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using BF2Statistics.Database.QueryBuilder;
 
 namespace BF2Statistics.ASP.Requests
 {
@@ -16,7 +15,7 @@ namespace BF2Statistics.ASP.Requests
             if (!QueryString.ContainsKey("pid") || !Int32.TryParse(QueryString["pid"], out Pid))
             {
                 Output = new FormattedOutput("asof", "err");
-                Output.AddRow(Utils.UnixTimestamp(), "Invalid Syntax!");
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
                 Response.AddData(Output);
                 Response.IsValidData(false);
                 Response.Send();
@@ -25,7 +24,7 @@ namespace BF2Statistics.ASP.Requests
 
             // Output header data
             Output = new FormattedOutput("pid", "asof");
-            Output.AddRow(Pid, Utils.UnixTimestamp());
+            Output.AddRow(Pid, DateTime.UtcNow.ToUnixTimestamp());
             Response.AddData(Output);
 
             // Create Award List Header

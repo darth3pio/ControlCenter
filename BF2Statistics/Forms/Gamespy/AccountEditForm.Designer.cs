@@ -48,6 +48,7 @@
             // label4
             // 
             resources.ApplyResources(this.label4, "label4");
+            this.label4.BackColor = System.Drawing.SystemColors.Window;
             this.label4.Name = "label4";
             // 
             // UpdateBtn
@@ -65,6 +66,7 @@
             // label3
             // 
             resources.ApplyResources(this.label3, "label3");
+            this.label3.BackColor = System.Drawing.SystemColors.Window;
             this.label3.Name = "label3";
             // 
             // AccountPass
@@ -75,11 +77,13 @@
             // label2
             // 
             resources.ApplyResources(this.label2, "label2");
+            this.label2.BackColor = System.Drawing.SystemColors.Window;
             this.label2.Name = "label2";
             // 
             // label1
             // 
             resources.ApplyResources(this.label1, "label1");
+            this.label1.BackColor = System.Drawing.SystemColors.Window;
             this.label1.Name = "label1";
             // 
             // AccountNick
@@ -114,17 +118,20 @@
             // label5
             // 
             resources.ApplyResources(this.label5, "label5");
+            this.label5.BackColor = System.Drawing.SystemColors.Window;
             this.label5.Name = "label5";
             // 
             // SatusLabel
             // 
             resources.ApplyResources(this.SatusLabel, "SatusLabel");
+            this.SatusLabel.BackColor = System.Drawing.Color.WhiteSmoke;
             this.SatusLabel.Name = "SatusLabel";
             // 
             // AccountEditForm
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Window;
             this.Controls.Add(this.SatusLabel);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.DisconnectBtn);

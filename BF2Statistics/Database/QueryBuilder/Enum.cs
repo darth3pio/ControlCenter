@@ -1,0 +1,52 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace BF2Statistics.Database.QueryBuilder
+{
+    public enum ValueMode
+    {
+        Set,
+        Add,
+        Subtract,
+        Divide,
+        Multiply
+    }
+
+    public enum Comparison
+    {
+        Equals,
+        NotEqualTo,
+        LessThan,
+        GreaterThan,
+        LessOrEquals,
+        GreaterOrEquals,
+        Like,
+        NotLike,
+        In,
+        NotIn,
+        Between,
+        NotBetween
+    }
+
+    public enum LogicOperator
+    {
+        And, 
+        Or
+    }
+
+    public enum Sorting
+    {
+        Ascending,
+        Descending,
+    }
+
+    public enum JoinType
+    {
+        InnerJoin,
+        OuterJoin,
+        LeftJoin,
+        RightJoin,
+    }
+}

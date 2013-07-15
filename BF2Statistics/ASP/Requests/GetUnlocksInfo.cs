@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BF2Statistics.Database;
 
 namespace BF2Statistics.ASP.Requests
@@ -29,11 +27,11 @@ namespace BF2Statistics.ASP.Requests
                 // Player Based
                 case 0:
                     // Make sure the player exists
-                    Rows = Driver.Query("SELECT name, score, rank, usedunlocks FROM player WHERE id={0}", Pid);
+                    Rows = Driver.Query("SELECT name, score, rank, usedunlocks FROM player WHERE id=@P0", Pid);
                     if (Rows.Count == 0)
                     {
                         Output = new FormattedOutput("pid", "nick", "asof");
-                        Output.AddRow(Pid, "No_Player", Utils.UnixTimestamp());
+                        Output.AddRow(Pid, "No_Player", DateTime.UtcNow.ToUnixTimestamp());
                         Response.AddData(Output);
                         Output = new FormattedOutput("enlisted", "officer");
                         Output.AddRow("0", "0");
@@ -49,7 +47,7 @@ namespace BF2Statistics.ASP.Requests
 
                     // Start Output
                     Output = new FormattedOutput("pid", "nick", "asof");
-                    Output.AddRow(Pid, Rows[0]["name"].ToString().Trim(), Utils.UnixTimestamp());
+                    Output.AddRow(Pid, Rows[0]["name"].ToString().Trim(), DateTime.UtcNow.ToUnixTimestamp());
                     Response.AddData(Output);
 
                     // Get total number of unlocks player is allowed to have
@@ -58,13 +56,13 @@ namespace BF2Statistics.ASP.Requests
                     Available = GetBonusUnlocks();
 
                     // Determine total unlocks available
-                    Rows = Driver.Query("SELECT COUNT(id) AS count FROM unlocks WHERE id = {0} AND state = 's'", Pid);
+                    Rows = Driver.Query("SELECT COUNT(id) AS count FROM unlocks WHERE id = @P0 AND state = 's'", Pid);
                     int Used = Int32.Parse(Rows[0]["count"].ToString());
                     if (Used > 0)
                     {
                         // Update unlocks data
                         Available -= Used;
-                        Driver.Execute("UPDATE player SET availunlocks = {0}, usedunlocks = {1} WHERE id = {2}", Available, Used, Pid);
+                        Driver.Execute("UPDATE player SET availunlocks = @P0, usedunlocks = @P1 WHERE id = @P2", Available, Used, Pid);
                     }
 
                     // Output users unlocks
@@ -75,7 +73,7 @@ namespace BF2Statistics.ASP.Requests
 
                     // Add each unlock's state
                     Dictionary<string, bool> Unlocks = new Dictionary<string, bool>();
-                    Rows = Driver.Query("SELECT kit, state FROM unlocks WHERE id={0} ORDER BY kit ASC", Pid);
+                    Rows = Driver.Query("SELECT kit, state FROM unlocks WHERE id=@P0 ORDER BY kit ASC", Pid);
                     foreach (Dictionary<string, object> Unlock in Rows)
                     {
                         // Add unlock to output if its a base unlock
@@ -103,7 +101,7 @@ namespace BF2Statistics.ASP.Requests
                 // All Unlocked
                 case 1:
                     Output = new FormattedOutput("pid", "nick", "asof");
-                    Output.AddRow(Pid, "All_Unlocks", Utils.UnixTimestamp());
+                    Output.AddRow(Pid, "All_Unlocks", DateTime.UtcNow.ToUnixTimestamp());
                     Response.AddData(Output);
                     Output = new FormattedOutput("enlisted", "officer");
                     Output.AddRow("0", "0");
@@ -119,7 +117,7 @@ namespace BF2Statistics.ASP.Requests
                 // Unlocks Disabled
                 default:
                     Output = new FormattedOutput("pid", "nick", "asof");
-                    Output.AddRow(Pid, "No_Unlocks", Utils.UnixTimestamp());
+                    Output.AddRow(Pid, "No_Unlocks", DateTime.UtcNow.ToUnixTimestamp());
                     Response.AddData(Output);
                     Output = new FormattedOutput("enlisted", "officer");
                     Output.AddRow("0", "0");
@@ -144,8 +142,12 @@ namespace BF2Statistics.ASP.Requests
         private int GetBonusUnlocks()
         {
             // Start with Kit unlocks (veteran awards and above)
-            string Query = "SELECT COUNT(id) AS count FROM awards WHERE id = {0} AND awd IN ({1}) AND level > 1";
-            Rows = Driver.Query(Query, Pid, "1031119, 1031120, 1031109, 1031115, 1031121, 1031105, 1031113");
+            string Query = String.Format(
+                "SELECT COUNT(id) AS count FROM awards WHERE id = {0} AND awd IN ({1}) AND level > 1",
+                Pid, 
+                "1031119, 1031120, 1031109, 1031115, 1031121, 1031105, 1031113"
+            );
+            Rows = Driver.Query(Query);
             int Unlocks = Int32.Parse(Rows[0]["count"].ToString());
 
             // And Rank Unlocks

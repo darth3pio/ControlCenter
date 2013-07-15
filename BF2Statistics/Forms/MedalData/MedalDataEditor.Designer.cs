@@ -43,8 +43,6 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.UndoAllChangesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RestoreCriteriaMenuBtn = new System.Windows.Forms.ToolStripMenuItem();
-            this.AwardTypeBox = new System.Windows.Forms.TextBox();
-            this.AwardNameBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.AwardPictureBox = new System.Windows.Forms.PictureBox();
@@ -61,6 +59,8 @@
             this.CriteriaItemMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.EditCritertiaMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.DeleteCriteriaMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.AwardNameBox = new System.Windows.Forms.Label();
+            this.AwardTypeBox = new System.Windows.Forms.Label();
             this.groupBox2.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.CriteriaRootMenu.SuspendLayout();
@@ -72,9 +72,9 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.groupBox4);
             this.groupBox2.Controls.Add(this.AwardTypeBox);
             this.groupBox2.Controls.Add(this.AwardNameBox);
+            this.groupBox2.Controls.Add(this.groupBox4);
             this.groupBox2.Controls.Add(this.label3);
             this.groupBox2.Controls.Add(this.label2);
             this.groupBox2.Controls.Add(this.AwardPictureBox);
@@ -165,26 +165,6 @@
             this.RestoreCriteriaMenuBtn.Size = new System.Drawing.Size(171, 22);
             this.RestoreCriteriaMenuBtn.Text = "Restore To Default";
             this.RestoreCriteriaMenuBtn.Click += new System.EventHandler(this.RestoreToDefaultMenuItem_Click);
-            // 
-            // AwardTypeBox
-            // 
-            this.AwardTypeBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.AwardTypeBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.AwardTypeBox.Location = new System.Drawing.Point(16, 270);
-            this.AwardTypeBox.Name = "AwardTypeBox";
-            this.AwardTypeBox.ReadOnly = true;
-            this.AwardTypeBox.Size = new System.Drawing.Size(153, 13);
-            this.AwardTypeBox.TabIndex = 5;
-            // 
-            // AwardNameBox
-            // 
-            this.AwardNameBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.AwardNameBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.AwardNameBox.Location = new System.Drawing.Point(16, 225);
-            this.AwardNameBox.Name = "AwardNameBox";
-            this.AwardNameBox.ReadOnly = true;
-            this.AwardNameBox.Size = new System.Drawing.Size(195, 13);
-            this.AwardNameBox.TabIndex = 4;
             // 
             // label3
             // 
@@ -370,10 +350,31 @@
             this.DeleteCriteriaMenuItem.Text = "Delete Criteria";
             this.DeleteCriteriaMenuItem.Click += new System.EventHandler(this.DeleteCriteria_Click);
             // 
+            // AwardNameBox
+            // 
+            this.AwardNameBox.AutoEllipsis = true;
+            this.AwardNameBox.Location = new System.Drawing.Point(16, 225);
+            this.AwardNameBox.MaximumSize = new System.Drawing.Size(180, 13);
+            this.AwardNameBox.MinimumSize = new System.Drawing.Size(180, 13);
+            this.AwardNameBox.Name = "AwardNameBox";
+            this.AwardNameBox.Size = new System.Drawing.Size(180, 13);
+            this.AwardNameBox.TabIndex = 7;
+            // 
+            // AwardTypeBox
+            // 
+            this.AwardTypeBox.AutoEllipsis = true;
+            this.AwardTypeBox.Location = new System.Drawing.Point(16, 270);
+            this.AwardTypeBox.MaximumSize = new System.Drawing.Size(180, 13);
+            this.AwardTypeBox.MinimumSize = new System.Drawing.Size(180, 13);
+            this.AwardTypeBox.Name = "AwardTypeBox";
+            this.AwardTypeBox.Size = new System.Drawing.Size(180, 13);
+            this.AwardTypeBox.TabIndex = 8;
+            // 
             // MedalDataEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(774, 382);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
@@ -403,8 +404,6 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.TreeView AwardConditionsTree;
-        private System.Windows.Forms.TextBox AwardTypeBox;
-        private System.Windows.Forms.TextBox AwardNameBox;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.PictureBox AwardPictureBox;
@@ -428,5 +427,7 @@
         private System.Windows.Forms.ToolStripMenuItem DeleteCriteriaMenuItem;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label AwardNameBox;
+        private System.Windows.Forms.Label AwardTypeBox;
     }
 }

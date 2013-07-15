@@ -1,13 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BF2Statistics.Database;
 
 namespace BF2Statistics.ASP.Requests
 {
     class GetPlayerID
     {
+        /// <summary>
+        /// To prevent the chance of 2 peeps getting the same PID
+        /// we will just load this on startup
+        /// </summary>
+        protected static int LowestPid;
+
+        /// <summary>
+        /// Grab lowest PID on startup
+        /// </summary>
+        static GetPlayerID()
+        {
+            // Get the lowest PID from the database
+            int DefaultPid = MainForm.Config.ASP_DefaultPID;
+            List<Dictionary<string, object>> Rows = ASPServer.Database.Driver.Query("SELECT MIN(id) AS min FROM player");
+            if (Rows.Count == 0 || String.IsNullOrWhiteSpace(Rows[0]["min"].ToString()) || (Int32.Parse(Rows[0]["min"].ToString()) > DefaultPid))
+                LowestPid = DefaultPid;
+            else
+                LowestPid = Int32.Parse(Rows[0]["min"].ToString()) - 1;
+        }
+
         public GetPlayerID(ASPResponse Response, Dictionary<string, string> QueryString)
         {
             // Setup Variables
@@ -22,7 +40,7 @@ namespace BF2Statistics.ASP.Requests
 
             // Setup Params
             if (QueryString.ContainsKey("nick"))
-                PlayerNick = DatabaseDriver.Escape(QueryString["nick"].Replace("%20", " "));
+                PlayerNick = QueryString["nick"].Replace("%20", " ");
             if (QueryString.ContainsKey("ai"))
                 Int32.TryParse(QueryString["ai"], out IsAI);
             if (QueryString.ContainsKey("playerlist"))
@@ -34,23 +52,16 @@ namespace BF2Statistics.ASP.Requests
                 int Pid;
 
                 // Create player if they donot exist
-                Rows = Driver.Query("SELECT id FROM player WHERE name = '{0}' LIMIT 1", PlayerNick);
+                Rows = Driver.Query("SELECT id FROM player WHERE name = @P0 LIMIT 1", PlayerNick);
                 if (Rows.Count == 0)
                 {
-                    int DefaultPid = MainForm.Config.ASP_DefaultPID;
-                    Rows = null;
-
-                    // Get the lowest PID from the database
-                    Rows = Driver.Query("SELECT MIN(id) AS min FROM player");
-                    if (Rows.Count == 0 || (Int32.Parse(Rows[0]["min"].ToString()) > DefaultPid))
-                        Pid = DefaultPid;
-                    else
-                        Pid = Int32.Parse(Rows[0]["min"].ToString()) - 1;
+                    // Grab new Player ID
+                    Pid = LowestPid--;
 
                     // Create Player
                     Driver.Execute(
-                        "INSERT INTO player(id, name, joined, isbot) VALUES({0}, '{1}', {2}, {3})",
-                        Pid, PlayerNick, Utils.UnixTimestamp(), IsAI
+                        "INSERT INTO player(id, name, joined, isbot) VALUES(@P0, @P1, @P2, @P3)",
+                        Pid, PlayerNick, DateTime.UtcNow.ToUnixTimestamp(), IsAI
                     );
 
                     // Create Player Unlock Data
@@ -59,7 +70,7 @@ namespace BF2Statistics.ASP.Requests
                         Query += String.Format("({0}, {1}, 'n'), ", Pid, i);
                     for (int i = 111; i < 556; i += 111)
                         Query += String.Format("({0}, {1}, 'n'), ", Pid, i);
-                    Driver.Execute(Query.TrimEnd( new char[] { ',', ' '} ));
+                    Driver.Execute(Query.TrimEnd(new char[] { ',', ' ' }));
                 }
                 else
                     Pid = Int32.Parse(Rows[0]["id"].ToString());
@@ -76,7 +87,7 @@ namespace BF2Statistics.ASP.Requests
             else
             {
                 Output = new FormattedOutput("asof", "err");
-                Output.AddRow(Utils.UnixTimestamp(), "Invalid Syntax");
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax");
                 Response.IsValidData(false);
             }
 

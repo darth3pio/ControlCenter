@@ -13,17 +13,17 @@ namespace BF2Statistics.Gamespy
         /// <summary>
         /// Our GPSP Server Listener Socket
         /// </summary>
-        private TcpListener Listener;
+        private static TcpListener Listener;
 
         /// <summary>
         /// List of connected clients
         /// </summary>
-        private List<GpcmClient> Clients = new List<GpcmClient>();
+        private static List<GpcmClient> Clients = new List<GpcmClient>();
 
         /// <summary>
         /// An event called everytime a client connects, or disconnects from the server
         /// </summary>
-        public event EventHandler OnUpdate;
+        public static event EventHandler OnClientsUpdate;
 
         public GpcmServer()
         {
@@ -54,6 +54,7 @@ namespace BF2Statistics.Gamespy
 
             // Update Connected Clients in the Database
             LoginServer.Database.Driver.Execute("UPDATE accounts SET session=0");
+            Clients.Clear();
         }
 
         /// <summary>
@@ -105,14 +106,14 @@ namespace BF2Statistics.Gamespy
 
         private void Client_OnSuccessfulLogin(object sender)
         {
-            OnUpdate(this, new ClientList(Clients));
+            OnClientsUpdate(new object(), new ClientList(Clients));
         }
 
         private void GpcmClient_OnDisconnect(object sender)
         {
             // Remove client, and call OnUpdate Event
             Clients.Remove((GpcmClient)sender);
-            OnUpdate(this, new ClientList(Clients));
+            OnClientsUpdate(new object(), new ClientList(Clients));
         }
     }
 }

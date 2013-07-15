@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BF2Statistics.Database;
 
 namespace BF2Statistics.ASP
@@ -30,7 +28,7 @@ namespace BF2Statistics.ASP
             List<Dictionary<string, object>> Rows;
 
             // See if the player has the award already
-            Rows = Driver.Query("SELECT awd, level FROM awards WHERE id={0} AND awd={1}", Pid, AwardId);
+            Rows = Driver.Query("SELECT awd, level FROM awards WHERE id=@P0 AND awd=@P1", Pid, AwardId);
             int AwardCount = Rows.Count;
             bool MeetsCriteria = false;
 
@@ -45,7 +43,7 @@ namespace BF2Statistics.ASP
             {
                 // Check to see if the player meets the requirments for the award
                 string Where = Criteria.Where.Replace("###", Level.ToString());
-                Rows = Driver.Query("SELECT {0} AS checkval FROM {1} WHERE id={2} AND {3};", Criteria.Field, Criteria.Table, Pid, Where);
+                Rows = Driver.Query(String.Format("SELECT {0} AS checkval FROM {1} WHERE id={2} AND {3};", Criteria.Field, Criteria.Table, Pid, Where));
                 if (Int32.Parse(Rows[0]["checkval"].ToString()) < Criteria.ExpectedResult)
                 {
                     MeetsCriteria = false;

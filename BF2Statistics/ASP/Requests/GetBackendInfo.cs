@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BF2Statistics.ASP.Requests
 {
@@ -11,7 +8,7 @@ namespace BF2Statistics.ASP.Requests
         {
             // Add timestamp and version info
             FormattedOutput Output = new FormattedOutput("ver", "now");
-            Output.AddRow("0.1", Utils.UnixTimestamp());
+            Output.AddRow("0.1", DateTime.UtcNow.ToUnixTimestamp());
             Response.AddData(Output);
 
             // Next list each Unlock

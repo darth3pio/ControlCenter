@@ -28,10 +28,6 @@ namespace BF2Statistics
         {
             InitializeComponent();
 
-            // Remove gray text from intro text box
-            IntroTextBox.SelectAll();
-            IntroTextBox.SelectionColor = Color.Black;
-
             // Check for BF2 Client Installation (32 bit)
             try
             {

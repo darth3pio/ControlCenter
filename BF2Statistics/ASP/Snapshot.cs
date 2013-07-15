@@ -10,6 +10,7 @@ using System.Net;
 using BF2Statistics.ASP;
 using BF2Statistics.Database;
 using BF2Statistics.Logging;
+using BF2Statistics.Database.QueryBuilder;
 
 namespace BF2Statistics.ASP
 {
@@ -73,12 +74,12 @@ namespace BF2Statistics.ASP
         /// <summary>
         /// Map Start time
         /// </summary>
-        public float MapStart { get; protected set; }
+        public int MapStart { get; protected set; }
 
         /// <summary>
         /// Map end time
         /// </summary>
-        public float MapEnd { get; protected set; }
+        public int MapEnd { get; protected set; }
 
         /// <summary>
         /// The winning team ID
@@ -138,17 +139,42 @@ namespace BF2Statistics.ASP
         /// <summary>
         /// A List of local IP addresses for this machine
         /// </summary>
-        private List<IPAddress> LocalIPs = Dns.GetHostAddresses(Dns.GetHostName()).ToList();
+        private static List<IPAddress> LocalIPs;
+
+        /// <summary>
+        /// The snapshot Date
+        /// </summary>
+        private DateTime Date;
+
+        /// <summary>
+        /// Snapshot Timestamp
+        /// </summary>
+        private int TimeStamp;
 
         /// <summary>
         /// On Finish Event
         /// </summary>
-        public event ShutdownEventHandler OnFinish;
+        public static event SnapshotProccessed SnapshotProccessed;
 
-        public Snapshot(string Snapshot)
+        /// <summary>
+        /// Static Constructor
+        /// </summary>
+        static Snapshot()
+        {
+            LocalIPs = Dns.GetHostAddresses(Dns.GetHostName()).ToList();
+        }
+
+        /// <summary>
+        /// Initializes a new Snapshot, with the specified Date it was Posted
+        /// </summary>
+        /// <param name="Snapshot">The snapshot source</param>
+        /// <param name="Date">The original date in which this snapshot was created</param>
+        public Snapshot(string Snapshot, DateTime Date)
         {
             // Load out database connection
             this.Driver = ASPServer.Database.Driver;
+            this.Date = Date;
+            this.TimeStamp = Date.ToUnixTimestamp();
 
             // Get our snapshot key value pairs
             string[] Data = Snapshot.Split('\\');
@@ -180,8 +206,8 @@ namespace BF2Statistics.ASP
             // Map Data
             this.MapName = Data[7];
             this.MapId = int.Parse(Data[9]);
-            this.MapStart = float.Parse(Data[11]);
-            this.MapEnd = float.Parse(Data[13]);
+            this.MapStart = (int)Math.Round(float.Parse(Data[11]), 0);
+            this.MapEnd = (int)Math.Round(float.Parse(Data[13]), 0);
 
             // Misc Data
             this.WinningTeam = int.Parse(Data[15]);
@@ -200,24 +226,28 @@ namespace BF2Statistics.ASP
             PlayerData = new List<Dictionary<string, string>>();
             KillData = new List<Dictionary<string, string>>();
 
-            // Check for custom map
+            // Check for custom map, with no ID
             if (MapId == 99)
             {
                 IsCustomMap = true;
 
                 // Check for existing data
-                List<Dictionary<string, object>> Rows = Driver.Query("SELECT id FROM mapinfo WHERE name='{0}'", MapName);
+                List<Dictionary<string, object>> Rows = Driver.Query("SELECT id FROM mapinfo WHERE name=@P0", MapName);
                 if (Rows.Count == 0)
                 {
                     // Create new MapId
                     Rows = Driver.Query("SELECT MAX(id) AS id FROM mapinfo WHERE id >= " + MainForm.Config.ASP_CustomMapID);
-                    MapId = (Rows.Count == 0) ? MainForm.Config.ASP_CustomMapID : (Int32.Parse(Rows[0]["id"].ToString()) + 1);
+                    MapId = (Rows.Count == 0 || String.IsNullOrWhiteSpace(Rows[0]["id"].ToString())) 
+                        ? MainForm.Config.ASP_CustomMapID 
+                        : (Int32.Parse(Rows[0]["id"].ToString()) + 1);
+
+                    // make sure the mapid is at least the min custom map id
                     if (MapId < MainForm.Config.ASP_CustomMapID)
                         MapId = MainForm.Config.ASP_CustomMapID;
 
                     // Insert map data, so we dont lose this mapid we generated
                     if (Rows.Count == 0 || MapId == MainForm.Config.ASP_CustomMapID)
-                        Driver.Execute("INSERT INTO mapinfo(id, name) VALUES ({0}, {1})", MapId, MapName);
+                        Driver.Execute("INSERT INTO mapinfo(id, name) VALUES (@P0, @P1)", MapId, MapName);
                 }
                 else
                     MapId = Int32.Parse(Rows[0]["id"].ToString());
@@ -272,18 +302,18 @@ namespace BF2Statistics.ASP
                 throw new InvalidDataException("Invalid Snapshot data!");
 
             // Begin Logging
-            Log(String.Format("Begin Processing ({0})...", MapName), 3);
+            Log(String.Format("Begin Processing ({0})...", MapName), LogLevel.Notice);
             if (IsCustomMap)
-                Log(String.Format("Custom Map ({0})...", MapId), 3);
+                Log(String.Format("Custom Map ({0})...", MapId), LogLevel.Notice);
             else
-                Log(String.Format("Standard Map ({0})...", MapId), 3);
+                Log(String.Format("Standard Map ({0})...", MapId), LogLevel.Notice);
 
-            Log("Found " + PlayerData.Count + " Player(s)...", 3);
+            Log("Found " + PlayerData.Count + " Player(s)...", LogLevel.Notice);
 
             // Make sure we meet the minimum player requirement
             if (PlayerData.Count < MainForm.Config.ASP_MinRoundPlayers)
             {
-                Log("Minimum round Player count does not meet the ASP requirement... Aborting", 2);
+                Log("Minimum round Player count does not meet the ASP requirement... Aborting", LogLevel.Warning);
                 return;
             }
 
@@ -293,9 +323,9 @@ namespace BF2Statistics.ASP
 
             // Setup some variables
             List<Dictionary<string, object>> Rows;
-            Dictionary<string, object> IStmt;
-            SqlUpdateDictionary UStmt;
-            int TimeStamp = Utils.UnixTimestamp();
+            InsertQueryBuilder InsertQuery;
+            UpdateQueryBuilder UpdateQuery;
+            WhereClause Where;
 
             // Temporary Map Data (For Round history and Map info tables)
             int MapScore = 0;
@@ -307,7 +337,8 @@ namespace BF2Statistics.ASP
             int Team2PlayersEnd = 0;
 
             // MySQL could throw a packet size error here, so we need will increase it!
-            //Driver.Execute("SET GLOBAL max_allowed_packet=2048;");
+            if (Driver.DatabaseEngine == DatabaseEngine.Mysql)
+                Driver.Execute("SET GLOBAL max_allowed_packet=51200");
 
             // Begin Transaction
             DbTransaction Transaction = Driver.BeginTransaction();
@@ -357,73 +388,73 @@ namespace BF2Statistics.ASP
                     if (LwTime < 0) LwTime = 0;
 
                     // Log
-                    Log(String.Format("Processing Player ({0})", Pid), 3);
+                    Log(String.Format("Processing Player ({0})", Pid), LogLevel.Notice);
 
                     // Fetch the player
                     string Query;
-                    Rows = Driver.Query("SELECT COUNT(id) AS count FROM player WHERE id={0}", Pid);
+                    Rows = Driver.Query("SELECT COUNT(id) AS count FROM player WHERE id=@P0", Pid);
                     if (int.Parse(Rows[0]["count"].ToString()) == 0)
                     {
-                        // New Player
+                        // === New Player === //
 
                         // Log
-                        Log(String.Format("Adding NEW Player ({0})", Pid), 3);
+                        Log(String.Format("Adding NEW Player ({0})", Pid), LogLevel.Notice);
 
                         // Get playres country code
                         IPAddress.TryParse(Player["ip"], out PlayerIp);
                         string CC = GetCountryCode(PlayerIp);
 
                         // Build insert data
-                        IStmt = new Dictionary<string, object>();
-                        IStmt.Add("id", Pid);
-                        IStmt.Add("name", Player["name"]);
-                        IStmt.Add("country", CC);
-                        IStmt.Add("time", Time);
-                        IStmt.Add("rounds", Player["c"]);
-                        IStmt.Add("ip", Player["ip"]);
-                        IStmt.Add("score", Player["rs"]);
-                        IStmt.Add("cmdscore", Player["cs"]);
-                        IStmt.Add("skillscore", Player["ss"]);
-                        IStmt.Add("teamscore", Player["ts"]);
-                        IStmt.Add("kills", Player["kills"]);
-                        IStmt.Add("deaths", Player["deaths"]);
-                        IStmt.Add("captures", Player["cpc"]);
-                        IStmt.Add("captureassists", Player["cpa"]);
-                        IStmt.Add("defends", Player["cpd"]);
-                        IStmt.Add("damageassists", Player["ka"]);
-                        IStmt.Add("heals", Player["he"]);
-                        IStmt.Add("revives", Player["rev"]);
-                        IStmt.Add("ammos", Player["rsp"]);
-                        IStmt.Add("repairs", Player["rep"]);
-                        IStmt.Add("targetassists", Player["tre"]);
-                        IStmt.Add("driverspecials", Player["drs"]);
-                        IStmt.Add("teamkills", Player["tmkl"]);
-                        IStmt.Add("teamdamage", Player["tmdg"]);
-                        IStmt.Add("teamvehicledamage", Player["tmvd"]);
-                        IStmt.Add("suicides", Player["su"]);
-                        IStmt.Add("killstreak", Player["ks"]);
-                        IStmt.Add("deathstreak", Player["ds"]);
-                        IStmt.Add("rank", Player["rank"]);
-                        IStmt.Add("banned", Player["ban"]);
-                        IStmt.Add("kicked", Player["kck"]);
-                        IStmt.Add("cmdtime", Player["tco"]);
-                        IStmt.Add("sqltime", SqlTime);
-                        IStmt.Add("sqmtime", SqmTime);
-                        IStmt.Add("lwtime", LwTime);
-                        IStmt.Add("wins", ((OnWinningTeam) ? 1: 0));
-                        IStmt.Add("losses", ((!OnWinningTeam) ? 1 : 0));
-                        IStmt.Add("availunlocks", 0);
-                        IStmt.Add("usedunlocks", 0);
-                        IStmt.Add("joined", TimeStamp);
-                        IStmt.Add("rndscore", Player["rs"]);
-                        IStmt.Add("lastonline", Utils.UnixTimestamp());
-                        IStmt.Add("mode0", ((GameMode == 0) ? 1 : 0));
-                        IStmt.Add("mode1", ((GameMode == 1) ? 1 : 0));
-                        IStmt.Add("mode2", ((GameMode == 2) ? 1 : 0));
-                        IStmt.Add("isbot", Player["ai"]);
+                        InsertQuery = new InsertQueryBuilder("player", Driver);
+                        InsertQuery.SetField("id", Pid);
+                        InsertQuery.SetField("name", Player["name"]);
+                        InsertQuery.SetField("country", CC);
+                        InsertQuery.SetField("time", Time);
+                        InsertQuery.SetField("rounds", Player["c"]);
+                        InsertQuery.SetField("ip", Player["ip"]);
+                        InsertQuery.SetField("score", Player["rs"]);
+                        InsertQuery.SetField("cmdscore", Player["cs"]);
+                        InsertQuery.SetField("skillscore", Player["ss"]);
+                        InsertQuery.SetField("teamscore", Player["ts"]);
+                        InsertQuery.SetField("kills", Player["kills"]);
+                        InsertQuery.SetField("deaths", Player["deaths"]);
+                        InsertQuery.SetField("captures", Player["cpc"]);
+                        InsertQuery.SetField("captureassists", Player["cpa"]);
+                        InsertQuery.SetField("defends", Player["cpd"]);
+                        InsertQuery.SetField("damageassists", Player["ka"]);
+                        InsertQuery.SetField("heals", Player["he"]);
+                        InsertQuery.SetField("revives", Player["rev"]);
+                        InsertQuery.SetField("ammos", Player["rsp"]);
+                        InsertQuery.SetField("repairs", Player["rep"]);
+                        InsertQuery.SetField("targetassists", Player["tre"]);
+                        InsertQuery.SetField("driverspecials", Player["drs"]);
+                        InsertQuery.SetField("teamkills", Player["tmkl"]);
+                        InsertQuery.SetField("teamdamage", Player["tmdg"]);
+                        InsertQuery.SetField("teamvehicledamage", Player["tmvd"]);
+                        InsertQuery.SetField("suicides", Player["su"]);
+                        InsertQuery.SetField("killstreak", Player["ks"]);
+                        InsertQuery.SetField("deathstreak", Player["ds"]);
+                        InsertQuery.SetField("rank", Player["rank"]);
+                        InsertQuery.SetField("banned", Player["ban"]);
+                        InsertQuery.SetField("kicked", Player["kck"]);
+                        InsertQuery.SetField("cmdtime", Player["tco"]);
+                        InsertQuery.SetField("sqltime", SqlTime);
+                        InsertQuery.SetField("sqmtime", SqmTime);
+                        InsertQuery.SetField("lwtime", LwTime);
+                        InsertQuery.SetField("wins", OnWinningTeam);
+                        InsertQuery.SetField("losses", !OnWinningTeam);
+                        InsertQuery.SetField("availunlocks", 0);
+                        InsertQuery.SetField("usedunlocks", 0);
+                        InsertQuery.SetField("joined", TimeStamp);
+                        InsertQuery.SetField("rndscore", Player["rs"]);
+                        InsertQuery.SetField("lastonline", MapEnd);
+                        InsertQuery.SetField("mode0", ((GameMode == 0) ? 1 : 0));
+                        InsertQuery.SetField("mode1", ((GameMode == 1) ? 1 : 0));
+                        InsertQuery.SetField("mode2", ((GameMode == 2) ? 1 : 0));
+                        InsertQuery.SetField("isbot", Player["ai"]);
 
                         // Insert Player Data
-                        Driver.Insert("player", IStmt);
+                        InsertQuery.Execute();
 
                         // Create Player Unlock Data
                         Query = "INSERT INTO unlocks VALUES ";
@@ -438,10 +469,10 @@ namespace BF2Statistics.ASP
                         // Existing Player
 
                         // Log
-                        Log(String.Format("Updating EXISTING Player ({0})", Pid), 3);
+                        Log(String.Format("Updating EXISTING Player ({0})", Pid), LogLevel.Notice);
 
                         // Fetch Player
-                        Rows = Driver.Query("SELECT ip, country, rank, killstreak, deathstreak, rndscore FROM player WHERE id={0}", Pid);
+                        Rows = Driver.Query("SELECT ip, country, rank, killstreak, deathstreak, rndscore FROM player WHERE id=@P0", Pid);
                         Dictionary<string, object> DataRow = Rows[0];
 
                         // Setup vars
@@ -486,58 +517,59 @@ namespace BF2Statistics.ASP
                         }
 
                         // Update Player Data
-                        UStmt = new SqlUpdateDictionary();
-                        UStmt.Add("country", CC, true);
-                        UStmt.Add("time", Time, false, ValueMode.Add);
-                        UStmt.Add("rounds", Player["c"], false, ValueMode.Add);
-                        UStmt.Add("ip", Player["ip"], true);
-                        UStmt.Add("score", Player["rs"], false, ValueMode.Add);
-                        UStmt.Add("cmdscore", Player["cs"], false, ValueMode.Add);
-                        UStmt.Add("skillscore", Player["ss"], false, ValueMode.Add);
-                        UStmt.Add("teamscore", Player["ts"], false, ValueMode.Add);
-                        UStmt.Add("kills", Player["kills"], false, ValueMode.Add);
-                        UStmt.Add("deaths", Player["deaths"], false, ValueMode.Add);
-                        UStmt.Add("captures", Player["cpc"], false, ValueMode.Add);
-                        UStmt.Add("captureassists", Player["cpa"], false, ValueMode.Add);
-                        UStmt.Add("defends", Player["cpd"], false, ValueMode.Add);
-                        UStmt.Add("damageassists", Player["ks"], false, ValueMode.Add);
-                        UStmt.Add("heals", Player["he"], false, ValueMode.Add);
-                        UStmt.Add("revives", Player["rev"], false, ValueMode.Add);
-                        UStmt.Add("ammos", Player["rsp"], false, ValueMode.Add);
-                        UStmt.Add("repairs", Player["rep"], false, ValueMode.Add);
-                        UStmt.Add("targetassists", Player["tre"], false, ValueMode.Add);
-                        UStmt.Add("driverspecials", Player["drs"], false, ValueMode.Add);
-                        UStmt.Add("teamkills", Player["tmkl"], false, ValueMode.Add);
-                        UStmt.Add("teamdamage", Player["tmdg"], false, ValueMode.Add);
-                        UStmt.Add("teamvehicledamage", Player["tmvd"], false, ValueMode.Add);
-                        UStmt.Add("suicides", Player["su"], false, ValueMode.Add);
-                        UStmt.Add("Killstreak", KillStreak, false, ValueMode.Set);
-                        UStmt.Add("deathstreak", DeathStreak, false, ValueMode.Set);
-                        UStmt.Add("rank", CurRank, false, ValueMode.Set);
-                        UStmt.Add("banned", Player["ban"], false, ValueMode.Add);
-                        UStmt.Add("kicked", Player["kck"], false, ValueMode.Add);
-                        UStmt.Add("cmdtime", Player["tco"], false, ValueMode.Add);
-                        UStmt.Add("sqltime", SqlTime, false, ValueMode.Add);
-                        UStmt.Add("sqmtime", SqmTime, false, ValueMode.Add);
-                        UStmt.Add("lwtime", LwTime, false, ValueMode.Add);
-                        UStmt.Add("wins", ((OnWinningTeam) ? 1 : 0), false, ValueMode.Add);
-                        UStmt.Add("losses", ((!OnWinningTeam) ? 1 : 0), false, ValueMode.Add);
-                        UStmt.Add("rndscore", Brs, false, ValueMode.Set);
-                        UStmt.Add("lastonline", TimeStamp, false, ValueMode.Set);
-                        UStmt.Add("mode0", ((GameMode == 0) ? 1 : 0), false, ValueMode.Add);
-                        UStmt.Add("mode1", ((GameMode == 1) ? 1 : 0), false, ValueMode.Add);
-                        UStmt.Add("mode2", ((GameMode == 2) ? 1 : 0), false, ValueMode.Add);
-                        UStmt.Add("chng", chng, false, ValueMode.Set);
-                        UStmt.Add("decr", decr, false, ValueMode.Set);
-                        UStmt.Add("isbot", Player["ai"], false, ValueMode.Set);
-                        Driver.Update("player", UStmt, "id=" + Pid);
+                        UpdateQuery = new UpdateQueryBuilder("player", Driver);
+                        UpdateQuery.SetField("country", CC);
+                        UpdateQuery.SetField("time", Time, ValueMode.Add);
+                        UpdateQuery.SetField("rounds", Player["c"], ValueMode.Add);
+                        UpdateQuery.SetField("ip", Player["ip"]);
+                        UpdateQuery.SetField("score", Player["rs"], ValueMode.Add);
+                        UpdateQuery.SetField("cmdscore", Player["cs"], ValueMode.Add);
+                        UpdateQuery.SetField("skillscore", Player["ss"], ValueMode.Add);
+                        UpdateQuery.SetField("teamscore", Player["ts"], ValueMode.Add);
+                        UpdateQuery.SetField("kills", Player["kills"], ValueMode.Add);
+                        UpdateQuery.SetField("deaths", Player["deaths"], ValueMode.Add);
+                        UpdateQuery.SetField("captures", Player["cpc"], ValueMode.Add);
+                        UpdateQuery.SetField("captureassists", Player["cpa"], ValueMode.Add);
+                        UpdateQuery.SetField("defends", Player["cpd"], ValueMode.Add);
+                        UpdateQuery.SetField("damageassists", Player["ks"], ValueMode.Add);
+                        UpdateQuery.SetField("heals", Player["he"], ValueMode.Add);
+                        UpdateQuery.SetField("revives", Player["rev"], ValueMode.Add);
+                        UpdateQuery.SetField("ammos", Player["rsp"], ValueMode.Add);
+                        UpdateQuery.SetField("repairs", Player["rep"], ValueMode.Add);
+                        UpdateQuery.SetField("targetassists", Player["tre"], ValueMode.Add);
+                        UpdateQuery.SetField("driverspecials", Player["drs"], ValueMode.Add);
+                        UpdateQuery.SetField("teamkills", Player["tmkl"], ValueMode.Add);
+                        UpdateQuery.SetField("teamdamage", Player["tmdg"], ValueMode.Add);
+                        UpdateQuery.SetField("teamvehicledamage", Player["tmvd"], ValueMode.Add);
+                        UpdateQuery.SetField("suicides", Player["su"], ValueMode.Add);
+                        UpdateQuery.SetField("Killstreak", KillStreak, ValueMode.Set);
+                        UpdateQuery.SetField("deathstreak", DeathStreak, ValueMode.Set);
+                        UpdateQuery.SetField("rank", CurRank, ValueMode.Set);
+                        UpdateQuery.SetField("banned", Player["ban"], ValueMode.Add);
+                        UpdateQuery.SetField("kicked", Player["kck"], ValueMode.Add);
+                        UpdateQuery.SetField("cmdtime", Player["tco"], ValueMode.Add);
+                        UpdateQuery.SetField("sqltime", SqlTime, ValueMode.Add);
+                        UpdateQuery.SetField("sqmtime", SqmTime, ValueMode.Add);
+                        UpdateQuery.SetField("lwtime", LwTime, ValueMode.Add);
+                        UpdateQuery.SetField("wins", ((OnWinningTeam) ? 1 : 0), ValueMode.Add);
+                        UpdateQuery.SetField("losses", ((!OnWinningTeam) ? 1 : 0), ValueMode.Add);
+                        UpdateQuery.SetField("rndscore", Brs, ValueMode.Set);
+                        UpdateQuery.SetField("lastonline", TimeStamp, ValueMode.Set);
+                        UpdateQuery.SetField("mode0", ((GameMode == 0) ? 1 : 0), ValueMode.Add);
+                        UpdateQuery.SetField("mode1", ((GameMode == 1) ? 1 : 0), ValueMode.Add);
+                        UpdateQuery.SetField("mode2", ((GameMode == 2) ? 1 : 0), ValueMode.Add);
+                        UpdateQuery.SetField("chng", chng, ValueMode.Set);
+                        UpdateQuery.SetField("decr", decr, ValueMode.Set);
+                        UpdateQuery.SetField("isbot", Player["ai"], ValueMode.Set);
+                        UpdateQuery.AddWhere("id", Comparison.Equals, Pid);
+                        UpdateQuery.Execute();
                     }
 
                     // ********************************
                     // Insert Player history.
                     // ********************************
                     Driver.Execute(
-                        "INSERT INTO player_history VALUES({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9})",
+                        "INSERT INTO player_history VALUES(@P0, @P1, @P2, @P3, @P4, @P5, @P6, @P7, @P8, @P9)",
                         Pid, TimeStamp, Time, RoundScore, Player["cs"], Player["ss"], Player["ts"],
                         Kills, Deaths, CurRank
                     );
@@ -545,7 +577,7 @@ namespace BF2Statistics.ASP
                     // ********************************
                     // Process Player Army Data
                     // ********************************
-                    Log(String.Format("Processing Army Data ({0})", Pid), 3);
+                    Log(String.Format("Processing Army Data ({0})", Pid), LogLevel.Notice);
 
                     // DO team counts
                     if(Army == Team1Army)
@@ -562,55 +594,56 @@ namespace BF2Statistics.ASP
                     }
 
                     // Update player army times
-                    Rows = Driver.Query("SELECT * FROM army WHERE id={0}", Pid);
+                    Rows = Driver.Query("SELECT * FROM army WHERE id=" + Pid);
                     if (Rows.Count == 0)
                     {
-                        IStmt = new Dictionary<string, object>();
-                        IStmt.Add("id", Pid);
-                        IStmt.Add("time0", Player["ta0"]);
-                        IStmt.Add("time1", Player["ta1"]);
-                        IStmt.Add("time2", Player["ta2"]);
-                        IStmt.Add("time3", Player["ta3"]);
-                        IStmt.Add("time4", Player["ta4"]);
-                        IStmt.Add("time5", Player["ta5"]);
-                        IStmt.Add("time6", Player["ta6"]);
-                        IStmt.Add("time7", Player["ta7"]);
-                        IStmt.Add("time8", Player["ta8"]);
-                        IStmt.Add("time9", Player["ta9"]);
-                        IStmt.Add("time10", Player["ta10"]);
-                        IStmt.Add("time11", Player["ta11"]);
-                        IStmt.Add("time12", Player["ta12"]);
-                        IStmt.Add("time13", Player["ta13"]);
+                        InsertQuery = new InsertQueryBuilder("army", Driver);
+                        InsertQuery.SetField("id", Pid);
+                        InsertQuery.SetField("time0", Player["ta0"]);
+                        InsertQuery.SetField("time1", Player["ta1"]);
+                        InsertQuery.SetField("time2", Player["ta2"]);
+                        InsertQuery.SetField("time3", Player["ta3"]);
+                        InsertQuery.SetField("time4", Player["ta4"]);
+                        InsertQuery.SetField("time5", Player["ta5"]);
+                        InsertQuery.SetField("time6", Player["ta6"]);
+                        InsertQuery.SetField("time7", Player["ta7"]);
+                        InsertQuery.SetField("time8", Player["ta8"]);
+                        InsertQuery.SetField("time9", Player["ta9"]);
+                        InsertQuery.SetField("time10", Player["ta10"]);
+                        InsertQuery.SetField("time11", Player["ta11"]);
+                        InsertQuery.SetField("time12", Player["ta12"]);
+                        InsertQuery.SetField("time13", Player["ta13"]);
 
                         // Make sure we arent playing an unsupported army
                         if (Army < 14)
                         {
-                            IStmt.Add("win" + Army, ((OnWinningTeam) ? 1 : 0));
-                            IStmt.Add("loss" + Army, ((!OnWinningTeam) ? 1 : 0));
-                            IStmt.Add("score" + Army, Player["rs"]);
-                            IStmt.Add("best" + Army, Player["rs"]);
-                            IStmt.Add("worst" + Army, Player["rs"]);
+                            InsertQuery.SetField("win" + Army, ((OnWinningTeam) ? 1 : 0));
+                            InsertQuery.SetField("loss" + Army, ((!OnWinningTeam) ? 1 : 0));
+                            InsertQuery.SetField("score" + Army, Player["rs"]);
+                            InsertQuery.SetField("best" + Army, Player["rs"]);
+                            InsertQuery.SetField("worst" + Army, Player["rs"]);
                         }
 
-                        Driver.Insert("army", IStmt);
+                        InsertQuery.Execute();
                     }
                     else
                     {
-                        UStmt = new SqlUpdateDictionary();
-                        UStmt.Add("time0", Player["ta0"], false, ValueMode.Add);
-                        UStmt.Add("time1", Player["ta1"], false, ValueMode.Add);
-                        UStmt.Add("time2", Player["ta2"], false, ValueMode.Add);
-                        UStmt.Add("time3", Player["ta3"], false, ValueMode.Add);
-                        UStmt.Add("time4", Player["ta4"], false, ValueMode.Add);
-                        UStmt.Add("time5", Player["ta5"], false, ValueMode.Add);
-                        UStmt.Add("time6", Player["ta6"], false, ValueMode.Add);
-                        UStmt.Add("time7", Player["ta7"], false, ValueMode.Add);
-                        UStmt.Add("time8", Player["ta8"], false, ValueMode.Add);
-                        UStmt.Add("time9", Player["ta9"], false, ValueMode.Add);
-                        UStmt.Add("time10", Player["ta10"], false, ValueMode.Add);
-                        UStmt.Add("time11", Player["ta11"], false, ValueMode.Add);
-                        UStmt.Add("time12", Player["ta12"], false, ValueMode.Add);
-                        UStmt.Add("time13", Player["ta13"], false, ValueMode.Add);
+                        UpdateQuery = new UpdateQueryBuilder("army", Driver);
+                        UpdateQuery.AddWhere("id", Comparison.Equals, Pid);
+                        UpdateQuery.SetField("time0", Player["ta0"], ValueMode.Add);
+                        UpdateQuery.SetField("time1", Player["ta1"], ValueMode.Add);
+                        UpdateQuery.SetField("time2", Player["ta2"], ValueMode.Add);
+                        UpdateQuery.SetField("time3", Player["ta3"], ValueMode.Add);
+                        UpdateQuery.SetField("time4", Player["ta4"], ValueMode.Add);
+                        UpdateQuery.SetField("time5", Player["ta5"], ValueMode.Add);
+                        UpdateQuery.SetField("time6", Player["ta6"], ValueMode.Add);
+                        UpdateQuery.SetField("time7", Player["ta7"], ValueMode.Add);
+                        UpdateQuery.SetField("time8", Player["ta8"], ValueMode.Add);
+                        UpdateQuery.SetField("time9", Player["ta9"], ValueMode.Add);
+                        UpdateQuery.SetField("time10", Player["ta10"], ValueMode.Add);
+                        UpdateQuery.SetField("time11", Player["ta11"], ValueMode.Add);
+                        UpdateQuery.SetField("time12", Player["ta12"], ValueMode.Add);
+                        UpdateQuery.SetField("time13", Player["ta13"], ValueMode.Add);
 
                         // Prevent database errors with custom army IDs
                         if (Army < 14)
@@ -622,39 +655,41 @@ namespace BF2Statistics.ASP
                                 ? Rows[0]["worst" + Army].ToString()
                                 : Player["rs"];
 
-                            UStmt.Add("win" + Army, ((OnWinningTeam) ? 1 : 0), false, ValueMode.Add);
-                            UStmt.Add("loss" + Army, ((!OnWinningTeam) ? 1 : 0), false, ValueMode.Add);
-                            UStmt.Add("score" + Army, Player["rs"], false, ValueMode.Add);
-                            UStmt.Add("best" + Army, Best, false, ValueMode.Set);
-                            UStmt.Add("worst" + Army, Worst, false, ValueMode.Set);
+                            UpdateQuery.SetField("win" + Army, OnWinningTeam, ValueMode.Add);
+                            UpdateQuery.SetField("loss" + Army, !OnWinningTeam, ValueMode.Add);
+                            UpdateQuery.SetField("score" + Army, Player["rs"], ValueMode.Add);
+                            UpdateQuery.SetField("best" + Army, Best, ValueMode.Set);
+                            UpdateQuery.SetField("worst" + Army, Worst, ValueMode.Set);
                         }
 
-                        Driver.Update("army", UStmt, "id=" + Pid);
+                        UpdateQuery.Execute();
                     }
 
                     // ********************************
                     // Process Player Kills
                     // ********************************
-                    Log(String.Format("Processing Kills Data ({0})", Pid), 3);
+                    Log(String.Format("Processing Kills Data ({0})", Pid), LogLevel.Notice);
 
                     foreach (KeyValuePair<string, string> Kill in KillData[PlayerPosition])
                     {
                         string Victim = Kill.Key;
                         int KillCount = Int32.Parse(Kill.Value);
-                        Rows = Driver.Query("SELECT count FROM kills WHERE attacker={0} AND victim={1}", Pid, Victim);
+                        Rows = Driver.Query("SELECT count FROM kills WHERE attacker=@P0 AND victim=@P1", Pid, Victim);
                         if (Rows.Count == 0)
                         {
-                            IStmt = new Dictionary<string, object>();
-                            IStmt.Add("attacker", Pid);
-                            IStmt.Add("victim", Victim);
-                            IStmt.Add("count", KillCount);
-                            Driver.Insert("kills", IStmt);
+                            InsertQuery = new InsertQueryBuilder("kills", Driver);
+                            InsertQuery.SetField("attacker", Pid);
+                            InsertQuery.SetField("victim", Victim);
+                            InsertQuery.SetField("count", KillCount);
+                            InsertQuery.Execute();
                         }
                         else
                         {
-                            UStmt = new SqlUpdateDictionary();
-                            UStmt.Add("count", KillCount, false, ValueMode.Add);
-                            Driver.Update("kills", UStmt, String.Format("attacker={0} AND victim={1}", Pid, Victim));
+                            UpdateQuery = new UpdateQueryBuilder("kills", Driver);
+                            UpdateQuery.SetField("count", KillCount, ValueMode.Add);
+                            Where = UpdateQuery.AddWhere("attacker", Comparison.Equals, Pid);
+                            Where.AddClause(LogicOperator.And, "victim", Comparison.Equals, Victim);
+                            UpdateQuery.Execute();
                         }
                     }
 
@@ -662,261 +697,271 @@ namespace BF2Statistics.ASP
                     // ********************************
                     // Process Player Kit Data
                     // ********************************
-                    Log(String.Format("Processing Kit Data ({0})", Pid), 3);
+                    Log(String.Format("Processing Kit Data ({0})", Pid), LogLevel.Notice);
 
                     Rows = Driver.Query("SELECT time0 FROM kits WHERE id=" + Pid);
                     if (Rows.Count == 0)
                     {
-                        IStmt = new Dictionary<string, object>();
-                        IStmt.Add("id", Pid);
+                        InsertQuery = new InsertQueryBuilder("kits", Driver);
+                        InsertQuery.SetField("id", Pid);
                         for (int i = 0; i < 7; i++)
                         {
-                            IStmt.Add("time" + i, Player["tk" + i]);
-                            IStmt.Add("kills" + i, Player["kk" + i]);
-                            IStmt.Add("deaths" + i, Player["dk" + i]);
+                            InsertQuery.SetField("time" + i, Player["tk" + i]);
+                            InsertQuery.SetField("kills" + i, Player["kk" + i]);
+                            InsertQuery.SetField("deaths" + i, Player["dk" + i]);
                         }
-                        Driver.Insert("kits", IStmt);
+                        InsertQuery.Execute();
                     }
                     else
                     {
-                        UStmt = new SqlUpdateDictionary();
+                        UpdateQuery = new UpdateQueryBuilder("kits", Driver);
+                        UpdateQuery.AddWhere("id", Comparison.Equals, Pid);
                         for (int i = 0; i < 7; i++)
                         {
-                            UStmt.Add("time" + i, Player["tk" + i], false, ValueMode.Add);
-                            UStmt.Add("kills" + i, Player["kk" + i], false, ValueMode.Add);
-                            UStmt.Add("deaths" + i, Player["dk" + i], false, ValueMode.Add);
+                            UpdateQuery.SetField("time" + i, Player["tk" + i], ValueMode.Add);
+                            UpdateQuery.SetField("kills" + i, Player["kk" + i], ValueMode.Add);
+                            UpdateQuery.SetField("deaths" + i, Player["dk" + i], ValueMode.Add);
                         }
-                        Driver.Update("kits", UStmt, "id=" + Pid);
+                        UpdateQuery.Execute();
                     }
 
 
                     // ********************************
                     // Process Player Vehicle Data
                     // ********************************
-                    Log(String.Format("Processing Vehicle Data ({0})", Pid), 3);
+                    Log(String.Format("Processing Vehicle Data ({0})", Pid), LogLevel.Notice);
 
                     Rows = Driver.Query("SELECT time0 FROM vehicles WHERE id=" + Pid);
                     if (Rows.Count == 0)
                     {
-                        IStmt = new Dictionary<string, object>();
-                        IStmt.Add("id", Pid);
+                        InsertQuery = new InsertQueryBuilder("vehicles", Driver);
+                        InsertQuery.SetField("id", Pid);
                         for (int i = 0; i < 7; i++)
                         {
-                            IStmt.Add("time" + i, Player["tv" + i]);
-                            IStmt.Add("kills" + i, Player["kv" + i]);
-                            IStmt.Add("deaths" + i, Player["bv" + i]);
-                            IStmt.Add("rk" + i, Player["kvr" + i]);
+                            InsertQuery.SetField("time" + i, Player["tv" + i]);
+                            InsertQuery.SetField("kills" + i, Player["kv" + i]);
+                            InsertQuery.SetField("deaths" + i, Player["bv" + i]);
+                            InsertQuery.SetField("rk" + i, Player["kvr" + i]);
                         }
-                        IStmt.Add("timepara", Player["tvp"]);
-                        Driver.Insert("vehicles", IStmt);
+                        InsertQuery.SetField("timepara", Player["tvp"]);
+                        InsertQuery.Execute();
                     }
                     else
                     {
-                        UStmt = new SqlUpdateDictionary();
+                        UpdateQuery = new UpdateQueryBuilder("vehicles", Driver);
+                        UpdateQuery.AddWhere("id", Comparison.Equals, Pid);
                         for (int i = 0; i < 7; i++)
                         {
-                            UStmt.Add("time" + i, Player["tv" + i], false, ValueMode.Add);
-                            UStmt.Add("kills" + i, Player["kv" + i], false, ValueMode.Add);
-                            UStmt.Add("deaths" + i, Player["bv" + i], false, ValueMode.Add);
-                            UStmt.Add("rk" + i, Player["kvr" + i], false, ValueMode.Add);
+                            UpdateQuery.SetField("time" + i, Player["tv" + i], ValueMode.Add);
+                            UpdateQuery.SetField("kills" + i, Player["kv" + i], ValueMode.Add);
+                            UpdateQuery.SetField("deaths" + i, Player["bv" + i], ValueMode.Add);
+                            UpdateQuery.SetField("rk" + i, Player["kvr" + i], ValueMode.Add);
                         }
-                        UStmt.Add("timepara", Player["tvp"], false, ValueMode.Add);
-                        Driver.Update("vehicles", UStmt, "id=" + Pid);
+                        UpdateQuery.SetField("timepara", Player["tvp"], ValueMode.Add);
+                        UpdateQuery.Execute();
                     }
 
 
                     // ********************************
                     // Process Player Weapon Data
                     // ********************************
-                    Log(String.Format("Processing Weapon Data ({0})", Pid), 3);
+                    Log(String.Format("Processing Weapon Data ({0})", Pid), LogLevel.Notice);
 
                     Rows = Driver.Query("SELECT time0 FROM weapons WHERE id=" + Pid);
                     if (Rows.Count == 0)
                     {
-                        IStmt = new Dictionary<string, object>();
-                        IStmt.Add("id", Pid);
+                        // Prepare Query
+                        InsertQuery = new InsertQueryBuilder("weapons", Driver);
+                        InsertQuery.SetField("id", Pid);
 
                         // Basic Weapon Data
                         for (int i = 0; i < 9; i++)
                         {
-                            IStmt.Add("time" + i, Player["tw" + i]);
-                            IStmt.Add("kills" + i, Player["kw" + i]);
-                            IStmt.Add("deaths" + i, Player["bw" + i]);
-                            IStmt.Add("fired" + i, Player["sw" + i]);
-                            IStmt.Add("hit" + i, Player["hw" + i]);
+                            InsertQuery.SetField("time" + i, Player["tw" + i]);
+                            InsertQuery.SetField("kills" + i, Player["kw" + i]);
+                            InsertQuery.SetField("deaths" + i, Player["bw" + i]);
+                            InsertQuery.SetField("fired" + i, Player["sw" + i]);
+                            InsertQuery.SetField("hit" + i, Player["hw" + i]);
                         }
 
                         // Knife Data
-                        IStmt.Add("knifetime", Player["te0"]);
-                        IStmt.Add("knifekills", Player["ke0"]);
-                        IStmt.Add("knifedeaths", Player["be0"]);
-                        IStmt.Add("knifefired", Player["se0"]);
-                        IStmt.Add("knifehit", Player["he0"]);
+                        InsertQuery.SetField("knifetime", Player["te0"]);
+                        InsertQuery.SetField("knifekills", Player["ke0"]);
+                        InsertQuery.SetField("knifedeaths", Player["be0"]);
+                        InsertQuery.SetField("knifefired", Player["se0"]);
+                        InsertQuery.SetField("knifehit", Player["he0"]);
 
                         // C4 Data
-                        IStmt.Add("c4time", Player["te1"]);
-                        IStmt.Add("c4kills", Player["ke1"]);
-                        IStmt.Add("c4deaths", Player["be1"]);
-                        IStmt.Add("c4fired", Player["se1"]);
-                        IStmt.Add("c4hit", Player["he1"]);
+                        InsertQuery.SetField("c4time", Player["te1"]);
+                        InsertQuery.SetField("c4kills", Player["ke1"]);
+                        InsertQuery.SetField("c4deaths", Player["be1"]);
+                        InsertQuery.SetField("c4fired", Player["se1"]);
+                        InsertQuery.SetField("c4hit", Player["he1"]);
 
                         // Handgrenade
-                        IStmt.Add("handgrenadetime", Player["te3"]);
-                        IStmt.Add("handgrenadekills", Player["ke3"]);
-                        IStmt.Add("handgrenadedeaths", Player["be3"]);
-                        IStmt.Add("handgrenadefired", Player["se3"]);
-                        IStmt.Add("handgrenadehit", Player["he3"]);
+                        InsertQuery.SetField("handgrenadetime", Player["te3"]);
+                        InsertQuery.SetField("handgrenadekills", Player["ke3"]);
+                        InsertQuery.SetField("handgrenadedeaths", Player["be3"]);
+                        InsertQuery.SetField("handgrenadefired", Player["se3"]);
+                        InsertQuery.SetField("handgrenadehit", Player["he3"]);
 
                         // Claymore
-                        IStmt.Add("claymoretime", Player["te2"]);
-                        IStmt.Add("claymorekills", Player["ke2"]);
-                        IStmt.Add("claymoredeaths", Player["be2"]);
-                        IStmt.Add("claymorefired", Player["se2"]);
-                        IStmt.Add("claymorehit", Player["he2"]);
+                        InsertQuery.SetField("claymoretime", Player["te2"]);
+                        InsertQuery.SetField("claymorekills", Player["ke2"]);
+                        InsertQuery.SetField("claymoredeaths", Player["be2"]);
+                        InsertQuery.SetField("claymorefired", Player["se2"]);
+                        InsertQuery.SetField("claymorehit", Player["he2"]);
 
                         // Shockpad
-                        IStmt.Add("shockpadtime", Player["te4"]);
-                        IStmt.Add("shockpadkills", Player["ke4"]);
-                        IStmt.Add("shockpaddeaths", Player["be4"]);
-                        IStmt.Add("shockpadfired", Player["se4"]);
-                        IStmt.Add("shockpadhit", Player["he4"]);
+                        InsertQuery.SetField("shockpadtime", Player["te4"]);
+                        InsertQuery.SetField("shockpadkills", Player["ke4"]);
+                        InsertQuery.SetField("shockpaddeaths", Player["be4"]);
+                        InsertQuery.SetField("shockpadfired", Player["se4"]);
+                        InsertQuery.SetField("shockpadhit", Player["he4"]);
 
                         // At Mine
-                        IStmt.Add("atminetime", Player["te5"]);
-                        IStmt.Add("atminekills", Player["ke5"]);
-                        IStmt.Add("atminedeaths", Player["be5"]);
-                        IStmt.Add("atminefired", Player["se5"]);
-                        IStmt.Add("atminehit", Player["he5"]);
+                        InsertQuery.SetField("atminetime", Player["te5"]);
+                        InsertQuery.SetField("atminekills", Player["ke5"]);
+                        InsertQuery.SetField("atminedeaths", Player["be5"]);
+                        InsertQuery.SetField("atminefired", Player["se5"]);
+                        InsertQuery.SetField("atminehit", Player["he5"]);
 
                         // Tactical
-                        IStmt.Add("tacticaltime", Player["te6"]);
-                        IStmt.Add("tacticaldeployed", Player["de6"]);
+                        InsertQuery.SetField("tacticaltime", Player["te6"]);
+                        InsertQuery.SetField("tacticaldeployed", Player["de6"]);
 
                         // Grappling Hook
-                        IStmt.Add("grapplinghooktime", Player["te7"]);
-                        IStmt.Add("grapplinghookdeployed", Player["de7"]);
-                        IStmt.Add("grapplinghookdeaths", Player["be9"]);
+                        InsertQuery.SetField("grapplinghooktime", Player["te7"]);
+                        InsertQuery.SetField("grapplinghookdeployed", Player["de7"]);
+                        InsertQuery.SetField("grapplinghookdeaths", Player["be9"]);
 
                         // Zipline
-                        IStmt.Add("ziplinetime", Player["te8"]);
-                        IStmt.Add("ziplinedeployed", Player["de8"]);
-                        IStmt.Add("ziplinedeaths", Player["be8"]);
+                        InsertQuery.SetField("ziplinetime", Player["te8"]);
+                        InsertQuery.SetField("ziplinedeployed", Player["de8"]);
+                        InsertQuery.SetField("ziplinedeaths", Player["be8"]);
 
                         // Do Query
-                        Driver.Insert("weapons", IStmt);
+                        InsertQuery.Execute();
                     }
                     else
                     {
-                        UStmt = new SqlUpdateDictionary();
+                        // Prepare Query
+                        UpdateQuery = new UpdateQueryBuilder("weapons", Driver);
+                        UpdateQuery.AddWhere("id", Comparison.Equals, Pid);
 
                         // Basic Weapon Data
                         for (int i = 0; i < 9; i++)
                         {
-                            UStmt.Add("time" + i, Player["tw" + i], false, ValueMode.Add);
-                            UStmt.Add("kills" + i, Player["kw" + i], false, ValueMode.Add);
-                            UStmt.Add("deaths" + i, Player["bw" + i], false, ValueMode.Add);
-                            UStmt.Add("fired" + i, Player["sw" + i], false, ValueMode.Add);
-                            UStmt.Add("hit" + i, Player["hw" + i], false, ValueMode.Add);
+                            UpdateQuery.SetField("time" + i, Player["tw" + i], ValueMode.Add);
+                            UpdateQuery.SetField("kills" + i, Player["kw" + i], ValueMode.Add);
+                            UpdateQuery.SetField("deaths" + i, Player["bw" + i], ValueMode.Add);
+                            UpdateQuery.SetField("fired" + i, Player["sw" + i], ValueMode.Add);
+                            UpdateQuery.SetField("hit" + i, Player["hw" + i], ValueMode.Add);
                         }
 
                         // Knife Data
-                        UStmt.Add("knifetime", Player["te0"], false, ValueMode.Add);
-                        UStmt.Add("knifekills", Player["ke0"], false, ValueMode.Add);
-                        UStmt.Add("knifedeaths", Player["be0"], false, ValueMode.Add);
-                        UStmt.Add("knifefired", Player["se0"], false, ValueMode.Add);
-                        UStmt.Add("knifehit", Player["he0"], false, ValueMode.Add);
+                        UpdateQuery.SetField("knifetime", Player["te0"], ValueMode.Add);
+                        UpdateQuery.SetField("knifekills", Player["ke0"], ValueMode.Add);
+                        UpdateQuery.SetField("knifedeaths", Player["be0"], ValueMode.Add);
+                        UpdateQuery.SetField("knifefired", Player["se0"], ValueMode.Add);
+                        UpdateQuery.SetField("knifehit", Player["he0"], ValueMode.Add);
 
                         // C4 Data
-                        UStmt.Add("c4time", Player["te1"], false, ValueMode.Add);
-                        UStmt.Add("c4kills", Player["ke1"], false, ValueMode.Add);
-                        UStmt.Add("c4deaths", Player["be1"], false, ValueMode.Add);
-                        UStmt.Add("c4fired", Player["se1"], false, ValueMode.Add);
-                        UStmt.Add("c4hit", Player["he1"], false, ValueMode.Add);
+                        UpdateQuery.SetField("c4time", Player["te1"], ValueMode.Add);
+                        UpdateQuery.SetField("c4kills", Player["ke1"], ValueMode.Add);
+                        UpdateQuery.SetField("c4deaths", Player["be1"], ValueMode.Add);
+                        UpdateQuery.SetField("c4fired", Player["se1"], ValueMode.Add);
+                        UpdateQuery.SetField("c4hit", Player["he1"], ValueMode.Add);
 
                         // Handgrenade
-                        UStmt.Add("handgrenadetime", Player["te3"], false, ValueMode.Add);
-                        UStmt.Add("handgrenadekills", Player["ke3"], false, ValueMode.Add);
-                        UStmt.Add("handgrenadedeaths", Player["be3"], false, ValueMode.Add);
-                        UStmt.Add("handgrenadefired", Player["se3"], false, ValueMode.Add);
-                        UStmt.Add("handgrenadehit", Player["he3"], false, ValueMode.Add);
+                        UpdateQuery.SetField("handgrenadetime", Player["te3"], ValueMode.Add);
+                        UpdateQuery.SetField("handgrenadekills", Player["ke3"], ValueMode.Add);
+                        UpdateQuery.SetField("handgrenadedeaths", Player["be3"], ValueMode.Add);
+                        UpdateQuery.SetField("handgrenadefired", Player["se3"], ValueMode.Add);
+                        UpdateQuery.SetField("handgrenadehit", Player["he3"], ValueMode.Add);
 
                         // Claymore
-                        UStmt.Add("claymoretime", Player["te2"], false, ValueMode.Add);
-                        UStmt.Add("claymorekills", Player["ke2"], false, ValueMode.Add);
-                        UStmt.Add("claymoredeaths", Player["be2"], false, ValueMode.Add);
-                        UStmt.Add("claymorefired", Player["se2"], false, ValueMode.Add);
-                        UStmt.Add("claymorehit", Player["he2"], false, ValueMode.Add);
+                        UpdateQuery.SetField("claymoretime", Player["te2"], ValueMode.Add);
+                        UpdateQuery.SetField("claymorekills", Player["ke2"], ValueMode.Add);
+                        UpdateQuery.SetField("claymoredeaths", Player["be2"], ValueMode.Add);
+                        UpdateQuery.SetField("claymorefired", Player["se2"], ValueMode.Add);
+                        UpdateQuery.SetField("claymorehit", Player["he2"], ValueMode.Add);
 
                         // Shockpad
-                        UStmt.Add("shockpadtime", Player["te4"], false, ValueMode.Add);
-                        UStmt.Add("shockpadkills", Player["ke4"], false, ValueMode.Add);
-                        UStmt.Add("shockpaddeaths", Player["be4"], false, ValueMode.Add);
-                        UStmt.Add("shockpadfired", Player["se4"], false, ValueMode.Add);
-                        UStmt.Add("shockpadhit", Player["he4"], false, ValueMode.Add);
+                        UpdateQuery.SetField("shockpadtime", Player["te4"], ValueMode.Add);
+                        UpdateQuery.SetField("shockpadkills", Player["ke4"], ValueMode.Add);
+                        UpdateQuery.SetField("shockpaddeaths", Player["be4"], ValueMode.Add);
+                        UpdateQuery.SetField("shockpadfired", Player["se4"], ValueMode.Add);
+                        UpdateQuery.SetField("shockpadhit", Player["he4"], ValueMode.Add);
 
                         // At Mine
-                        UStmt.Add("atminetime", Player["te5"], false, ValueMode.Add);
-                        UStmt.Add("atminekills", Player["ke5"], false, ValueMode.Add);
-                        UStmt.Add("atminedeaths", Player["be5"], false, ValueMode.Add);
-                        UStmt.Add("atminefired", Player["se5"], false, ValueMode.Add);
-                        UStmt.Add("atminehit", Player["he5"], false, ValueMode.Add);
+                        UpdateQuery.SetField("atminetime", Player["te5"], ValueMode.Add);
+                        UpdateQuery.SetField("atminekills", Player["ke5"], ValueMode.Add);
+                        UpdateQuery.SetField("atminedeaths", Player["be5"], ValueMode.Add);
+                        UpdateQuery.SetField("atminefired", Player["se5"], ValueMode.Add);
+                        UpdateQuery.SetField("atminehit", Player["he5"], ValueMode.Add);
 
                         // Tactical
-                        UStmt.Add("tacticaltime", Player["te6"], false, ValueMode.Add);
-                        UStmt.Add("tacticaldeployed", Player["de6"], false, ValueMode.Add);
+                        UpdateQuery.SetField("tacticaltime", Player["te6"], ValueMode.Add);
+                        UpdateQuery.SetField("tacticaldeployed", Player["de6"], ValueMode.Add);
 
                         // Grappling Hook
-                        UStmt.Add("grapplinghooktime", Player["te7"], false, ValueMode.Add);
-                        UStmt.Add("grapplinghookdeployed", Player["de7"], false, ValueMode.Add);
-                        UStmt.Add("grapplinghookdeaths", Player["be9"], false, ValueMode.Add);
+                        UpdateQuery.SetField("grapplinghooktime", Player["te7"], ValueMode.Add);
+                        UpdateQuery.SetField("grapplinghookdeployed", Player["de7"], ValueMode.Add);
+                        UpdateQuery.SetField("grapplinghookdeaths", Player["be9"], ValueMode.Add);
 
                         // Zipline
-                        UStmt.Add("ziplinetime", Player["te8"], false, ValueMode.Add);
-                        UStmt.Add("ziplinedeployed", Player["de8"], false, ValueMode.Add);
-                        UStmt.Add("ziplinedeaths", Player["be8"], false, ValueMode.Add);
+                        UpdateQuery.SetField("ziplinetime", Player["te8"], ValueMode.Add);
+                        UpdateQuery.SetField("ziplinedeployed", Player["de8"], ValueMode.Add);
+                        UpdateQuery.SetField("ziplinedeaths", Player["be8"], ValueMode.Add);
 
                         // Do Query
-                        Driver.Update("weapons", UStmt, "id=" + Pid);
+                        UpdateQuery.Execute();
                     }
 
 
                     // ********************************
                     // Process Player Map Data
                     // ********************************
-                    Log(String.Format("Processing Map Data ({0})", Pid), 3);
+                    Log(String.Format("Processing Map Data ({0})", Pid), LogLevel.Notice);
 
-                    Rows = Driver.Query("SELECT best, worst FROM maps WHERE id={0} AND mapid={1}", Pid, MapId);
+                    Rows = Driver.Query("SELECT best, worst FROM maps WHERE id=@P0 AND mapid=@P1", Pid, MapId);
                     if (Rows.Count == 0)
                     {
-                        IStmt = new Dictionary<string, object>();
-                        IStmt.Add("id", Pid);
-                        IStmt.Add("mapid", MapId);
-                        IStmt.Add("time", Time);
-                        IStmt.Add("win", ((OnWinningTeam) ? 1 : 0));
-                        IStmt.Add("loss", ((!OnWinningTeam) ? 1 : 0));
-                        IStmt.Add("best", RoundScore);
-                        IStmt.Add("worst", RoundScore);
-                        Driver.Insert("maps", IStmt);
+                        // Prepare Query
+                        InsertQuery = new InsertQueryBuilder("maps", Driver);
+                        InsertQuery.SetField("id", Pid);
+                        InsertQuery.SetField("mapid", MapId);
+                        InsertQuery.SetField("time", Time);
+                        InsertQuery.SetField("win", ((OnWinningTeam) ? 1 : 0));
+                        InsertQuery.SetField("loss", ((!OnWinningTeam) ? 1 : 0));
+                        InsertQuery.SetField("best", RoundScore);
+                        InsertQuery.SetField("worst", RoundScore);
+                        InsertQuery.Execute();
                     }
                     else
                     {
+                        // Get best and worst round scores
                         string Best = ((Int32.Parse(Rows[0]["best"].ToString()) > RoundScore) ? Rows[0]["best"].ToString() : RoundScore.ToString());
                         string Worst = ((Int32.Parse(Rows[0]["worst"].ToString()) > RoundScore) ? Rows[0]["worst"].ToString() : RoundScore.ToString());
 
-                        UStmt = new SqlUpdateDictionary();
-                        UStmt.Add("time", Time, false, ValueMode.Add);
-                        UStmt.Add("win", ((OnWinningTeam) ? 1 : 0), false, ValueMode.Add);
-                        UStmt.Add("loss", ((!OnWinningTeam) ? 1 : 0), false, ValueMode.Add);
-                        UStmt.Add("best", Best, false, ValueMode.Add);
-                        UStmt.Add("worst", Worst, false, ValueMode.Add);
-                        Driver.Update("maps", UStmt, String.Format("id={0} AND mapid={1}", Pid, MapId));
+                        // Prepare Query
+                        UpdateQuery = new UpdateQueryBuilder("maps", Driver);
+                        Where = UpdateQuery.AddWhere("id", Comparison.Equals, Pid);
+                        Where.AddClause(LogicOperator.And, "mapid", Comparison.Equals, MapId);
+                        UpdateQuery.SetField("time", Time, ValueMode.Add);
+                        UpdateQuery.SetField("win", ((OnWinningTeam) ? 1 : 0), ValueMode.Add);
+                        UpdateQuery.SetField("loss", ((!OnWinningTeam) ? 1 : 0), ValueMode.Add);
+                        UpdateQuery.SetField("best", Best, ValueMode.Add);
+                        UpdateQuery.SetField("worst", Worst, ValueMode.Add);
+                        UpdateQuery.Execute();
                     }
 
 
                     // ********************************
                     // Process Player Awards Data
                     // ********************************
-                    Log(String.Format("Processing Award Data ({0})", Pid), 3);
+                    Log(String.Format("Processing Award Data ({0})", Pid), LogLevel.Notice);
 
                     // Do we require round completion for award processing?
                     if (CompletedRound || !MainForm.Config.ASP_AwardsReqComplete)
@@ -949,28 +994,29 @@ namespace BF2Statistics.ASP
                                     // Need to do extra work for Badges as more than one badge per round may have been awarded
                                     for (int j = 1; j < Level; j++)
                                     {
-                                        Rows = Driver.Query("SELECT level FROM awards WHERE id={0} AND awd={1} AND level={2}", Pid, AwardId, j);
+                                        Rows = Driver.Query("SELECT level FROM awards WHERE id=@P0 AND awd=@P1 AND level=@P2", Pid, AwardId, j);
                                         if (Rows.Count == 0)
                                         {
-                                            IStmt = new Dictionary<string, object>();
-                                            IStmt.Add("id", Pid);
-                                            IStmt.Add("awd", AwardId);
-                                            IStmt.Add("level", j);
-                                            IStmt.Add("earned", (TimeStamp - 5) + j);
-                                            IStmt.Add("first", First);
-                                            Driver.Insert("awards", IStmt);
+                                            // Prepare Query
+                                            InsertQuery = new InsertQueryBuilder("awards", Driver);
+                                            InsertQuery.SetField("id", Pid);
+                                            InsertQuery.SetField("awd", AwardId);
+                                            InsertQuery.SetField("level", j);
+                                            InsertQuery.SetField("earned", (TimeStamp - 5) + j);
+                                            InsertQuery.SetField("first", First);
+                                            InsertQuery.Execute();
                                         }
                                     }
                                 }
 
                                 // Add the players award
-                                IStmt = new Dictionary<string, object>();
-                                IStmt.Add("id", Pid);
-                                IStmt.Add("awd", AwardId);
-                                IStmt.Add("level", Level);
-                                IStmt.Add("earned", TimeStamp);
-                                IStmt.Add("first", First);
-                                Driver.Insert("awards", IStmt);
+                                InsertQuery = new InsertQueryBuilder("awards", Driver);
+                                InsertQuery.SetField("id", Pid);
+                                InsertQuery.SetField("awd", AwardId);
+                                InsertQuery.SetField("level", Level);
+                                InsertQuery.SetField("earned", TimeStamp);
+                                InsertQuery.SetField("first", First);
+                                InsertQuery.Execute();
 
                             }
                             else
@@ -980,41 +1026,54 @@ namespace BF2Statistics.ASP
                                 // If award if a medal (Because ribbons and badges are only awarded once ever!)
                                 if (AwardId > 2000000 && AwardId < 3000000)
                                 {
-                                    UStmt = new SqlUpdateDictionary();
-                                    UStmt.Add("level", 1, false, ValueMode.Add);
-                                    UStmt.Add("earned", TimeStamp, false, ValueMode.Set);
-                                    Driver.Update("awards", UStmt, String.Format("id={0} AND awd={1}", Pid, AwardId));
+                                    // Prepare Query
+                                    UpdateQuery = new UpdateQueryBuilder("awards", Driver);
+                                    Where = UpdateQuery.AddWhere("id", Comparison.Equals, Pid);
+                                    Where.AddClause(LogicOperator.And, "awd", Comparison.Equals, AwardId);
+                                    UpdateQuery.SetField("level", 1, ValueMode.Add);
+                                    UpdateQuery.SetField("earned", TimeStamp, ValueMode.Set);
+                                    UpdateQuery.Execute();
                                 }
                             }
 
                             // Add best round count if player earned best round medal
                             if (OnWinningTeam && AwardId == 2051907)
                             {
-                                UStmt = new SqlUpdateDictionary();
-                                UStmt.Add("brnd" + Army, 1, false, ValueMode.Add);
-                                Driver.Update("army", UStmt, "id=" + Pid);
+                                // Prepare Query
+                                UpdateQuery = new UpdateQueryBuilder("army", Driver);
+                                UpdateQuery.AddWhere("id", Comparison.Equals, Pid);
+                                UpdateQuery.SetField("brnd" + Army, 1, ValueMode.Add);
+                                UpdateQuery.Execute();
                             }
 
                         } // End Foreach Award
                     }
 
-
+                    // Increment player position
                     PlayerPosition++;
                 } // End Foreach Player
-            }
-            catch(Exception E)
-            {
-                Log("An error occured while updating player stats: " + E.Message, 1);
-                Transaction.Rollback();
-            }
 
-            try
-            {
-                Transaction.Commit();
+                // Commit the transaction
+                try
+                {
+                    Transaction.Commit();
+                }
+                catch (Exception E)
+                {
+                    try {
+                        Transaction.Rollback();
+                    }
+                    catch { }
+
+                    // Log error
+                    Log("An error occured while commiting player changes: " + E.Message, LogLevel.Error);
+                    return;
+                }
             }
             catch(Exception E)
             {
-                Log("An error occured while commiting player changes: " + E.Message, 1);
+                Log("An error occured while updating player stats: " + E.Message, LogLevel.Error);
+                Transaction.Rollback();
             }
 
             // ********************************
@@ -1026,52 +1085,54 @@ namespace BF2Statistics.ASP
             // ********************************
             // Process MapInfo
             // ********************************
-            Log(String.Format("Processing Map Info ({0}:{1})", MapName, MapId), 3);
+            Log(String.Format("Processing Map Info ({0}:{1})", MapName, MapId), LogLevel.Notice);
 
             TimeSpan Timer = new TimeSpan(Convert.ToInt64(MapEnd - MapStart));
             Rows = Driver.Query("SELECT COUNT(id) AS count FROM mapinfo WHERE id=" + MapId);
             if(Int32.Parse(Rows[0]["count"].ToString()) == 0)
             {
-                IStmt = new Dictionary<string, object>();
-                IStmt.Add("id", MapId);
-                IStmt.Add("name", MapName);
-                IStmt.Add("score", MapScore);
-                IStmt.Add("time", Timer.Seconds);
-                IStmt.Add("times", 1);
-                IStmt.Add("kills", MapKills);
-                IStmt.Add("deaths", MapDeaths);
-                IStmt.Add("custom", (IsCustomMap) ? 1 : 0);
-                Driver.Insert("mapinfo", IStmt);
+                // Prepare Query
+                InsertQuery = new InsertQueryBuilder("mapinfo", Driver);
+                InsertQuery.SetField("id", MapId);
+                InsertQuery.SetField("name", MapName);
+                InsertQuery.SetField("score", MapScore);
+                InsertQuery.SetField("time", Timer.Seconds);
+                InsertQuery.SetField("times", 1);
+                InsertQuery.SetField("kills", MapKills);
+                InsertQuery.SetField("deaths", MapDeaths);
+                InsertQuery.SetField("custom", (IsCustomMap) ? 1 : 0);
+                InsertQuery.Execute();
             }
             else
             {
-                UStmt = new SqlUpdateDictionary();
-                UStmt.Add("score", MapScore, false, ValueMode.Add);
-                UStmt.Add("time", Timer.Seconds, false, ValueMode.Add);
-                UStmt.Add("times", 1, false, ValueMode.Add);
-                UStmt.Add("kills", MapKills, false, ValueMode.Add);
-                UStmt.Add("deaths", MapDeaths, false, ValueMode.Add);
-                Driver.Update("mapinfo", UStmt, "id=" + MapId);
+                UpdateQuery = new UpdateQueryBuilder("mapinfo", Driver);
+                UpdateQuery.AddWhere("id", Comparison.Equals, MapId);
+                UpdateQuery.SetField("score", MapScore, ValueMode.Add);
+                UpdateQuery.SetField("time", Timer.Seconds, ValueMode.Add);
+                UpdateQuery.SetField("times", 1, ValueMode.Add);
+                UpdateQuery.SetField("kills", MapKills, ValueMode.Add);
+                UpdateQuery.SetField("deaths", MapDeaths, ValueMode.Add);
+                UpdateQuery.Execute();
             }
 
 
             // ********************************
             // Process RoundInfo
             // ********************************
-            Log("Processing Round Info", 3);
-            IStmt = new Dictionary<string, object>();
-            IStmt.Add("timestamp", MapStart);
-            IStmt.Add("mapid", MapId);
-            IStmt.Add("time", Timer.Seconds);
-            IStmt.Add("team1", Team1Army);
-            IStmt.Add("team2", Team2Army);
-            IStmt.Add("tickets1", Team1Tickets);
-            IStmt.Add("tickets2", Team2Tickets);
-            IStmt.Add("pids1", Team1Players);
-            IStmt.Add("pids1_end", Team1PlayersEnd);
-            IStmt.Add("pids2", Team2Players);
-            IStmt.Add("pids2_end", Team2PlayersEnd);
-            Driver.Insert("round_history", IStmt);
+            Log("Processing Round Info", LogLevel.Notice);
+            InsertQuery = new InsertQueryBuilder("round_history", Driver);
+            InsertQuery.SetField("timestamp", MapStart);
+            InsertQuery.SetField("mapid", MapId);
+            InsertQuery.SetField("time", Timer.Seconds);
+            InsertQuery.SetField("team1", Team1Army);
+            InsertQuery.SetField("team2", Team2Army);
+            InsertQuery.SetField("tickets1", Team1Tickets);
+            InsertQuery.SetField("tickets2", Team2Tickets);
+            InsertQuery.SetField("pids1", Team1Players);
+            InsertQuery.SetField("pids1_end", Team1PlayersEnd);
+            InsertQuery.SetField("pids2", Team2Players);
+            InsertQuery.SetField("pids2_end", Team2PlayersEnd);
+            InsertQuery.Execute();
 
 
             // ********************************
@@ -1082,8 +1143,8 @@ namespace BF2Statistics.ASP
 
             // Call our Finished Event
             Timer = new TimeSpan(Clock.ElapsedTicks);
-            Log(String.Format("Snapshot ({0}) processed in {1} milliseconds", MapName, Timer.Milliseconds), -1);
-            OnCallFinish();
+            Log(String.Format("Snapshot ({0}) processed in {1} milliseconds", MapName, Timer.Milliseconds), LogLevel.Info);
+            SnapshotProccessed();
         }
 
         /// <summary>
@@ -1098,7 +1159,10 @@ namespace BF2Statistics.ASP
                 return MainForm.Config.ASP_LocalIpCountryCode;
 
             // Fetch country code from Ip2Nation
-            List<Dictionary<string, object>> Rows = Driver.Query("SELECT country FROM ip2nation WHERE ip < {0} ORDER BY ip DESC LIMIT 1", Utils.IP2Long(IP.ToString()));
+            List<Dictionary<string, object>> Rows = Driver.Query(
+                "SELECT country FROM ip2nation WHERE ip < @P0 ORDER BY ip DESC LIMIT 1", 
+                Networking.IP2Long(IP.ToString())
+            );
             string CC = (Rows.Count == 0) ? "xx" : Rows[0]["country"].ToString();
 
             // Fix country!
@@ -1135,7 +1199,7 @@ namespace BF2Statistics.ASP
         /// </summary>
         private void SmocCheck()
         {
-            Log("Processing SMOC Rank", 3);
+            Log("Processing SMOC Rank", LogLevel.Notice);
 
             // Vars
             List<Dictionary<string, object>> Rows;
@@ -1154,18 +1218,19 @@ namespace BF2Statistics.ASP
                     // Check for same and determine if minimum tenure servred
                     int MinTenure = MainForm.Config.ASP_SpecialRankTenure * 86400;
                     int Sid = Int32.Parse(Rows[0]["id"].ToString());
+                    int Earned = Int32.Parse(Rows[0]["earned"].ToString());
 
                     // Assign new Smoc If the old SMOC's tenure is up, and the current SMOC is not the highest scoring SGM
-                    if (Id != Sid && Utils.UnixTimestamp() >= MinTenure)
+                    if (Id != Sid && (Earned + MinTenure) < TimeStamp)
                     {
                         // Delete old SMOC's award
-                        Driver.Execute("DELETE FROM awards WHERE id={0} AND awd=6666666", Sid);
+                        Driver.Execute("DELETE FROM awards WHERE id=@P0 AND awd=6666666", Sid);
 
                         // Change current SMOC rank back to SGM
                         Driver.Execute("UPDATE player SET rank=10, chng=0, decr=1 WHERE id =" + Sid);
 
                         // Award new SGMOC award
-                        Driver.Execute("INSERT INTO awards(id,awd,earned) VALUES({0},{1},{2})", Id, 6666666, Utils.UnixTimestamp());
+                        Driver.Execute("INSERT INTO awards(id,awd,earned) VALUES(@P0,@P1,@P2)", Id, 6666666, TimeStamp);
 
                         // Update new SGMOC's rank
                         Driver.Execute("UPDATE player SET rank=11, chng=1, decr=0 WHERE id =" + Id);
@@ -1174,7 +1239,7 @@ namespace BF2Statistics.ASP
                 else
                 {
                     // Award SGMOC award
-                    Driver.Execute("INSERT INTO awards(id,awd,earned) VALUES({0},{1},{2})", Id, 6666666, Utils.UnixTimestamp());
+                    Driver.Execute("INSERT INTO awards(id,awd,earned) VALUES(@P0,@P1,@P2)", Id, 6666666, TimeStamp);
 
                     // Update SGMOC rank
                     Driver.Execute("UPDATE player SET rank=11, chng=1, decr=0 WHERE id =" + Id);
@@ -1187,7 +1252,7 @@ namespace BF2Statistics.ASP
         /// </summary>
         private void GenCheck()
         {
-            Log("Processing GENERAL Rank", 3);
+            Log("Processing GENERAL Rank", LogLevel.Notice);
 
             // Vars
             List<Dictionary<string, object>> Rows;
@@ -1206,18 +1271,19 @@ namespace BF2Statistics.ASP
                     // Check for same and determine if minimum tenure servred
                     int MinTenure = MainForm.Config.ASP_SpecialRankTenure * 86400;
                     int Sid = Int32.Parse(Rows[0]["id"].ToString());
+                    int Earned = Int32.Parse(Rows[0]["earned"].ToString());
 
                     // Assign new Smoc If the old SMOC's tenure is up, and the current SMOC is not the highest scoring SGM
-                    if (Id != Sid && Utils.UnixTimestamp() >= MinTenure)
+                    if (Id != Sid && (Earned + MinTenure) < TimeStamp)
                     {
                         // Delete the GENERAL award
-                        Driver.Execute("DELETE FROM awards WHERE id={0} AND awd=6666667", Sid);
+                        Driver.Execute("DELETE FROM awards WHERE id=@P0 AND awd=6666667", Sid);
 
                         // Change current GENERAL rank back to 3 Star Gen
                         Driver.Execute("UPDATE player SET rank=20, chng=0, decr=1 WHERE id =" + Sid);
 
                         // Award new GENERAL award
-                        Driver.Execute("INSERT INTO awards(id,awd,earned) VALUES({0},{1},{2})", Id, 6666667, Utils.UnixTimestamp());
+                        Driver.Execute("INSERT INTO awards(id,awd,earned) VALUES(@P0,@P1,@P2)", Id, 6666667, TimeStamp);
 
                         // Update new GENERAL's rank
                         Driver.Execute("UPDATE player SET rank=21, chng=1, decr=0 WHERE id =" + Id);
@@ -1226,7 +1292,7 @@ namespace BF2Statistics.ASP
                 else
                 {
                     // Award GENERAL award
-                    Driver.Execute("INSERT INTO awards(id,awd,earned) VALUES({0},{1},{2})", Id, 6666667, Utils.UnixTimestamp());
+                    Driver.Execute("INSERT INTO awards(id,awd,earned) VALUES(@P0,@P1,@P2)", Id, 6666667, TimeStamp);
 
                     // Update GENERAL rank
                     Driver.Execute("UPDATE player SET rank=21, chng=1, decr=0 WHERE id =" + Id);
@@ -1239,9 +1305,9 @@ namespace BF2Statistics.ASP
         /// </summary>
         /// <param name="Message"></param>
         /// <param name="Level"></param>
-        private void Log(string Message, int Level)
+        private void Log(string Message, LogLevel Level)
         {
-            if (Level > MainForm.Config.ASP_DebugLevel)
+            if ((int)Level > MainForm.Config.ASP_DebugLevel)
                 return;
 
             string Lvl;
@@ -1250,16 +1316,16 @@ namespace BF2Statistics.ASP
                 default:
                     Lvl = "INFO: ";
                     break;
-                case 0:
+                case LogLevel.Security:
                     Lvl = "SECURITY: ";
                     break;
-                case 1:
+                case LogLevel.Error:
                     Lvl = "ERROR: ";
                     break;
-                case 2:
+                case LogLevel.Warning:
                     Lvl = "WARNING: ";
                     break;
-                case 3:
+                case LogLevel.Notice:
                     Lvl = "NOTICE: ";
                     break;
             }
@@ -1267,14 +1333,13 @@ namespace BF2Statistics.ASP
             DebugLog.Write(Lvl + Message);
         }
 
-        /// <summary>
-        /// A method to fire off the OnFinish event IF there is registered methods
-        /// </summary>
-        private void OnCallFinish()
+        protected enum LogLevel : int
         {
-            ShutdownEventHandler tmp = OnFinish;
-            if (tmp != null)
-                tmp();
+            Info = -1,
+            Security = 0,
+            Error = 1,
+            Warning = 2,
+            Notice = 3,
         }
     }
 }

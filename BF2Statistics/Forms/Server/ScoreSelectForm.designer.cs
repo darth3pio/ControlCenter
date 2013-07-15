@@ -30,7 +30,7 @@
         {
             this.PlayerBtn = new System.Windows.Forms.Button();
             this.AIBtn = new System.Windows.Forms.Button();
-            this.DescBox = new System.Windows.Forms.RichTextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // PlayerBtn
@@ -53,22 +53,22 @@
             this.AIBtn.Text = "AI Bot Scoring";
             this.AIBtn.UseVisualStyleBackColor = true;
             // 
-            // DescBox
+            // label1
             // 
-            this.DescBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.DescBox.Location = new System.Drawing.Point(12, 11);
-            this.DescBox.Name = "DescBox";
-            this.DescBox.ReadOnly = true;
-            this.DescBox.Size = new System.Drawing.Size(159, 22);
-            this.DescBox.TabIndex = 2;
-            this.DescBox.Text = "Please select an option below:";
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 12);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(151, 13);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Please select an option below:";
             // 
             // ScoreSelectForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(258, 99);
-            this.Controls.Add(this.DescBox);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.AIBtn);
             this.Controls.Add(this.PlayerBtn);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -78,6 +78,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Select Scoring Optoin";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -85,6 +86,6 @@
 
         private System.Windows.Forms.Button PlayerBtn;
         private System.Windows.Forms.Button AIBtn;
-        private System.Windows.Forms.RichTextBox DescBox;
+        private System.Windows.Forms.Label label1;
     }
 }

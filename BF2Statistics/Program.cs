@@ -8,9 +8,9 @@
 /// </summary>
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
+using System.IO;
+using System.Threading;
 
 namespace BF2Statistics
 {
@@ -22,24 +22,12 @@ namespace BF2Statistics
         [STAThread]
         static void Main()
         {
-            try
-            {
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new MainForm());
-            }
-            catch (Exception E)
-            {
-                MessageBox.Show("A Startup error has occured!" 
-                    + Environment.NewLine 
-                    + Environment.NewLine 
-                    + "Exception Message: " + E.Message 
-                    + "Target Method: " + E.TargetSite.ToString() 
-                    + "Stack Trace: "
-                    + Environment.NewLine 
-                    + E.StackTrace.ToString(),
-                    "Startup Error");
-            }
+            // Set exception Handler
+            Application.ThreadException += new ThreadExceptionEventHandler(ExceptionHandler.OnThreadException);
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(ExceptionHandler.OnUnhandledException);
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new MainForm());
         }
     }
 }

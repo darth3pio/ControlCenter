@@ -6,11 +6,11 @@ using System.Resources;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("BF2Statistics Control Center")]
+[assembly: AssemblyTitle("Battlefield 2 Statistics Control Center")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("BF2Statistics")]
-[assembly: AssemblyProduct("BF2Statistics Control Center")]
+[assembly: AssemblyCompany("Battlefield 2 Statistics")]
+[assembly: AssemblyProduct("Battlefield 2 Statistics Control Center")]
 [assembly: AssemblyCopyright("Copyright © BF2Statistics.com 2006 - 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -33,6 +33,6 @@ using System.Resources;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.4.1.0")]
-[assembly: AssemblyFileVersion("1.4.1.0")]
+[assembly: AssemblyVersion("1.5.0.0")]
+[assembly: AssemblyFileVersion("1.5.0.0")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]

@@ -36,12 +36,13 @@
             this.ServerBtn = new System.Windows.Forms.Button();
             this.CancelBtn = new System.Windows.Forms.Button();
             this.SaveBtn = new System.Windows.Forms.Button();
-            this.IntroTextBox = new System.Windows.Forms.RichTextBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.WhiteSmoke;
             this.label1.Location = new System.Drawing.Point(21, 59);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(167, 13);
@@ -51,6 +52,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
+            this.label2.BackColor = System.Drawing.Color.WhiteSmoke;
             this.label2.Location = new System.Drawing.Point(21, 119);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(124, 13);
@@ -113,24 +115,23 @@
             this.SaveBtn.UseVisualStyleBackColor = true;
             this.SaveBtn.Click += new System.EventHandler(this.SaveBtn_Click);
             // 
-            // IntroTextBox
+            // label3
             // 
-            this.IntroTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.IntroTextBox.Enabled = false;
-            this.IntroTextBox.Location = new System.Drawing.Point(23, 18);
-            this.IntroTextBox.Name = "IntroTextBox";
-            this.IntroTextBox.ReadOnly = true;
-            this.IntroTextBox.Size = new System.Drawing.Size(420, 25);
-            this.IntroTextBox.TabIndex = 8;
-            this.IntroTextBox.Text = "This program requires paths to your BF2 Client, and Dedicated server to be saved." +
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(23, 18);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(393, 13);
+            this.label3.TabIndex = 8;
+            this.label3.Text = "This program requires paths to your BF2 Client, and Dedicated server to be saved." +
                 "";
             // 
             // InstallForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(464, 232);
-            this.Controls.Add(this.IntroTextBox);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.SaveBtn);
             this.Controls.Add(this.CancelBtn);
             this.Controls.Add(this.ServerBtn);
@@ -160,6 +161,6 @@
         private System.Windows.Forms.Button ServerBtn;
         private System.Windows.Forms.Button CancelBtn;
         private System.Windows.Forms.Button SaveBtn;
-        private System.Windows.Forms.RichTextBox IntroTextBox;
+        private System.Windows.Forms.Label label3;
     }
 }

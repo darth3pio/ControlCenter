@@ -40,6 +40,8 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Microsoft.VisualBasic.PowerPacks.Vs, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="MySql.Data, Version=6.5.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\MySql.Data.dll</HintPath>
@@ -60,6 +62,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\DateExtension.cs" />
+    <Compile Include="Forms\AlertForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\AlertForm.Designer.cs">
+      <DependentUpon>AlertForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Database\QueryBuilder\Enum.cs" />
+    <Compile Include="Database\QueryBuilder\InsertQueryBuilder.cs" />
+    <Compile Include="Database\QueryBuilder\JoinClause.cs" />
+    <Compile Include="Database\QueryBuilder\OrderByClause.cs" />
+    <Compile Include="Database\QueryBuilder\SelectQueryBuilder.cs" />
+    <Compile Include="Database\QueryBuilder\SqlLiteral.cs" />
+    <Compile Include="Database\QueryBuilder\UpdateQueryBuilder.cs" />
+    <Compile Include="Database\QueryBuilder\WhereClause.cs" />
+    <Compile Include="Database\QueryBuilder\WhereStatement.cs" />
+    <Compile Include="ExceptionHandler.cs" />
+    <Compile Include="Forms\ExceptionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ExceptionForm.Designer.cs">
+      <DependentUpon>ExceptionForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Extensions\FolderSelect\FolderSelectDialog.cs" />
+    <Compile Include="Extensions\FolderSelect\Reflector.cs" />
     <Compile Include="Forms\ASP\ASPConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -124,7 +151,6 @@
       <DependentUpon>ScoreStatForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Gamespy\TcpClientStream.cs" />
-    <Compile Include="Database\SqlUpdateDictionary.cs" />
     <Compile Include="Database\StatsDatabase.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="Forms\Gamespy\AccountEditForm.cs">
@@ -216,13 +242,19 @@
     <Compile Include="Forms\LoadingForm.Designer.cs">
       <DependentUpon>LoadingForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\ASP\ManageStatsDBForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ASP\ManageStatsDBForm.Designer.cs">
+      <DependentUpon>ManageStatsDBForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MedalData\Award.cs" />
     <Compile Include="MedalData\AwardCache.cs" />
     <Compile Include="MedalData\Condition.cs" />
     <Compile Include="MedalData\ConditionList.cs" />
     <Compile Include="MedalData\Conditions\ConditionValue.cs" />
     <Compile Include="MedalData\Conditions\GlobalStatMultTimes.cs" />
-    <Compile Include="MedalData\Conditions\MedalCondition.cs" />
+    <Compile Include="MedalData\Conditions\MedalOrRankCondition.cs" />
     <Compile Include="MedalData\Conditions\ObjectStat.cs" />
     <Compile Include="MedalData\Conditions\PlayerStat.cs" />
     <Compile Include="MedalData\Data.cs" />
@@ -252,6 +284,20 @@
     <Compile Include="Forms\MedalData\SaveForm.Designer.cs">
       <DependentUpon>SaveForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Networking.cs" />
+    <Compile Include="Paths.cs" />
+    <Compile Include="Forms\TaskForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\TaskForm.Designer.cs">
+      <DependentUpon>TaskForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TransparentLabel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Utilities\Sql.cs" />
+    <Compile Include="Utilities\Tipsy.cs" />
+    <Compile Include="Utilities\Notify.cs" />
     <Compile Include="Utilities\HostsFile.cs" />
     <Compile Include="Utilities\Item.cs" />
     <Compile Include="Utilities\KeyValueItem.cs" />
@@ -280,12 +326,6 @@
       <DependentUpon>SnapshotViewForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions\SocketExtensions.cs" />
-    <Compile Include="Forms\UpdateProgressForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\UpdateProgressForm.Designer.cs">
-      <DependentUpon>UpdateProgressForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\ASP\StatsDbConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -295,6 +335,12 @@
     <Compile Include="Utilities\Utils.cs" />
     <Compile Include="Utilities\Validator.cs" />
     <Compile Include="ASP\ASPServer.cs" />
+    <EmbeddedResource Include="Forms\AlertForm.resx">
+      <DependentUpon>AlertForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ExceptionForm.resx">
+      <DependentUpon>ExceptionForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\ASP\ASPConfigForm.resx">
       <DependentUpon>ASPConfigForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -367,14 +413,14 @@
     <EmbeddedResource Include="Forms\ASP\SnapshotViewForm.resx">
       <DependentUpon>SnapshotViewForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\UpdateProgressForm.resx">
-      <DependentUpon>UpdateProgressForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\ASP\PlayerSearchForm.resx">
       <DependentUpon>PlayerSearchForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ASP\PlayerEditForm.resx">
       <DependentUpon>PlayerEditForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ASP\ManageStatsDBForm.resx">
+      <DependentUpon>ManageStatsDBForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -388,6 +434,9 @@
     </Compile>
     <EmbeddedResource Include="Forms\ASP\StatsDbConfigForm.resx">
       <DependentUpon>StatsDbConfigForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\TaskForm.resx">
+      <DependentUpon>TaskForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
     <EmbeddedResource Include="ASP\Errors\403.tpl" />
@@ -571,6 +620,18 @@
     <None Include="Resources\plus.png" />
     <None Include="Resources\Save.png" />
     <None Include="Resources\power.png" />
+    <None Include="Resources\vistaerror.png" />
+    <None Include="Resources\vistaInfo.png" />
+    <None Include="Resources\InfoAlert.png" />
+    <None Include="Resources\InfoAlert1.png" />
+    <None Include="Resources\InfoAlert2.png" />
+    <None Include="Resources\InfoAlert3.png" />
+    <None Include="Resources\InfoAlert4.png" />
+    <None Include="Resources\InfoAlert5.png" />
+    <None Include="Resources\InfoAlert6.png" />
+    <None Include="Resources\AlertWarning.png" />
+    <None Include="Resources\CloseBox.png" />
+    <None Include="Resources\AlertSuccess.png" />
     <Content Include="SQL\MySQL.Gamespy.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

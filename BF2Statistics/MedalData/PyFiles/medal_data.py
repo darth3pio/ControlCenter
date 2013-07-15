@@ -100,7 +100,7 @@ rank_data = (
 	(9, 'rank', f_and(f_or(has_rank(7), has_rank(8)), f_plus(global_stat('scor'), player_stat('score'), 50000))),#stop
 	(10, 'rank', f_and(f_or(has_rank(7), has_rank(8)), f_plus(global_stat('scor'), player_stat('score'), 50000), has_medal('1220118_1'), has_medal('1222016_1'), has_medal('1220803_1'), has_medal('1220122_1'), has_medal('1220104_1'), has_medal('1031923_1'))),#stop
 	(11, 'rank', f_and(f_plus(global_stat('scor'), player_stat('score'), 50000), has_medal('6666666'))),#stop
-	(12, 'rank', f_and(f_or(f_or(has_rank(9), has_rank(10)), has_rank(11)), f_plus(global_stat('scor'), player_stat('score'), 60000))),#stop
+	(12, 'rank', f_and(f_or(has_rank(9), has_rank(10), has_rank(11)), f_plus(global_stat('scor'), player_stat('score'), 60000))),#stop
 	(13, 'rank', f_and(has_rank(12), f_plus(global_stat('scor'), player_stat('score'), 75000))),#stop
 	(14, 'rank', f_and(has_rank(13), f_plus(global_stat('scor'), player_stat('score'), 90000))),#stop
 	(15, 'rank', f_and(has_rank(14), f_plus(global_stat('scor'), player_stat('score'), 115000))),#stop

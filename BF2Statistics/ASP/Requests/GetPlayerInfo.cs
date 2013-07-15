@@ -85,7 +85,7 @@ namespace BF2Statistics.ASP.Requests
             if (Pid == 0 || Info.Count == 0)
             {
                 Output = new FormattedOutput("asof", "err");
-                Output.AddRow(Utils.UnixTimestamp(), "Invalid Syntax!");
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
                 Response.AddData(Output);
                 Response.IsValidData(false);
                 Response.Send();
@@ -118,13 +118,13 @@ namespace BF2Statistics.ASP.Requests
         public void DoFullRequest()
         {
             // Fetch Player
-            Rows = Driver.Query("SELECT * FROM player WHERE id={0}", Pid);
+            Rows = Driver.Query("SELECT * FROM player WHERE id=@P0", Pid);
 
             // If player doesnt exist then output default dataB
             if (Rows.Count == 0)
             {
                 Output = new FormattedOutput("asof", "err");
-                Output.AddRow(Utils.UnixTimestamp(), "Player Doesnt Exist");
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist");
                 Response.AddData(Output);
                 Response.IsValidData(false);
                 Response.Send();
@@ -133,7 +133,7 @@ namespace BF2Statistics.ASP.Requests
             else
             {
                 Output = new FormattedOutput("asof");
-                Output.AddRow(Utils.UnixTimestamp());
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp());
                 Response.AddData(Output);
             }
 
@@ -213,8 +213,11 @@ namespace BF2Statistics.ASP.Requests
             // Process Armies
             AddArmyData();
 
-            //Process Kits
+            // Process Kits
             AddKitData();
+
+            // Get tactical data
+            AddTacticalData();
 
             // Get Player Top Victim and Opponent
             GetPlayerTopVitcimAndOpp();
@@ -249,11 +252,11 @@ namespace BF2Statistics.ASP.Requests
                 Int32.TryParse(QueryString["map"], out Map);
 
             // Check if the player exists
-            Rows = Driver.Query("SELECT name FROM player WHERE id={0}", Pid);
+            Rows = Driver.Query("SELECT name FROM player WHERE id=@P0", Pid);
             if(Rows.Count == 0)
             {
                 Output = new FormattedOutput("asof", "err");
-                Output.AddRow(Utils.UnixTimestamp(), "Player Doesnt Exist");
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist");
                 Response.AddData(Output);
                 Response.IsValidData(false);
                 Response.Send();
@@ -262,7 +265,7 @@ namespace BF2Statistics.ASP.Requests
             else
             {
                 Output = new FormattedOutput("asof");
-                Output.AddRow(Utils.UnixTimestamp());
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp());
                 Response.AddData(Output);
             }
 
@@ -275,14 +278,14 @@ namespace BF2Statistics.ASP.Requests
             Data.Add(Rows[0]["name"].ToString().Trim());
 
             // Kit Time
-            Rows = Driver.Query("SELECT time{0} AS time FROM kits WHERE id={1}", Kit, Pid);
+            Rows = Driver.Query(String.Format("SELECT time{0} AS time FROM kits WHERE id={1}", Kit, Pid));
             if(Rows.Count == 0)
                 Data.Add("0");
             else
                 Data.Add(Rows[0]["time"].ToString());
 
             // Vehicle Time
-            Rows = Driver.Query("SELECT time{0} AS time FROM vehicles WHERE id={1}", Vehicle, Pid);
+            Rows = Driver.Query(String.Format("SELECT time{0} AS time FROM vehicles WHERE id={1}", Vehicle, Pid));
             if(Rows.Count == 0)
                 Data.Add("0");
             else
@@ -310,14 +313,14 @@ namespace BF2Statistics.ASP.Requests
             else
                 colName = "time" + Weapon;
 
-            Rows = Driver.Query("SELECT {0} AS time FROM weapons WHERE id={1}", colName, Pid);
+            Rows = Driver.Query(String.Format("SELECT {0} AS time FROM weapons WHERE id={1}", colName, Pid));
             if(Rows.Count == 0)
                 Data.Add("0");
             else
                 Data.Add(Rows[0]["time"].ToString());
 
             // Map Time
-            Rows = Driver.Query("SELECT time FROM maps WHERE (id = {0}) AND (mapid = {1})", Pid, Map);
+            Rows = Driver.Query("SELECT time FROM maps WHERE id = @P0 AND mapid = @P1", Pid, Map);
             if(Rows.Count == 0)
                 Data.Add("0");
             else
@@ -329,109 +332,135 @@ namespace BF2Statistics.ASP.Requests
             Response.Send();
         }
 
+        /// <summary>
+        /// Fetches map info for player
+        /// <remarks>
+        ///     Originally this method was smaller and faster... BUT, good Ol'
+        ///     BF2 wasnt having my new format... unfortunatly, if the headers
+        ///     arent all grouped together, the mapinfo wont parse in the bf2
+        ///     client, there for this method is bigger and written differently
+        ///     then it should be... just keep that in mind ;)
+        /// </remarks>
+        /// </summary>
         private void DoMapRequest()
         {
             bool Extended = Info.Contains("mbs-");
             int CustomMapId = MainForm.Config.ASP_CustomMapID;
 
             // Check if the player exists
-            Rows = Driver.Query("SELECT name FROM player WHERE id={0}", Pid);
+            Rows = Driver.Query("SELECT name FROM player WHERE id=@P0", Pid);
             if (Rows.Count == 0)
             {
                 Output = new FormattedOutput("asof", "err");
-                Output.AddRow(Utils.UnixTimestamp(), "Player Doesnt Exist");
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist");
                 Response.AddData(Output);
                 Response.IsValidData(false);
                 Response.Send();
                 return;
             }
 
-            // Add Player Data
-            Out.Add("pid", Pid);
-            Out.Add("nick", Rows[0]["name"].ToString().Trim());
+            // Build individual headers, so they can group together in response
+            Dictionary<int, string> Mtm = new Dictionary<int, string>();
+            Dictionary<int, string> Mwn = new Dictionary<int, string>();
+            Dictionary<int, string> Mls = new Dictionary<int, string>();
+            Dictionary<int, string> Mbs = new Dictionary<int, string>();
+            Dictionary<int, string> Mws = new Dictionary<int, string>();
+
+            // Add timestamp
+            Output = new FormattedOutput("asof");
+            Output.AddRow(DateTime.UtcNow.ToUnixTimestamp());
+            Response.AddData(Output);
+
+            // Add player data
+            List<string> Head = new List<string>();
+            List<string> Body = new List<string>();
+            Head.Add("pid");
+            Head.Add("nick");
+            Body.Add(Pid.ToString());
+            Body.Add(Rows[0]["name"].ToString().Trim());
 
             // Begin headers
             for (int i = 0; i < 7; i++)
             {
-                Out.Add("mtm-" + i, "0");
-                Out.Add("mwn-" + i, "0");
-                Out.Add("mls-" + i, "0");
+                Mtm.Add(i, "0");
+                Mwn.Add(i, "0");
+                Mls.Add(i, "0");
                 if (Extended)
                 {
-                    Out.Add("mbs-" + i, "0");
-                    Out.Add("mws-" + i, "0");
+                    Mbs.Add(i, "0");
+                    Mws.Add(i, "0");
                 }
             }
 
             for (int i = 100; i < 106; i++)
             {
-                Out.Add("mtm-" + i, "0");
-                Out.Add("mwn-" + i, "0");
-                Out.Add("mls-" + i, "0");
+                Mtm.Add(i, "0");
+                Mwn.Add(i, "0");
+                Mls.Add(i, "0");
                 if (Extended)
                 {
-                    Out.Add("mbs-" + i, "0");
-                    Out.Add("mws-" + i, "0");
+                    Mbs.Add(i, "0");
+                    Mws.Add(i, "0");
                 }
             }
 
             for (int i = 601; i < 603; i++)
             {
-                Out.Add("mtm-" + i, "0");
-                Out.Add("mwn-" + i, "0");
-                Out.Add("mls-" + i, "0");
+                Mtm.Add(i, "0");
+                Mwn.Add(i, "0");
+                Mls.Add(i, "0");
                 if (Extended)
                 {
-                    Out.Add("mbs-" + i, "0");
-                    Out.Add("mws-" + i, "0");
+                    Mbs.Add(i, "0");
+                    Mws.Add(i, "0");
                 }
             }
 
             for (int i = 300; i < 308; i++)
             {
-                Out.Add("mtm-" + i, "0");
-                Out.Add("mwn-" + i, "0");
-                Out.Add("mls-" + i, "0");
+                Mtm.Add(i, "0");
+                Mwn.Add(i, "0");
+                Mls.Add(i, "0");
                 if (Extended)
                 {
-                    Out.Add("mbs-" + i, "0");
-                    Out.Add("mws-" + i, "0");
+                    Mbs.Add(i, "0");
+                    Mws.Add(i, "0");
                 }
             }
 
             for (int i = 10; i < 13; i++)
             {
-                Out.Add("mtm-" + i, "0");
-                Out.Add("mwn-" + i, "0");
-                Out.Add("mls-" + i, "0");
+                Mtm.Add(i, "0");
+                Mwn.Add(i, "0");
+                Mls.Add(i, "0");
                 if (Extended)
                 {
-                    Out.Add("mbs-" + i, "0");
-                    Out.Add("mws-" + i, "0");
+                    Mbs.Add(i, "0");
+                    Mws.Add(i, "0");
                 }
             }
 
             for (int i = 110; i < 130; i += 10)
             {
-                Out.Add("mtm-" + i, "0");
-                Out.Add("mwn-" + i, "0");
-                Out.Add("mls-" + i, "0");
+                Mtm.Add(i, "0");
+                Mwn.Add(i, "0");
+                Mls.Add(i, "0");
                 if (Extended)
                 {
-                    Out.Add("mbs-" + i, "0");
-                    Out.Add("mws-" + i, "0");
+                    Mbs.Add(i, "0");
+                    Mws.Add(i, "0");
                 }
             }
 
             for (int i = 200; i < 203; i++)
             {
-                Out.Add("mtm-" + i, "0");
-                Out.Add("mwn-" + i, "0");
-                Out.Add("mls-" + i, "0");
+                Mtm.Add(i, "0");
+                Mwn.Add(i, "0");
+                Mls.Add(i, "0");
                 if (Extended)
                 {
-                    Out.Add("mbs-" + i, "0");
-                    Out.Add("mws-" + i, "0");
+                    Mbs.Add(i, "0");
+                    Mws.Add(i, "0");
                 }
             }
 
@@ -439,42 +468,65 @@ namespace BF2Statistics.ASP.Requests
             string Where = (Info.Contains("cmap-")) 
                 ? String.Format("WHERE id={0}", Pid)
                 : String.Format("WHERE id={0} AND mapid < {1}", Pid, CustomMapId);
-            Rows = Driver.Query("SELECT * FROM maps {0}", Where);
-
-            foreach (Dictionary<string, object> Row in Rows)
+            foreach (Dictionary<string, object> Row in Driver.QueryReader(String.Format("SELECT * FROM maps {0}", Where)))
             {
                 int Id = Int32.Parse(Row["mapid"].ToString());
                 if (Id > CustomMapId)
                 {
-                    Out.Add("mtm-" + Id, "0");
-                    Out.Add("mwn-" + Id, "0");
-                    Out.Add("mls-" + Id, "0");
+                    Mtm.Add(Id, Row["time"].ToString());
+                    Mwn.Add(Id, Row["win"].ToString());
+                    Mls.Add(Id, Row["loss"].ToString());
                     if (Extended)
                     {
-                        Out.Add("mbs-" + Id, "0");
-                        Out.Add("mws-" + Id, "0");
+                        Mbs.Add(Id, Row["best"].ToString());
+                        Mws.Add(Id, Row["worst"].ToString());
                     }
                 }
                 else
                 {
-                    Out["mtm-" + Id] = Row["time"];
-                    Out["mwn-" + Id] = Row["win"];
-                    Out["mls-" + Id] = Row["loss"];
+                    Mtm[Id] = Row["time"].ToString();
+                    Mwn[Id] = Row["win"].ToString();
+                    Mls[Id] = Row["loss"].ToString();
                     if (Extended)
                     {
-                        Out["mbs-" + Id] = Row["best"];
-                        Out["mws-" + Id] = Row["worst"];
+                        Mbs[Id] = Row["best"].ToString();
+                        Mws[Id] = Row["worst"].ToString();
                     }
                 }
             }
 
             // Send Response
-            List<string> Head = new List<string>(Out.Count);
-            List<string> Body = new List<string>(Out.Count);
-            foreach (KeyValuePair<string, object> Item in Out)
+            foreach (KeyValuePair<int, string> Item in Mtm)
             {
-                Head.Add(Item.Key);
-                Body.Add(Item.Value.ToString());
+                Head.Add("mtm-" + Item.Key);
+                Body.Add(Item.Value);
+            }
+
+            foreach (KeyValuePair<int, string> Item in Mwn)
+            {
+                Head.Add("mwn-" + Item.Key);
+                Body.Add(Item.Value);
+            }
+
+            foreach (KeyValuePair<int, string> Item in Mls)
+            {
+                Head.Add("mls-" + Item.Key);
+                Body.Add(Item.Value);
+            }
+
+            if (Extended)
+            {
+                foreach (KeyValuePair<int, string> Item in Mbs)
+                {
+                    Head.Add("mbs-" + Item.Key);
+                    Body.Add(Item.Value);
+                }
+
+                foreach (KeyValuePair<int, string> Item in Mws)
+                {
+                    Head.Add("mws-" + Item.Key);
+                    Body.Add(Item.Value);
+                }
             }
 
             Output = new FormattedOutput(Head);
@@ -487,13 +539,13 @@ namespace BF2Statistics.ASP.Requests
         private void DoServerRequest()
         {
             // Fetch Player
-            Rows = Driver.Query("SELECT * FROM player WHERE id={0}", Pid);
+            Rows = Driver.Query("SELECT * FROM player WHERE id=@P0", Pid);
 
             // If player doesnt exist then output default data
             if (Rows.Count == 0)
             {
                 Output = new FormattedOutput("asof", "err");
-                Output.AddRow(Utils.UnixTimestamp(), "Player Doesnt Exist!");
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist!");
                 Response.AddData(Output);
                 Response.IsValidData(false);
                 Response.Send();
@@ -502,7 +554,7 @@ namespace BF2Statistics.ASP.Requests
             else
             {
                 Output = new FormattedOutput("asof");
-                Output.AddRow(Utils.UnixTimestamp());
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp());
                 Response.AddData(Output);
             }
 
@@ -530,7 +582,7 @@ namespace BF2Statistics.ASP.Requests
             Out.Add("kill", Player["kills"]);
 
             // Add Kit Times
-            Rows = Driver.Query("SELECT time0, time1, time2, time3, time4, time5, time6 FROM kits WHERE id={0}", Pid);
+            Rows = Driver.Query("SELECT time0, time1, time2, time3, time4, time5, time6 FROM kits WHERE id=@P0", Pid);
             if (Rows.Count == 0)
             {
                 for (int i = 0; i < 7; i++)
@@ -543,7 +595,7 @@ namespace BF2Statistics.ASP.Requests
             }
 
             // Add weapon data
-            Rows = Driver.Query("SELECT * FROM weapons WHERE id={0}", Pid);
+            Rows = Driver.Query("SELECT * FROM weapons WHERE id=@P0", Pid);
             if (Rows.Count == 0)
             {
                 for (int i = 0; i < 14; i++)
@@ -581,7 +633,7 @@ namespace BF2Statistics.ASP.Requests
             }
 
             // Add Vehicle Data
-            Rows = Driver.Query("SELECT * FROM vehicles WHERE id={0}", Pid);
+            Rows = Driver.Query("SELECT * FROM vehicles WHERE id=@P0", Pid);
             if (Rows.Count == 0)
             {
                 // Time
@@ -604,7 +656,7 @@ namespace BF2Statistics.ASP.Requests
             }
 
             // Add army data (Army medals are processed in the backend, but this MAY change)
-            Rows = Driver.Query("SELECT * FROM army WHERE id={0}", Pid);
+            Rows = Driver.Query("SELECT * FROM army WHERE id=@P0", Pid);
             if (Rows.Count == 0)
             {
                 // Time
@@ -650,7 +702,7 @@ namespace BF2Statistics.ASP.Requests
             double tempAcc = 0;
             double Acc = 0;
 
-            Rows = Driver.Query("SELECT * FROM weapons WHERE id={0}", Pid);
+            Rows = Driver.Query("SELECT * FROM weapons WHERE id=@P0", Pid);
             if (Rows.Count == 0)
             {
                 // Weapon Times
@@ -882,11 +934,28 @@ namespace BF2Statistics.ASP.Requests
                 Out.Add("wkd-13", "0:0");
             }
 
-            // Add SF Data
-            //Out.Add("de-6", Rows[0]["tacticaldeployed"]);
-            //Out.Add("de-7", Rows[0]["grapplinghookdeployed"]);
-            //Out.Add("de-8", Rows[0]["ziplinedeployed"]);
             Out["fwea"] = Fav;
+        }
+
+        /// <summary>
+        /// Adds tactical data to the Response
+        /// </summary>
+        private void AddTacticalData()
+        {
+            Rows = Driver.Query("SELECT tacticaldeployed, grapplinghookdeployed, ziplinedeployed FROM weapons WHERE id=@P0", Pid);
+            if (Rows.Count == 0)
+            {
+                // Weapon Times
+                for (int i = 6; i < 9; i++)
+                    Out.Add("de-" + i, "0");
+            }
+            else
+            {
+                // Add SF Data
+                Out.Add("de-6", Rows[0]["tacticaldeployed"]);
+                Out.Add("de-7", Rows[0]["grapplinghookdeployed"]);
+                Out.Add("de-8", Rows[0]["ziplinedeployed"]);
+            }
         }
 
         /// <summary>
@@ -898,7 +967,7 @@ namespace BF2Statistics.ASP.Requests
             int Fav = 0;
             int FavTime = 0;
 
-            Rows = Driver.Query("SELECT * FROM vehicles WHERE id={0}", Pid);
+            Rows = Driver.Query("SELECT * FROM vehicles WHERE id=@P0", Pid);
             if (Rows.Count == 0)
             {
                 // Vehicle Times
@@ -978,7 +1047,7 @@ namespace BF2Statistics.ASP.Requests
             int Fav = 0;
             int FavTime = 0;
 
-            Rows = Driver.Query("SELECT * FROM kits WHERE id={0}", Pid);
+            Rows = Driver.Query("SELECT * FROM kits WHERE id=@P0", Pid);
             if (Rows.Count == 0)
             {
                 // Kit Times
@@ -1043,7 +1112,7 @@ namespace BF2Statistics.ASP.Requests
         private void AddArmyData()
         {
             int Limit = (Info.Contains("mods-")) ? 14 : 10;
-            Rows = Driver.Query("SELECT * FROM army WHERE id={0}", Pid);
+            Rows = Driver.Query("SELECT * FROM army WHERE id=@P0", Pid);
             if (Rows.Count == 0)
             {
                 // Army Times
@@ -1091,11 +1160,11 @@ namespace BF2Statistics.ASP.Requests
             List<Dictionary<string, object>> Row;
 
             // Victim
-            Rows = Driver.Query("SELECT victim, count FROM kills WHERE attacker={0} ORDER BY count DESC LIMIT 1", Pid);
+            Rows = Driver.Query("SELECT victim, count FROM kills WHERE attacker=@P0 ORDER BY count DESC LIMIT 1", Pid);
             if (Rows.Count != 0)
             {
                 // Fetch Victim
-                Row = Driver.Query("SELECT name, rank FROM player WHERE id={0}", Rows[0]["victim"]);
+                Row = Driver.Query("SELECT name, rank FROM player WHERE id=@P0", Rows[0]["victim"]);
                 if (Row.Count != 0)
                 {
                     Out["tvcr"] = Rows[0]["victim"];
@@ -1106,11 +1175,11 @@ namespace BF2Statistics.ASP.Requests
             }
 
             // Opponent
-            Rows = Driver.Query("SELECT attacker, count FROM kills WHERE victim={0} ORDER BY count DESC LIMIT 1", Pid);
+            Rows = Driver.Query("SELECT attacker, count FROM kills WHERE victim=@P0 ORDER BY count DESC LIMIT 1", Pid);
             if (Rows.Count != 0)
             {
                 // Fetch Opponent
-                Row = Driver.Query("SELECT name, rank FROM player WHERE id={0}", Rows[0]["attacker"]);
+                Row = Driver.Query("SELECT name, rank FROM player WHERE id=@P0", Rows[0]["attacker"]);
                 if (Row.Count != 0)
                 {
                     Out["topr"] = Rows[0]["attacker"];
@@ -1123,7 +1192,7 @@ namespace BF2Statistics.ASP.Requests
 
         private void GetFavMap()
         {
-            Rows = Driver.Query("SELECT mapid FROM maps WHERE id={0} ORDER BY time DESC LIMIT 1", Pid);
+            Rows = Driver.Query("SELECT mapid FROM maps WHERE id=@P0 ORDER BY time DESC LIMIT 1", Pid);
             if (Rows.Count == 0)
                 Out["fmap"] = 0;
             else

@@ -42,7 +42,7 @@ namespace BF2Statistics.Database
         {
             // Fetch the user
             CheckConnection();
-            var Rows = Driver.Query("SELECT * FROM accounts WHERE name='{0}'", Nick);
+            var Rows = Driver.Query("SELECT * FROM accounts WHERE name=@P0", Nick);
             return (Rows.Count == 0) ? null : Rows[0];
         }
 
@@ -55,7 +55,7 @@ namespace BF2Statistics.Database
         {
             // Fetch the user
             CheckConnection();
-            var Rows = Driver.Query("SELECT * FROM accounts WHERE id={0}", Pid);
+            var Rows = Driver.Query("SELECT * FROM accounts WHERE id=@P0", Pid);
             return (Rows.Count == 0) ? null : Rows[0];
         }
 
@@ -68,7 +68,7 @@ namespace BF2Statistics.Database
         public Dictionary<string, object> GetUser(string Email, string Password)
         {
             CheckConnection();
-            var Rows = Driver.Query("SELECT * FROM accounts WHERE email='{0}' AND password='{1}'", Email, Password);
+            var Rows = Driver.Query("SELECT * FROM accounts WHERE email=@P0 AND password=@P1", Email, Password);
             return (Rows.Count == 0) ? null : Rows[0];
         }
 
@@ -83,7 +83,7 @@ namespace BF2Statistics.Database
 
             // Generate our return list
             List<string> List = new List<string>();
-            var Rows = Driver.Query("SELECT name FROM accounts WHERE name LIKE '%{0}%'", Nick);
+            var Rows = Driver.Query("SELECT name FROM accounts WHERE name LIKE @P0", "%" + Nick + "%");
             foreach (Dictionary<string, object> Account in Rows)
                 List.Add(Account["name"].ToString());
 
@@ -99,7 +99,7 @@ namespace BF2Statistics.Database
         {
             // Fetch the user
             CheckConnection();
-            var Rows = Driver.Query("SELECT id FROM accounts WHERE name='{0}'", Nick);
+            var Rows = Driver.Query("SELECT id FROM accounts WHERE name=@P0", Nick);
             return (Rows.Count != 0);
         }
 
@@ -112,7 +112,7 @@ namespace BF2Statistics.Database
         {
             // Fetch the user
             CheckConnection();
-            var Rows = Driver.Query("SELECT name FROM accounts WHERE id='{0}'", PID);
+            var Rows = Driver.Query("SELECT name FROM accounts WHERE id=@P0", PID);
             return (Rows.Count != 0);
         }
 
@@ -147,7 +147,7 @@ namespace BF2Statistics.Database
             }
 
             // Create the user in the database
-            int Rows = Driver.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES({0}, '{1}', '{2}', '{3}', '{4}')",
+            int Rows = Driver.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES(@P0, @P1, @P2, @P3, @P4)",
                 pid, Nick, Pass, Email, Country
             );
 
@@ -167,15 +167,15 @@ namespace BF2Statistics.Database
             CheckConnection();
 
             // Make sure the user doesnt exist!
-            var PidExists = Driver.Query("SELECT name FROM accounts WHERE id=" + Pid);
-            var NameExists = Driver.Query("SELECT id FROM accounts WHERE name='{0}'", Nick);
+            var PidExists = Driver.Query("SELECT name FROM accounts WHERE id=@P0", Pid);
+            var NameExists = Driver.Query("SELECT id FROM accounts WHERE name=@P0", Nick);
             if (PidExists.Count == 1)
                 throw new Exception("Account ID is already taken!");
             else if(NameExists.Count == 1)
                 throw new Exception("Account username is already taken!");
 
             // Create the user in the database
-            int Rows = Driver.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES({0}, '{1}', '{2}', '{3}', '{4}')",
+            int Rows = Driver.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES(@P0, @P1, @P2, @P3, @P4)",
                 Pid, Nick, Pass, Email, Country
             );
 
@@ -190,7 +190,7 @@ namespace BF2Statistics.Database
         public void UpdateUser(string Nick, string Country)
         {
             CheckConnection();
-            Driver.Execute("UPDATE accounts SET country='{0}' WHERE name='{1}'", Nick, Country);
+            Driver.Execute("UPDATE accounts SET country=@P0 WHERE name=@P1", Nick, Country);
         }
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace BF2Statistics.Database
         public void UpdateUser(int Id, int NewPid, string NewNick, string NewPassword, string NewEmail)
         {
             CheckConnection();
-            Driver.Execute("UPDATE accounts SET id='{0}', name='{1}', password='{2}', email='{3}' WHERE id='{4}'", 
+            Driver.Execute("UPDATE accounts SET id=@P0, name=@P1, password=@P2, email=@P3 WHERE id=@P4", 
                 NewPid, NewNick, NewPassword, NewEmail, Id);
         }
 
@@ -216,7 +216,7 @@ namespace BF2Statistics.Database
         public int DeleteUser(string Nick)
         {
             CheckConnection();
-            return Driver.Execute("DELETE FROM accounts WHERE name='{0}'", Nick);
+            return Driver.Execute("DELETE FROM accounts WHERE name=@P0", Nick);
         }
 
         /// <summary>
@@ -227,7 +227,7 @@ namespace BF2Statistics.Database
         public int DeleteUser(int Pid)
         {
             CheckConnection();
-            return Driver.Execute("DELETE FROM accounts WHERE id={0}", Pid);
+            return Driver.Execute("DELETE FROM accounts WHERE id=@P0", Pid);
         }
 
         /// <summary>
@@ -238,7 +238,7 @@ namespace BF2Statistics.Database
         public int GetPID(string Nick)
         {
             CheckConnection();
-            var Rows = Driver.Query("SELECT id FROM accounts WHERE name='{0}'", Nick);
+            var Rows = Driver.Query("SELECT id FROM accounts WHERE name=@P0", Nick);
 
             // If we have no result, we need to create a new Player :)
             if (Rows.Count == 0)
@@ -258,8 +258,8 @@ namespace BF2Statistics.Database
         public int SetPID(string Nick, int Pid)
         {
             CheckConnection();
-            bool UserExists = Driver.Query("SELECT id FROM accounts WHERE name='{0}'", Nick).Count != 0;
-            bool PidExists = Driver.Query("SELECT name FROM accounts WHERE id='{0}'", Pid).Count != 0;
+            bool UserExists = Driver.Query("SELECT id FROM accounts WHERE name=@P0", Nick).Count != 0;
+            bool PidExists = Driver.Query("SELECT name FROM accounts WHERE id=@P0", Pid).Count != 0;
 
             // If no user exists, return code -1
             if (UserExists)
@@ -268,7 +268,7 @@ namespace BF2Statistics.Database
             // If PID is false, the PID is not taken
             if (!PidExists)
             {
-                int Success = Driver.Execute("UPDATE accounts SET id='{0}' WHERE name='{1}'", Pid, Nick);
+                int Success = Driver.Execute("UPDATE accounts SET id=@P0 WHERE name=@P1", Pid, Nick);
                 return (Success == 1) ? 1 : 0;
             }
 
@@ -314,7 +314,7 @@ namespace BF2Statistics.Database
                         {
                             // Connect to DB
                             Driver.Connect();
-                            string SQL = Utils.GetResourceString("BF2Statistics.SQL.SQLite.Gamespy.sql");
+                            string SQL = Utils.GetResourceAsString("BF2Statistics.SQL.SQLite.Gamespy.sql");
                             Driver.Execute(SQL);
                             return;
                         }
@@ -361,18 +361,18 @@ namespace BF2Statistics.Database
             {
                 // If an exception is thrown, table doesnt exist (Ver 1)
                 if (Driver.DatabaseEngine == DatabaseEngine.Sqlite)
-                    Driver.Execute(Utils.GetResourceString("BF2Statistics.SQL.Updates.SQLite.Gamespy.Update_1.sql"));
+                    Driver.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.Updates.SQLite.Gamespy.Update_1.sql"));
                 else
-                    Driver.Execute(Utils.GetResourceString("BF2Statistics.SQL.Updates.MySQL.Gamespy.Update_1.sql"));
+                    Driver.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.Updates.MySQL.Gamespy.Update_1.sql"));
             }
 
             // Process Updates
             while (Version < ExpectedVersion)
             {
                 if (Driver.DatabaseEngine == DatabaseEngine.Sqlite)
-                    Driver.Execute(Utils.GetResourceString("BF2Statistics.SQL.Updates.SQLite.Gamespy.Update_" + Version + ".sql"));
+                    Driver.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.Updates.SQLite.Gamespy.Update_" + Version + ".sql"));
                 else
-                    Driver.Execute(Utils.GetResourceString("BF2Statistics.SQL.Updates.MySQL.Gamespy.Update_" + Version + ".sql"));
+                    Driver.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.Updates.MySQL.Gamespy.Update_" + Version + ".sql"));
                 Version++;
             }
         }

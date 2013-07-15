@@ -60,6 +60,20 @@ namespace BF2Statistics.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap AlertSuccess {
+            get {
+                object obj = ResourceManager.GetObject("AlertSuccess", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap AlertWarning {
+            get {
+                object obj = ResourceManager.GetObject("AlertWarning", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap BF2Stats_Logo {
             get {
                 object obj = ResourceManager.GetObject("BF2Stats_Logo", resourceCulture);
@@ -70,6 +84,13 @@ namespace BF2Statistics.Properties {
         internal static System.Drawing.Bitmap check {
             get {
                 object obj = ResourceManager.GetObject("check", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap CloseBox {
+            get {
+                object obj = ResourceManager.GetObject("CloseBox", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -91,6 +112,13 @@ namespace BF2Statistics.Properties {
         internal static System.Drawing.Bitmap error {
             get {
                 object obj = ResourceManager.GetObject("error", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap InfoAlert {
+            get {
+                object obj = ResourceManager.GetObject("InfoAlert", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -126,6 +154,20 @@ namespace BF2Statistics.Properties {
         internal static System.Drawing.Bitmap Save {
             get {
                 object obj = ResourceManager.GetObject("Save", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap vistaerror {
+            get {
+                object obj = ResourceManager.GetObject("vistaerror", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap vistaInfo {
+            get {
+                object obj = ResourceManager.GetObject("vistaInfo", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

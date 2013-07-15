@@ -88,7 +88,7 @@
             // 
             // ConditionTree
             // 
-            this.ConditionTree.BackColor = System.Drawing.SystemColors.Control;
+            this.ConditionTree.BackColor = System.Drawing.SystemColors.Window;
             this.ConditionTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.ConditionTree.ContextMenuStrip = this.CriteriaRootMenu;
             this.ConditionTree.Location = new System.Drawing.Point(1, 27);
@@ -140,6 +140,7 @@
             // 
             // ListTypeBox
             // 
+            this.ListTypeBox.BackColor = System.Drawing.SystemColors.Window;
             this.ListTypeBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.ListTypeBox.Location = new System.Drawing.Point(76, 32);
             this.ListTypeBox.Name = "ListTypeBox";
@@ -189,6 +190,7 @@
             // 
             // ConditionDescBox
             // 
+            this.ConditionDescBox.BackColor = System.Drawing.SystemColors.Window;
             this.ConditionDescBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.ConditionDescBox.Location = new System.Drawing.Point(20, 76);
             this.ConditionDescBox.Multiline = true;
@@ -253,6 +255,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(543, 300);
             this.Controls.Add(this.CancelBtn);
             this.Controls.Add(this.SaveBtn);

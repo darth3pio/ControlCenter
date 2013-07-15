@@ -95,10 +95,6 @@ namespace BF2Statistics.MedalData
             ActiveProfile = M.Groups["value"].Value;
             ChangesMade = false;
             LoadProfiles();
-
-            // Make sure the parser is initialized
-            if (!MedalDataParser.IsInitialized)
-                MedalDataParser.Initialize();
         }
 
         #region Class Methods
@@ -480,7 +476,7 @@ namespace BF2Statistics.MedalData
         {
             // Always confirm
             if (MessageBox.Show("Are you sure you want to delete this medal data profile?",
-                "Confirm", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 // Make my typing easier in the future
                 string Profile = ProfileSelector.SelectedItem.ToString();
@@ -506,9 +502,7 @@ namespace BF2Statistics.MedalData
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Unable to delete profile medal data files!"
-                        + Environment.NewLine + Environment.NewLine
-                        + "Error: " + ex.Message, "Error");
+                    Notify.Show("Unable to Delete Profile Medaldata Files!", "Error: " + ex.Message, AlertType.Warning);
                     this.Enabled = true;
                     return;
                 }
@@ -539,7 +533,7 @@ namespace BF2Statistics.MedalData
                 this.Enabled = true;
 
                 // Notify User
-                MessageBox.Show("Profile deleted successfully", "Success");
+                Notify.Show("Medal Data Profile Deleted Successfully.", AlertType.Success);
             }
         }
 
@@ -605,7 +599,7 @@ namespace BF2Statistics.MedalData
             // Add base medal data functions
             StringBuilder MedalData = new StringBuilder();
             StringBuilder MedalDataSF = new StringBuilder();
-            MedalData.AppendLine(Utils.GetResourceString("BF2Statistics.MedalData.PyFiles.functions.py"));
+            MedalData.AppendLine(Utils.GetResourceAsString("BF2Statistics.MedalData.PyFiles.functions.py"));
             MedalData.AppendLine("medal_data = (");
 
             // Add Each Award (except ranks) to the MedalData Array
@@ -653,7 +647,9 @@ namespace BF2Statistics.MedalData
                     MedalData.ToString() + MedalDataSF.ToString() + RankData.ToString().TrimEnd()
                 );
 
+                // Update variables, and display success
                 ChangesMade = false;
+                Notify.Show("Medal Data Saved Successfully!", AlertType.Success);
             }
             catch (Exception ex)
             {
@@ -661,7 +657,9 @@ namespace BF2Statistics.MedalData
                     "An exception was thrown while trying to save medal data. Medal data has NOT saved."
                         + Environment.NewLine + Environment.NewLine
                         + "Message: " + ex.Message,
-                    "Error"
+                    "Error",
+                    MessageBoxButtons.OK, 
+                    MessageBoxIcon.Error
                 );
             }
         }

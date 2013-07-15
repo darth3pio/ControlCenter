@@ -15,7 +15,7 @@ namespace BF2Statistics
         /// </summary>
         /// <param name="ResourceName"></param>
         /// <returns></returns>
-        public static string GetResourceString(string ResourceName)
+        public static string GetResourceAsString(string ResourceName)
         {
             string Result = "";
             using (Stream ResourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(ResourceName))
@@ -26,87 +26,19 @@ namespace BF2Statistics
         }
 
         /// <summary>
-        /// Returns the current UNIX timestamp
+        /// Gets the lines of a resource file
         /// </summary>
+        /// <param name="ResourceName"></param>
         /// <returns></returns>
-        public static int UnixTimestamp()
+        public static string[] GetResourceFileLines(string ResourceName)
         {
-            TimeSpan unix_time = (System.DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0));
-            return (int)unix_time.TotalSeconds;
-        }
+            List<string> Lines = new List<string>();
+            using (Stream ResourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(ResourceName))
+                using (StreamReader Reader = new StreamReader(ResourceStream))
+                    while(!Reader.EndOfStream)
+                        Lines.Add(Reader.ReadLine());
 
-        /// <summary>
-        /// Returns whether the IP address specified is a Local Ip Address
-        /// </summary>
-        /// <param name="host">The ip address to check</param>
-        /// <returns></returns>
-        public static bool IsLocalIpAddress(string host)
-        {
-            try
-            { // get host IP addresses
-                IPAddress[] hostIPs = Dns.GetHostAddresses(host);
-
-                // get local IP addresses
-                IPAddress[] localIPs = Dns.GetHostAddresses(Dns.GetHostName());
-
-                // test if any host IP equals to any local IP or to localhost
-                foreach (IPAddress hostIP in hostIPs)
-                {
-                    // is localhost
-                    if (IPAddress.IsLoopback(hostIP)) 
-                        return true;
-
-                    // is local address
-                    foreach (IPAddress localIP in localIPs)
-                        if (hostIP.Equals(localIP)) 
-                            return true;
-                }
-            }
-            catch { }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Converts a long to an IP Address
-        /// </summary>
-        /// <param name="longIP"></param>
-        /// <see cref="http://geekswithblogs.net/rgupta/archive/2009/04/29/convert-ip-to-long-and-vice-versa-c.aspx"/>
-        /// <returns></returns>
-        static public string LongToIP(long longIP)
-        {
-            string ip = string.Empty;
-            for (int i = 0; i < 4; i++)
-            {
-                int num = (int)(longIP / Math.Pow(256, (3 - i)));
-                longIP = longIP - (long)(num * Math.Pow(256, (3 - i)));
-                if (i == 0)
-                    ip = num.ToString();
-                else
-                    ip = ip + "." + num.ToString();
-            }
-            return ip;
-        }
-
-        /// <summary>
-        /// Converts a string IP address into MySQL INET_ATOA long
-        /// </summary>
-        /// <param name="ip">THe IP Address</param>
-        /// <see cref="http://geekswithblogs.net/rgupta/archive/2009/04/29/convert-ip-to-long-and-vice-versa-c.aspx"/>
-        /// <returns></returns>
-        public static long IP2Long(string ip)
-        {
-            string[] ipBytes;
-            double num = 0;
-            if (!string.IsNullOrEmpty(ip))
-            {
-                ipBytes = ip.Split('.');
-                for (int i = ipBytes.Length - 1; i >= 0; i--)
-                {
-                    num += ((int.Parse(ipBytes[i]) % 256) * Math.Pow(256, (3 - i)));
-                }
-            }
-            return (long)num;
+            return Lines.ToArray();
         }
 
         /// <summary>

@@ -17,6 +17,10 @@ namespace BF2Statistics
         /// </summary>
         protected int AccountId;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="Pid">The player account ID</param>
         public AccountEditForm(int Pid)
         {
             InitializeComponent();
@@ -172,6 +176,7 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void AccountEditForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            GpcmClient.OnSuccessfulLogin -= new ConnectionUpdate(GpcmClient_OnSuccessfulLogin);
             GpcmClient.OnDisconnect -= new ConnectionUpdate(GpcmClient_OnDisconnect);
         }
     }

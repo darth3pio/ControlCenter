@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BF2Statistics.Database;
 
 namespace BF2Statistics.ASP.Requests
@@ -19,7 +17,7 @@ namespace BF2Statistics.ASP.Requests
                 Int32.TryParse(QueryString["pid"], out Pid);
 
             // Fetch Player
-            Rows = Driver.Query("SELECT rank FROM player WHERE id={0}", Pid);
+            Rows = Driver.Query("SELECT rank FROM player WHERE id=@P0", Pid);
             if (Rows.Count == 0)
             {
                 Response.WriteLine("Player Doesnt Exist!");
@@ -29,8 +27,8 @@ namespace BF2Statistics.ASP.Requests
             }
 
             // Reset
-            Driver.Execute("UPDATE player SET chng=0, decr=0 WHERE id={0}", Pid);
-            Response.AddString("Cleared rank notification {0}", Pid);
+            Driver.Execute("UPDATE player SET chng=0, decr=0 WHERE id=@P0", Pid);
+            Response.WriteLine(String.Format("Cleared rank notification {0}", Pid));
             Response.Send();
         }
     }

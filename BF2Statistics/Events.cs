@@ -10,4 +10,10 @@ namespace BF2Statistics
     public delegate void StartupEventHandler();
 
     public delegate void ConnectionUpdate(object sender);
+
+    public delegate void AspRequest();
+
+    public delegate void SnapshotProccessed();
+
+    public delegate void SnapshotRecieved(bool Proccessed);
 }

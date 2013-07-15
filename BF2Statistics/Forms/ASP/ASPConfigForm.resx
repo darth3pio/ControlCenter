@@ -124,7 +124,4 @@
     <value>A List of authorized GameServers that can send Ranked data at the end of the round to your stats database.
 All local IPs are automatically allowed by default, so only external (Non-Local) IP's are required to be listed.</value>
   </data>
-  <metadata name="Tipsy.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
 </root>

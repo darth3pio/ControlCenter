@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using System.Net;
 
@@ -9,15 +7,7 @@ namespace BF2Statistics.ASP.Requests
 {
     class SnapshotPost
     {
-        /// <summary>
-        /// Full path to where Temporary snapshots are stored
-        /// </summary>
-        public static readonly string TempPath = Path.Combine(MainForm.Root, "Snapshots", "Temp");
-
-        /// <summary>
-        /// Full path to where the Processed snapshots are stored
-        /// </summary>
-        public static readonly string ProcPath = Path.Combine(MainForm.Root, "Snapshots", "Processed");
+        public static event SnapshotRecieved SnapshotReceived;
 
         public SnapshotPost(HttpListenerRequest Request, ASPResponse Response)
         {
@@ -50,7 +40,8 @@ namespace BF2Statistics.ASP.Requests
                 // If we are not on the GameHost list, too bad sucka!
                 if (!IsValid)
                 {
-                    ASPServer.UpdateStatus("Denied snapshot data from " + RemoteIP.Address.ToString());
+                    //ASPServer.UpdateStatus("Denied snapshot data from " + RemoteIP.Address.ToString());
+                    Notify.Show("Snapshot Denied!", "Invalid Server IP: " + RemoteIP.Address.ToString(), AlertType.Warning);
                     if (Request.UserAgent == "GameSpyHTTP/1.0")
                     {
                         Out.AddRow("Unauthorised Gameserver");
@@ -82,9 +73,6 @@ namespace BF2Statistics.ASP.Requests
                 return;
             }
 
-            // Report
-            ASPServer.UpdateStatus("Recieved snapshot from " + RemoteIP.Address.ToString());
-
             // Save the snapshot to the snapshots path
             string Snapshot;
             using (StreamReader Reader = new StreamReader(Request.InputStream, Request.ContentEncoding))
@@ -97,18 +85,19 @@ namespace BF2Statistics.ASP.Requests
             try
             {
                 // Create the Snapshot Object
-                SnapObj = new Snapshot(Snapshot);
+                SnapObj = new Snapshot(Snapshot, DateTime.Now);
 
                 // Make sure data is valid!
                 if (SnapObj.IsValidSnapshot)
                 {
                     // Backup the snapshot
-                    FileName = SnapObj.ServerPrefix + "-" + SnapObj.MapName + "_" + DateTime.Now.ToString("yyyyMMdd_HHMM") + ".txt";
-                    File.AppendAllText(Path.Combine(TempPath, FileName), Snapshot);
+                    FileName = SnapObj.ServerPrefix + "-" + SnapObj.MapName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt";
+                    File.AppendAllText(Path.Combine(Paths.SnapshotTempPath, FileName), Snapshot);
                 }
                 else
                 {
-                    ASPServer.UpdateStatus("Snapshot recieved was invalid!");
+                    Notify.Show("Snapshot Data NOT Complete or Invalid!", AlertType.Warning);
+                    //ASPServer.UpdateStatus("Snapshot recieved was invalid!");
                     Out.AddRow("SNAPSHOT Data NOT complete or invalid!");
                     Response.AddData(Out);
                     Response.IsValidData(false);
@@ -135,16 +124,22 @@ namespace BF2Statistics.ASP.Requests
                 SnapObj.Process();
 
                 // Move the Temp snapshot to the Processed folder
-                File.Move(Path.Combine(TempPath, FileName), Path.Combine(ProcPath, FileName));
+                File.Move(Path.Combine(Paths.SnapshotTempPath, FileName), Path.Combine(Paths.SnapshotProcPath, FileName));
 
-                // Report
-                ASPServer.UpdateStatus("Processed snapshot from " + RemoteIP.Address.ToString());
+                // Notify User
+                Notify.Show("Snapshot Proccessed Successfully!", "From Server IP: " + RemoteIP.Address.ToString(), AlertType.Success);
+
+                // Fire Event
+                SnapshotReceived(true);
             }
             catch (Exception E)
             {
-                // Report
-                ASPServer.UpdateStatus("Error processing snapshot!\r\n" + E.Message);
+                // Notify user
+                Notify.Show("Error Processing Snapshot!", E.Message, AlertType.Warning);
                 ASPServer.Log(E.Message);
+
+                // Fire event
+                SnapshotReceived(false);
             }
         }
     }

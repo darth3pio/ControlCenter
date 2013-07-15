@@ -48,6 +48,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.BackColor = System.Drawing.SystemColors.Window;
             this.groupBox1.Controls.Add(this.AddToMapList);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.MapSizeSelect);
@@ -134,6 +135,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.BackColor = System.Drawing.SystemColors.Window;
             this.groupBox2.Controls.Add(this.MapListBox);
             this.groupBox2.Location = new System.Drawing.Point(16, 147);
             this.groupBox2.Name = "groupBox2";
@@ -185,6 +187,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(384, 412);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);

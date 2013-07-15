@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
 using BF2Statistics.Database;
 
 namespace BF2Statistics.ASP.Requests
@@ -35,7 +33,7 @@ namespace BF2Statistics.ASP.Requests
             if (!QueryString.ContainsKey("type"))
             {
                 FormattedOutput Output = new FormattedOutput("asof", "err");
-                Output.AddRow(Utils.UnixTimestamp(), "Invalid Syntax!");
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
                 Response.AddData(Output);
                 Response.IsValidData(false);
                 Response.Send();
@@ -98,7 +96,7 @@ namespace BF2Statistics.ASP.Requests
                 // Get Player count with a score
                 Rows = Driver.Query("SELECT COUNT(id) AS count FROM player WHERE score > 0");
                 Count = Int32.Parse(Rows[0]["count"].ToString());
-                Output.AddRow(Count, Utils.UnixTimestamp());
+                Output.AddRow(Count, DateTime.UtcNow.ToUnixTimestamp());
                 Response.AddData(Output);
 
                 // Build New Header Output
@@ -112,7 +110,7 @@ namespace BF2Statistics.ASP.Requests
 
                 if (Pid == 0)
                 {
-                    string Query = "SELECT id, name, rank, country, time, score FROM player WHERE score > 0 ORDER BY score DESC, name DESC LIMIT {0}, {1}";
+                    string Query = "SELECT id, name, rank, country, time, score FROM player WHERE score > 0 ORDER BY score DESC, name DESC LIMIT @P0, @P1";
                     Rows = Driver.Query(Query, Min, Max);
                     foreach (Dictionary<string, object> Player in Rows)
                     {
@@ -130,24 +128,21 @@ namespace BF2Statistics.ASP.Requests
                 else
                 {
                     // Get Player Position
-                    string Query = "SELECT id, name, rank, country, time, score FROM player WHERE score > 0 ORDER BY score DESC, name DESC";
-                    Rows = Driver.Query(Query);
-                    foreach (Dictionary<string, object> Player in Rows)
+                    string Query = "SELECT id, name, rank, country, time, score FROM player WHERE id = @P0 ORDER BY score DESC, name DESC";
+                    Rows = Driver.Query(Query, Pid);
+                    if(Rows.Count > 0)
                     {
-                        if (Int32.Parse(Player["id"].ToString()) == Pid)
-                        {
-                            Output.AddRow(
-                                Pos,
-                                Player["id"],
-                                Player["name"].ToString().Trim(),
-                                Player["score"],
-                                Player["time"],
-                                Player["rank"],
-                                Player["country"].ToString().ToUpper()
-                            );
-                            break;
-                        }
-                        Pos++;
+                        Output.AddRow(
+                            Int32.Parse(
+                                Driver.Query("SELECT COUNT(id) as count FROM player WHERE score > @P0", Rows[0]["score"])[0]["count"].ToString()
+                            ) + 1,
+                            Rows[0]["id"],
+                            Rows[0]["name"].ToString().Trim(),
+                            Rows[0]["score"],
+                            Rows[0]["time"],
+                            Rows[0]["rank"],
+                            Rows[0]["country"].ToString().ToUpper()
+                        );
                     }
                 }
 
@@ -158,7 +153,7 @@ namespace BF2Statistics.ASP.Requests
             {
                 Rows = Driver.Query("SELECT COUNT(id) AS count FROM player WHERE cmdscore > 0");
                 Count = Int32.Parse(Rows[0]["count"].ToString());
-                Output.AddRow(Count, Utils.UnixTimestamp());
+                Output.AddRow(Count, DateTime.UtcNow.ToUnixTimestamp());
                 Response.AddData(Output);
 
                 // Build New Header Output
@@ -172,7 +167,8 @@ namespace BF2Statistics.ASP.Requests
 
                 if (Pid == 0)
                 {
-                    string Query = "SELECT id, name, rank, country, cmdtime, cmdscore FROM player WHERE cmdscore > 0 ORDER BY cmdscore DESC, name DESC LIMIT {0}, {1}";
+                    string Query = "SELECT id, name, rank, country, cmdtime, cmdscore FROM player "
+                        + "WHERE cmdscore > 0 ORDER BY cmdscore DESC, name DESC LIMIT @P0, @P1";
                     Rows = Driver.Query(Query, Min, Max);
                     foreach (Dictionary<string, object> Player in Rows)
                     {
@@ -190,24 +186,21 @@ namespace BF2Statistics.ASP.Requests
                 else
                 {
                     // Get Player Position
-                    string Query = "SELECT id, name, rank, country, cmdtime, cmdscore FROM player WHERE cmdscore > 0 ORDER BY cmdscore DESC, name DESC";
-                    Rows = Driver.Query(Query);
-                    foreach (Dictionary<string, object> Player in Rows)
+                    string Query = "SELECT id, name, rank, country, cmdtime, cmdscore FROM player WHERE id = @P0";
+                    Rows = Driver.Query(Query, Pid);
+                    if(Rows.Count > 0)
                     {
-                        if (Int32.Parse(Player["id"].ToString()) == Pid)
-                        {
-                            Output.AddRow(
-                                Pos,
-                                Player["id"],
-                                Player["name"].ToString().Trim(),
-                                Player["cmdscore"],
-                                Player["cmdtime"],
-                                Player["rank"],
-                                Player["country"].ToString().ToUpper()
-                            );
-                            break;
-                        }
-                        Pos++;
+                        Output.AddRow(
+                            Int32.Parse(
+                                Driver.Query("SELECT COUNT(id) as count FROM player WHERE cmdscore > @P0", Rows[0]["cmdscore"])[0]["count"].ToString()
+                            ) + 1,
+                            Rows[0]["id"],
+                            Rows[0]["name"].ToString().Trim(),
+                            Rows[0]["cmdscore"],
+                            Rows[0]["cmdtime"],
+                            Rows[0]["rank"],
+                            Rows[0]["country"].ToString().ToUpper()
+                        );
                     }
                 }
 
@@ -218,7 +211,7 @@ namespace BF2Statistics.ASP.Requests
             {
                 Rows = Driver.Query("SELECT COUNT(id) AS count FROM player WHERE teamscore > 0");
                 Count = Int32.Parse(Rows[0]["count"].ToString());
-                Output.AddRow(Count, Utils.UnixTimestamp());
+                Output.AddRow(Count, DateTime.UtcNow.ToUnixTimestamp());
                 Response.AddData(Output);
 
                 // Build New Header Output
@@ -232,7 +225,8 @@ namespace BF2Statistics.ASP.Requests
 
                 if (Pid == 0)
                 {
-                    string Query = "SELECT id, name, rank, country, time, teamscore FROM player WHERE teamscore > 0 ORDER BY teamscore DESC, name DESC LIMIT {0}, {1}";
+                    string Query = "SELECT id, name, rank, country, time, teamscore FROM player "
+                        + "WHERE teamscore > 0 ORDER BY teamscore DESC, name DESC LIMIT @P0, @P1";
                     Rows = Driver.Query(Query, Min, Max);
                     foreach (Dictionary<string, object> Player in Rows)
                     {
@@ -250,24 +244,21 @@ namespace BF2Statistics.ASP.Requests
                 else
                 {
                     // Get Player Position
-                    string Query = "SELECT id, name, rank, country, time, teamscore FROM player WHERE teamscore > 0 ORDER BY teamscore DESC, name DESC";
-                    Rows = Driver.Query(Query);
-                    foreach (Dictionary<string, object> Player in Rows)
+                    string Query = "SELECT id, name, rank, country, time, teamscore FROM player WHERE id = @P0";
+                    Rows = Driver.Query(Query, Pid);
+                    if(Rows.Count > 0)
                     {
-                        if (Int32.Parse(Player["id"].ToString()) == Pid)
-                        {
-                            Output.AddRow(
-                                Pos,
-                                Player["id"],
-                                Player["name"].ToString().Trim(),
-                                Player["teamscore"],
-                                Player["time"],
-                                Player["rank"],
-                                Player["country"].ToString().ToUpper()
-                            );
-                            break;
-                        }
-                        Pos++;
+                        Output.AddRow(
+                            Int32.Parse(
+                                Driver.Query("SELECT COUNT(id) as count FROM player WHERE teamscore > @P0", Rows[0]["teamscore"])[0]["count"].ToString()
+                            ) + 1,
+                            Rows[0]["id"],
+                            Rows[0]["name"].ToString().Trim(),
+                            Rows[0]["teamscore"],
+                            Rows[0]["time"],
+                            Rows[0]["rank"],
+                            Rows[0]["country"].ToString().ToUpper()
+                        );
                     }
                 }
 
@@ -278,7 +269,7 @@ namespace BF2Statistics.ASP.Requests
             {
                 Rows = Driver.Query("SELECT COUNT(id) AS count FROM player WHERE skillscore > 0");
                 Count = Int32.Parse(Rows[0]["count"].ToString());
-                Output.AddRow(Count, Utils.UnixTimestamp());
+                Output.AddRow(Count, DateTime.UtcNow.ToUnixTimestamp());
                 Response.AddData(Output);
 
                 // Build New Header Output
@@ -292,7 +283,8 @@ namespace BF2Statistics.ASP.Requests
 
                 if (Pid == 0)
                 {
-                    string Query = "SELECT id, name, rank, country, time, kills, skillscore FROM player WHERE skillscore > 0 ORDER BY skillscore DESC, name DESC LIMIT {0}, {1}";
+                    string Query = "SELECT id, name, rank, country, time, kills, skillscore FROM player "
+                        + "WHERE skillscore > 0 ORDER BY skillscore DESC, name DESC LIMIT @P0, @P1";
                     Rows = Driver.Query(Query, Min, Max);
                     foreach (Dictionary<string, object> Player in Rows)
                     {
@@ -311,25 +303,22 @@ namespace BF2Statistics.ASP.Requests
                 else
                 {
                     // Get Player Position
-                    string Query = "SELECT id, name, rank, country, time, kills, skillscore FROM player WHERE skillscore > 0 ORDER BY skillscore DESC, name DESC";
-                    Rows = Driver.Query(Query);
-                    foreach (Dictionary<string, object> Player in Rows)
+                    string Query = "SELECT id, name, rank, country, time, kills, skillscore FROM player WHERE id = @P0";
+                    Rows = Driver.Query(Query, Pid);
+                    if (Rows.Count > 0)
                     {
-                        if (Int32.Parse(Player["id"].ToString()) == Pid)
-                        {
-                            Output.AddRow(
-                                Pos,
-                                Player["id"],
-                                Player["name"].ToString().Trim(),
-                                Player["skillscore"],
-                                Player["kills"],
-                                Player["time"],
-                                Player["rank"],
-                                Player["country"].ToString().ToUpper()
-                            );
-                            break;
-                        }
-                        Pos++;
+                        Output.AddRow(
+                            Int32.Parse(
+                                Driver.Query("SELECT COUNT(id) as count FROM player WHERE skillscore > @P0", Rows[0]["skillscore"])[0]["count"].ToString()
+                            ) + 1,
+                            Rows[0]["id"],
+                            Rows[0]["name"].ToString().Trim(),
+                            Rows[0]["skillscore"],
+                            Rows[0]["kills"],
+                            Rows[0]["time"],
+                            Rows[0]["rank"],
+                            Rows[0]["country"].ToString().ToUpper()
+                        );
                     }
                 }
 
@@ -346,13 +335,13 @@ namespace BF2Statistics.ASP.Requests
         private void DoRisingStar()
         {
             // Fetch all players that made the rising star board
-            int Timeframe = Utils.UnixTimestamp() - (60 * 60 * 24 * 7);
-            string Query = "SELECT COUNT(DISTINCT(id)) AS count FROM player_history WHERE score > 0 AND timestamp >= {0}";
+            int Timeframe = DateTime.UtcNow.ToUnixTimestamp() - (60 * 60 * 24 * 7);
+            string Query = "SELECT COUNT(DISTINCT(id)) AS count FROM player_history WHERE score > 0 AND timestamp >= @P0";
             List<Dictionary<string, object>> Rows = Driver.Query(Query, Timeframe);
 
             int Count = Int32.Parse(Rows[0]["count"].ToString());
             FormattedOutput Output = new FormattedOutput("size", "asof");
-            Output.AddRow(Count, Utils.UnixTimestamp());
+            Output.AddRow(Count, DateTime.UtcNow.ToUnixTimestamp());
             Response.AddData(Output);
 
             // Start a new header
@@ -369,9 +358,9 @@ namespace BF2Statistics.ASP.Requests
             {
                 Query = "SELECT p.id, p.name, p.rank, p.country, p.time, sum(h.score) as weeklyscore, p.joined"
 				    + " FROM player AS p JOIN player_history AS h ON p.id = h.id"
-				    + " WHERE (h.score > 0 AND h.timestamp >= {0})"
+				    + " WHERE (h.score > 0 AND h.timestamp >= @P0)"
 				    + " GROUP BY p.id"
-				    + " ORDER BY weeklyscore DESC, name DESC LIMIT {1}, {2}";
+				    + " ORDER BY weeklyscore DESC, name DESC LIMIT @P1, @P2";
                 Rows = Driver.Query(Query, Timeframe, Min, Max);
                 foreach (Dictionary<string, object> Player in Rows)
                 {
@@ -397,7 +386,7 @@ namespace BF2Statistics.ASP.Requests
                 // Find players position
                 Query = @"SELECT p.id, p.name, p.rank, p.country, p.time, sum(h.score) as weeklyscore, p.joined"
                     + " FROM player AS p JOIN player_history AS h ON p.id = h.id"
-                    + " WHERE (h.score > 0 AND h.timestamp >= {0})"
+                    + " WHERE (h.score > 0 AND h.timestamp >= @P0)"
                     + " GROUP BY p.id"
                     + " ORDER BY weeklyscore DESC, name DESC";
                 Rows = Driver.Query(Query, Timeframe);
@@ -437,7 +426,7 @@ namespace BF2Statistics.ASP.Requests
             if (String.IsNullOrWhiteSpace(Id) || !Int32.TryParse(Id, out KitId))
             {
                 Output = new FormattedOutput("asof", "err");
-                Output.AddRow(Utils.UnixTimestamp(), "Invalid Syntax!");
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
                 Response.AddData(Output);
                 Response.IsValidData(false);
                 Response.Send();
@@ -451,21 +440,22 @@ namespace BF2Statistics.ASP.Requests
             int Count;
 
             // Get total number of players who have at least 1 kill in kit
-            Rows = Driver.Query("SELECT COUNT(id) AS count FROM kits WHERE kills{0} > 0", Id);
+            Rows = Driver.Query(String.Format("SELECT COUNT(id) AS count FROM kits WHERE kills{0} > 0", Id));
             Count = Int32.Parse(Rows[0]["count"].ToString());
-            Output.AddRow(Count, Utils.UnixTimestamp());
+            Output.AddRow(Count, DateTime.UtcNow.ToUnixTimestamp());
             Response.AddData(Output);
 
             // Build New Header Output
             Output = new FormattedOutput("n", "pid", "nick", "killswith", "deathsby", "timeplayed", "playerrank", "countrycode");
 
             // Get Leaderboard Positions
-            Query = "SELECT player.id AS plid, name, rank, country, kills{0} AS kills, deaths{0} AS deaths, time{0} AS time"
-                + " FROM player NATURAL JOIN kits WHERE kills{0} > 0 ORDER BY kills{0} DESC, name DESC";
-            if (Pid == 0)
-                Query += String.Format(" LIMIT {1}, {2}", Min, Max);
+            Query = String.Format("SELECT player.id AS plid, name, rank, country, kills{0} AS kills, deaths{0} AS deaths, time{0} AS time"
+                + " FROM player NATURAL JOIN kits WHERE kills{0} > 0 ORDER BY kills{0} DESC, name DESC", KitId);
 
-            Rows = Driver.Query(Query, KitId);
+            if (Pid == 0)
+                Query += String.Format(" LIMIT {0}, {1}", Min, Max);
+
+            Rows = Driver.Query(Query);
             foreach (Dictionary<string, object> Player in Rows)
             {
                 if (Pid == 0 || Int32.Parse(Player["plid"].ToString()) == Pid)
@@ -501,7 +491,7 @@ namespace BF2Statistics.ASP.Requests
             if (String.IsNullOrWhiteSpace(Id) || !Int32.TryParse(Id, out KitId))
             {
                 Output = new FormattedOutput("asof", "err");
-                Output.AddRow(Utils.UnixTimestamp(), "Invalid Syntax!");
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
                 Response.AddData(Output);
                 Response.IsValidData(false);
                 Response.Send();
@@ -515,21 +505,21 @@ namespace BF2Statistics.ASP.Requests
             int Count;
 
             // Get total number of players who have at least 1 kill in kit
-            Rows = Driver.Query("SELECT COUNT(id) AS count FROM vehicles WHERE kills{0} > 0", Id);
+            Rows = Driver.Query(String.Format("SELECT COUNT(id) AS count FROM vehicles WHERE kills{0} > 0", Id));
             Count = Int32.Parse(Rows[0]["count"].ToString());
-            Output.AddRow(Count, Utils.UnixTimestamp());
+            Output.AddRow(Count, DateTime.UtcNow.ToUnixTimestamp());
             Response.AddData(Output);
 
             // Build New Header Output
             Output = new FormattedOutput("n", "pid", "nick", "killswith", "detahsby", "timeused", "playerrank", "countrycode");
 
             // Get Leaderboard Positions
-            Query = "SELECT player.id AS plid, name, rank, country, kills{0} AS kills, deaths{0} AS deaths, time{0} AS time"
-                + " FROM player NATURAL JOIN vehicles WHERE kills{0} > 0 ORDER BY kills{0} DESC, name DESC";
+            Query = String.Format("SELECT player.id AS plid, name, rank, country, kills{0} AS kills, deaths{0} AS deaths, time{0} AS time"
+                + " FROM player NATURAL JOIN vehicles WHERE kills{0} > 0 ORDER BY kills{0} DESC, name DESC", KitId);
             if (Pid == 0)
-                Query += String.Format(" LIMIT {1}, {2}", Min, Max);
+                Query += String.Format(" LIMIT {0}, {1}", Min, Max);
 
-            Rows = Driver.Query(Query, KitId);
+            Rows = Driver.Query(Query);
             foreach (Dictionary<string, object> Player in Rows)
             {
                 if (Pid == 0 || Int32.Parse(Player["plid"].ToString()) == Pid)
@@ -565,7 +555,7 @@ namespace BF2Statistics.ASP.Requests
             if (String.IsNullOrWhiteSpace(Id) || !Int32.TryParse(Id, out KitId))
             {
                 Output = new FormattedOutput("asof", "err");
-                Output.AddRow(Utils.UnixTimestamp(), "Invalid Syntax!");
+                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
                 Response.AddData(Output);
                 Response.IsValidData(false);
                 Response.Send();
@@ -579,21 +569,21 @@ namespace BF2Statistics.ASP.Requests
             int Count;
 
             // Get total number of players who have at least 1 kill in kit
-            Rows = Driver.Query("SELECT COUNT(id) AS count FROM weapons WHERE kills{0} > 0", Id);
+            Rows = Driver.Query(String.Format("SELECT COUNT(id) AS count FROM weapons WHERE kills{0} > 0", Id));
             Count = Int32.Parse(Rows[0]["count"].ToString());
-            Output.AddRow(Count, Utils.UnixTimestamp());
+            Output.AddRow(Count, DateTime.UtcNow.ToUnixTimestamp());
             Response.AddData(Output);
 
             // Build New Header Output
             Output = new FormattedOutput("n", "pid", "nick", "killswith", "detahsby", "timeused", "accuracy", "playerrank", "countrycode");
 
             // Get Leaderboard Positions
-            Query = "SELECT player.id AS plid, name, rank, country, kills{0} AS kills, deaths{0} AS deaths, time{0} AS time, "
-                + "hit{0} AS hit, fired{0} AS fired FROM player NATURAL JOIN weapons WHERE kills{0} > 0 ORDER BY kills{0} DESC, name DESC";
+            Query = String.Format("SELECT player.id AS plid, name, rank, country, kills{0} AS kills, deaths{0} AS deaths, time{0} AS time, "
+                + "hit{0} AS hit, fired{0} AS fired FROM player NATURAL JOIN weapons WHERE kills{0} > 0 ORDER BY kills{0} DESC, name DESC", KitId);
             if (Pid == 0)
-                Query += String.Format(" LIMIT {1}, {2}", Min, Max);
+                Query += String.Format(" LIMIT {0}, {1}", Min, Max);
 
-            Rows = Driver.Query(Query, KitId);
+            Rows = Driver.Query(Query);
             foreach (Dictionary<string, object> Player in Rows)
             {
                 if (Pid == 0 || Int32.Parse(Player["plid"].ToString()) == Pid)

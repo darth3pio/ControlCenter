@@ -41,13 +41,13 @@ namespace BF2Statistics.MedalData
             // Define paths
             string file = Path.Combine(MedalDataEditor.PythonPath, "medal_data_" + Name + ".py");
             string sfFile = Path.Combine(MedalDataEditor.PythonPath, "medal_data_" + Name + "_xpack.py");
-            string Functions = Utils.GetResourceString("BF2Statistics.MedalData.PyFiles.functions.py");
+            string Functions = Utils.GetResourceAsString("BF2Statistics.MedalData.PyFiles.functions.py");
 
             // Write default medal data
             try
             {
-                File.WriteAllText(file, Functions + Utils.GetResourceString("BF2Statistics.MedalData.PyFiles.medal_data.py"));
-                File.WriteAllText(sfFile, Functions + Utils.GetResourceString("BF2Statistics.MedalData.PyFiles.medal_data_xpack.py"));
+                File.WriteAllText(file, Functions + Utils.GetResourceAsString("BF2Statistics.MedalData.PyFiles.medal_data.py"));
+                File.WriteAllText(sfFile, Functions + Utils.GetResourceAsString("BF2Statistics.MedalData.PyFiles.medal_data_xpack.py"));
             }
             catch (Exception ex)
             {

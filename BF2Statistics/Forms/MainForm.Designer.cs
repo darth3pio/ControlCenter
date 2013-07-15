@@ -89,9 +89,16 @@
             this.EditAcctBtn = new System.Windows.Forms.Button();
             this.EditGamespyConfigBtn = new System.Windows.Forms.Button();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.EmuStatusWindow = new System.Windows.Forms.TextBox();
-            this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.StartLoginserverBtn = new System.Windows.Forms.Button();
+            this.label16 = new System.Windows.Forms.Label();
+            this.labelPeakClients = new System.Windows.Forms.Label();
+            this.label18 = new System.Windows.Forms.Label();
+            this.LoginStatusLabel = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
             this.ClientCountLabel = new System.Windows.Forms.Label();
+            this.shapeContainer3 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
+            this.lineShape3 = new Microsoft.VisualBasic.PowerPacks.LineShape();
+            this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.ConnectedClients = new System.Windows.Forms.TextBox();
             this.tabPage7 = new System.Windows.Forms.TabPage();
             this.groupBox25 = new System.Windows.Forms.GroupBox();
@@ -104,6 +111,8 @@
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.ViewSnapshotBtn = new System.Windows.Forms.Button();
+            this.shapeContainer2 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
+            this.lineShape2 = new Microsoft.VisualBasic.PowerPacks.LineShape();
             this.groupBox27 = new System.Windows.Forms.GroupBox();
             this.EditASPDatabaseBtn = new System.Windows.Forms.Button();
             this.EditASPSettingsBtn = new System.Windows.Forms.Button();
@@ -112,7 +121,18 @@
             this.button10 = new System.Windows.Forms.Button();
             this.button11 = new System.Windows.Forms.Button();
             this.groupBox29 = new System.Windows.Forms.GroupBox();
-            this.AspStatusBox = new System.Windows.Forms.TextBox();
+            this.linkLabelReset = new System.Windows.Forms.LinkLabel();
+            this.StartWebserverBtn = new System.Windows.Forms.Button();
+            this.labelSnapshotsProc = new System.Windows.Forms.Label();
+            this.labelSessionWebRequests = new System.Windows.Forms.Label();
+            this.labelTotalWebRequests = new System.Windows.Forms.Label();
+            this.AspStatusLabel = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.shapeContainer1 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
+            this.lineShape1 = new Microsoft.VisualBasic.PowerPacks.LineShape();
             this.groupBox17 = new System.Windows.Forms.GroupBox();
             this.groupBox23 = new System.Windows.Forms.GroupBox();
             this.label8 = new System.Windows.Forms.Label();
@@ -133,7 +153,7 @@
             this.Bf2aCheckbox = new System.Windows.Forms.CheckBox();
             this.LogWindow = new System.Windows.Forms.GroupBox();
             this.LogBox = new System.Windows.Forms.TextBox();
-            this.iButton = new System.Windows.Forms.Button();
+            this.RedirectButton = new System.Windows.Forms.Button();
             this.GpcmGroupBox = new System.Windows.Forms.GroupBox();
             this.label2 = new System.Windows.Forms.Label();
             this.GpcmCheckbox = new System.Windows.Forms.CheckBox();
@@ -212,10 +232,10 @@
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(590, 364);
             this.tabControl1.TabIndex = 0;
-            this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
             // 
             // tabPage1
             // 
+            this.tabPage1.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.tabPage1.Controls.Add(this.groupBox1);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
@@ -223,7 +243,6 @@
             this.tabPage1.Size = new System.Drawing.Size(582, 338);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Launcher";
-            this.tabPage1.UseVisualStyleBackColor = true;
             // 
             // groupBox1
             // 
@@ -458,7 +477,7 @@
             this.LaunchClientBtn.Name = "LaunchClientBtn";
             this.LaunchClientBtn.Size = new System.Drawing.Size(150, 40);
             this.LaunchClientBtn.TabIndex = 0;
-            this.LaunchClientBtn.Text = "Launch BF2";
+            this.LaunchClientBtn.Text = "Play Battlefield 2";
             this.LaunchClientBtn.UseVisualStyleBackColor = true;
             this.LaunchClientBtn.Click += new System.EventHandler(this.LaunchClientBtn_Click);
             // 
@@ -480,6 +499,7 @@
             // 
             // MapModeBox
             // 
+            this.MapModeBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.MapModeBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.MapModeBox.Location = new System.Drawing.Point(432, 42);
             this.MapModeBox.Name = "MapModeBox";
@@ -500,6 +520,7 @@
             // 
             // MapSizeBox
             // 
+            this.MapSizeBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.MapSizeBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.MapSizeBox.Location = new System.Drawing.Point(378, 42);
             this.MapSizeBox.Name = "MapSizeBox";
@@ -520,6 +541,7 @@
             // 
             // FirstMapBox
             // 
+            this.FirstMapBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.FirstMapBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.FirstMapBox.Location = new System.Drawing.Point(181, 41);
             this.FirstMapBox.Name = "FirstMapBox";
@@ -550,7 +572,7 @@
             // 
             // tabPage2
             // 
-            this.tabPage2.BackColor = System.Drawing.Color.Transparent;
+            this.tabPage2.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.tabPage2.Controls.Add(this.groupBox10);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
@@ -599,6 +621,7 @@
             // 
             // InstallBox
             // 
+            this.InstallBox.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.InstallBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.InstallBox.ForeColor = System.Drawing.Color.Red;
             this.InstallBox.Location = new System.Drawing.Point(6, 27);
@@ -782,20 +805,20 @@
             // 
             // tabPage3
             // 
+            this.tabPage3.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.tabPage3.Controls.Add(this.groupBox6);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Size = new System.Drawing.Size(582, 338);
             this.tabPage3.TabIndex = 3;
             this.tabPage3.Text = "Login Emulator";
-            this.tabPage3.UseVisualStyleBackColor = true;
             // 
             // groupBox6
             // 
             this.groupBox6.Controls.Add(this.groupBox9);
             this.groupBox6.Controls.Add(this.groupBox7);
             this.groupBox6.Controls.Add(this.groupBox8);
-            this.groupBox6.Location = new System.Drawing.Point(4, 7);
+            this.groupBox6.Location = new System.Drawing.Point(6, 7);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(570, 325);
             this.groupBox6.TabIndex = 0;
@@ -806,9 +829,9 @@
             this.groupBox9.Controls.Add(this.CreateAcctBtn);
             this.groupBox9.Controls.Add(this.EditAcctBtn);
             this.groupBox9.Controls.Add(this.EditGamespyConfigBtn);
-            this.groupBox9.Location = new System.Drawing.Point(20, 189);
+            this.groupBox9.Location = new System.Drawing.Point(10, 189);
             this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Size = new System.Drawing.Size(260, 125);
+            this.groupBox9.Size = new System.Drawing.Size(270, 125);
             this.groupBox9.TabIndex = 22;
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "Options";
@@ -816,7 +839,7 @@
             // CreateAcctBtn
             // 
             this.CreateAcctBtn.Enabled = false;
-            this.CreateAcctBtn.Location = new System.Drawing.Point(60, 53);
+            this.CreateAcctBtn.Location = new System.Drawing.Point(65, 53);
             this.CreateAcctBtn.Name = "CreateAcctBtn";
             this.CreateAcctBtn.Size = new System.Drawing.Size(140, 28);
             this.CreateAcctBtn.TabIndex = 24;
@@ -827,7 +850,7 @@
             // EditAcctBtn
             // 
             this.EditAcctBtn.Enabled = false;
-            this.EditAcctBtn.Location = new System.Drawing.Point(60, 87);
+            this.EditAcctBtn.Location = new System.Drawing.Point(65, 87);
             this.EditAcctBtn.Name = "EditAcctBtn";
             this.EditAcctBtn.Size = new System.Drawing.Size(140, 28);
             this.EditAcctBtn.TabIndex = 23;
@@ -837,7 +860,7 @@
             // 
             // EditGamespyConfigBtn
             // 
-            this.EditGamespyConfigBtn.Location = new System.Drawing.Point(60, 19);
+            this.EditGamespyConfigBtn.Location = new System.Drawing.Point(65, 19);
             this.EditGamespyConfigBtn.Name = "EditGamespyConfigBtn";
             this.EditGamespyConfigBtn.Size = new System.Drawing.Size(140, 28);
             this.EditGamespyConfigBtn.TabIndex = 21;
@@ -847,46 +870,116 @@
             // 
             // groupBox7
             // 
-            this.groupBox7.Controls.Add(this.EmuStatusWindow);
-            this.groupBox7.Location = new System.Drawing.Point(20, 23);
+            this.groupBox7.Controls.Add(this.StartLoginserverBtn);
+            this.groupBox7.Controls.Add(this.label16);
+            this.groupBox7.Controls.Add(this.labelPeakClients);
+            this.groupBox7.Controls.Add(this.label18);
+            this.groupBox7.Controls.Add(this.LoginStatusLabel);
+            this.groupBox7.Controls.Add(this.label17);
+            this.groupBox7.Controls.Add(this.ClientCountLabel);
+            this.groupBox7.Controls.Add(this.shapeContainer3);
+            this.groupBox7.Location = new System.Drawing.Point(10, 18);
             this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(260, 158);
+            this.groupBox7.Size = new System.Drawing.Size(270, 158);
             this.groupBox7.TabIndex = 19;
             this.groupBox7.TabStop = false;
-            this.groupBox7.Text = "Information";
+            this.groupBox7.Text = "Status";
             // 
-            // EmuStatusWindow
+            // StartLoginserverBtn
             // 
-            this.EmuStatusWindow.BackColor = System.Drawing.SystemColors.Control;
-            this.EmuStatusWindow.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.EmuStatusWindow.Cursor = System.Windows.Forms.Cursors.Arrow;
-            this.EmuStatusWindow.Enabled = false;
-            this.EmuStatusWindow.Location = new System.Drawing.Point(6, 14);
-            this.EmuStatusWindow.Multiline = true;
-            this.EmuStatusWindow.Name = "EmuStatusWindow";
-            this.EmuStatusWindow.ReadOnly = true;
-            this.EmuStatusWindow.Size = new System.Drawing.Size(248, 138);
-            this.EmuStatusWindow.TabIndex = 9;
+            this.StartLoginserverBtn.Location = new System.Drawing.Point(60, 117);
+            this.StartLoginserverBtn.Name = "StartLoginserverBtn";
+            this.StartLoginserverBtn.Size = new System.Drawing.Size(150, 28);
+            this.StartLoginserverBtn.TabIndex = 29;
+            this.StartLoginserverBtn.Text = "Start Login Server";
+            this.StartLoginserverBtn.UseVisualStyleBackColor = true;
+            this.StartLoginserverBtn.Click += new System.EventHandler(this.StartLoginserverBtn_Click);
             // 
-            // groupBox8
+            // label16
             // 
-            this.groupBox8.Controls.Add(this.ClientCountLabel);
-            this.groupBox8.Controls.Add(this.ConnectedClients);
-            this.groupBox8.Location = new System.Drawing.Point(290, 22);
-            this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(260, 292);
-            this.groupBox8.TabIndex = 17;
-            this.groupBox8.TabStop = false;
-            this.groupBox8.Text = "Connected Clients";
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(25, 68);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(124, 13);
+            this.label16.TabIndex = 14;
+            this.label16.Text = "Peak Connected Clients:";
+            // 
+            // labelPeakClients
+            // 
+            this.labelPeakClients.AutoSize = true;
+            this.labelPeakClients.Location = new System.Drawing.Point(165, 68);
+            this.labelPeakClients.Name = "labelPeakClients";
+            this.labelPeakClients.Size = new System.Drawing.Size(13, 13);
+            this.labelPeakClients.TabIndex = 13;
+            this.labelPeakClients.Text = "0";
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(25, 46);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(96, 13);
+            this.label18.TabIndex = 12;
+            this.label18.Text = "Connected Clients:";
+            // 
+            // LoginStatusLabel
+            // 
+            this.LoginStatusLabel.AutoSize = true;
+            this.LoginStatusLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.LoginStatusLabel.ForeColor = System.Drawing.SystemColors.ControlDark;
+            this.LoginStatusLabel.Location = new System.Drawing.Point(165, 24);
+            this.LoginStatusLabel.Name = "LoginStatusLabel";
+            this.LoginStatusLabel.Size = new System.Drawing.Size(54, 13);
+            this.LoginStatusLabel.TabIndex = 11;
+            this.LoginStatusLabel.Text = "Stopped";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(25, 24);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(109, 13);
+            this.label17.TabIndex = 10;
+            this.label17.Text = "Login Server Status:  ";
             // 
             // ClientCountLabel
             // 
             this.ClientCountLabel.AutoSize = true;
-            this.ClientCountLabel.Location = new System.Drawing.Point(11, 267);
+            this.ClientCountLabel.Location = new System.Drawing.Point(165, 46);
             this.ClientCountLabel.Name = "ClientCountLabel";
-            this.ClientCountLabel.Size = new System.Drawing.Size(157, 13);
+            this.ClientCountLabel.Size = new System.Drawing.Size(13, 13);
             this.ClientCountLabel.TabIndex = 9;
-            this.ClientCountLabel.Text = "Number of Connected Clients: 0";
+            this.ClientCountLabel.Text = "0";
+            // 
+            // shapeContainer3
+            // 
+            this.shapeContainer3.Location = new System.Drawing.Point(3, 16);
+            this.shapeContainer3.Margin = new System.Windows.Forms.Padding(0);
+            this.shapeContainer3.Name = "shapeContainer3";
+            this.shapeContainer3.Shapes.AddRange(new Microsoft.VisualBasic.PowerPacks.Shape[] {
+            this.lineShape3});
+            this.shapeContainer3.Size = new System.Drawing.Size(264, 139);
+            this.shapeContainer3.TabIndex = 30;
+            this.shapeContainer3.TabStop = false;
+            // 
+            // lineShape3
+            // 
+            this.lineShape3.BorderColor = System.Drawing.SystemColors.InactiveCaption;
+            this.lineShape3.Name = "lineShape3";
+            this.lineShape3.X1 = 19;
+            this.lineShape3.X2 = 245;
+            this.lineShape3.Y1 = 90;
+            this.lineShape3.Y2 = 90;
+            // 
+            // groupBox8
+            // 
+            this.groupBox8.Controls.Add(this.ConnectedClients);
+            this.groupBox8.Location = new System.Drawing.Point(290, 18);
+            this.groupBox8.Name = "groupBox8";
+            this.groupBox8.Size = new System.Drawing.Size(270, 295);
+            this.groupBox8.TabIndex = 17;
+            this.groupBox8.TabStop = false;
+            this.groupBox8.Text = "Connected Clients";
             // 
             // ConnectedClients
             // 
@@ -899,11 +992,12 @@
             this.ConnectedClients.Name = "ConnectedClients";
             this.ConnectedClients.ReadOnly = true;
             this.ConnectedClients.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.ConnectedClients.Size = new System.Drawing.Size(250, 240);
+            this.ConnectedClients.Size = new System.Drawing.Size(260, 270);
             this.ConnectedClients.TabIndex = 8;
             // 
             // tabPage7
             // 
+            this.tabPage7.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.tabPage7.Controls.Add(this.groupBox25);
             this.tabPage7.Controls.Add(this.groupBox17);
             this.tabPage7.Location = new System.Drawing.Point(4, 22);
@@ -911,7 +1005,6 @@
             this.tabPage7.Size = new System.Drawing.Size(582, 338);
             this.tabPage7.TabIndex = 6;
             this.tabPage7.Text = "ASP Stats Server";
-            this.tabPage7.UseVisualStyleBackColor = true;
             // 
             // groupBox25
             // 
@@ -940,14 +1033,14 @@
             // ClearStatsBtn
             // 
             this.ClearStatsBtn.Enabled = false;
-            this.ClearStatsBtn.ForeColor = System.Drawing.Color.Firebrick;
-            this.ClearStatsBtn.Location = new System.Drawing.Point(14, 93);
+            this.ClearStatsBtn.ForeColor = System.Drawing.Color.Black;
+            this.ClearStatsBtn.Location = new System.Drawing.Point(14, 96);
             this.ClearStatsBtn.Name = "ClearStatsBtn";
             this.ClearStatsBtn.Size = new System.Drawing.Size(150, 28);
             this.ClearStatsBtn.TabIndex = 28;
-            this.ClearStatsBtn.Text = "Clear Stats Database";
+            this.ClearStatsBtn.Text = "Manage Stats Database";
             this.ClearStatsBtn.UseVisualStyleBackColor = true;
-            this.ClearStatsBtn.Click += new System.EventHandler(this.ClearStatsBtn_Click);
+            this.ClearStatsBtn.Click += new System.EventHandler(this.ManageStatsDBBtn_Click);
             // 
             // EditPlayerBtn
             // 
@@ -967,6 +1060,7 @@
             this.groupBox26.Controls.Add(this.label9);
             this.groupBox26.Controls.Add(this.label10);
             this.groupBox26.Controls.Add(this.ViewSnapshotBtn);
+            this.groupBox26.Controls.Add(this.shapeContainer2);
             this.groupBox26.Location = new System.Drawing.Point(291, 18);
             this.groupBox26.Name = "groupBox26";
             this.groupBox26.Size = new System.Drawing.Size(270, 154);
@@ -977,23 +1071,25 @@
             // TotalUnProcSnapCount
             // 
             this.TotalUnProcSnapCount.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.TotalUnProcSnapCount.Location = new System.Drawing.Point(183, 52);
+            this.TotalUnProcSnapCount.Location = new System.Drawing.Point(183, 44);
             this.TotalUnProcSnapCount.Name = "TotalUnProcSnapCount";
             this.TotalUnProcSnapCount.Size = new System.Drawing.Size(38, 13);
             this.TotalUnProcSnapCount.TabIndex = 30;
+            this.TotalUnProcSnapCount.Text = "0";
             // 
             // TotalSnapCount
             // 
             this.TotalSnapCount.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.TotalSnapCount.Location = new System.Drawing.Point(183, 25);
+            this.TotalSnapCount.Location = new System.Drawing.Point(183, 24);
             this.TotalSnapCount.Name = "TotalSnapCount";
             this.TotalSnapCount.Size = new System.Drawing.Size(38, 13);
             this.TotalSnapCount.TabIndex = 29;
+            this.TotalSnapCount.Text = "0";
             // 
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(24, 52);
+            this.label9.Location = new System.Drawing.Point(24, 44);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(157, 13);
             this.label9.TabIndex = 28;
@@ -1002,7 +1098,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(24, 25);
+            this.label10.Location = new System.Drawing.Point(24, 24);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(143, 13);
             this.label10.TabIndex = 27;
@@ -1011,13 +1107,33 @@
             // ViewSnapshotBtn
             // 
             this.ViewSnapshotBtn.Enabled = false;
-            this.ViewSnapshotBtn.Location = new System.Drawing.Point(37, 85);
+            this.ViewSnapshotBtn.Location = new System.Drawing.Point(38, 116);
             this.ViewSnapshotBtn.Name = "ViewSnapshotBtn";
             this.ViewSnapshotBtn.Size = new System.Drawing.Size(190, 28);
             this.ViewSnapshotBtn.TabIndex = 26;
             this.ViewSnapshotBtn.Text = "View Unprocessed Snapshots";
             this.ViewSnapshotBtn.UseVisualStyleBackColor = true;
             this.ViewSnapshotBtn.Click += new System.EventHandler(this.ViewSnapshotBtn_Click);
+            // 
+            // shapeContainer2
+            // 
+            this.shapeContainer2.Location = new System.Drawing.Point(3, 16);
+            this.shapeContainer2.Margin = new System.Windows.Forms.Padding(0);
+            this.shapeContainer2.Name = "shapeContainer2";
+            this.shapeContainer2.Shapes.AddRange(new Microsoft.VisualBasic.PowerPacks.Shape[] {
+            this.lineShape2});
+            this.shapeContainer2.Size = new System.Drawing.Size(264, 135);
+            this.shapeContainer2.TabIndex = 31;
+            this.shapeContainer2.TabStop = false;
+            // 
+            // lineShape2
+            // 
+            this.lineShape2.BorderColor = System.Drawing.SystemColors.InactiveCaption;
+            this.lineShape2.Name = "lineShape2";
+            this.lineShape2.X1 = 17;
+            this.lineShape2.X2 = 243;
+            this.lineShape2.Y1 = 90;
+            this.lineShape2.Y2 = 90;
             // 
             // groupBox27
             // 
@@ -1094,7 +1210,17 @@
             // 
             // groupBox29
             // 
-            this.groupBox29.Controls.Add(this.AspStatusBox);
+            this.groupBox29.Controls.Add(this.linkLabelReset);
+            this.groupBox29.Controls.Add(this.StartWebserverBtn);
+            this.groupBox29.Controls.Add(this.labelSnapshotsProc);
+            this.groupBox29.Controls.Add(this.labelSessionWebRequests);
+            this.groupBox29.Controls.Add(this.labelTotalWebRequests);
+            this.groupBox29.Controls.Add(this.AspStatusLabel);
+            this.groupBox29.Controls.Add(this.label15);
+            this.groupBox29.Controls.Add(this.label14);
+            this.groupBox29.Controls.Add(this.label13);
+            this.groupBox29.Controls.Add(this.label12);
+            this.groupBox29.Controls.Add(this.shapeContainer1);
             this.groupBox29.Location = new System.Drawing.Point(10, 18);
             this.groupBox29.Name = "groupBox29";
             this.groupBox29.Size = new System.Drawing.Size(270, 154);
@@ -1102,19 +1228,123 @@
             this.groupBox29.TabStop = false;
             this.groupBox29.Text = "Status";
             // 
-            // AspStatusBox
+            // linkLabelReset
             // 
-            this.AspStatusBox.BackColor = System.Drawing.SystemColors.Control;
-            this.AspStatusBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.AspStatusBox.Cursor = System.Windows.Forms.Cursors.Arrow;
-            this.AspStatusBox.Enabled = false;
-            this.AspStatusBox.Location = new System.Drawing.Point(5, 15);
-            this.AspStatusBox.Multiline = true;
-            this.AspStatusBox.Name = "AspStatusBox";
-            this.AspStatusBox.ReadOnly = true;
-            this.AspStatusBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.AspStatusBox.Size = new System.Drawing.Size(260, 133);
-            this.AspStatusBox.TabIndex = 9;
+            this.linkLabelReset.AutoSize = true;
+            this.linkLabelReset.LinkArea = new System.Windows.Forms.LinkArea(1, 5);
+            this.linkLabelReset.Location = new System.Drawing.Point(220, 43);
+            this.linkLabelReset.Name = "linkLabelReset";
+            this.linkLabelReset.Size = new System.Drawing.Size(41, 17);
+            this.linkLabelReset.TabIndex = 29;
+            this.linkLabelReset.TabStop = true;
+            this.linkLabelReset.Text = "(Reset)";
+            this.linkLabelReset.UseCompatibleTextRendering = true;
+            this.linkLabelReset.VisitedLinkColor = System.Drawing.Color.Blue;
+            this.linkLabelReset.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelReset_LinkClicked);
+            // 
+            // StartWebserverBtn
+            // 
+            this.StartWebserverBtn.Location = new System.Drawing.Point(60, 116);
+            this.StartWebserverBtn.Name = "StartWebserverBtn";
+            this.StartWebserverBtn.Size = new System.Drawing.Size(150, 28);
+            this.StartWebserverBtn.TabIndex = 28;
+            this.StartWebserverBtn.Text = "Start Webserver";
+            this.StartWebserverBtn.UseVisualStyleBackColor = true;
+            this.StartWebserverBtn.Click += new System.EventHandler(this.StartWebserverBtn_Click);
+            // 
+            // labelSnapshotsProc
+            // 
+            this.labelSnapshotsProc.AutoSize = true;
+            this.labelSnapshotsProc.Location = new System.Drawing.Point(165, 84);
+            this.labelSnapshotsProc.Name = "labelSnapshotsProc";
+            this.labelSnapshotsProc.Size = new System.Drawing.Size(30, 13);
+            this.labelSnapshotsProc.TabIndex = 7;
+            this.labelSnapshotsProc.Text = "0 / 0";
+            // 
+            // labelSessionWebRequests
+            // 
+            this.labelSessionWebRequests.AutoSize = true;
+            this.labelSessionWebRequests.Location = new System.Drawing.Point(165, 64);
+            this.labelSessionWebRequests.Name = "labelSessionWebRequests";
+            this.labelSessionWebRequests.Size = new System.Drawing.Size(13, 13);
+            this.labelSessionWebRequests.TabIndex = 6;
+            this.labelSessionWebRequests.Text = "0";
+            // 
+            // labelTotalWebRequests
+            // 
+            this.labelTotalWebRequests.AutoSize = true;
+            this.labelTotalWebRequests.Location = new System.Drawing.Point(165, 44);
+            this.labelTotalWebRequests.Name = "labelTotalWebRequests";
+            this.labelTotalWebRequests.Size = new System.Drawing.Size(13, 13);
+            this.labelTotalWebRequests.TabIndex = 5;
+            this.labelTotalWebRequests.Text = "0";
+            // 
+            // AspStatusLabel
+            // 
+            this.AspStatusLabel.AutoSize = true;
+            this.AspStatusLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.AspStatusLabel.ForeColor = System.Drawing.SystemColors.ControlDark;
+            this.AspStatusLabel.Location = new System.Drawing.Point(165, 24);
+            this.AspStatusLabel.Name = "AspStatusLabel";
+            this.AspStatusLabel.Size = new System.Drawing.Size(54, 13);
+            this.AspStatusLabel.TabIndex = 4;
+            this.AspStatusLabel.Text = "Stopped";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(25, 84);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(119, 13);
+            this.label15.TabIndex = 3;
+            this.label15.Text = "Snapshots Proccessed:";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(25, 24);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(101, 13);
+            this.label14.TabIndex = 2;
+            this.label14.Text = "Webserver Status:  ";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(25, 64);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(121, 13);
+            this.label13.TabIndex = 1;
+            this.label13.Text = "Requests This Session: ";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(25, 44);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(111, 13);
+            this.label12.TabIndex = 0;
+            this.label12.Text = "Total Web Requests: ";
+            // 
+            // shapeContainer1
+            // 
+            this.shapeContainer1.Location = new System.Drawing.Point(3, 16);
+            this.shapeContainer1.Margin = new System.Windows.Forms.Padding(0);
+            this.shapeContainer1.Name = "shapeContainer1";
+            this.shapeContainer1.Shapes.AddRange(new Microsoft.VisualBasic.PowerPacks.Shape[] {
+            this.lineShape1});
+            this.shapeContainer1.Size = new System.Drawing.Size(264, 135);
+            this.shapeContainer1.TabIndex = 8;
+            this.shapeContainer1.TabStop = false;
+            // 
+            // lineShape1
+            // 
+            this.lineShape1.BorderColor = System.Drawing.SystemColors.InactiveCaption;
+            this.lineShape1.Name = "lineShape1";
+            this.lineShape1.X1 = 17;
+            this.lineShape1.X2 = 243;
+            this.lineShape1.Y1 = 90;
+            this.lineShape1.Y2 = 90;
             // 
             // groupBox17
             // 
@@ -1258,19 +1488,19 @@
             // 
             // tabPage4
             // 
+            this.tabPage4.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.tabPage4.Controls.Add(this.groupBox4);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Size = new System.Drawing.Size(582, 338);
             this.tabPage4.TabIndex = 2;
             this.tabPage4.Text = "Hosts File Redirects";
-            this.tabPage4.UseVisualStyleBackColor = true;
             // 
             // groupBox4
             // 
             this.groupBox4.Controls.Add(this.Bf2AaGroupBox);
             this.groupBox4.Controls.Add(this.LogWindow);
-            this.groupBox4.Controls.Add(this.iButton);
+            this.groupBox4.Controls.Add(this.RedirectButton);
             this.groupBox4.Controls.Add(this.GpcmGroupBox);
             this.groupBox4.Controls.Add(this.BF2webGroupBox);
             this.groupBox4.Location = new System.Drawing.Point(4, 7);
@@ -1323,15 +1553,15 @@
             this.LogBox.Size = new System.Drawing.Size(250, 165);
             this.LogBox.TabIndex = 8;
             // 
-            // iButton
+            // RedirectButton
             // 
-            this.iButton.Location = new System.Drawing.Point(289, 222);
-            this.iButton.Name = "iButton";
-            this.iButton.Size = new System.Drawing.Size(260, 40);
-            this.iButton.TabIndex = 12;
-            this.iButton.Text = "Begin HOSTS Redirect";
-            this.iButton.UseVisualStyleBackColor = true;
-            this.iButton.Click += new System.EventHandler(this.iButton_Click);
+            this.RedirectButton.Location = new System.Drawing.Point(289, 222);
+            this.RedirectButton.Name = "RedirectButton";
+            this.RedirectButton.Size = new System.Drawing.Size(260, 40);
+            this.RedirectButton.TabIndex = 12;
+            this.RedirectButton.Text = "Begin HOSTS Redirect";
+            this.RedirectButton.UseVisualStyleBackColor = true;
+            this.RedirectButton.Click += new System.EventHandler(this.RedirectButton_Click);
             // 
             // GpcmGroupBox
             // 
@@ -1415,13 +1645,13 @@
             // 
             // tabPage6
             // 
+            this.tabPage6.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.tabPage6.Controls.Add(this.groupBox5);
             this.tabPage6.Location = new System.Drawing.Point(4, 22);
             this.tabPage6.Name = "tabPage6";
             this.tabPage6.Size = new System.Drawing.Size(582, 338);
             this.tabPage6.TabIndex = 5;
             this.tabPage6.Text = "About";
-            this.tabPage6.UseVisualStyleBackColor = true;
             // 
             // groupBox5
             // 
@@ -1469,6 +1699,7 @@
             // 
             // textBox3
             // 
+            this.textBox3.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.textBox3.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textBox3.Location = new System.Drawing.Point(22, 146);
             this.textBox3.Name = "textBox3";
@@ -1489,6 +1720,7 @@
             // 
             // textBox2
             // 
+            this.textBox2.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.textBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textBox2.Location = new System.Drawing.Point(22, 162);
             this.textBox2.Name = "textBox2";
@@ -1499,6 +1731,7 @@
             // 
             // textBox1
             // 
+            this.textBox1.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox1.Location = new System.Drawing.Point(22, 129);
@@ -1506,12 +1739,13 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(451, 13);
             this.textBox1.TabIndex = 5;
-            this.textBox1.Text = "Battlefield 2 Statistics Control Center v1.4.1";
+            this.textBox1.Text = "Battlefield 2 Statistics Control Center v1.5";
             // 
             // pictureBox1
             // 
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
             this.pictureBox1.Location = new System.Drawing.Point(0, 0);
+            this.pictureBox1.MinimumSize = new System.Drawing.Size(586, 80);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(586, 80);
             this.pictureBox1.TabIndex = 1;
@@ -1529,6 +1763,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Battlefield 2 Statistics Control Center";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.tabControl1.ResumeLayout(false);
@@ -1614,7 +1849,7 @@
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.GroupBox LogWindow;
         private System.Windows.Forms.TextBox LogBox;
-        private System.Windows.Forms.Button iButton;
+        private System.Windows.Forms.Button RedirectButton;
         private System.Windows.Forms.GroupBox GpcmGroupBox;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox GpcmCheckbox;
@@ -1657,7 +1892,6 @@
         private System.Windows.Forms.GroupBox groupBox16;
         private System.Windows.Forms.Button LaunchEmuBtn;
         private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.TextBox EmuStatusWindow;
         private System.Windows.Forms.TextBox ConnectedClients;
         private System.Windows.Forms.TabPage tabPage6;
         private System.Windows.Forms.TextBox textBox3;
@@ -1708,7 +1942,6 @@
         private System.Windows.Forms.Button button10;
         private System.Windows.Forms.Button button11;
         private System.Windows.Forms.GroupBox groupBox29;
-        private System.Windows.Forms.TextBox AspStatusBox;
         private System.Windows.Forms.TextBox TotalUnProcSnapCount;
         private System.Windows.Forms.TextBox TotalSnapCount;
         private System.Windows.Forms.GroupBox groupBox30;
@@ -1722,6 +1955,28 @@
         private System.Windows.Forms.Button InstallButton;
         private System.Windows.Forms.Button OpenRootBtn;
         private System.Windows.Forms.Button BF2sEditMedalDataBtn;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Label labelTotalWebRequests;
+        private System.Windows.Forms.Label AspStatusLabel;
+        private System.Windows.Forms.Label labelSnapshotsProc;
+        private System.Windows.Forms.Label labelSessionWebRequests;
+        private System.Windows.Forms.Button StartWebserverBtn;
+        private System.Windows.Forms.LinkLabel linkLabelReset;
+        private System.Windows.Forms.Label LoginStatusLabel;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label labelPeakClients;
+        private System.Windows.Forms.Button StartLoginserverBtn;
+        private Microsoft.VisualBasic.PowerPacks.ShapeContainer shapeContainer3;
+        private Microsoft.VisualBasic.PowerPacks.LineShape lineShape3;
+        private Microsoft.VisualBasic.PowerPacks.ShapeContainer shapeContainer2;
+        private Microsoft.VisualBasic.PowerPacks.LineShape lineShape2;
+        private Microsoft.VisualBasic.PowerPacks.ShapeContainer shapeContainer1;
+        private Microsoft.VisualBasic.PowerPacks.LineShape lineShape1;
     }
 }
 

@@ -16,7 +16,7 @@ namespace BF2Statistics.MedalData
         public MedalOrRankCondition(List<string> Params)
         {
             if(Params[0] == "has_medal")
-                if (Params[1] != "6666666" && Params[1] != "6666667" && !Award.Exists(Params[1]))
+                if (!Award.Exists(Params[1]) && Params[1] != "6666666" && Params[1] != "6666667")
                     throw new Exception("[MedalCondition] Award ID: " + Params[1] + " Does not exist!");
 
             this.Params = Params;
@@ -68,7 +68,7 @@ namespace BF2Statistics.MedalData
         {
             string Name = (Params[0] == "has_medal")
                 ? "Has Award \"" + Award.GetName(Params[1]) + "\""
-                : "Is Rank \"" + Rank.GetName(Int32.Parse(Params[1])) + "\"";
+                : "Current Rank Is \"" + Rank.GetName(Int32.Parse(Params[1])) + "\"";
 
             TreeNode Me = new TreeNode(Name);
             Me.Tag = this;

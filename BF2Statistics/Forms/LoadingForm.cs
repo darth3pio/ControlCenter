@@ -12,11 +12,11 @@ namespace BF2Statistics
 {
     public partial class LoadingForm : Form
     {
-        const int WS_SYSMENU = 0x80000;
-
         const int WM_SYSCOMMAND = 0x0112;
 
         const int SC_MOVE = 0xF010;
+
+        const int WS_SYSMENU = 0x80000;
 
         /// <summary>
         /// Hides the Close, Minimize, and Maximize buttons
@@ -75,7 +75,8 @@ namespace BF2Statistics
         /// </summary>
         public static void CloseForm()
         {
-            Instance.Invoke(new CloseDelegate(LoadingForm.CloseFormInternal));
+            if (Instance != null && !Instance.IsDisposed)
+                Instance.Invoke(new CloseDelegate(LoadingForm.CloseFormInternal));
         }
 
         /// <summary>

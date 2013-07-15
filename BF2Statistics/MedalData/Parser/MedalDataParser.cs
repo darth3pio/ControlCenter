@@ -10,33 +10,16 @@ using System.Windows.Forms;
 
 namespace BF2Statistics.MedalData
 {
-    public class MedalDataParser
+    public static class MedalDataParser
     {
-        /// <summary>
-        /// Indicated whether this object has been initialized
-        /// </summary>
-        private static bool _isInitialized = false;
-
-        /// <summary>
-        /// Indicated whether this object has been initialized
-        /// </summary>
-        public static bool IsInitialized
-        {
-            get { return _isInitialized; }
-        }
-
         /// <summary>
         /// Loads the default medal data into the Award Cache
         /// </summary>
-        public static void Initialize()
+        static MedalDataParser()
         {
-            // Dont init more then once!
-            if (_isInitialized)
-                return;
-
             // Fill the award cache with the original award conditions
             MatchCollection MedalsMatches, RankMatches;
-            ParseMedalData(Utils.GetResourceString("BF2Statistics.MedalData.PyFiles.medal_data_xpack.py"), out MedalsMatches, out RankMatches);
+            ParseMedalData(Utils.GetResourceAsString("BF2Statistics.MedalData.PyFiles.medal_data_xpack.py"), out MedalsMatches, out RankMatches);
 
             // Convert each medal match into an object, and add it to the award cache
             foreach (Match ArrayMatch in MedalsMatches)
@@ -55,9 +38,6 @@ namespace BF2Statistics.MedalData
                         ParseCondition(ArrayMatch.Groups["Conditions"].Value)
                 );
             }
-
-            // All done :)
-            _isInitialized = true;
         }
 
         /// <summary>

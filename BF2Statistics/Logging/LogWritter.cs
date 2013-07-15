@@ -103,7 +103,7 @@ namespace BF2Statistics.Logging
                         while (LogQueue.Count > 0)
                         {
                             LogMessage entry = LogQueue.Dequeue();
-                            log.WriteLine(string.Format("[{0}]\t{1}", entry.LogTime, entry.Message));
+                            log.WriteLine(String.Format("[{0}]\t{1}", entry.LogTime, entry.Message));
                         }
                     }
                 }

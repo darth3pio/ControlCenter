@@ -310,13 +310,14 @@ namespace BF2Statistics.Gamespy
 
                 // Use the GenerateResponseValue method to create the proof string
                 string proof = GenerateResponseValue(clientNick, (string)User["password"], serverChallengeKey, clientChallengeKey);
-                Stream.Write("\\lc\\2\\sesskey\\{0}\\proof\\{1}\\userid\\{2}\\profileid\\{3}\\uniquenick\\{4}\\lt\\{5}__\\id\\1\\final\\",
+                Stream.Write(
+                    "\\lc\\2\\sesskey\\{0}\\proof\\{1}\\userid\\{2}\\profileid\\{3}\\uniquenick\\{4}\\lt\\{5}__\\id\\1\\final\\",
                     GenerateSession(), proof, pid, pid, clientNick, clientLt
                 );
 
                 // Call successful login event
                 OnSuccessfulLogin(this);
-                LoginServer.Database.Driver.Execute("UPDATE accounts SET session=1, lastip='{0}' WHERE id={1}", this.IpAddress, ClientPID);
+                LoginServer.Database.Driver.Execute("UPDATE accounts SET session=1, lastip=@P0 WHERE id=@P1", this.IpAddress, ClientPID);
             }
             else
             {
@@ -332,10 +333,12 @@ namespace BF2Statistics.Gamespy
         /// <param name="retrieve">Determines the return ID</param>
         private void SendProfile(bool retrieve)
         {
-            Stream.Write("\\pi\\\\profileid\\{0}\\nick\\{1}\\userid\\{2}\\email\\{3}\\sig\\{4}\\uniquenick\\{5}\\pid\\0\\firstname\\\\lastname\\" +
-                    "\\countrycode\\{6}\\birthday\\16844722\\lon\\0.000000\\lat\\0.000000\\loc\\\\id\\{7}\\final\\",
-                    (string)User["id"], clientNick, (string)User["id"], (string)User["email"], GenerateSig(), clientNick, (string)User["country"], 
-                    (retrieve ? "5" : "2"));
+            Stream.Write(
+                "\\pi\\\\profileid\\{0}\\nick\\{1}\\userid\\{2}\\email\\{3}\\sig\\{4}\\uniquenick\\{5}\\pid\\0\\firstname\\\\lastname\\" +
+                "\\countrycode\\{6}\\birthday\\16844722\\lon\\0.000000\\lat\\0.000000\\loc\\\\id\\{7}\\final\\",
+                (string)User["id"], clientNick, (string)User["id"], (string)User["email"], GenerateSig(), clientNick, (string)User["country"], 
+                (retrieve ? "5" : "2")
+            );
         }
 
         /// <summary>
@@ -510,9 +513,8 @@ namespace BF2Statistics.Gamespy
             byte[] finalHash = createMD5.ComputeHash(Encoding.ASCII.GetBytes(hash));
             StringBuilder result = new StringBuilder();
             foreach (byte b in finalHash)
-            {
                 result.AppendFormat("{0}", BtoH[b]);
-            }
+            
             return result.ToString();
         }
 
@@ -549,6 +551,10 @@ namespace BF2Statistics.Gamespy
             return s;
         }
 
+        /// <summary>
+        /// Generates a random signature
+        /// </summary>
+        /// <returns></returns>
         private string GenerateSig()
         {
             string s = "";

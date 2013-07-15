@@ -18,6 +18,7 @@ using BF2Statistics.Properties;
 using BF2Statistics.ASP;
 using BF2Statistics.Gamespy;
 using BF2Statistics.Logging;
+using BF2Statistics.Utilities;
 
 namespace BF2Statistics
 {
@@ -49,6 +50,11 @@ namespace BF2Statistics
         public static Dictionary<string, string> InstalledMods = new Dictionary<string, string>();
 
         /// <summary>
+        /// Full path to the current selected mod's settings folder
+        /// </summary>
+        public static string SettingsPath { get; protected set; }
+
+        /// <summary>
         /// The current selected mod foldername
         /// </summary>
         public static string SelectedMod { get; protected set; }
@@ -61,32 +67,12 @@ namespace BF2Statistics
         /// <summary>
         /// The Battlefield 2 server process (when running)
         /// </summary>
-        private Process ServerProccess;
+        private Process ServerProcess;
 
         /// <summary>
-        /// Full path to the current selected mod's settings folder
+        /// The Battlefield 2 Client process (when running)
         /// </summary>
-        public static string SettingsPath { get; protected set; }
-
-        /// <summary>
-        /// The bf2 python path
-        /// </summary>
-        public static string ServerPythonPath { get; protected set; }
-
-        /// <summary>
-        /// Full path to the stats enabled python files
-        /// </summary>
-        public static string RankedPythonPath { get; protected set; }
-
-        /// <summary>
-        /// Full path to the Non-Ranked (default) python files
-        /// </summary>
-        public static string NonRankedPythonPath { get; protected set; }
-
-        /// <summary>
-        /// The HOSTS file object
-        /// </summary>
-        private HostsFile HostFile;
+        private Process ClientProcess;
 
         /// <summary>
         /// Are hosts file redirects active?
@@ -94,9 +80,14 @@ namespace BF2Statistics
         private bool RedirectsEnabled = false;
 
         /// <summary>
-        /// A General Background worker used for various tasks
+        /// A Background worker used for Hosts file redirects
         /// </summary>
-        private BackgroundWorker bWorker;
+        private BackgroundWorker HostsWorker = new BackgroundWorker();
+
+        /// <summary>
+        /// A Background worker uesd for starting the servers
+        /// </summary>
+        private BackgroundWorker ServerWorker = new BackgroundWorker();
 
         /// <summary>
         /// Returns whether the app is running in administrator mode.
@@ -111,7 +102,7 @@ namespace BF2Statistics
         }
 
         /// <summary>
-        /// Constructor
+        /// Constructor. Initializes and Displays the Applications main GUI
         /// </summary>
         public MainForm()
         {
@@ -139,23 +130,16 @@ namespace BF2Statistics
                 }
             }
 
-            // Create logs folder if it doesnt exist
-            if (!Directory.Exists(Path.Combine(Root, "Logs")))
-                Directory.CreateDirectory(Path.Combine(Root, "Logs"));
+            // Make sure documents folder exists
+            if (!Directory.Exists(Paths.DocumentsFolder))
+                Directory.CreateDirectory(Paths.DocumentsFolder);
 
-            // Make sure we have our snapshot dirs made
-            if (!Directory.Exists(ASP.Requests.SnapshotPost.TempPath))
-                Directory.CreateDirectory(ASP.Requests.SnapshotPost.TempPath);
-            if (!Directory.Exists(ASP.Requests.SnapshotPost.ProcPath))
-                Directory.CreateDirectory(ASP.Requests.SnapshotPost.ProcPath);
+            // Backups folder
+            if(!Directory.Exists(Path.Combine(Paths.DocumentsFolder, "Backups")))
+                Directory.CreateDirectory(Path.Combine(Paths.DocumentsFolder, "Backups"));
 
             // Create ErrorLog file
             ErrorLog = new LogWritter(Path.Combine(Root, "Logs", "Error.log"), 3000);
-
-            // Define python paths
-            ServerPythonPath = Path.Combine(Config.ServerPath, "python", "bf2");
-            NonRankedPythonPath = Path.Combine(MainForm.Root, "Python", "NonRanked");
-            RankedPythonPath = Path.Combine(MainForm.Root, "Python", "Ranked", "Backup");
 
             // Load installed Mods. If there is an error, a messagebox will be displayed, 
             // and the form closed automatically
@@ -172,15 +156,7 @@ namespace BF2Statistics
             CheckServerProcess();
 
             // Try to access the hosts file
-            try {
-                // Do hosts file check for existing redirects
-                HostFile = new HostsFile();
-                DoHOSTSCheck();
-            }
-            catch (Exception e) {
-                HostsStatusPic.Image = Resources.warning;
-                MessageBox.Show(e.Message, "Error");
-            }
+            DoHOSTSCheck();
 
             // Load Cross Session Settings
             ParamBox.Text = Config.ClientParams;
@@ -189,8 +165,9 @@ namespace BF2Statistics
             MinimizeConsole.Checked = Config.MinimizeServerConsole;
             IgnoreAsserts.Checked = Config.ServerIgnoreAsserts;
             FileMoniter.Checked = Config.ServerFileMoniter;
-            GpcmAddress.Text = Config.LastLoginServerAddress;
-            Bf2webAddress.Text = Config.LastStatsServerAddress;
+            GpcmAddress.Text = (!String.IsNullOrWhiteSpace(Config.LastLoginServerAddress)) ? Config.LastLoginServerAddress : "localhost";
+            Bf2webAddress.Text = (!String.IsNullOrWhiteSpace(Config.LastStatsServerAddress)) ? Config.LastStatsServerAddress : "localhost";
+            labelTotalWebRequests.Text = Config.TotalASPRequests.ToString();
 
             // If we dont have a client path, disable the Launch Client button
             LaunchClientBtn.Enabled = (!String.IsNullOrWhiteSpace(Config.ClientPath) && File.Exists(Path.Combine(Config.ClientPath, "bf2.exe")));
@@ -198,19 +175,22 @@ namespace BF2Statistics
             // Register for ASP events
             ASPServer.OnStart += new StartupEventHandler(ASPServer_OnStart);
             ASPServer.OnShutdown += new ShutdownEventHandler(ASPServer_OnShutdown);
+            ASPServer.ClientConnected += new AspRequest(ASPServer_ClientConnected);
+            Snapshot.SnapshotProccessed += new SnapshotProccessed(Snapshot_SnapshotProccessed);
+            ASP.Requests.SnapshotPost.SnapshotReceived += new SnapshotRecieved(SnapshotPost_SnapshotReceived);
 
             // Register for Login server events
             LoginServer.OnStart += new StartupEventHandler(LoginServer_OnStart);
             LoginServer.OnShutdown += new ShutdownEventHandler(LoginServer_OnShutdown);
             LoginServer.OnUpdate += new EventHandler(LoginServer_OnUpdate);
 
-            // Set the ASP and Login Server statusbox boxes
-            ASPServer.SetStatusBox(AspStatusBox);
-            LoginServer.SetStatusBox(EmuStatusWindow);
-
             // Add administrator title to program title bar
             if (IsAdministrator)
                 this.Text += " (Administrator)";
+
+            // Set server tooltips
+            Tipsy.SetToolTip(LoginStatusPic, "Login server is currently offline.");
+            Tipsy.SetToolTip(AspStatusPic, "Asp server is currently offline");  
         }
 
         #region Startup Methods
@@ -229,6 +209,7 @@ namespace BF2Statistics
                 BF2sConfigBtn.Enabled = true;
                 BF2sEditMedalDataBtn.Enabled = true;
                 StatsStatusPic.Image = Resources.check;
+                Tipsy.SetToolTip(StatsStatusPic, "BF2 Statistics server files are currently installed."); 
             }
             else
             {
@@ -239,6 +220,7 @@ namespace BF2Statistics
                 BF2sConfigBtn.Enabled = false;
                 BF2sEditMedalDataBtn.Enabled = false;
                 StatsStatusPic.Image = Resources.error;
+                Tipsy.SetToolTip(StatsStatusPic, "BF2 Statistics server files are currently NOT installed"); 
             }
         }
 
@@ -312,14 +294,73 @@ namespace BF2Statistics
         }
 
         /// <summary>
+        /// Checks the HOSTS file on startup, detecting existing redirects to the bf2web.gamespy
+        /// or gpcm/gpsp.gamespy urls
+        /// </summary>
+        private void DoHOSTSCheck()
+        {
+            if (!HostsFile.CanRead)
+            {
+                HostsStatusPic.Image = Resources.warning;
+                Tipsy.SetToolTip(HostsStatusPic, "Unable to read hosts file");
+            }
+            else if (!HostsFile.CanWrite)
+            {
+                HostsStatusPic.Image = Resources.warning;
+                Tipsy.SetToolTip(HostsStatusPic, "Unable to write to hosts file");
+            }
+            else
+            {
+                bool MatchFound = false;
+
+                // Login server redirect
+                if (HostsFile.Contains("gpcm.gamespy.com"))
+                {
+                    MatchFound = true;
+                    GpcmCheckbox.Checked = true;
+                    if (String.IsNullOrWhiteSpace(Config.LastLoginServerAddress))
+                        GpcmAddress.Text = HostsFile.Get("gpcm.gamespy.com");
+                }
+
+                // Stat server redirect
+                if (HostsFile.Contains("bf2web.gamespy.com"))
+                {
+                    MatchFound = true;
+                    Bf2webCheckbox.Checked = true;
+                    if (String.IsNullOrWhiteSpace(Config.LastStatsServerAddress))
+                        Bf2webAddress.Text = HostsFile.Get("bf2web.gamespy.com");
+                }
+
+                // Did we find any matches?
+                if (MatchFound)
+                {
+                    Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are currently active.");
+                    UpdateHostFileStatus("- Found old redirect data in HOSTS file.");
+                    RedirectsEnabled = true;
+                    HostsStatusPic.Image = Resources.check;
+                    LockGroups();
+
+                    RedirectButton.Enabled = true;
+                    RedirectButton.Text = "Remove HOSTS Redirect";
+
+                    UpdateHostFileStatus("- Locking HOSTS file");
+                    HostsFile.Lock();
+                    UpdateHostFileStatus("- All Done!");
+                }
+                else
+                    Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are not active.");
+            }
+        }
+
+        /// <summary>
         /// Gets a count of processed and un processed snapshots
         /// </summary>
         private void CountSnapshots()
         {
-            string[] Files = Directory.GetFiles(ASP.Requests.SnapshotPost.TempPath);
+            string[] Files = Directory.GetFiles(Paths.SnapshotTempPath);
             TotalUnProcSnapCount.Text = Files.Length.ToString();
             TotalUnProcSnapCount.Update();
-            Files = Directory.GetFiles(ASP.Requests.SnapshotPost.ProcPath);
+            Files = Directory.GetFiles(Paths.SnapshotProcPath);
             TotalSnapCount.Text = Files.Length.ToString();
             TotalSnapCount.Update();
         }
@@ -334,11 +375,11 @@ namespace BF2Statistics
             {
                 if (Path.GetDirectoryName(P.MainModule.FileName) == Config.ServerPath)
                 {
-                    ServerProccess = P;
+                    ServerProcess = P;
 
                     // Hook into the proccess so we know when its running, and register a closing event
-                    ServerProccess.EnableRaisingEvents = true;
-                    ServerProccess.Exited += new EventHandler(BF2_Exited);
+                    ServerProcess.EnableRaisingEvents = true;
+                    ServerProcess.Exited += new EventHandler(BF2Server_Exited);
 
                     // Set status to online
                     ServerStatusPic.Image = Resources.check;
@@ -349,24 +390,6 @@ namespace BF2Statistics
                     break;
                 }
             }
-        }
-
-        /// <summary>
-        /// This method is used to store a message in the console.log file
-        /// </summary>
-        /// <param name="message">The message to be written to the log file</param>
-        public static void Log(string message)
-        {
-            ErrorLog.Write(message);
-        }
-
-        /// <summary>
-        /// This method is used to store a message in the console.log file
-        /// </summary>
-        /// <param name="message">The message to be written to the log file</param>
-        public static void Log(string message, params object[] items)
-        {
-            ErrorLog.Write(String.Format(message, items));
         }
 
         #endregion Startup Methods
@@ -382,19 +405,46 @@ namespace BF2Statistics
         {
             if (!LoginServer.IsRunning)
             {
-                try
-                {
-                    LoginStatusPic.Image = Resources.loading;
-                    LoginServer.Start();
-                }
-                catch
-                {
-                    LoginStatusPic.Image = Resources.warning;
-                }
+                LaunchEmuBtn.Enabled = false;
+                StartLoginserverBtn.Enabled = false;
+                LoginStatusPic.Image = Resources.loading;
+
+                // Start Servers in aBackground worker, Dont want MySQL locking up the GUI
+                ServerWorker.DoWork += new DoWorkEventHandler(ServerWorker_StartLoginServers);
+                ServerWorker.RunWorkerAsync();
             }
             else
             {
                 LoginServer.Shutdown();
+                Tipsy.SetToolTip(LoginStatusPic, "Login server us currently offline.");
+            }
+        }
+
+        /// <summary>
+        /// Background Operation for connecting to the login servers
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ServerWorker_StartLoginServers(object sender, DoWorkEventArgs e)
+        {
+            // Unregister for work
+            ServerWorker.DoWork -= new DoWorkEventHandler(ServerWorker_StartLoginServers);
+
+            try
+            {
+                LoginServer.Start();
+            }
+            catch (Exception E)
+            {
+                // Exception message will already be there
+                BeginInvoke((Action)delegate
+                {
+                    LoginStatusPic.Image = Resources.warning;
+                    StartLoginserverBtn.Enabled = true;
+                    LaunchEmuBtn.Enabled = true;
+                    Tipsy.SetToolTip(LoginStatusPic, E.Message);
+                    Notify.Show("Unable to Start Login Servers!", E.Message, AlertType.Warning);
+                });
             }
         }
 
@@ -405,15 +455,61 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void LaunchClientBtn_Click(object sender, EventArgs e)
         {
-            // Get our current mod
-            string mod = ((KeyValueItem)ModSelectList.SelectedItem).Key;
+            if (ClientProcess == null)
+            {
+                // Get our current mod
+                string mod = ((KeyValueItem)ModSelectList.SelectedItem).Key;
 
-            // Start new BF2 proccess
-            ProcessStartInfo Info = new ProcessStartInfo();
-            Info.Arguments = String.Format(" +modPath mods/{0} {1}", mod.ToLower(), ParamBox.Text.Trim());
-            Info.FileName = "bf2.exe";
-            Info.WorkingDirectory = Config.ClientPath;
-            Process BF2 = Process.Start(Info);
+                // Start new BF2 proccess
+                ProcessStartInfo Info = new ProcessStartInfo();
+                Info.Arguments = String.Format(" +modPath mods/{0} {1}", mod.ToLower(), ParamBox.Text.Trim());
+                Info.FileName = "bf2.exe";
+                Info.WorkingDirectory = Config.ClientPath;
+                ClientProcess = Process.Start(Info);
+
+                // Hook into the proccess so we know when its running, and register a closing event
+                ClientProcess.EnableRaisingEvents = true;
+                ClientProcess.Exited += new EventHandler(BF2Client_Exited);
+
+                // Update button
+                LaunchClientBtn.Text = "Shutdown Battlefield 2";
+            }
+            else
+            {
+                try 
+                {
+                    ClientProcess.Kill();
+                    this.Enabled = false;
+                    LoadingForm.ShowScreen(this);
+                }
+                catch (Exception E)
+                {
+                    MessageBox.Show("Unable to stop Battlefield 2 client process!" + Environment.NewLine + Environment.NewLine +
+                        E.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Event fired when Server has exited
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BF2Client_Exited(object sender, EventArgs e)
+        {
+            // Make this cross thread safe
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action<object, EventArgs>(BF2Client_Exited), new object[] { sender, e });
+            }
+            else
+            {
+                ClientProcess.Close();
+                LaunchClientBtn.Text = "Play Battlefield 2";
+                ClientProcess = null;
+                this.Enabled = true;
+                LoadingForm.CloseForm();
+            }
         }
 
         /// <summary>
@@ -423,7 +519,7 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void LaunchServerBtn_Click(object sender, EventArgs e)
         {
-            if (ServerProccess == null)
+            if (ServerProcess == null)
             {
                 // Get our current mod
                 string mod = ((KeyValueItem)ModSelectList.SelectedItem).Key;
@@ -450,13 +546,14 @@ namespace BF2Statistics
                 else if(Config.MinimizeServerConsole)
                     Info.WindowStyle = ProcessWindowStyle.Minimized;
 
+                // Start process. Set working directory so we dont get errors!
                 Info.FileName = "bf2_w32ded.exe";
                 Info.WorkingDirectory = Config.ServerPath;
-                ServerProccess = Process.Start(Info);
+                ServerProcess = Process.Start(Info);
 
                 // Hook into the proccess so we know when its running, and register a closing event
-                ServerProccess.EnableRaisingEvents = true;
-                ServerProccess.Exited += new EventHandler(BF2_Exited);
+                ServerProcess.EnableRaisingEvents = true;
+                ServerProcess.Exited += new EventHandler(BF2Server_Exited);
 
                 // Set status to online
                 ServerStatusPic.Image = Resources.check;
@@ -469,12 +566,14 @@ namespace BF2Statistics
             {
                 try
                 {
-                    ServerProccess.Kill();
+                    ServerProcess.Kill();
+                    this.Enabled = false;
+                    LoadingForm.ShowScreen(this);
                 }
                 catch(Exception E)
                 {
-                    MessageBox.Show("Could not stop server!" + Environment.NewLine + Environment.NewLine +
-                        "Reason: " + E.Message, "Error");
+                    MessageBox.Show("Unable to stop server process!" + Environment.NewLine + Environment.NewLine +
+                        E.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -484,19 +583,22 @@ namespace BF2Statistics
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void BF2_Exited(object sender, EventArgs e)
+        private void BF2Server_Exited(object sender, EventArgs e)
         {
             // Make this cross thread safe
-            if (LaunchServerBtn.InvokeRequired)
+            if (InvokeRequired)
             {
-                this.Invoke(new Action<object, EventArgs>(BF2_Exited), new object[] { sender, e });
+                BeginInvoke(new Action<object, EventArgs>(BF2Server_Exited), new object[] { sender, e });
             }
             else
             {
+                ServerProcess.Close();
                 ServerStatusPic.Image = Resources.error;
                 LaunchServerBtn.Text = "Launch Server";
-                ServerProccess = null;
+                ServerProcess = null;
                 BF2sRestoreBtn.Enabled = true;
+                this.Enabled = true;
+                LoadingForm.CloseForm();
             }
         }
 
@@ -575,17 +677,18 @@ namespace BF2Statistics
         private void LoginServer_OnStart()
         {
             // Make this cross thread safe
-            if (LoginStatusPic.InvokeRequired)
-            {
-                this.Invoke(new Action(LoginServer_OnShutdown));
-            }
-            else
+            BeginInvoke((Action)delegate
             {
                 LoginStatusPic.Image = Resources.check;
                 LaunchEmuBtn.Text = "Shutdown Login Server";
+                LaunchEmuBtn.Enabled = true;
+                StartLoginserverBtn.Text = "Shutdown Login Server";
+                StartLoginserverBtn.Enabled = true;
                 CreateAcctBtn.Enabled = true;
                 EditAcctBtn.Enabled = true;
-            }
+                LoginStatusLabel.Text = "Running";
+                LoginStatusLabel.ForeColor = Color.LimeGreen;
+            });
         }
 
         /// <summary>
@@ -594,19 +697,18 @@ namespace BF2Statistics
         private void LoginServer_OnShutdown()
         {
             // Make this cross thread safe
-            if (LoginStatusPic.InvokeRequired)
-            {
-                this.Invoke(new Action(LoginServer_OnShutdown));
-            }
-            else
+            BeginInvoke((Action)delegate
             {
                 ConnectedClients.Clear();
                 LoginStatusPic.Image = Resources.error;
-                ClientCountLabel.Text = "Number of Connected Clients: 0";
+                ClientCountLabel.Text = "0";
                 LaunchEmuBtn.Text = "Start Login Server";
+                StartLoginserverBtn.Text = "Start Login Server";
                 CreateAcctBtn.Enabled = false;
                 EditAcctBtn.Enabled = false;
-            }
+                LoginStatusLabel.Text = "Stopped";
+                LoginStatusLabel.ForeColor = SystemColors.ControlDark;
+            });
         }
 
         /// <summary>
@@ -616,18 +718,29 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void LoginServer_OnUpdate(object sender, EventArgs e)
         {
+            // DO processing in this thread
             StringBuilder SB = new StringBuilder();
-            ClientList Clients = (ClientList)e;
-            foreach (GpcmClient C in Clients.Clients)
+            List<GpcmClient> Clients = ((ClientList)e).Clients;
+            int PeakClients = Int32.Parse(labelPeakClients.Text);
+            if (PeakClients < Clients.Count)
+                PeakClients = Clients.Count;
+
+            foreach (GpcmClient C in Clients)
                 SB.AppendFormat(" {0} ({1}) - {2}{3}", C.ClientNick, C.ClientPID, C.IpAddress, Environment.NewLine);
 
-            // Update connected clients count, and list
-            this.Invoke((MethodInvoker)delegate
+            // Update connected clients count, and list, on main thread
+            BeginInvoke((Action)delegate
             {
-                ClientCountLabel.Text = "Number of Connected Clients: " + Clients.Clients.Count;
+                ClientCountLabel.Text = Clients.Count.ToString();
+                labelPeakClients.Text = PeakClients.ToString();
                 ConnectedClients.Clear();
                 ConnectedClients.Text = SB.ToString();
             });
+        }
+
+        private void StartLoginserverBtn_Click(object sender, EventArgs e)
+        {
+            LaunchEmuBtn_Click(sender, e);
         }
 
         private void CreateAcctBtn_Click(object sender, EventArgs e)
@@ -666,13 +779,13 @@ namespace BF2Statistics
                 this.Enabled = false;
 
                 // Remove current Python
-                Directory.Delete(ServerPythonPath, true);
+                Directory.Delete(Paths.ServerPythonPath, true);
 
                 // Make sure we dont have an empty backup folder
-                if (Directory.GetFiles(RankedPythonPath).Length == 0)
-                    DirectoryExt.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), ServerPythonPath, true);
+                if (Directory.GetFiles(Paths.RankedPythonPath).Length == 0)
+                    DirectoryExt.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), Paths.ServerPythonPath, true);
                 else
-                    DirectoryExt.Copy(RankedPythonPath, ServerPythonPath, true);
+                    DirectoryExt.Copy(Paths.RankedPythonPath, Paths.ServerPythonPath, true);
 
                 // unlock now that we are done
                 this.Enabled = true;
@@ -685,12 +798,12 @@ namespace BF2Statistics
                 this.Enabled = false;
 
                 // Backup the users bf2s python files
-                Directory.Delete(RankedPythonPath, true);
-                DirectoryExt.Copy(ServerPythonPath, RankedPythonPath, true);
+                Directory.Delete(Paths.RankedPythonPath, true);
+                DirectoryExt.Copy(Paths.ServerPythonPath, Paths.RankedPythonPath, true);
 
                 // Install default python files
-                Directory.Delete(ServerPythonPath, true);
-                DirectoryExt.Copy(NonRankedPythonPath, ServerPythonPath, true);
+                Directory.Delete(Paths.ServerPythonPath, true);
+                DirectoryExt.Copy(Paths.NonRankedPythonPath, Paths.ServerPythonPath, true);
 
                 // Unlock now that we are done
                 this.Enabled = true;
@@ -728,25 +841,36 @@ namespace BF2Statistics
                     "Restoring the BF2Statistics python files will erase any and all modifications to the BF2Statistics " +
                     "python files. Are you sure you want to continue?",
                     "Confirmation",
-                    MessageBoxButtons.OKCancel)
+                    MessageBoxButtons.OKCancel,
+                    MessageBoxIcon.Warning)
                 == DialogResult.OK)
             {
-                // Lock the console to prevent errors!
-                this.Enabled = false;
-                if (StatsEnabled)
+                try
                 {
-                    Directory.Delete(ServerPythonPath, true);
-                    DirectoryExt.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), ServerPythonPath, true);
-                }
-                else
-                {
-                    Directory.Delete(RankedPythonPath, true);
-                    DirectoryExt.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), RankedPythonPath, true);
-                }
+                    // Lock the console to prevent errors!
+                    this.Enabled = false;
+                    if (StatsEnabled)
+                    {
+                        Directory.Delete(Paths.ServerPythonPath, true);
+                        DirectoryExt.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), Paths.ServerPythonPath, true);
+                    }
+                    else
+                    {
+                        Directory.Delete(Paths.RankedPythonPath, true);
+                        DirectoryExt.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), Paths.RankedPythonPath, true);
+                    }
 
-                // Show Success Message
-                MessageBox.Show("Your Stats python files have been restored successfully.", "Bf2 Statistics Server Launcher");
-                this.Enabled = true; // unlcok
+                    // Show Success Message
+                    Notify.Show("Stats Python Files Have Been Restored!", AlertType.Success);
+                    this.Enabled = true; // Unlock Form
+                }
+                catch (Exception E)
+                {
+                    ExceptionForm EForm = new ExceptionForm(E, false);
+                    EForm.Message = "Failed to restore stats python files!";
+                    EForm.Show();
+                    this.Enabled = true;
+                }
             }
         }
 
@@ -835,64 +959,40 @@ namespace BF2Statistics
         #region Hosts File Redirect
 
         /// <summary>
-        /// Checks the HOSTS file on startup, detecting existing redirects to the bf2web.gamespy
-        /// or gpcm/gpsp.gamespy urls
-        /// </summary>
-        private void DoHOSTSCheck()
-        {
-            bool MatchFound = false;
-
-            if (HostFile.Lines.ContainsKey("gpcm.gamespy.com"))
-            {
-                MatchFound = true;
-                GpcmCheckbox.Checked = true;
-                //GpcmAddress.Text = HostFile.Lines["gpcm.gamespy.com"];
-            }
-
-            if (HostFile.Lines.ContainsKey("bf2web.gamespy.com"))
-            {
-                MatchFound = true;
-                Bf2webCheckbox.Checked = true;
-                //Bf2webAddress.Text = HostFile.Lines["bf2web.gamespy.com"];
-            }
-
-            // Did we find any matches?
-            if (MatchFound)
-            {
-                UpdateHostFileStatus("- Found old redirect data in HOSTS file.");
-                RedirectsEnabled = true;
-                HostsStatusPic.Image = Resources.check;
-                LockGroups();
-
-                iButton.Enabled = true;
-                iButton.Text = "Remove HOSTS Redirect";
-
-                UpdateHostFileStatus("- Locking HOSTS file");
-                HostFile.Lock();
-                UpdateHostFileStatus("- All Done!");
-            }
-        }
-
-        /// <summary>
         /// This is the main HOSTS file button event handler.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void iButton_Click(object sender, EventArgs e)
+        private void RedirectButton_Click(object sender, EventArgs e)
         {
             // Clear the output window
             LogBox.Clear();
 
-            // If we do not have a redirect in the hosts file...
-            if (!RedirectsEnabled)
+            // Show exception message on button push if we cant read or write
+            if (!HostsFile.CanRead)
             {
-                // Lines to add to the HOSTS file. [hostname, ipAddress]
-                Dictionary<string, string> Lines = new Dictionary<string, string>();
+                string message = "Unable to READ the HOST file! Please make sure this program is being ran as an administrator, or "
+                    + "modify your HOSTS file permissions, allowing this program to read/modify it.";
+                MessageBox.Show(message, "Hosts file Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else if (!HostsFile.CanWrite)
+            {
+                string message = "HOSTS file is not WRITABLE! Please make sure this program is being ran as an administrator, or "
+                    + "modify your HOSTS file permissions, allowing this program to read/modify it.";
+                MessageBox.Show(message, "Hosts file Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
 
+
+            // If we do not have a redirect in the hosts file...
+            else if (!RedirectsEnabled)
+            {
                 // Make sure we are going to redirect something...
                 if (!Bf2webCheckbox.Checked && !GpcmCheckbox.Checked)
                 {
-                    MessageBox.Show("Please select at least 1 redirect option", "Error");
+                    MessageBox.Show(
+                        "Please select at least 1 redirect option", 
+                        "Select an Option", MessageBoxButtons.OK, MessageBoxIcon.Information
+                    );
                     return;
                 }
 
@@ -908,7 +1008,7 @@ namespace BF2Statistics
                     {
                         MessageBox.Show(
                             "You must enter an IP address or Hostname in the Address box!",
-                            "Error"
+                            "Invalid Address", MessageBoxButtons.OK, MessageBoxIcon.Warning
                         );
                         UnlockGroups();
                         Bf2webAddress.Focus();
@@ -916,26 +1016,30 @@ namespace BF2Statistics
                     }
 
                     // Convert Localhost to the Loopback Address
-                    if (text.ToLower() == "localhost")
+                    if (text.ToLower().Trim() == "localhost")
                         text = IPAddress.Loopback.ToString();
 
                     // Check if this is an IP address or hostname
                     IPAddress BF2Web;
                     try {
-                        BF2Web = GetIpAddress(text);
+                        UpdateHostFileStatus("- Resolving Hostname: " + text);
+                        BF2Web = Networking.GetIpAddress(text);
+                        UpdateHostFileStatus("- Found IP: " + BF2Web);
                     }
                     catch
                     {
                         MessageBox.Show(
                             "Stats server redirect address is invalid, or doesnt exist. Please enter a valid, and existing IPv4/6 or Hostname.",
-                            "Error"
+                            "Invalid Address", MessageBoxButtons.OK, MessageBoxIcon.Warning
                         );
 
+                        UpdateHostFileStatus("- Failed to Resolve Hostname!");
                         UnlockGroups();
                         return;
                     }
 
-                    Lines.Add("bf2web.gamespy.com", BF2Web.ToString());
+                    // Append line, and update status
+                    HostsFile.Set("bf2web.gamespy.com", BF2Web.ToString());
                     Config.LastStatsServerAddress = Bf2webAddress.Text.Trim();
                     UpdateHostFileStatus("- Adding bf2web.gamespy.com redirect to hosts file");
                 }
@@ -947,36 +1051,45 @@ namespace BF2Statistics
                     string text2 = GpcmAddress.Text.Trim();
                     if (text2.Length < 8)
                     {
-                        MessageBox.Show("You must enter an IP address or Hostname in the Address box!", "Error");
+                        MessageBox.Show(
+                            "You must enter an IP address or Hostname in the Address box!", 
+                            "Invalid Address", MessageBoxButtons.OK, MessageBoxIcon.Warning
+                        );
                         UnlockGroups();
                         GpcmAddress.Focus();
                         return;
                     }
 
                     // Convert Localhost to the Loopback Address
-                    if (text2.ToLower() == "localhost")
+                    if (text2.ToLower().Trim() == "localhost")
                         text2 = IPAddress.Loopback.ToString();
 
                     // Make sure the IP address is valid!
                     IPAddress GpcmA;
                     try {
-                        GpcmA = GetIpAddress(text2);
+                        UpdateHostFileStatus("- Resolving Hostname: " + text2);
+                        GpcmA = Networking.GetIpAddress(text2);
+                        UpdateHostFileStatus("- Found IP: " + GpcmA);
                     }
                     catch
                     {
                         MessageBox.Show(
                             "Login Server redirect address is invalid, or doesnt exist. Please enter a valid, and existing IPv4/6 or Hostname.",
-                            "Error"
+                            "Invalid Address", MessageBoxButtons.OK, MessageBoxIcon.Warning
                         );
+
+                        UpdateHostFileStatus("- Failed to Resolve Hostname!");
                         UnlockGroups();
                         return;
                     }
 
+                    // Update status
                     UpdateHostFileStatus("- Adding gpcm.gamespy.com redirect to hosts file");
                     UpdateHostFileStatus("- Adding gpsp.gamespy.com redirect to hosts file");
 
-                    Lines.Add("gpcm.gamespy.com", GpcmA.ToString());
-                    Lines.Add("gpsp.gamespy.com", GpcmA.ToString());
+                    // Append lines to hosts file
+                    HostsFile.Set("gpcm.gamespy.com", GpcmA.ToString());
+                    HostsFile.Set("gpsp.gamespy.com", GpcmA.ToString());
                     Config.LastLoginServerAddress = GpcmAddress.Text.Trim();
                 }
 
@@ -984,98 +1097,128 @@ namespace BF2Statistics
                 Config.Save();
 
                 // Create new instance of the background worker
-                bWorker = new BackgroundWorker();
+                HostsWorker = new BackgroundWorker();
+                HostsWorker.WorkerSupportsCancellation = true;
 
                 // Write the lines to the hosts file
                 UpdateHostFileStatus("- Writting to hosts file... ", false);
-                bool error = false;
                 try
                 {
-                    // Add lines to the hosts file
-                    HostFile.AppendLines(Lines);
+                    // Save lines to hosts file
+                    HostsFile.Save();
                     UpdateHostFileStatus("Success!");
 
-                    // Flush the DNS!
+                    // Flush DNS Cache
                     FlushDNS();
 
                     // Do pings, And lock hosts file. We do this in
                     // a background worker so the User can imediatly start
-                    // the BF2 client with the HOSTS redirect finishes
-                    bWorker.DoWork += new DoWorkEventHandler(RebuildDNSCache);
-                    bWorker.RunWorkerAsync();
+                    // the BF2 client while the HOSTS redirect finishes
+                    HostsWorker.DoWork += new DoWorkEventHandler(RebuildDNSCache);
+                    HostsWorker.RunWorkerAsync();
+
+                    // Set form data
+                    RedirectsEnabled = true;
+                    HostsStatusPic.Image = Resources.check;
+                    RedirectButton.Text = "Remove HOSTS Redirect";
+                    RedirectButton.Enabled = true;
                 }
                 catch
                 {
                     UpdateHostFileStatus("Failed!");
-                    error = true;
-                }
-
-                if (!error)
-                {
-                    // Set form data
-                    RedirectsEnabled = true;
-                    HostsStatusPic.Image = Resources.check;
-                    iButton.Text = "Remove HOSTS Redirect";
-                    iButton.Enabled = true;
-                }
-                else
-                {
                     UnlockGroups();
                     MessageBox.Show(
                         "Unable to WRITE to HOSTS file! Please make sure to replace your HOSTS file with " +
                         "the one provided in the release package, or remove your current permissions from the HOSTS file. " +
                         "It may also help to run this program as an administrator.",
-                        "Error"
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning
                     );
                 }
             }
             else
             {
                 // Lock the button
-                iButton.Enabled = false;
+                RedirectButton.Enabled = false;
 
-                // Tell the writter to restore the HOSTS file to its
-                // original state
-                UpdateHostFileStatus("- Unlocking HOSTS file");
-                HostFile.UnLock();
-
-                // Restore the original hosts file contents
-                UpdateHostFileStatus("- Restoring HOSTS file... ", false);
-                try
+                // Create new instance of the background worker
+                if (HostsWorker == null)
                 {
-                    HostFile.Revert();
-                    UpdateHostFileStatus("Success!");
-                }
-                catch
-                {
-                    UpdateHostFileStatus("Failed!");
-                    MessageBox.Show(
-                        "Unable to RESTORE to HOSTS file! Unfortunatly this error can only be fixed by manually removing the HOSTS file,"
-                        + " and replacing it with a new one :( . If possible, you may also try changing the permissions yourself.",
-                        "Error"
-                    );
+                    HostsWorker = new BackgroundWorker();
+                    HostsWorker.WorkerSupportsCancellation = true;
                 }
 
-                // Remove lines
-                if (Bf2webCheckbox.Checked)
-                    HostFile.Lines.Remove("bf2web.gamespy.com");
-                if (GpcmCheckbox.Checked)
+                // Stop worker if its busy
+                if (HostsWorker.IsBusy)
                 {
-                    HostFile.Lines.Remove("gpcm.gamespy.com");
-                    HostFile.Lines.Remove("gpsp.gamespy.com");
+                    LoadingForm.ShowScreen(this);
+                    this.Enabled = false;
+                    HostsWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bWorker_RunWorkerCompleted);
+                    HostsWorker.CancelAsync();
+                    return;
                 }
 
-                // Flush the DNS!
-                FlushDNS();
-
-                // Reset form data
-                RedirectsEnabled = false;
-                HostsStatusPic.Image = Resources.error;
-                iButton.Text = "Begin HOSTS Redirect";
-                UnlockGroups();
-
-                UpdateHostFileStatus("- All Done!");
+                UndoRedirects();
             }
+        }
+
+        /// <summary>
+        /// Removes HOSTS file redirects.
+        /// </summary>
+        private void UndoRedirects()
+        {
+            // Tell the writter to restore the HOSTS file to its
+            // original state
+            UpdateHostFileStatus("- Unlocking HOSTS file");
+            HostsFile.UnLock();
+
+            // Restore the original hosts file contents
+            UpdateHostFileStatus("- Restoring HOSTS file... ", false);
+            try
+            {
+                HostsFile.Remove("bf2web.gamespy.com");
+                HostsFile.Remove("gpcm.gamespy.com");
+                HostsFile.Remove("gpsp.gamespy.com");
+                HostsFile.Save();
+                UpdateHostFileStatus("Success!");
+            }
+            catch
+            {
+                UpdateHostFileStatus("Failed!");
+                MessageBox.Show(
+                    "Unable to RESTORE to HOSTS file! Unfortunatly this error can only be fixed by manually removing the HOSTS file,"
+                    + " and replacing it with a new one :( . If possible, you may also try changing the permissions yourself.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error
+                );
+            }
+
+            // Flush the DNS!
+            FlushDNS();
+
+            // Update status
+            UpdateHostFileStatus("- All Done!");
+            Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are NOT active.");
+
+            // Reset form data
+            RedirectsEnabled = false;
+            HostsStatusPic.Image = Resources.error;
+            RedirectButton.Text = "Begin HOSTS Redirect";
+            UnlockGroups();
+        }
+
+        /// <summary>
+        /// If the user cancels the redirects while the worker is currently building
+        /// the DNS cache, this event will be registered. On completion, the redirects
+        /// are reverted.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void bWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            // Unregister
+            HostsWorker.RunWorkerCompleted -= new RunWorkerCompletedEventHandler(bWorker_RunWorkerCompleted);
+            UndoRedirects();
+            LoadingForm.CloseForm();
+            this.Enabled = true;
         }
 
         /// <summary>
@@ -1083,7 +1226,7 @@ namespace BF2Statistics
         /// </summary>
         private void UnlockGroups()
         {
-            iButton.Enabled = true;
+            RedirectButton.Enabled = true;
             GpcmGroupBox.Enabled = true;
             BF2webGroupBox.Enabled = true;
             Bf2AaGroupBox.Enabled = true;
@@ -1094,50 +1237,10 @@ namespace BF2Statistics
         /// </summary>
         private void LockGroups()
         {
-            iButton.Enabled = false;
+            RedirectButton.Enabled = false;
             GpcmGroupBox.Enabled = false;
             BF2webGroupBox.Enabled = false;
             Bf2AaGroupBox.Enabled = false;
-        }
-
-        /// <summary>
-        /// Takes a domain name, or IP address, and returns the Correct IP address.
-        /// If multiple IP addresses are found, the first one is returned
-        /// </summary>
-        /// <param name="text">Domain name or IP Address</param>
-        /// <returns></returns>
-        private IPAddress GetIpAddress(string text)
-        {
-            // Make sure the IP address is valid!
-            IPAddress Address;
-            bool isValid = IPAddress.TryParse(text, out Address);
-
-            if (!isValid)
-            {
-                // Try to get dns value
-                IPAddress[] Addresses;
-                try
-                {
-                    UpdateHostFileStatus("- Resolving Hostname: " + text);
-                    Addresses = Dns.GetHostAddresses(text);
-                }
-                catch
-                {
-                    UpdateHostFileStatus("- Failed to Resolve Hostname!");
-                    throw new Exception("Invalid Hostname or IP Address");
-                }
-
-                if (Addresses.Length == 0)
-                {
-                    UpdateHostFileStatus("- Failed to Resolve Hostname!");
-                    throw new Exception("Invalid Hostname or IP Address");
-                }
-
-                UpdateHostFileStatus("- Found IP: " + Addresses[0]);
-                return Addresses[0];
-            }
-
-            return Address;
         }
 
         /// <summary>
@@ -1151,9 +1254,18 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void RebuildDNSCache(object sender, DoWorkEventArgs e)
         {
+            // Update status window
             UpdateHostFileStatus("- Rebuilding DNS Cache... ", false);
-            foreach (KeyValuePair<String, String> IP in HostFile.Lines)
+            foreach (KeyValuePair<String, String> IP in HostsFile.GetLines())
             {
+                // Cancel if we have a cancelation request
+                if (HostsWorker.CancellationPending)
+                {
+                    UpdateHostFileStatus("Cancelled!");
+                    e.Cancel = true;
+                    return;
+                }
+
                 Ping p = new Ping();
                 PingReply reply = p.Send(IP.Key);
             }
@@ -1161,8 +1273,9 @@ namespace BF2Statistics
 
             // Lock the hosts file
             UpdateHostFileStatus("- Locking HOSTS file");
-            HostFile.Lock();
+            HostsFile.Lock();
             UpdateHostFileStatus("- All Done!");
+            Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are currently active.");
         }
 
         /// <summary>
@@ -1234,39 +1347,19 @@ namespace BF2Statistics
         {
             if (!ASPServer.IsRunning)
             {
-                try
-                {
-                    // Clear out old messages, and set status to a blank light
-                    AspStatusBox.Clear();
-                    AspStatusPic.Image = Resources.loading;
+                AspStatusPic.Image = Resources.loading;
+                StartAspServerBtn.Enabled = false;
+                StartWebserverBtn.Enabled = false;
 
-                    // Start server, and enable the disabled buttons and vice versa
-                    ASPServer.Start();
-                }
-                catch (HttpListenerException E)
-                {
-                    // Custom port 80 in use message
-                    string Message = Environment.NewLine;
-                    if (E.ErrorCode == 32)
-                        Message += "Port 80 is already in use by another program.";
-                    else
-                        Message += E.Message;
-
-                    AspStatusBox.Text += Message;
-                    AspStatusPic.Image = Resources.warning;
-                }
-                catch (Exception E)
-                {
-                    // Check for specific error
-                    AspStatusBox.Text += Environment.NewLine + E.Message;
-                    AspStatusPic.Image = Resources.warning;
-                    ErrorLog.Write(E.Message);
-                }
+                // Start Server in a Background worker, Dont want MySQL locking up the GUI
+                ServerWorker.DoWork += new DoWorkEventHandler(ServerWorker_StartAsp);
+                ServerWorker.RunWorkerAsync();
             }
             else
             {
                 try {
                     ASPServer.Stop();
+                    Tipsy.SetToolTip(AspStatusPic, "Asp server is currently offline");  
                 }
                 catch(Exception E) {
                     ErrorLog.Write(E.Message);
@@ -1275,16 +1368,83 @@ namespace BF2Statistics
         }
 
         /// <summary>
+        /// Background Operation for Starting the ASP Server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ServerWorker_StartAsp(object sender, DoWorkEventArgs e)
+        {
+            // Unregister for work
+            ServerWorker.DoWork -= new DoWorkEventHandler(ServerWorker_StartAsp);
+
+            try
+            {
+                // Start server
+                ASPServer.Start();
+            }
+            catch (HttpListenerException E)
+            {
+                // Custom port 80 in use message
+                string Message;
+                if (E.ErrorCode == 32)
+                    Message = "Port 80 is already in use by another program.";
+                else
+                    Message = E.Message;
+
+                BeginInvoke((Action)delegate
+                {
+                    StartAspServerBtn.Enabled = true;
+                    StartWebserverBtn.Enabled = true;
+                    AspStatusPic.Image = Resources.warning;
+                    Tipsy.SetToolTip(AspStatusPic, Message);
+                    Notify.Show("Failed to start ASP Server!", Message, AlertType.Warning);
+                });
+            }
+            catch (Exception E)
+            {
+                // Check for specific error
+                ErrorLog.Write("[ASP Server] " + E.Message);
+                BeginInvoke((Action)delegate
+                {
+                    StartAspServerBtn.Enabled = true;
+                    StartWebserverBtn.Enabled = true;
+                    AspStatusPic.Image = Resources.warning;
+                    Tipsy.SetToolTip(AspStatusPic, E.Message);
+                    Notify.Show("Failed to start ASP Server!", E.Message, AlertType.Warning);
+                });
+            }
+        }
+
+        /// <summary>
+        /// Starts the ASP Webserver
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void StartWebserverBtn_Click(object sender, EventArgs e)
+        {
+            StartAspServerBtn_Click(sender, e);
+        }
+
+        /// <summary>
         /// Update the GUI when the ASP starts up
         /// </summary>
         private void ASPServer_OnStart()
         {
-            AspStatusPic.Image = Resources.check;
-            StartAspServerBtn.Text = "Shutdown ASP Server";
-            ViewSnapshotBtn.Enabled = true;
-            EditPlayerBtn.Enabled = true;
-            EditASPDatabaseBtn.Enabled = false;
-            ClearStatsBtn.Enabled = true;
+            BeginInvoke((Action)delegate
+            {
+                AspStatusPic.Image = Resources.check;
+                StartAspServerBtn.Enabled = true;
+                StartAspServerBtn.Text = "Shutdown ASP Server";
+                ViewSnapshotBtn.Enabled = true;
+                EditPlayerBtn.Enabled = true;
+                EditASPDatabaseBtn.Enabled = false;
+                ClearStatsBtn.Enabled = true;
+                AspStatusLabel.Text = "Running";
+                AspStatusLabel.ForeColor = Color.LimeGreen;
+                StartWebserverBtn.Text = "Stop Webserver";
+                StartWebserverBtn.Enabled = true;
+                Tipsy.SetToolTip(AspStatusPic, "ASP Server is currently running");
+            });
         }
 
         /// <summary>
@@ -1292,12 +1452,72 @@ namespace BF2Statistics
         /// </summary>
         private void ASPServer_OnShutdown()
         {
-            AspStatusPic.Image = Resources.error;
-            StartAspServerBtn.Text = "Start ASP Server";
-            ViewSnapshotBtn.Enabled = false;
-            EditPlayerBtn.Enabled = false;
-            EditASPDatabaseBtn.Enabled = true;
-            ClearStatsBtn.Enabled = false;
+            BeginInvoke((Action)delegate
+            {
+                AspStatusPic.Image = Resources.error;
+                StartAspServerBtn.Text = "Start ASP Server";
+                ViewSnapshotBtn.Enabled = false;
+                EditPlayerBtn.Enabled = false;
+                EditASPDatabaseBtn.Enabled = true;
+                ClearStatsBtn.Enabled = false;
+                AspStatusLabel.Text = "Stopped";
+                AspStatusLabel.ForeColor = SystemColors.ControlDark;
+                StartWebserverBtn.Text = "Start Webserver";
+                labelSessionWebRequests.Text = "0";
+                Tipsy.SetToolTip(AspStatusPic, "ASP Server is currently offline");
+            });
+        }
+
+        /// <summary>
+        /// Update the GUI when a client connects
+        /// </summary>
+        private void ASPServer_ClientConnected()
+        {
+            BeginInvoke((Action)delegate
+            {
+                Config.TotalASPRequests++;
+                labelTotalWebRequests.Text = Config.TotalASPRequests.ToString();
+                int Sr = Int32.Parse(labelSessionWebRequests.Text);
+                if (Sr < ASPServer.SessionRequests)
+                    labelSessionWebRequests.Text = ASPServer.SessionRequests.ToString();
+            });
+        }
+
+        /// <summary>
+        /// Updates the GUI when a snapshot is proccessed
+        /// </summary>
+        private void Snapshot_SnapshotProccessed()
+        {
+            BeginInvoke((Action)delegate { CountSnapshots(); });
+        }
+
+        /// <summary>
+        /// Updates the GUI when a snapshot is recieved successfully
+        /// </summary>
+        private void SnapshotPost_SnapshotReceived(bool Proccessed)
+        {
+            BeginInvoke((Action)delegate
+            {
+                string[] Parts = labelSnapshotsProc.Text.Split('/');
+                int Total = Int32.Parse(Parts[1]) + 1;
+                int Good = Int32.Parse(Parts[0]);
+                if (Proccessed)
+                    Good++;
+
+                labelSnapshotsProc.Text = String.Concat(Good, " / ", Total);
+            });
+        }
+
+        /// <summary>
+        /// Reset total web requests link click
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void linkLabelReset_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Config.TotalASPRequests = 0;
+            labelTotalWebRequests.Text = "0";
+            Config.Save();
         }
 
         /// <summary>
@@ -1385,21 +1605,10 @@ namespace BF2Statistics
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ClearStatsBtn_Click(object sender, EventArgs e)
+        private void ManageStatsDBBtn_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Are you sure you want to clear the stats database? This will ERASE ALL stats data, and cannot be recovered!",
-                "Confirm", MessageBoxButtons.YesNo) == DialogResult.Yes)
-            {
-                try
-                {
-                    ASPServer.Database.Truncate();
-                    MessageBox.Show("Database successfully cleared", "Success");
-                }
-                catch (Exception E)
-                {
-                    MessageBox.Show("An error occured while clearing the stats database!\r\n\r\nMessage: " + E.Message, "Error");
-                }
-            }
+            ManageStatsDBForm Form = new ManageStatsDBForm();
+            Form.ShowDialog();
         }
 
         #endregion ASP Server
@@ -1470,7 +1679,10 @@ namespace BF2Statistics
         /// </summary>
         public static void Disable()
         {
-            Instance.Enabled = false;
+            Instance.Invoke((Action)delegate
+            {
+                Instance.Enabled = false;
+            });
         }
 
         /// <summary>
@@ -1478,7 +1690,10 @@ namespace BF2Statistics
         /// </summary>
         public static void Enable()
         {
-            Instance.Enabled = true;
+            Instance.Invoke((Action)delegate
+            {
+                Instance.Enabled = true;
+            });
         }
 
         #endregion Static Control Methods
@@ -1521,14 +1736,21 @@ namespace BF2Statistics
         #endregion Closer Methods
 
         /// <summary>
-        /// Recounts the snapsots when the ASP Stats Server tab is opened
+        /// This method is used to store a message in the console.log file
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        /// <param name="message">The message to be written to the log file</param>
+        public static void Log(string message)
         {
-            if (tabControl1.SelectedIndex == 3)
-                CountSnapshots();
+            ErrorLog.Write(message);
+        }
+
+        /// <summary>
+        /// This method is used to store a message in the console.log file
+        /// </summary>
+        /// <param name="message">The message to be written to the log file</param>
+        public static void Log(string message, params object[] items)
+        {
+            ErrorLog.Write(String.Format(message, items));
         }
     }
 }
