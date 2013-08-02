@@ -22,20 +22,19 @@ namespace BF2Statistics.ASP.Requests
         private int Min;
         private int Max;
 
-        public GetLeaderBoard(ASPResponse Response, Dictionary<string, string> QueryString)
+        public GetLeaderBoard(HttpClient Client)
         {
             // Set internal variables
-            this.Response = Response;
-            this.QueryString = QueryString;
+            this.Response = Client.Response;
+            this.QueryString = Client.Request.QueryString;
             this.Driver = ASPServer.Database.Driver;
 
             // We need a type!
             if (!QueryString.ContainsKey("type"))
             {
-                FormattedOutput Output = new FormattedOutput("asof", "err");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
-                Response.AddData(Output);
-                Response.IsValidData(false);
+                Response.WriteResponseStart(false);
+                Response.WriteHeaderLine("asof", "err");
+                Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
                 Response.Send();
                 return;
             }
@@ -87,7 +86,8 @@ namespace BF2Statistics.ASP.Requests
                 return;
 
             // Prepare Output
-            FormattedOutput Output = new FormattedOutput("size", "asof");
+            Response.WriteResponseStart();
+            Response.WriteHeaderLine("size", "asof");
             List<Dictionary<string, object>> Rows;
             int Count;
 
@@ -96,14 +96,12 @@ namespace BF2Statistics.ASP.Requests
                 // Get Player count with a score
                 Rows = Driver.Query("SELECT COUNT(id) AS count FROM player WHERE score > 0");
                 Count = Int32.Parse(Rows[0]["count"].ToString());
-                Output.AddRow(Count, DateTime.UtcNow.ToUnixTimestamp());
-                Response.AddData(Output);
+                Response.WriteDataLine(Count, DateTime.UtcNow.ToUnixTimestamp());
 
                 // Build New Header Output
-                Output = new FormattedOutput("n", "pid", "nick", "score", "totaltime", "playerrank", "countrycode");
+                Response.WriteHeaderLine("n", "pid", "nick", "score", "totaltime", "playerrank", "countrycode");
                 if (Count == 0)
                 {
-                    Response.AddData(Output);
                     Response.Send();
                     return;
                 }
@@ -114,7 +112,7 @@ namespace BF2Statistics.ASP.Requests
                     Rows = Driver.Query(Query, Min, Max);
                     foreach (Dictionary<string, object> Player in Rows)
                     {
-                        Output.AddRow(
+                        Response.WriteDataLine(
                             Pos++,
                             Player["id"],
                             Player["name"].ToString().Trim(),
@@ -132,7 +130,7 @@ namespace BF2Statistics.ASP.Requests
                     Rows = Driver.Query(Query, Pid);
                     if(Rows.Count > 0)
                     {
-                        Output.AddRow(
+                        Response.WriteDataLine(
                             Int32.Parse(
                                 Driver.Query("SELECT COUNT(id) as count FROM player WHERE score > @P0", Rows[0]["score"])[0]["count"].ToString()
                             ) + 1,
@@ -146,21 +144,19 @@ namespace BF2Statistics.ASP.Requests
                     }
                 }
 
-                Response.AddData(Output);
+                // Send Response
                 Response.Send();
             }
             else if (Id == "commander")
             {
                 Rows = Driver.Query("SELECT COUNT(id) AS count FROM player WHERE cmdscore > 0");
                 Count = Int32.Parse(Rows[0]["count"].ToString());
-                Output.AddRow(Count, DateTime.UtcNow.ToUnixTimestamp());
-                Response.AddData(Output);
+                Response.WriteDataLine(Count, DateTime.UtcNow.ToUnixTimestamp());
 
                 // Build New Header Output
-                Output = new FormattedOutput("n", "pid", "nick", "coscore", "cotime", "playerrank", "countrycode");
+                Response.WriteHeaderLine("n", "pid", "nick", "coscore", "cotime", "playerrank", "countrycode");
                 if (Count == 0)
                 {
-                    Response.AddData(Output);
                     Response.Send();
                     return;
                 }
@@ -172,7 +168,7 @@ namespace BF2Statistics.ASP.Requests
                     Rows = Driver.Query(Query, Min, Max);
                     foreach (Dictionary<string, object> Player in Rows)
                     {
-                        Output.AddRow(
+                        Response.WriteDataLine(
                             Pos++,
                             Player["id"],
                             Player["name"].ToString().Trim(),
@@ -190,7 +186,7 @@ namespace BF2Statistics.ASP.Requests
                     Rows = Driver.Query(Query, Pid);
                     if(Rows.Count > 0)
                     {
-                        Output.AddRow(
+                        Response.WriteDataLine(
                             Int32.Parse(
                                 Driver.Query("SELECT COUNT(id) as count FROM player WHERE cmdscore > @P0", Rows[0]["cmdscore"])[0]["count"].ToString()
                             ) + 1,
@@ -204,21 +200,19 @@ namespace BF2Statistics.ASP.Requests
                     }
                 }
 
-                Response.AddData(Output);
+                // Send Response
                 Response.Send();
             }
             else if (Id == "team")
             {
                 Rows = Driver.Query("SELECT COUNT(id) AS count FROM player WHERE teamscore > 0");
                 Count = Int32.Parse(Rows[0]["count"].ToString());
-                Output.AddRow(Count, DateTime.UtcNow.ToUnixTimestamp());
-                Response.AddData(Output);
+                Response.WriteDataLine(Count, DateTime.UtcNow.ToUnixTimestamp());
 
                 // Build New Header Output
-                Output = new FormattedOutput("n", "pid", "nick", "teamscore", "totaltime", "playerrank", "countrycode");
+                Response.WriteHeaderLine("n", "pid", "nick", "teamscore", "totaltime", "playerrank", "countrycode");
                 if (Count == 0)
                 {
-                    Response.AddData(Output);
                     Response.Send();
                     return;
                 }
@@ -230,7 +224,7 @@ namespace BF2Statistics.ASP.Requests
                     Rows = Driver.Query(Query, Min, Max);
                     foreach (Dictionary<string, object> Player in Rows)
                     {
-                        Output.AddRow(
+                        Response.WriteDataLine(
                             Pos++,
                             Player["id"],
                             Player["name"].ToString().Trim(),
@@ -248,7 +242,7 @@ namespace BF2Statistics.ASP.Requests
                     Rows = Driver.Query(Query, Pid);
                     if(Rows.Count > 0)
                     {
-                        Output.AddRow(
+                        Response.WriteDataLine(
                             Int32.Parse(
                                 Driver.Query("SELECT COUNT(id) as count FROM player WHERE teamscore > @P0", Rows[0]["teamscore"])[0]["count"].ToString()
                             ) + 1,
@@ -262,21 +256,19 @@ namespace BF2Statistics.ASP.Requests
                     }
                 }
 
-                Response.AddData(Output);
+                // Send Response
                 Response.Send();
             }
             else if (Id == "combat")
             {
                 Rows = Driver.Query("SELECT COUNT(id) AS count FROM player WHERE skillscore > 0");
                 Count = Int32.Parse(Rows[0]["count"].ToString());
-                Output.AddRow(Count, DateTime.UtcNow.ToUnixTimestamp());
-                Response.AddData(Output);
+                Response.WriteDataLine(Count, DateTime.UtcNow.ToUnixTimestamp());
 
                 // Build New Header Output
-                Output = new FormattedOutput("n", "pid", "nick", "score", "totalkills", "totaltime", "playerrank", "countrycode");
+                Response.WriteHeaderLine("n", "pid", "nick", "score", "totalkills", "totaltime", "playerrank", "countrycode");
                 if (Count == 0)
                 {
-                    Response.AddData(Output);
                     Response.Send();
                     return;
                 }
@@ -288,7 +280,7 @@ namespace BF2Statistics.ASP.Requests
                     Rows = Driver.Query(Query, Min, Max);
                     foreach (Dictionary<string, object> Player in Rows)
                     {
-                        Output.AddRow(
+                        Response.WriteDataLine(
                             Pos++,
                             Player["id"],
                             Player["name"].ToString().Trim(),
@@ -307,7 +299,7 @@ namespace BF2Statistics.ASP.Requests
                     Rows = Driver.Query(Query, Pid);
                     if (Rows.Count > 0)
                     {
-                        Output.AddRow(
+                        Response.WriteDataLine(
                             Int32.Parse(
                                 Driver.Query("SELECT COUNT(id) as count FROM player WHERE skillscore > @P0", Rows[0]["skillscore"])[0]["count"].ToString()
                             ) + 1,
@@ -322,7 +314,7 @@ namespace BF2Statistics.ASP.Requests
                     }
                 }
 
-                Response.AddData(Output);
+                // Send Response
                 Response.Send();
             }
             else
@@ -339,16 +331,16 @@ namespace BF2Statistics.ASP.Requests
             string Query = "SELECT COUNT(DISTINCT(id)) AS count FROM player_history WHERE score > 0 AND timestamp >= @P0";
             List<Dictionary<string, object>> Rows = Driver.Query(Query, Timeframe);
 
+            // Write initial Headers
             int Count = Int32.Parse(Rows[0]["count"].ToString());
-            FormattedOutput Output = new FormattedOutput("size", "asof");
-            Output.AddRow(Count, DateTime.UtcNow.ToUnixTimestamp());
-            Response.AddData(Output);
+            Response.WriteResponseStart();
+            Response.WriteHeaderLine("size", "asof");
+            Response.WriteDataLine(Count, DateTime.UtcNow.ToUnixTimestamp());
 
             // Start a new header
-            Output = new FormattedOutput("n", "pid", "nick", "weeklyscore", "totaltime", "date", "playerrank", "countrycode");
+            Response.WriteHeaderLine("n", "pid", "nick", "weeklyscore", "totaltime", "date", "playerrank", "countrycode");
             if (Count == 0)
             {
-                Response.AddData(Output);
                 Response.Send();
                 return;
             }
@@ -366,7 +358,7 @@ namespace BF2Statistics.ASP.Requests
                 {
                     DateTime FromUnix = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(Int32.Parse(Player["joined"].ToString())).ToLocalTime();
                     string DateString = FromUnix.ToString( "MM/dd/yy hh:mm:00 tt" );
-                    Output.AddRow(
+                    Response.WriteDataLine(
                         Pos++,
                         Player["id"],
                         Player["name"].ToString().Trim(),
@@ -378,7 +370,7 @@ namespace BF2Statistics.ASP.Requests
                     );
                 }
 
-                Response.AddData(Output);
+                // Send Response
                 Response.Send();
             }
             else
@@ -396,7 +388,7 @@ namespace BF2Statistics.ASP.Requests
                     {
                         DateTime FromUnix = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(Int32.Parse(Player["joined"].ToString())).ToLocalTime();
                         string DateString = FromUnix.ToString("MM/dd/yy hh:mm:00 tt");
-                        Output.AddRow(
+                        Response.WriteDataLine(
                             Pos,
                             Player["id"],
                             Player["name"].ToString().Trim(),
@@ -411,30 +403,25 @@ namespace BF2Statistics.ASP.Requests
                     Pos++;
                 }
 
-                Response.AddData(Output);
+                // Send Response
                 Response.Send();
             }
         }
 
         private void DoKit()
         {
-            // Prepare Output
-            FormattedOutput Output;
-
             // Make sure we have a score sub type
             int KitId = 0;
             if (String.IsNullOrWhiteSpace(Id) || !Int32.TryParse(Id, out KitId))
             {
-                Output = new FormattedOutput("asof", "err");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
-                Response.AddData(Output);
-                Response.IsValidData(false);
+                Response.WriteResponseStart(false);
+                Response.WriteHeaderLine("asof", "err");
+                Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
                 Response.Send();
                 return;
             }
 
-            // Prepare Output
-            Output = new FormattedOutput("size", "asof");
+            // Prepare variables
             String Query;
             List<Dictionary<string, object>> Rows;
             int Count;
@@ -442,11 +429,12 @@ namespace BF2Statistics.ASP.Requests
             // Get total number of players who have at least 1 kill in kit
             Rows = Driver.Query(String.Format("SELECT COUNT(id) AS count FROM kits WHERE kills{0} > 0", Id));
             Count = Int32.Parse(Rows[0]["count"].ToString());
-            Output.AddRow(Count, DateTime.UtcNow.ToUnixTimestamp());
-            Response.AddData(Output);
+            Response.WriteResponseStart();
+            Response.WriteHeaderLine("size", "asof");
+            Response.WriteDataLine(Count, DateTime.UtcNow.ToUnixTimestamp());
 
             // Build New Header Output
-            Output = new FormattedOutput("n", "pid", "nick", "killswith", "deathsby", "timeplayed", "playerrank", "countrycode");
+            Response.WriteHeaderLine("n", "pid", "nick", "killswith", "deathsby", "timeplayed", "playerrank", "countrycode");
 
             // Get Leaderboard Positions
             Query = String.Format("SELECT player.id AS plid, name, rank, country, kills{0} AS kills, deaths{0} AS deaths, time{0} AS time"
@@ -460,7 +448,7 @@ namespace BF2Statistics.ASP.Requests
             {
                 if (Pid == 0 || Int32.Parse(Player["plid"].ToString()) == Pid)
                 {
-                    Output.AddRow(
+                    Response.WriteDataLine(
                         Pos,
                         Player["plid"],
                         Player["name"].ToString().Trim(),
@@ -477,29 +465,24 @@ namespace BF2Statistics.ASP.Requests
                 Pos++;
             }
 
-            Response.AddData(Output);
+            // Send Response
             Response.Send();
         }
 
         private void DoVehicles()
         {
-            // Prepare Output
-            FormattedOutput Output;
-
             // Make sure we have a score sub type
             int KitId = 0;
             if (String.IsNullOrWhiteSpace(Id) || !Int32.TryParse(Id, out KitId))
             {
-                Output = new FormattedOutput("asof", "err");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
-                Response.AddData(Output);
-                Response.IsValidData(false);
+                Response.WriteResponseStart(false);
+                Response.WriteHeaderLine("asof", "err");
+                Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
                 Response.Send();
                 return;
             }
 
-            // Prepare Output
-            Output = new FormattedOutput("size", "asof");
+            // Prepare Variables
             String Query;
             List<Dictionary<string, object>> Rows;
             int Count;
@@ -507,11 +490,12 @@ namespace BF2Statistics.ASP.Requests
             // Get total number of players who have at least 1 kill in kit
             Rows = Driver.Query(String.Format("SELECT COUNT(id) AS count FROM vehicles WHERE kills{0} > 0", Id));
             Count = Int32.Parse(Rows[0]["count"].ToString());
-            Output.AddRow(Count, DateTime.UtcNow.ToUnixTimestamp());
-            Response.AddData(Output);
+            Response.WriteResponseStart();
+            Response.WriteHeaderLine("size", "asof");
+            Response.WriteDataLine(Count, DateTime.UtcNow.ToUnixTimestamp());
 
             // Build New Header Output
-            Output = new FormattedOutput("n", "pid", "nick", "killswith", "detahsby", "timeused", "playerrank", "countrycode");
+            Response.WriteHeaderLine("n", "pid", "nick", "killswith", "detahsby", "timeused", "playerrank", "countrycode");
 
             // Get Leaderboard Positions
             Query = String.Format("SELECT player.id AS plid, name, rank, country, kills{0} AS kills, deaths{0} AS deaths, time{0} AS time"
@@ -524,7 +508,7 @@ namespace BF2Statistics.ASP.Requests
             {
                 if (Pid == 0 || Int32.Parse(Player["plid"].ToString()) == Pid)
                 {
-                    Output.AddRow(
+                    Response.WriteDataLine(
                         Pos,
                         Player["plid"],
                         Player["name"].ToString().Trim(),
@@ -541,29 +525,24 @@ namespace BF2Statistics.ASP.Requests
                 Pos++;
             }
 
-            Response.AddData(Output);
+            // Send Response
             Response.Send();
         }
 
         private void DoWeapons()
         {
-            // Prepare Output
-            FormattedOutput Output;
-
             // Make sure we have a score sub type
             int KitId = 0;
             if (String.IsNullOrWhiteSpace(Id) || !Int32.TryParse(Id, out KitId))
             {
-                Output = new FormattedOutput("asof", "err");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
-                Response.AddData(Output);
-                Response.IsValidData(false);
+                Response.WriteResponseStart(false);
+                Response.WriteHeaderLine("asof", "err");
+                Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
                 Response.Send();
                 return;
             }
 
-            // Prepare Output
-            Output = new FormattedOutput("size", "asof");
+            // Prepare variables
             String Query;
             List<Dictionary<string, object>> Rows;
             int Count;
@@ -571,11 +550,12 @@ namespace BF2Statistics.ASP.Requests
             // Get total number of players who have at least 1 kill in kit
             Rows = Driver.Query(String.Format("SELECT COUNT(id) AS count FROM weapons WHERE kills{0} > 0", Id));
             Count = Int32.Parse(Rows[0]["count"].ToString());
-            Output.AddRow(Count, DateTime.UtcNow.ToUnixTimestamp());
-            Response.AddData(Output);
+            Response.WriteResponseStart();
+            Response.WriteHeaderLine("size", "asof");
+            Response.WriteDataLine(Count, DateTime.UtcNow.ToUnixTimestamp());
 
             // Build New Header Output
-            Output = new FormattedOutput("n", "pid", "nick", "killswith", "detahsby", "timeused", "accuracy", "playerrank", "countrycode");
+            Response.WriteHeaderLine("n", "pid", "nick", "killswith", "detahsby", "timeused", "accuracy", "playerrank", "countrycode");
 
             // Get Leaderboard Positions
             Query = String.Format("SELECT player.id AS plid, name, rank, country, kills{0} AS kills, deaths{0} AS deaths, time{0} AS time, "
@@ -591,7 +571,7 @@ namespace BF2Statistics.ASP.Requests
                     float Hit = float.Parse(Player["hit"].ToString());
                     float Fired = float.Parse(Player["fired"].ToString());
                     float Acc = (Hit / Fired) * 100;
-                    Output.AddRow(
+                    Response.WriteDataLine(
                         Pos,
                         Player["plid"],
                         Player["name"].ToString().Trim(),
@@ -609,7 +589,7 @@ namespace BF2Statistics.ASP.Requests
                 Pos++;
             }
 
-            Response.AddData(Output);
+            // Send response
             Response.Send();
         }
     }

@@ -16,7 +16,7 @@ namespace BF2Statistics.MedalData
     /// <summary>
     /// The data class holds all the different MedalData varaibles and constant ID's
     /// </summary>
-    class Data
+    public static class Data
     {
         public static Dictionary<string, string> WeaponNames = new Dictionary<string, string>()
         {

@@ -10,12 +10,30 @@ namespace BF2Statistics.Gamespy
 {
     public class GpspClient : IDisposable
     {
+        /// <summary>
+        /// Indicates whether this object is disposed
+        /// </summary>
         public bool Disposed { get; protected set; }
-        private TcpClientStream Stream;
-        private TcpClient Client;
-        private Thread ClientThread;
-        private Dictionary<string, object> ClientData = null;
 
+        /// <summary>
+        /// Connection TcpClient Stream
+        /// </summary>
+        private TcpClientStream Stream;
+
+        /// <summary>
+        /// The Tcp Client
+        /// </summary>
+        private TcpClient Client;
+
+        /// <summary>
+        /// Client background thread
+        /// </summary>
+        private Thread ClientThread;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="client"></param>
         public GpspClient(TcpClient client)
         {
             // Set disposed to false!
@@ -27,6 +45,7 @@ namespace BF2Statistics.Gamespy
             // Init a new client stream class
             Stream = new TcpClientStream(client);
 
+            // Handle client communications in a background thread
             ClientThread = new Thread(new ThreadStart(Start));
             ClientThread.IsBackground = true;
             ClientThread.Start();
@@ -75,7 +94,7 @@ namespace BF2Statistics.Gamespy
         {
             if (Stream.HasData())
             {
-                // TODO: process the 'getprofile' (returned at this point) data
+                // Parse input message
                 string message = Stream.Read();
                 string[] recv = message.Split('\\');
 
@@ -98,9 +117,15 @@ namespace BF2Statistics.Gamespy
         private void SendGPSP(string[] recv)
         {
             // Try to get user data from database
+            Dictionary<string, object> ClientData;
             try
             {
                 ClientData = LoginServer.Database.GetUser(GetParameterValue(recv, "email"), GetParameterValue(recv, "pass"));
+                if (ClientData == null)
+                {
+                    Stream.Write("\\nr\\0\\ndone\\\\final\\");
+                    return;
+                }
             }
             catch 
             {
@@ -108,15 +133,7 @@ namespace BF2Statistics.Gamespy
                 return;
             }
 
-            if (ClientData == null)
-            {
-                Stream.Write("\\nr\\{0}\\ndone\\\\final\\");
-                return;
-            }
-
-            Stream.Write("\\nr\\1\\nick\\{0}\\uniquenick\\{1}\\ndone\\\\final\\",
-                (string)ClientData["name"], (string)ClientData["name"]
-            );
+            Stream.Write("\\nr\\1\\nick\\{0}\\uniquenick\\{0}\\ndone\\\\final\\", ClientData["name"]);
         }
 
         /// <summary>
@@ -125,24 +142,14 @@ namespace BF2Statistics.Gamespy
         /// <param name="recv"></param>
         private void SendCheck(string[] recv)
         {
-            int pid = 0;
-            try
-            {
-                pid = LoginServer.Database.GetPID(GetParameterValue(recv, "nick"));
+            try {
+                Stream.Write("\\cur\\0\\pid\\{0}\\final\\", LoginServer.Database.GetPID(GetParameterValue(recv, "nick")));
             }
             catch
             {
                 Dispose();
                 return;
             }
-
-            if (pid == 0)
-            {
-                Stream.Write("\\cur\\0\\pid\\0\\final\\");
-                return;
-            }
-
-            Stream.Write("\\cur\\0\\pid\\{0}\\final\\", pid);
         }
 
         /// <summary>

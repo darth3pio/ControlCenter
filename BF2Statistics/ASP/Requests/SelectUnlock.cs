@@ -1,32 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using BF2Statistics.Database;
+using System.Data.Common;
 
 namespace BF2Statistics.ASP.Requests
 {
     class SelectUnlock
     {
-        public SelectUnlock(ASPResponse Response, Dictionary<string, string> QueryString)
+        public SelectUnlock(HttpClient Client)
         {
             int Pid = 0;
             int Unlock = 0;
             DatabaseDriver Driver = ASPServer.Database.Driver;
             List<Dictionary<string, object>> Rows;
-            FormattedOutput Output;
 
             // Setup Params
-            if (QueryString.ContainsKey("pid"))
-                Int32.TryParse(QueryString["pid"], out Pid);
-            if (QueryString.ContainsKey("id"))
-                Int32.TryParse(QueryString["id"], out Unlock);
+            if (Client.Request.QueryString.ContainsKey("pid"))
+                Int32.TryParse(Client.Request.QueryString["pid"], out Pid);
+            if (Client.Request.QueryString.ContainsKey("id"))
+                Int32.TryParse(Client.Request.QueryString["id"], out Unlock);
 
+            // Make sure we have valid parameters
             if (Pid == 0 || Unlock == 0)
             {
-                Output = new FormattedOutput("asof", "err");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
-                Response.AddData(Output);
-                Response.IsValidData(false);
-                Response.Send();
+                Client.Response.WriteResponseStart(false);
+                Client.Response.WriteHeaderLine("asof", "err");
+                Client.Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
+                Client.Response.Send();
                 return;
             }
 
@@ -34,13 +34,15 @@ namespace BF2Statistics.ASP.Requests
             Rows = Driver.Query("SELECT availunlocks, usedunlocks FROM player WHERE id=@P0", Pid);
             if (Rows.Count == 0)
             {
-                Output = new FormattedOutput("asof", "err");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist!");
-                Response.AddData(Output);
-                Response.IsValidData(false);
-                Response.Send();
+                Client.Response.WriteResponseStart(false);
+                Client.Response.WriteHeaderLine("asof", "err");
+                Client.Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist");
+                Client.Response.Send();
                 return;
             }
+
+            // Start a new Transaction
+            DbTransaction Transaction = Driver.BeginTransaction();
 
             // Update Unlock
             Driver.Execute("UPDATE unlocks SET state = 's' WHERE id = @P0 AND kit = @P1", Pid, Unlock);
@@ -52,11 +54,14 @@ namespace BF2Statistics.ASP.Requests
                 Pid
             );
 
+            // Commits the Transaction
+            Transaction.Commit();
+
             // Send Response
-            Output = new FormattedOutput("response");
-            Output.AddRow("OK");
-            Response.AddData(Output);
-            Response.Send();
+            Client.Response.WriteResponseStart();
+            Client.Response.WriteHeaderLine("response");
+            Client.Response.WriteDataLine("OK");
+            Client.Response.Send();
         }
     }
 }

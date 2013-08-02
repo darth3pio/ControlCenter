@@ -49,11 +49,6 @@ namespace BF2Statistics.ASP.Requests
         private Dictionary<string, object> Out = new Dictionary<string, object>();
 
         /// <summary>
-        /// Final Output
-        /// </summary>
-        private FormattedOutput Output;
-
-        /// <summary>
         /// The required Querystring for BF2HQ
         /// </summary>
         private static string RequiredKeys = "per*,cmb*,twsc,cpcp,cacp,dfcp,kila,heal,rviv,rsup,rpar,"
@@ -65,13 +60,12 @@ namespace BF2Statistics.ASP.Requests
 
         //&info=per*,cmb*,twsc,cpcp,cacp,dfcp,kila,heal,rviv,rsup,rpar,tgte,dkas,dsab,cdsc,rank,cmsc,kick,kill,deth,suic,ospm,klpm,klpr,dtpr,bksk,wdsk,bbrs,tcdr,ban,dtpm,lbtl,osaa,vrk,tsql,tsqm,tlwf,mvks,vmks,mvn*,vmr*,fkit,fmap,fveh,fwea,wtm-,wkl-,wdt-,wac-,wkd-,vtm-,vkl-,vdt-,vkd-,vkr-,atm-,awn-,alo-,abr-,ktm-,kkl-,kdt-,kkd-
 
-        public GetPlayerInfo(ASPResponse Response, Dictionary<string, string> QueryString)
+        public GetPlayerInfo(HttpClient Client)
         {
             // Load class Variables
-            this.Response = Response;
-            this.QueryString = QueryString;
+            this.Response = Client.Response;
+            this.QueryString = Client.Request.QueryString;
             this.Driver = ASPServer.Database.Driver;
-            FormattedOutput Output;
 
             // Setup Params
             if (QueryString.ContainsKey("pid"))
@@ -84,17 +78,16 @@ namespace BF2Statistics.ASP.Requests
             // Make sure our required params are indeed passed
             if (Pid == 0 || Info.Count == 0)
             {
-                Output = new FormattedOutput("asof", "err");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
-                Response.AddData(Output);
-                Response.IsValidData(false);
-                Response.Send();
+                Client.Response.WriteResponseStart(false);
+                Client.Response.WriteHeaderLine("asof", "err");
+                Client.Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
+                Client.Response.Send();
                 return;
             }
 
             // Get Missing keys for a standard request
             List<string> ReqKeys = RequiredKeys.Split(',').ToList<string>();
-            var Diff = from item in ReqKeys where !Info.Contains(item) select item;
+            IEnumerable<string> Diff = from item in ReqKeys where !Info.Contains(item) select item;
             List<string> MissingKeys = new List<string>(Diff);
 
             // Standard BF2HQ Request
@@ -123,18 +116,17 @@ namespace BF2Statistics.ASP.Requests
             // If player doesnt exist then output default dataB
             if (Rows.Count == 0)
             {
-                Output = new FormattedOutput("asof", "err");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist");
-                Response.AddData(Output);
-                Response.IsValidData(false);
+                Response.WriteResponseStart(false);
+                Response.WriteHeaderLine("asof", "err");
+                Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist");
                 Response.Send();
                 return;
             }
             else
             {
-                Output = new FormattedOutput("asof");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp());
-                Response.AddData(Output);
+                Response.WriteResponseStart();
+                Response.WriteHeaderLine("asof");
+                Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp());
             }
 
             // Add Player Data
@@ -226,7 +218,7 @@ namespace BF2Statistics.ASP.Requests
             GetFavMap();
 
             // Do output
-            Response.AddData(Out);
+            Response.WriteHeaderDataPair(Out);
             Response.Send();
         }
 
@@ -253,46 +245,27 @@ namespace BF2Statistics.ASP.Requests
 
             // Check if the player exists
             Rows = Driver.Query("SELECT name FROM player WHERE id=@P0", Pid);
-            if(Rows.Count == 0)
+            if (Rows.Count == 0)
             {
-                Output = new FormattedOutput("asof", "err");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist");
-                Response.AddData(Output);
-                Response.IsValidData(false);
+                Response.WriteResponseStart(false);
+                Response.WriteHeaderLine("asof", "err");
+                Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist");
                 Response.Send();
                 return;
             }
             else
             {
-                Output = new FormattedOutput("asof");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp());
-                Response.AddData(Output);
+                Response.WriteResponseStart();
+                Response.WriteHeaderLine("asof");
+                Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp());
             }
 
             // Prepare output
-            Output = new FormattedOutput("pid", "nick", "ktm-" + Kit.ToString(), "vtm-" + Vehicle.ToString(), "wtm-" + Weapon.ToString(), "mtm-" + Map.ToString());
+            Response.WriteHeaderLine("pid", "nick", "ktm-" + Kit.ToString(), "vtm-" + Vehicle.ToString(), "wtm-" + Weapon.ToString(), "mtm-" + Map.ToString());
+            string Name = Rows[0]["name"].ToString().Trim();
 
-            // Fetch data
-            List<string> Data = new List<string>(6);
-            Data.Add(Pid.ToString());
-            Data.Add(Rows[0]["name"].ToString().Trim());
-
-            // Kit Time
-            Rows = Driver.Query(String.Format("SELECT time{0} AS time FROM kits WHERE id={1}", Kit, Pid));
-            if(Rows.Count == 0)
-                Data.Add("0");
-            else
-                Data.Add(Rows[0]["time"].ToString());
-
-            // Vehicle Time
-            Rows = Driver.Query(String.Format("SELECT time{0} AS time FROM vehicles WHERE id={1}", Vehicle, Pid));
-            if(Rows.Count == 0)
-                Data.Add("0");
-            else
-                Data.Add(Rows[0]["time"].ToString());
-
-            // Weapon Time
-            if(Weapon > 9)
+            // Format weapon column name
+            if(Weapon > 8)
             {
                 switch(Weapon)
                 {
@@ -313,22 +286,24 @@ namespace BF2Statistics.ASP.Requests
             else
                 colName = "time" + Weapon;
 
+            // Kit Time
+            Rows = Driver.Query(String.Format("SELECT time{0} AS time FROM kits WHERE id={1}", Kit, Pid));
+            Kit = (Rows.Count == 0) ? 0 : Int32.Parse(Rows[0]["time"].ToString());
+
+            // Vehicle Time
+            Rows = Driver.Query(String.Format("SELECT time{0} AS time FROM vehicles WHERE id={1}", Vehicle, Pid));
+            Vehicle = (Rows.Count == 0) ? 0 : Int32.Parse(Rows[0]["time"].ToString());
+
+            // Weapon Time
             Rows = Driver.Query(String.Format("SELECT {0} AS time FROM weapons WHERE id={1}", colName, Pid));
-            if(Rows.Count == 0)
-                Data.Add("0");
-            else
-                Data.Add(Rows[0]["time"].ToString());
+            Weapon = (Rows.Count == 0) ? 0 : Int32.Parse(Rows[0]["time"].ToString());
 
             // Map Time
             Rows = Driver.Query("SELECT time FROM maps WHERE id = @P0 AND mapid = @P1", Pid, Map);
-            if(Rows.Count == 0)
-                Data.Add("0");
-            else
-                Data.Add(Rows[0]["time"].ToString());
+            Map = (Rows.Count == 0) ? 0 : Int32.Parse(Rows[0]["time"].ToString());
 
             // Send Response
-            Output.AddRow(Data);
-            Response.AddData(Output);
+            Response.WriteDataLine(Pid, Name, Kit, Vehicle, Weapon, Map);
             Response.Send();
         }
 
@@ -351,12 +326,17 @@ namespace BF2Statistics.ASP.Requests
             Rows = Driver.Query("SELECT name FROM player WHERE id=@P0", Pid);
             if (Rows.Count == 0)
             {
-                Output = new FormattedOutput("asof", "err");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist");
-                Response.AddData(Output);
-                Response.IsValidData(false);
+                Response.WriteResponseStart(false);
+                Response.WriteHeaderLine("asof", "err");
+                Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist");
                 Response.Send();
                 return;
+            }
+            else
+            {
+                Response.WriteResponseStart();
+                Response.WriteHeaderLine("asof");
+                Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp());
             }
 
             // Build individual headers, so they can group together in response
@@ -365,11 +345,6 @@ namespace BF2Statistics.ASP.Requests
             Dictionary<int, string> Mls = new Dictionary<int, string>();
             Dictionary<int, string> Mbs = new Dictionary<int, string>();
             Dictionary<int, string> Mws = new Dictionary<int, string>();
-
-            // Add timestamp
-            Output = new FormattedOutput("asof");
-            Output.AddRow(DateTime.UtcNow.ToUnixTimestamp());
-            Response.AddData(Output);
 
             // Add player data
             List<string> Head = new List<string>();
@@ -529,13 +504,15 @@ namespace BF2Statistics.ASP.Requests
                 }
             }
 
-            Output = new FormattedOutput(Head);
-            Output.AddRow(Body);
-
-            Response.AddData(Output);
+            // Send Response
+            Response.WriteHeaderLine(Head);
+            Response.WriteDataLine(Body);
             Response.Send();
         }
 
+        /// <summary>
+        /// Produces the Server response
+        /// </summary>
         private void DoServerRequest()
         {
             // Fetch Player
@@ -544,18 +521,17 @@ namespace BF2Statistics.ASP.Requests
             // If player doesnt exist then output default data
             if (Rows.Count == 0)
             {
-                Output = new FormattedOutput("asof", "err");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist!");
-                Response.AddData(Output);
-                Response.IsValidData(false);
+                Response.WriteResponseStart(false);
+                Response.WriteHeaderLine("asof", "err");
+                Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist");
                 Response.Send();
                 return;
             }
             else
             {
-                Output = new FormattedOutput("asof");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp());
-                Response.AddData(Output);
+                Response.WriteResponseStart();
+                Response.WriteHeaderLine("asof");
+                Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp());
             }
 
             // Add default player data
@@ -687,7 +663,7 @@ namespace BF2Statistics.ASP.Requests
             }
 
             // Send Response
-            Response.AddData(Out);
+            Response.WriteHeaderDataPair(Out);
             Response.Send();
         }
 

@@ -6,49 +6,39 @@ namespace BF2Statistics.ASP.Requests
 {
     class GetAwardsInfo
     {
-        public GetAwardsInfo(ASPResponse Response, Dictionary<string, string> QueryString)
+        public GetAwardsInfo(HttpClient Client)
         {
-            FormattedOutput Output;
             int Pid;
 
             // make sure we have a valid player ID
-            if (!QueryString.ContainsKey("pid") || !Int32.TryParse(QueryString["pid"], out Pid))
+            if (!Client.Request.QueryString.ContainsKey("pid") || !Int32.TryParse(Client.Request.QueryString["pid"], out Pid))
             {
-                Output = new FormattedOutput("asof", "err");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
-                Response.AddData(Output);
-                Response.IsValidData(false);
-                Response.Send();
+                Client.Response.WriteResponseStart(false);
+                Client.Response.WriteHeaderLine("asof", "err");
+                Client.Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
+                Client.Response.Send();
                 return;
             }
 
             // Output header data
-            Output = new FormattedOutput("pid", "asof");
-            Output.AddRow(Pid, DateTime.UtcNow.ToUnixTimestamp());
-            Response.AddData(Output);
-
-            // Create Award List Header
-            Output = new FormattedOutput("award", "level", "when", "first");
-            List<Dictionary<string, object>> Awards = new List<Dictionary<string,object>>();
+            Client.Response.WriteResponseStart();
+            Client.Response.WriteHeaderLine("pid", "asof");
+            Client.Response.WriteDataLine(Pid, DateTime.UtcNow.ToUnixTimestamp());
+            Client.Response.WriteHeaderLine("award", "level", "when", "first");
 
             try
             {
-                Awards = ASPServer.Database.GetPlayerAwards(Pid);
+                // Fetch Player Awards
+                List<Dictionary<string, object>> Awards = ASPServer.Database.GetPlayerAwards(Pid);
+
+                // Write each award as a new data line
+                foreach (Dictionary<string, object> Award in Awards)
+                    Client.Response.WriteDataLine(Award["awd"], Award["level"], Award["earned"], Award["first"]);
             }
             catch { }
 
-            foreach (Dictionary<string, object> Award in Awards)
-            {
-                Output.AddRow(
-                    Award["awd"].ToString(), 
-                    Award["level"].ToString(), 
-                    Award["earned"].ToString(), 
-                    Award["first"].ToString()
-                );
-            }
-
-            Response.AddData(Output);
-            Response.Send();
+            // Send Response
+            Client.Response.Send();
         }
     }
 }

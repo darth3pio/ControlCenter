@@ -7,9 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Data.Common;
+using System.Reflection;
+using System.IO;
 using BF2Statistics.ASP;
 using BF2Statistics.Database;
 using BF2Statistics.Database.QueryBuilder;
+using BF2Statistics.Utilities;
 
 namespace BF2Statistics
 {
@@ -30,50 +33,176 @@ namespace BF2Statistics
         /// </summary>
         private DatabaseDriver Driver = ASPServer.Database.Driver;
 
+        /// <summary>
+        /// Current executing Assembly
+        /// </summary>
+        Assembly Me = Assembly.GetExecutingAssembly();
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="Pid">The Players ID</param>
         public PlayerEditForm(int Pid)
         {
             InitializeComponent();
             this.Pid = Pid;
+            LabelPid.Text = Pid.ToString();
+            LoadPlayer();
+        }
 
+        /// <summary>
+        /// Loads the players stats from the database, and fills out the forms
+        /// labels with the current information
+        /// </summary>
+        private void LoadPlayer()
+        {
             // Fetch Player from database
-            List<Dictionary<string, object>> Rows = Driver.Query("SELECT name, clantag, rank, permban FROM player WHERE id=" + Pid);
+            SelectQueryBuilder Builder = new SelectQueryBuilder(Driver);
+            Builder.SelectFromTable("player");
+            Builder.SelectColumns(
+                "name", "score", "cmdscore", "skillscore", "teamscore", "joined",
+                "country", "rank", "wins", "losses", "permban", "clantag", "isbot");
+            Builder.AddWhere("id", Comparison.Equals, Pid);
+            List<Dictionary<string, object>> Rows = Driver.ExecuteReader(Builder.BuildCommand());
             Player = Rows[0];
 
             // Set window title
-            this.Text = Player["name"].ToString();
+            this.Text = String.Concat(Player["name"].ToString().Trim(), " (", Pid, ")");
 
-            // Set form values
-            PlayerId.Value = Pid;
-            PlayerNick.Text = Player["name"].ToString();
-            ClanTag.Text = Player["clantag"].ToString();
-            Rank.SelectedIndex = Int32.Parse(Player["rank"].ToString());
-            PermBan.SelectedIndex = Int32.Parse(Player["permban"].ToString());
+            // Set country flag
+            try
+            {
+                string Country = String.IsNullOrEmpty(Player["country"].ToString()) ? "XX" : Player["country"].ToString();
+                CountryPicture.Image = Image.FromStream(Me.GetManifestResourceStream("BF2Statistics.Resources." + Country.ToUpper() + ".png"));
+            }
+            catch { }
+
+            // Joined Label
+            int Joind = Int32.Parse(Player["joined"].ToString());
+            DateTime D = DateTime.UtcNow.ToDateTime(Joind);
+            LabelJoined.Text = String.Concat(D.ToString("yyyy-MM-dd HH:mm"), " GMT");
+            Tipsy.SetToolTip(LabelJoined, String.Concat(D.ToLocalTime().ToString("yyyy-MM-dd HH:mm"), " Local Time."));
+
+            // Fill out the rest of the labels
+            LabelNick.Text = Player["name"].ToString().Trim();
+            ClanTagBox.Text = Player["clantag"].ToString();
+            RankSelect.SelectedIndex = Int32.Parse(Player["rank"].ToString());
+            PermBanSelect.SelectedIndex = Int32.Parse(Player["permban"].ToString());
+            LabelGlobalScore.Text = Player["score"].ToString();
+            LabelWinLoss.Text = String.Concat(Player["wins"], " / ", Player["losses"]);
+            LabelTeamScore.Text = Player["teamscore"].ToString();
+            LabelCombatScore.Text = Player["skillscore"].ToString();
+            LabelCommandScore.Text = Player["cmdscore"].ToString();
+
+            // Get Leaderboard Position
+            Rows = Driver.Query("SELECT COUNT(id) as count FROM player WHERE score > @P0", Int32.Parse(Player["score"].ToString()));
+            int Position = Int32.Parse(Rows[0]["count"].ToString()) + 1;
+            LabelPosition.Text = Position.ToString();
+            SaveBtn.Enabled = false;
+
+            // Lock unlocks button if player is Bot
+            if (Int32.Parse(Player["isbot"].ToString()) > 0)
+                ResetUnlocksBtn.Enabled = false;
         }
 
-        private void ResetBtn_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Reset Unlocks Button Click Event
+        /// </summary>
+        private void ResetUnlocksBtn_Click(object sender, EventArgs e)
         {
             Driver.Execute("UPDATE unlocks SET state = 'n' WHERE id = " + Pid);
             Driver.Execute("UPDATE player SET usedunlocks = 0 WHERE id = " + Pid);
-            MessageBox.Show("Player unlocks have been reset", "Success");
+            Notify.Show("Player Unlocks Have Been Reset", AlertType.Success);
         }
 
+        /// <summary>
+        /// Export Player Button Click Event
+        /// </summary>
+        private void ExportPlayerBtn_Click(object sender, EventArgs e)
+        {
+            // Create export directory if it doesnt exist yet
+            string sPath = Path.Combine(Paths.DocumentsFolder, "Player Exports");
+            if (!Directory.Exists(sPath))
+                Directory.CreateDirectory(sPath);
+
+            // Have user select folder
+            FolderSelect.FolderSelectDialog Dialog = new FolderSelect.FolderSelectDialog();
+            Dialog.InitialDirectory = sPath;
+            Dialog.Title = "Select folder to export player to";
+            if (Dialog.ShowDialog())
+            {
+                try
+                {
+                    ASPServer.Database.ExportPlayerXml(sPath, Pid, Player["name"].ToString());
+                    Notify.Show("Player Exported Successfully", String.Format("{0} ({1})", Player["name"].ToString(), Pid), AlertType.Success);
+                }
+                catch (Exception E)
+                {
+                    ExceptionForm EForm = new ExceptionForm(E, false);
+                    EForm.Message = "Unable to export player because an exception was thrown!";
+                    EForm.ShowDialog();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Delete Player Button Click Event
+        /// </summary>
+        private void DeletePlayerBtn_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Are you sure you want to delete player?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                try
+                {
+                    TaskForm.Show(this, "Delete Player", "Deleting Player \"" + Player["name"] + "\"", false);
+                    ASPServer.Database.DeletePlayer(Pid, true);
+                    Notify.Show("Player Deleted Successfully!", AlertType.Success);
+                }
+                catch (Exception E)
+                {
+                    // Show exception error
+                    ExceptionForm Form = new ExceptionForm(E, false);
+                    Form.Message = String.Format("Failed to remove player from database!{1}{1}Error: {0}", E.Message, Environment.NewLine);
+                    Form.ShowDialog();
+                }
+                finally
+                {
+                    // Close task form
+                    TaskForm.CloseForm();
+                    this.Close();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Cancel Button Click Event
+        /// </summary>
+        private void CancelBtn_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        /// <summary>
+        /// Save Button Click Event
+        /// </summary>
         private void SaveBtn_Click(object sender, EventArgs e)
         {
             bool Changes = false;
-            UpdateQueryBuilder Query = new UpdateQueryBuilder();
+            UpdateQueryBuilder Query = new UpdateQueryBuilder("player", Driver);
+            int Rank = Int32.Parse(Player["rank"].ToString());
 
             // Update clantag
-            if (Player["clantag"].ToString() != ClanTag.Text.Trim())
+            if (Player["clantag"].ToString() != ClanTagBox.Text.Trim())
             {
-                Player["clantag"] = ClanTag.Text.Trim();
-                Query.SetField("clantag", ClanTag.Text.Trim());
+                Player["clantag"] = ClanTagBox.Text.Trim();
+                Query.SetField("clantag", ClanTagBox.Text.Trim());
                 Changes = true;
             }
 
             // Update Rank
-            if (Int32.Parse(Player["rank"].ToString()) != Rank.SelectedIndex)
+            if (Rank != RankSelect.SelectedIndex)
             {
-                if (Int32.Parse(Player["rank"].ToString()) > Rank.SelectedIndex)
+                if (Rank > RankSelect.SelectedIndex)
                 {
                     Query.SetField("decr", 1);
                     Query.SetField("chng", 0);
@@ -84,24 +213,24 @@ namespace BF2Statistics
                     Query.SetField("chng", 1);
                 }
 
-                Player["rank"] = Rank.SelectedIndex;
-                Query.SetField("rank", Rank.SelectedIndex);
-
+                Player["rank"] = RankSelect.SelectedIndex;
+                Query.SetField("rank", RankSelect.SelectedIndex);
                 Changes = true;
             }
 
             // update perm ban status
-            if (Int32.Parse(Player["permban"].ToString()) != PermBan.SelectedIndex)
+            if (Int32.Parse(Player["permban"].ToString()) != PermBanSelect.SelectedIndex)
             {
-                Player["permban"] = PermBan.SelectedIndex;
-                Query.SetField("permban", PermBan.SelectedIndex);
+                Player["permban"] = PermBanSelect.SelectedIndex;
+                Query.SetField("permban", PermBanSelect.SelectedIndex);
                 Changes = true;
             }
 
             // If no changes made, just return
             if (!Changes)
             {
-                MessageBox.Show("Unable to save player because no changes were made.", "Warning");
+                MessageBox.Show("Unable to save player because no changes were made.", 
+                    "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -111,44 +240,64 @@ namespace BF2Statistics
             this.Close();
         }
 
-        private void DeleteBtn_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Rank Select Index Change Event
+        /// </summary>
+        private void RankSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Are you sure you want to delete player?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-            {
-                DbTransaction Transaction = Driver.BeginTransaction();
-                List<string> Tables = StatsDatabase.GetPlayerTables();
-                TaskForm.Show(this, "Delete Player", "Deleting Player \"" + Player["name"] + "\"", false);
+            int Rank = RankSelect.SelectedIndex;
+            RankPictureBox.Image = Image.FromStream(Me.GetManifestResourceStream("BF2Statistics.Resources.rank_" + Rank + ".png"));
+            LabelTitle.Text = MedalData.Rank.GetName(Rank);
+            SaveBtn.Enabled = true;
+        }
 
+        /// <summary>
+        /// Perm Ban Index Change Event
+        /// </summary>
+        private void PermBanSelect_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            SaveBtn.Enabled = true;
+        }
+
+        /// <summary>
+        /// Clan Tag TextBox Text Changed Event
+        /// </summary>
+        private void ClanTagBox_TextChanged(object sender, EventArgs e)
+        {
+            SaveBtn.Enabled = true;
+        }
+
+        /// <summary>
+        /// Reset stats button click event
+        /// </summary>
+        private void ResetStatsBtn_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Are you sure you want to reset players stats?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
                 try
                 {
-                    // Remove the player from each player table
-                    foreach (string Table in Tables)
-                    {
-                        TaskForm.UpdateStatus("Removing player from \"" + Table + "\" table...");
-                        if (Table == "kills")
-                            Driver.Execute(String.Format("DELETE FROM {0} WHERE attacker={1} OR victim={1}", Table, Pid));
-                        else
-                            Driver.Execute(String.Format("DELETE FROM {0} WHERE id={1}", Table, Pid));
-                    }
+                    TaskForm.Show(this, "Reset Player Stats", "Reseting Player \"" + Player["name"] + "\"'s Stats", false);
+                    ASPServer.Database.DeletePlayer(Pid, true);
 
-                    // Commit Transaction
-                    TaskForm.UpdateStatus("Commiting Transaction");
-                    Transaction.Commit();
+                    // Insert a new player record
+                    Driver.Execute(
+                        "INSERT INTO player(id, name, country, joined, clantag, permban, isbot) VALUES(@P0, @P1, @P2, @P3, @P4, @P5, @P6)",
+                        Pid, Player["name"], Player["country"], Player["joined"], Player["clantag"], Player["permban"], Player["isbot"]
+                    );
 
-                    // Close Task form and Show success toast message
-                    TaskForm.CloseForm();
-                    Notify.Show("Player deleted successfully!", Player["name"].ToString(),  AlertType.Success);
-                    this.Close();
+                    LoadPlayer();
+                    Notify.Show("Player Stats Reset Successfully!", AlertType.Success);
                 }
                 catch (Exception E)
                 {
                     // Show exception error
                     ExceptionForm Form = new ExceptionForm(E, false);
-                    Form.Message = String.Format("Failed to remove player from database!{1}{1}Error: {0}", E.Message, Environment.NewLine);
-                    DialogResult Result = Form.ShowDialog();
-
-                    // Rollback!
-                    Transaction.Rollback();
+                    Form.Message = String.Format("Failed to reset player stats!{1}{1}Error: {0}", E.Message, Environment.NewLine);
+                    Form.ShowDialog();
+                }
+                finally
+                {
+                    // Close task form
                     TaskForm.CloseForm();
                 }
             }

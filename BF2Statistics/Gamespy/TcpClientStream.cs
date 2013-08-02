@@ -31,6 +31,10 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         private static LogWritter StreamLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "Stream.log"), 3000);
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="client"></param>
         public TcpClientStream(TcpClient client)
         {
             this.Client = client;
@@ -53,36 +57,25 @@ namespace BF2Statistics.Gamespy
         /// <returns>The completed data from the client</returns>
         public string Read()
         {
+            // Prepare variables
             int bytesRead = 0;
-            int bufferSize = Client.ReceiveBufferSize;
-            byte[] buffer = new byte[bufferSize];
-            string message = "";
+            byte[] buffer = new byte[Client.ReceiveBufferSize];
+            StringBuilder Message = new StringBuilder();
 
+            // Read while there is data to read
             do
             {
-                bytesRead += Stream.Read(buffer, 0, bufferSize);
-                int Counter = 0;
+                bytesRead += Stream.Read(buffer, 0, Client.ReceiveBufferSize);
+                Message.Append(Encoding.UTF8.GetString(buffer).TrimEnd((char)0));
+            } 
+            while (Stream.DataAvailable);
 
-                foreach (byte b in buffer)
-                {
-                    if (b == 0x00)
-                        break;
+            // Debugging
+            if (Debugging)
+                Log("Port {0} Recieves: {1}", ((IPEndPoint)Client.Client.LocalEndPoint).Port, Message.ToString());
 
-                    ++Counter;
-                }
-
-                //Trim off the null bytes.
-                Array.Resize(ref buffer, Counter);
-                message += Encoding.UTF8.GetString(buffer);
-                if (Debugging)
-                    Log("Port {0} Recieves: {1}", ((IPEndPoint)Client.Client.LocalEndPoint).Port, message);
-
-            } while (Stream.DataAvailable);
-
-            if (bytesRead == 0)
-                return "";
-
-            return message.ToString();
+            // Return
+            return (bytesRead == 0) ? "" : Message.ToString();
         }
 
         /// <summary>

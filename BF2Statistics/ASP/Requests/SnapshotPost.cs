@@ -9,14 +9,11 @@ namespace BF2Statistics.ASP.Requests
     {
         public static event SnapshotRecieved SnapshotReceived;
 
-        public SnapshotPost(HttpListenerRequest Request, ASPResponse Response)
+        public SnapshotPost(HttpClient Client)
         {
-            // Begin Output
-            FormattedOutput Out = new FormattedOutput("response");
-
             // First and foremost. Make sure that we are authorized to be here!
-            IPEndPoint RemoteIP = Request.LocalEndPoint;
-            if (!Request.IsLocal)
+            IPEndPoint RemoteIP = Client.RemoteEndPoint;
+            if (!Client.Request.IsLocal)
             {
                 // Setup local vars
                 bool IsValid = false;
@@ -40,82 +37,93 @@ namespace BF2Statistics.ASP.Requests
                 // If we are not on the GameHost list, too bad sucka!
                 if (!IsValid)
                 {
-                    //ASPServer.UpdateStatus("Denied snapshot data from " + RemoteIP.Address.ToString());
+                    // Notify User
                     Notify.Show("Snapshot Denied!", "Invalid Server IP: " + RemoteIP.Address.ToString(), AlertType.Warning);
-                    if (Request.UserAgent == "GameSpyHTTP/1.0")
+                    if (Client.Request.UserAgent == "GameSpyHTTP/1.0")
                     {
-                        Out.AddRow("Unauthorised Gameserver");
-                        Response.AddData(Out);
-                        Response.IsValidData(false);
+                        Client.Response.WriteResponseStart(false);
+                        Client.Response.WriteHeaderLine("response");
+                        Client.Response.WriteDataLine("Unauthorised Gameserver");
                     }
                     else
-                        Response.StatusCode = 403;
+                        Client.Response.StatusCode = (int)HttpStatusCode.Forbidden;
 
-                    Response.Send();
+                    Client.Response.Send();
                     return;
                 }
             }
 
             // Make sure we have post data
-            if (!Request.HasEntityBody)
+            if (!Client.Request.HasEntityBody)
             {
                 // No Post Data
-                if (Request.UserAgent == "GameSpyHTTP/1.0")
+                if (Client.Request.UserAgent == "GameSpyHTTP/1.0")
                 {
-                    Out.AddRow("SNAPSHOT Data NOT found!");
-                    Response.AddData(Out);
-                    Response.IsValidData(false);
+                    Client.Response.WriteResponseStart(false);
+                    Client.Response.WriteHeaderLine("response");
+                    Client.Response.WriteDataLine("SNAPSHOT Data NOT found!");
                 }
                 else
-                    Response.StatusCode = 400;
+                    Client.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
-                Response.Send();
+                Client.Response.Send();
                 return;
             }
 
-            // Save the snapshot to the snapshots path
-            string Snapshot;
-            using (StreamReader Reader = new StreamReader(Request.InputStream, Request.ContentEncoding))
-                Snapshot = Reader.ReadToEnd();
-
             // Create our snapshot object and filename
+            string Snapshot;
             Snapshot SnapObj;
-            string FileName;
+            string FileName = String.Empty;
+            bool BackupCreated = false;
 
+            // Create snapshot backup file if the snapshot is valid
             try
             {
+                // Read Snapshot
+                using (StreamReader Reader = new StreamReader(Client.Request.InputStream, Client.Request.ContentEncoding))
+                    Snapshot = Reader.ReadToEnd();
+
                 // Create the Snapshot Object
-                SnapObj = new Snapshot(Snapshot, DateTime.Now);
+                SnapObj = new Snapshot(Snapshot, DateTime.UtcNow);
 
                 // Make sure data is valid!
-                if (SnapObj.IsValidSnapshot)
+                if (!SnapObj.IsValidSnapshot)
                 {
-                    // Backup the snapshot
-                    FileName = SnapObj.ServerPrefix + "-" + SnapObj.MapName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt";
-                    File.AppendAllText(Path.Combine(Paths.SnapshotTempPath, FileName), Snapshot);
-                }
-                else
-                {
-                    Notify.Show("Snapshot Data NOT Complete or Invalid!", AlertType.Warning);
-                    //ASPServer.UpdateStatus("Snapshot recieved was invalid!");
-                    Out.AddRow("SNAPSHOT Data NOT complete or invalid!");
-                    Response.AddData(Out);
-                    Response.IsValidData(false);
-                    Response.Send();
+                    Notify.Show("Error Processing Snapshot!", "Snapshot Data NOT Complete or Invalid!", AlertType.Warning);
+                    Client.Response.WriteResponseStart(false);
+                    Client.Response.WriteHeaderLine("response");
+                    Client.Response.WriteDataLine("SNAPSHOT Data NOT complete or invalid!");
+                    Client.Response.Send();
                     return;
                 }
             }
-            catch (Exception)
+            catch (Exception E)
             {
-                Response.StatusCode = 503;
-                Response.Send();
+                ASPServer.Log("ERROR: [SnapshotPreProcess] " + E.Message);
+                Client.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                Client.Response.Send();
                 return;
             }
 
+            // Create backup of snapshot
+            try
+            {
+                // Backup the snapshot
+                FileName = SnapObj.ServerPrefix + "-" + SnapObj.MapName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt";
+                File.AppendAllText(Path.Combine(Paths.SnapshotTempPath, FileName), Snapshot);
+                BackupCreated = true;
+            }
+            catch (Exception E)
+            {
+                BackupCreated = true;
+                ASPServer.Log("WARNING: Unable to create Snapshot Backup File: " + E.Message);
+            }
+
             // Tell the server we are good to go
-            Out.AddRow("OK");
-            Response.AddData(Out);
-            Response.Send();
+            Client.Response.WriteResponseStart();
+            Client.Response.WriteHeaderLine("response");
+            Client.Response.WriteDataLine("OK");
+            Client.Response.Send();
 
             // Have the snapshot class handle the rest :)
             try
@@ -124,10 +132,11 @@ namespace BF2Statistics.ASP.Requests
                 SnapObj.Process();
 
                 // Move the Temp snapshot to the Processed folder
-                File.Move(Path.Combine(Paths.SnapshotTempPath, FileName), Path.Combine(Paths.SnapshotProcPath, FileName));
+                if(BackupCreated)
+                    File.Move(Path.Combine(Paths.SnapshotTempPath, FileName), Path.Combine(Paths.SnapshotProcPath, FileName));
 
                 // Notify User
-                Notify.Show("Snapshot Proccessed Successfully!", "From Server IP: " + RemoteIP.Address.ToString(), AlertType.Success);
+                Notify.Show("Snapshot Processed Successfully!", "From Server IP: " + RemoteIP.Address.ToString(), AlertType.Success);
 
                 // Fire Event
                 SnapshotReceived(true);
@@ -136,7 +145,7 @@ namespace BF2Statistics.ASP.Requests
             {
                 // Notify user
                 Notify.Show("Error Processing Snapshot!", E.Message, AlertType.Warning);
-                ASPServer.Log(E.Message);
+                ASPServer.Log("ERROR: [SnapshotProcessing] " + E.Message);
 
                 // Fire event
                 SnapshotReceived(false);

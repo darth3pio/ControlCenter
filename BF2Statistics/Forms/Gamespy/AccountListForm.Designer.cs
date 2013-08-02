@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
             this.SearchBox = new System.Windows.Forms.TextBox();
             this.PageNumber = new System.Windows.Forms.NumericUpDown();
@@ -39,16 +40,19 @@
             this.LimitSelect = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.DataTable = new System.Windows.Forms.DataGridView();
-            this.OnlineAccountsCheckBox = new System.Windows.Forms.CheckBox();
-            this.label3 = new System.Windows.Forms.Label();
             this.id = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.name = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.email = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.country = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.session = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lastip = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.OnlineAccountsCheckBox = new System.Windows.Forms.CheckBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.menuItemDelete = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.PageNumber)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DataTable)).BeginInit();
+            this.contextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -180,6 +184,7 @@
             this.country,
             this.session,
             this.lastip});
+            this.DataTable.ContextMenuStrip = this.contextMenu;
             this.DataTable.Location = new System.Drawing.Point(24, 84);
             this.DataTable.MultiSelect = false;
             this.DataTable.Name = "DataTable";
@@ -190,27 +195,6 @@
             this.DataTable.TabIndex = 12;
             this.DataTable.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataTable_CellDoubleClick);
             this.DataTable.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataTable_ColumnHeaderMouseClick);
-            // 
-            // OnlineAccountsCheckBox
-            // 
-            this.OnlineAccountsCheckBox.AutoSize = true;
-            this.OnlineAccountsCheckBox.Location = new System.Drawing.Point(269, 57);
-            this.OnlineAccountsCheckBox.Name = "OnlineAccountsCheckBox";
-            this.OnlineAccountsCheckBox.Size = new System.Drawing.Size(158, 17);
-            this.OnlineAccountsCheckBox.TabIndex = 22;
-            this.OnlineAccountsCheckBox.Text = "Show Online Accounts Only";
-            this.OnlineAccountsCheckBox.UseVisualStyleBackColor = true;
-            this.OnlineAccountsCheckBox.CheckedChanged += new System.EventHandler(this.OnlineAccountsCheckBox_CheckedChanged);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(25, 17);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(622, 13);
-            this.label3.TabIndex = 23;
-            this.label3.Text = "Below is a list of all the gamespy accounts in your database. Select an account t" +
-                "o edit or view by double clicking on a player below";
             // 
             // id
             // 
@@ -260,6 +244,42 @@
             this.lastip.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
             this.lastip.Width = 170;
             // 
+            // OnlineAccountsCheckBox
+            // 
+            this.OnlineAccountsCheckBox.AutoSize = true;
+            this.OnlineAccountsCheckBox.Location = new System.Drawing.Point(269, 57);
+            this.OnlineAccountsCheckBox.Name = "OnlineAccountsCheckBox";
+            this.OnlineAccountsCheckBox.Size = new System.Drawing.Size(158, 17);
+            this.OnlineAccountsCheckBox.TabIndex = 22;
+            this.OnlineAccountsCheckBox.Text = "Show Online Accounts Only";
+            this.OnlineAccountsCheckBox.UseVisualStyleBackColor = true;
+            this.OnlineAccountsCheckBox.CheckedChanged += new System.EventHandler(this.OnlineAccountsCheckBox_CheckedChanged);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(25, 17);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(622, 13);
+            this.label3.TabIndex = 23;
+            this.label3.Text = "Below is a list of all the gamespy accounts in your database. Select an account t" +
+                "o edit or view by double clicking on a player below";
+            // 
+            // contextMenu
+            // 
+            this.contextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuItemDelete});
+            this.contextMenu.Name = "contextMenu";
+            this.contextMenu.Size = new System.Drawing.Size(156, 26);
+            this.contextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenu_Opening);
+            // 
+            // menuItemDelete
+            // 
+            this.menuItemDelete.Name = "menuItemDelete";
+            this.menuItemDelete.Size = new System.Drawing.Size(155, 22);
+            this.menuItemDelete.Text = "Delete Account";
+            this.menuItemDelete.Click += new System.EventHandler(this.menuItemDelete_Click);
+            // 
             // AccountListForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -288,6 +308,7 @@
             this.Text = "Gamespy Accounts";
             ((System.ComponentModel.ISupportInitialize)(this.PageNumber)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DataTable)).EndInit();
+            this.contextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -314,5 +335,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn country;
         private System.Windows.Forms.DataGridViewTextBoxColumn session;
         private System.Windows.Forms.DataGridViewTextBoxColumn lastip;
+        private System.Windows.Forms.ContextMenuStrip contextMenu;
+        private System.Windows.Forms.ToolStripMenuItem menuItemDelete;
     }
 }

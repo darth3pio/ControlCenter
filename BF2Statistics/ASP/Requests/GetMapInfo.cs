@@ -6,7 +6,7 @@ namespace BF2Statistics.ASP.Requests
 {
     class GetMapInfo
     {
-        public GetMapInfo(ASPResponse Response, Dictionary<string, string> QueryString)
+        public GetMapInfo(HttpClient Client)
         {
             // Setup Variables
             int Pid = 0;
@@ -15,8 +15,8 @@ namespace BF2Statistics.ASP.Requests
             string MapName = "";
             string Query;
             List<Dictionary<string, object>> Rows;
+            Dictionary<string, string> QueryString = Client.Request.QueryString;
             DatabaseDriver Driver = ASPServer.Database.Driver;
-            FormattedOutput Output;
 
             // Setup Params
             if (QueryString.ContainsKey("pid"))
@@ -28,18 +28,21 @@ namespace BF2Statistics.ASP.Requests
             if (QueryString.ContainsKey("mapname"))
                 MapName = QueryString["mapname"];
 
+            // Prepare Response
+            Client.Response.WriteResponseStart();
+
             // Is this a Player Map Request?
             if (Pid != 0)
             {
                 Query = "SELECT m.*, mi.name AS mapname "
                     + "FROM maps m JOIN mapinfo mi ON m.mapid = mi.id "
-                    + "WHERE m.id = {0} "
+                    + "WHERE m.id = @P0 "
                     + "ORDER BY mapid";
                 Rows = Driver.Query(Query, Pid);
 
-                Output = new FormattedOutput("mapid", "mapname", "time", "win", "loss", "best", "worst");
+                Client.Response.WriteHeaderLine("mapid", "mapname", "time", "win", "loss", "best", "worst");
                 foreach (Dictionary<string, object> Map in Rows)
-                    Output.AddRow(Map["mapid"], Map["mapname"], Map["time"], Map["win"], Map["loss"], Map["best"], Map["worst"]);
+                    Client.Response.WriteDataLine(Map["mapid"], Map["mapname"], Map["time"], Map["win"], Map["loss"], Map["best"], Map["worst"]);
             }
             else
             {
@@ -56,14 +59,13 @@ namespace BF2Statistics.ASP.Requests
                 // Get the list of maps
                 Rows = Driver.Query(Query);
 
-                Output = new FormattedOutput("mapid", "name", "score", "time", "times", "kills", "deaths");
+                Client.Response.WriteHeaderLine("mapid", "name", "score", "time", "times", "kills", "deaths");
                 foreach (Dictionary<string, object> Map in Rows)
-                    Output.AddRow(Map["id"], Map["name"], Map["score"], Map["time"], Map["times"], Map["kills"], Map["deaths"]);
+                    Client.Response.WriteDataLine(Map["id"], Map["name"], Map["score"], Map["time"], Map["times"], Map["kills"], Map["deaths"]);
             }
 
             // Send Response
-            Response.AddData(Output);
-            Response.Send();
+            Client.Response.Send();
         }
     }
 }

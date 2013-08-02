@@ -8,6 +8,7 @@ using System.Web;
 using System.Net;
 using System.Net.Sockets;
 using System.Diagnostics;
+using System.Threading;
 using BF2Statistics.Database;
 using BF2Statistics.Logging;
 using BF2Statistics.ASP.Requests;
@@ -42,19 +43,29 @@ namespace BF2Statistics.ASP
         public static LogWritter AccessLog { get; protected set; }
 
         /// <summary>
-        /// Event fired when ASP server is shutdown
+        /// Occurs when the server is started.
         /// </summary>
-        public static event ShutdownEventHandler OnShutdown;
+        public static event EventHandler Started;
 
         /// <summary>
-        /// Event fired when ASP server is started
+        /// Occurs when the server is about to stop.
         /// </summary>
-        public static event StartupEventHandler OnStart;
+        public static event EventHandler Stopping;
+
+        /// <summary>
+        /// Occurs when the server is stopped.
+        /// </summary>
+        public static event EventHandler Stopped;
 
         /// <summary>
         /// Event fired when ASP server recieves a connection
         /// </summary>
-        public static event AspRequest ClientConnected;
+        public static event AspRequest RequestRecieved;
+
+        /// <summary>
+        /// A List of local IP addresses for this machine
+        /// </summary>
+        public static readonly List<IPAddress> LocalIPs;
 
         /// <summary>
         /// Number of session web requests
@@ -68,6 +79,7 @@ namespace BF2Statistics.ASP
         {
             ServerLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspServer.log"), 3000);
             AccessLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspAccess.log"), 3000);
+            LocalIPs = Dns.GetHostAddresses(Dns.GetHostName()).ToList();
             SessionRequests = 0;
         }
 
@@ -107,10 +119,10 @@ namespace BF2Statistics.ASP
 
                 // Start the Listener and accept new connections
                 Listener.Start();
-                Listener.BeginGetContext(new AsyncCallback(AcceptClient), Listener);
+                Listener.BeginGetContext(new AsyncCallback(DoAcceptClientCallback), Listener);
                 
                 // Fire Startup Event
-                OnStart();
+                Started(null, null);
             }
         }
 
@@ -121,13 +133,17 @@ namespace BF2Statistics.ASP
         {
             if (IsRunning)
             {
+                // Call Stopping Event to disconnect clients
+                if (Stopping != null)
+                    Stopping(null, null);
+
                 try
                 {
                     Listener.Stop();
                     Database.Driver.ConnectionClosed -= new StateChangeEventHandler(Driver_ConnectionClosed);
                     Database.Close();
                     Listener = null;
-                    OnShutdown();
+                    Stopped(null, null);
                 }
                 catch(Exception E)
                 {
@@ -137,115 +153,148 @@ namespace BF2Statistics.ASP
         }
 
         /// <summary>
-        /// Accepts a new Connecting client in a new thread.
+        /// Accepts the connection
         /// </summary>
-        /// <param name="Sync"></param>
-        private static void AcceptClient(IAsyncResult Sync)
+        private static void DoAcceptClientCallback(IAsyncResult Sync)
         {
-            Stopwatch Clock = new Stopwatch();
-            Clock.Start();
-
             try
             {
-                // Finish accepting the client
                 HttpListenerContext Client = Listener.EndGetContext(Sync);
+                ThreadPool.QueueUserWorkItem(HandleRequest, Client);
+            }
+            catch (HttpListenerException E)
+            {
+                // Thread abort, or application abort request
+                if (E.ErrorCode == 995)
+                    return;
 
-                // Make sure our stats Database is online
+                ServerLog.Write("ERROR: [DoAcceptClientCallback] \r\n\t - {0}\r\n\t - ErrorCode: {1}", E.Message, E.ErrorCode);
+            }
+
+            Listener.BeginGetContext(new AsyncCallback(DoAcceptClientCallback), Listener);
+        }
+
+        /// <summary>
+        /// Handles the Http Connecting client in a new thread
+        /// </summary>
+        private static void HandleRequest(object Sync)
+        {
+            // Finish accepting the client
+            HttpClient Client = new HttpClient(Sync as HttpListenerContext);
+
+            // Update client count, and fire connection event
+            SessionRequests++;
+            RequestRecieved();
+
+            // Make sure our stats Database is online
+            try
+            {
+                // If we arent suppossed to be running, show a 503
+                if (!IsRunning)
+                    throw new Exception("Server is not running");
+
+                // If database is offline, Try to re-connect
                 if (!Database.Driver.IsConnected)
                 {
-                    try
+                    try { Database.CheckConnection(); }
+                    catch { }
+                    if (!Database.Driver.IsConnected)
                     {
-                        // Try to reconnect
-                        Database.CheckConnection();
-                        if (!Database.Driver.IsConnected)
-                        {
-                            string Message = "Unable to establish database connection";
-                            ServerLog.Write(Message);
-                            throw new Exception();
-                        }
-                    }
-                    catch
-                    {
-                        // Set service is unavialable
-                        Client.Response.StatusCode = 503;
-                        Client.Response.Close();
-                        Stop(); // Dont accept anymore connections if the database is offline
-                        return;
+                        string Message = "ERROR: Unable to establish database connection";
+                        ServerLog.Write(Message);
+                        throw new Exception(Message);
                     }
                 }
+            }
+            catch
+            {
+                // Set service is unavialable
+                Client.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                Client.Response.Send();
+                return;
+            }
 
-                // Tell the listener to continue
-                Listener.BeginGetContext(new AsyncCallback(AcceptClient), Listener);
+            // Make sure request method is supported
+            if (Client.Request.HttpMethod != "GET" 
+                && Client.Request.HttpMethod != "POST"
+                && Client.Request.HttpMethod != "HEAD")
+            {
+                Client.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+                Client.Response.Send();
+                return;
+            }
 
-                // Update client count, and fire connection event
-                SessionRequests++;
-                ClientConnected();
-
-                // Create a better QueryString object
-                Dictionary<string, string> QueryString = Client.Request.QueryString.Cast<string>()
-                         .Select(s => new { Key = s, Value = Client.Request.QueryString[s] })
-                         .ToDictionary(p => p.Key, p => p.Value);
-
-                // Create an ASP Response
-                ASPResponse Response = new ASPResponse(Client.Request, Client.Response, QueryString, Clock);
-
-                // Make sure request method is supported
-                if (Client.Request.HttpMethod != "GET" && Client.Request.HttpMethod != "POST")
-                {
-                    Response.StatusCode = 501;
-                    Response.Send();
-                }
-
-                // Process Request
-                string Doc = Client.Request.Url.AbsolutePath.Replace("/ASP/", "").ToLower();
-                switch (Doc)
+            // Process Request
+            try
+            {
+                // Get our requested document
+                string Document = Client.Request.Url.AbsolutePath.ToLower();
+                switch (Document.Replace("/asp/", ""))
                 {
                     case "bf2statistics.php":
-                        new SnapshotPost(Client.Request, Response);
+                        new SnapshotPost(Client);
+                        break;
+                    case "createplayer.aspx":
+                        new CreatePlayer(Client);
                         break;
                     case "getbackendinfo.aspx":
-                        new GetBackendInfo(Response);
+                        new GetBackendInfo(Client);
                         break;
                     case "getawardsinfo.aspx":
-                        new GetAwardsInfo(Response, QueryString);
+                        new GetAwardsInfo(Client);
                         break;
                     case "getclaninfo.aspx":
-                        new GetClanInfo(Response, QueryString);
+                        new GetClanInfo(Client);
                         break;
                     case "getleaderboard.aspx":
-                        new GetLeaderBoard(Response, QueryString);
+                        new GetLeaderBoard(Client);
                         break;
                     case "getmapinfo.aspx":
-                        new GetMapInfo(Response, QueryString);
+                        new GetMapInfo(Client);
                         break;
                     case "getplayerid.aspx":
-                        new GetPlayerID(Response, QueryString);
+                        new GetPlayerID(Client);
                         break;
                     case "getplayerinfo.aspx":
-                        new GetPlayerInfo(Response, QueryString);
+                        new GetPlayerInfo(Client);
                         break;
                     case "getrankinfo.aspx":
-                        new GetRankInfo(Response, QueryString);
+                        new GetRankInfo(Client);
                         break;
                     case "getunlocksinfo.aspx":
-                        new GetUnlocksInfo(Response, QueryString);
+                        new GetUnlocksInfo(Client);
                         break;
                     case "ranknotification.aspx":
-                        new RankNotification(Response, QueryString);
+                        new RankNotification(Client);
                         break;
                     case "searchforplayers.aspx":
-                        new SearchForPlayers(Response, QueryString);
+                        new SearchForPlayers(Client);
                         break;
                     case "selectunlock.aspx":
-                        new SelectUnlock(Response, QueryString);
+                        new SelectUnlock(Client);
                         break;
                     default:
-                        Response.StatusCode = 404;
-                        Response.Send();
+                        Client.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                        Client.Response.Send();
                         break;
                 }
             }
-            catch { }
+            catch (Exception E)
+            {
+                ServerLog.Write("ERROR: " + E.Message);
+                if (!Client.ResponseSent)
+                {
+                    // Internal service error
+                    Client.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    Client.Response.Send();
+                }
+            }
+            finally
+            {
+                // Make sure a response is sent to prevent client hang
+                if (!Client.ResponseSent)
+                    Client.Response.Send();
+            }
         }
 
         private static void Driver_ConnectionClosed(object sender, StateChangeEventArgs e)

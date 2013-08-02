@@ -6,30 +6,31 @@ namespace BF2Statistics.ASP.Requests
 {
     class RankNotification
     {
-        public RankNotification(ASPResponse Response, Dictionary<string, string> QueryString)
+        public RankNotification(HttpClient Client)
         {
             int Pid = 0;
             DatabaseDriver Driver = ASPServer.Database.Driver;
             List<Dictionary<string, object>> Rows;
 
             // Setup Params
-            if (QueryString.ContainsKey("pid"))
-                Int32.TryParse(QueryString["pid"], out Pid);
+            if (Client.Request.QueryString.ContainsKey("pid"))
+                Int32.TryParse(Client.Request.QueryString["pid"], out Pid);
 
             // Fetch Player
             Rows = Driver.Query("SELECT rank FROM player WHERE id=@P0", Pid);
             if (Rows.Count == 0)
             {
-                Response.WriteLine("Player Doesnt Exist!");
-                Response.IsValidData(false);
-                Response.Send();
+                Client.Response.WriteResponseStart(false);
+                Client.Response.WriteFreeformLine("Player Doesnt Exist!");
+                Client.Response.Send();
                 return;
             }
 
             // Reset
             Driver.Execute("UPDATE player SET chng=0, decr=0 WHERE id=@P0", Pid);
-            Response.WriteLine(String.Format("Cleared rank notification {0}", Pid));
-            Response.Send();
+            Client.Response.WriteResponseStart();
+            Client.Response.WriteFreeformLine(String.Format("Cleared rank notification {0}", Pid));
+            Client.Response.Send();
         }
     }
 }

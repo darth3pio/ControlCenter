@@ -99,7 +99,7 @@ namespace BF2Statistics
                     // Parse date of snapshot
                     string[] Parts = Snapshot.Split('_');
                     string D = Parts[Parts.Length - 2] + "_" + Parts[Parts.Length - 1].Replace(".txt", "");
-                    DateTime Date = DateTime.ParseExact(D, "yyyyMMdd_HHmm", CultureInfo.InvariantCulture);
+                    DateTime Date = DateTime.ParseExact(D, "yyyyMMdd_HHmm", CultureInfo.InvariantCulture).ToUniversalTime();
 
                     // Update status and run snapshot
                     TaskForm.UpdateStatus(String.Format("Processing: \"{0}\"", Snapshot));

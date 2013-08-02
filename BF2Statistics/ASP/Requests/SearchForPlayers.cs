@@ -6,39 +6,41 @@ namespace BF2Statistics.ASP.Requests
 {
     class SearchForPlayers
     {
-        public SearchForPlayers(ASPResponse Response, Dictionary<string, string> QueryString)
+        public SearchForPlayers(HttpClient Client)
         {
             string Nick;
             DatabaseDriver Driver = ASPServer.Database.Driver;
             List<Dictionary<string, object>> Rows;
-            FormattedOutput Output;
 
             // Setup Params
-            if (!QueryString.ContainsKey("nick"))
+            if (!Client.Request.QueryString.ContainsKey("nick"))
             {
-                Output = new FormattedOutput("asof", "err");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
-                Response.AddData(Output);
-                Response.IsValidData(false);
-                Response.Send();
+                Client.Response.WriteResponseStart(false);
+                Client.Response.WriteHeaderLine("asof", "err");
+                Client.Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
+                Client.Response.Send();
                 return;
             }
             else
-                Nick = QueryString["nick"];
+                Nick = Client.Request.QueryString["nick"];
 
             // Timestamp Header
-            Output = new FormattedOutput("asof");
-            Output.AddRow(DateTime.UtcNow.ToUnixTimestamp());
-            Response.AddData(Output);
+            Client.Response.WriteResponseStart();
+            Client.Response.WriteHeaderLine("asof");
+            Client.Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp());
 
             // Output status
-            Output = new FormattedOutput("pid", "nick", "score");
-            Rows = Driver.Query("SELECT id, name, score FROM player WHERE name LIKE @P0", "%" + Nick + "%");
-            foreach(Dictionary<string, object> Player in Rows)
-                Output.AddRow(Rows[0]["id"], Rows[0]["name"].ToString().Trim(), Rows[0]["score"]);
+            int i = 0;
+            Client.Response.WriteHeaderLine("n", "pid", "nick", "score");
+            Rows = Driver.Query("SELECT id, name, score FROM player WHERE name LIKE @P0 LIMIT 20", "%" + Nick + "%");
+            foreach (Dictionary<string, object> Player in Rows)
+            {
+                Client.Response.WriteDataLine(i + 1, Rows[i]["id"], Rows[i]["name"].ToString().Trim(), Rows[i]["score"]);
+                i++;
+            }
 
-            Response.AddData(Output);
-            Response.Send();
+            // Send Response
+            Client.Response.Send();
         }
     }
 }

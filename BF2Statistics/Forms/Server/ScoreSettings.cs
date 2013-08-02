@@ -37,7 +37,8 @@ namespace BF2Statistics
             // Make sure the files all exist
             if (!File.Exists(ScoringCommonPy) || !File.Exists(ScoringConqPy) || !File.Exists(ScoringCoopPy))
             {
-                MessageBox.Show("One or more scoring files are missing. Unable to modify scoring.", "Scoring Editor Error");
+                MessageBox.Show("One or more scoring files are missing. Unable to modify scoring.", 
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Load += new EventHandler(CloseOnStart);
                 return;
             }
@@ -77,7 +78,7 @@ namespace BF2Statistics
                     if (MessageBox.Show(
                         "The scoringCommon.py file needs to be formatted to use this feature. If you are using a third party mod,"
                         + " then formatting can break the scoring. Do you want to Format now?", "Confirm",
-                        MessageBoxButtons.YesNo) == DialogResult.No)
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     {
                         this.Load += new EventHandler(CloseOnStart);
                         return;
@@ -89,7 +90,7 @@ namespace BF2Statistics
                 {
                     // Show warn dialog
                     if (MessageBox.Show("The scoringCommon.py file needs to be formatted to use this feature."
-                        + " Do you want to Format now?", "Confirm", MessageBoxButtons.YesNo) == DialogResult.No)
+                        + " Do you want to Format now?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     {
                         this.Load += new EventHandler(CloseOnStart);
                         return;
@@ -203,7 +204,7 @@ namespace BF2Statistics
                     if (MessageBox.Show(
                         "The Coop Scoring file needs to be formatted to use this feature. If you are using a third party mod,"
                         + " then formatting can break the scoring. Do you want to Format now?",
-                        "Confirm", MessageBoxButtons.YesNo) == DialogResult.No)
+                        "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     {
                         this.Load += new EventHandler(CloseOnStart);
                         return;
@@ -215,7 +216,7 @@ namespace BF2Statistics
                 {
                     // Show warn dialog
                     if (MessageBox.Show("The Coop Scoring file needs to be formatted to use this feature."
-                        + " Do you want to Format now?", "Confirm", MessageBoxButtons.YesNo) == DialogResult.No)
+                        + " Do you want to Format now?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     {
                         this.Load += new EventHandler(CloseOnStart);
                         return;

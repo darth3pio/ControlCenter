@@ -31,17 +31,17 @@ namespace BF2Statistics
             // Make sure there is no empty fields!
             if (AccountName.Text.Trim().Length < 3)
             {
-                MessageBox.Show("Please enter a valid account name", "Error");
+                MessageBox.Show("Please enter a valid account name", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             else if (AccountPass.Text.Trim().Length < 3)
             {
-                MessageBox.Show("Please enter a valid account password", "Error");
+                MessageBox.Show("Please enter a valid account password", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             else if (!Validator.IsValidEmail(AccountEmail.Text))
             {
-                MessageBox.Show("Please enter a valid account email", "Error");
+                MessageBox.Show("Please enter a valid account email", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -50,12 +50,14 @@ namespace BF2Statistics
             {
                 if (!Validator.IsValidPID(Pid.ToString()))
                 {
-                    MessageBox.Show("Invalid PID Format. A PID must be 8 or 9 digits in length", "Error");
+                    MessageBox.Show("Invalid PID Format. A PID must be 8 or 9 digits in length", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
                 else if(LoginServer.Database.UserExists(Pid))
                 {
-                    MessageBox.Show("PID is already in use. Please enter a different PID.", "Error");
+                    MessageBox.Show("PID is already in use. Please enter a different PID.", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
             }
@@ -63,18 +65,20 @@ namespace BF2Statistics
             // Check if the user exists
             if (LoginServer.Database.UserExists(AccountName.Text))
             {
-                MessageBox.Show("Account name is already in use. Please select a different Account Name.", "Error");
+                MessageBox.Show("Account name is already in use. Please select a different Account Name.", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            bool Success;
             try
             {
                 // Attempt to create the account
                 if (PidSelect.SelectedIndex == 1)
-                    Success = LoginServer.Database.CreateUser(Pid, AccountName.Text, AccountPass.Text, AccountEmail.Text, "00");
+                    LoginServer.Database.CreateUser(Pid, AccountName.Text, AccountPass.Text, AccountEmail.Text, "00");
                 else
-                    Success = LoginServer.Database.CreateUser(AccountName.Text, AccountPass.Text, AccountEmail.Text, "00");
+                    LoginServer.Database.CreateUser(AccountName.Text, AccountPass.Text, AccountEmail.Text, "00");
+
+                Notify.Show("Account Created Successfully!", AccountName.Text, AlertType.Success);
             }
             catch(Exception E)
             {

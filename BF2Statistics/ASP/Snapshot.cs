@@ -137,11 +137,6 @@ namespace BF2Statistics.ASP
         private List<Dictionary<string, string>> KillData;
 
         /// <summary>
-        /// A List of local IP addresses for this machine
-        /// </summary>
-        private static List<IPAddress> LocalIPs;
-
-        /// <summary>
         /// The snapshot Date
         /// </summary>
         private DateTime Date;
@@ -155,14 +150,6 @@ namespace BF2Statistics.ASP
         /// On Finish Event
         /// </summary>
         public static event SnapshotProccessed SnapshotProccessed;
-
-        /// <summary>
-        /// Static Constructor
-        /// </summary>
-        static Snapshot()
-        {
-            LocalIPs = Dns.GetHostAddresses(Dns.GetHostName()).ToList();
-        }
 
         /// <summary>
         /// Initializes a new Snapshot, with the specified Date it was Posted
@@ -1079,8 +1066,7 @@ namespace BF2Statistics.ASP
             // ********************************
             // Process ServerInfo
             // ********************************
-            //Log("Processing Game Server", 3);
-
+            //Log("Processing Game Server", LogLevel.Notice);
 
             // ********************************
             // Process MapInfo
@@ -1155,7 +1141,7 @@ namespace BF2Statistics.ASP
         private string GetCountryCode(IPAddress IP)
         {
             // Return default config Country Code
-            if (IPAddress.IsLoopback(IP) || LocalIPs.Contains(IP))
+            if (IPAddress.IsLoopback(IP) || ASPServer.LocalIPs.Contains(IP))
                 return MainForm.Config.ASP_LocalIpCountryCode;
 
             // Fetch country code from Ip2Nation

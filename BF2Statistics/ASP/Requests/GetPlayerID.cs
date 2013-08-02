@@ -10,7 +10,7 @@ namespace BF2Statistics.ASP.Requests
         /// To prevent the chance of 2 peeps getting the same PID
         /// we will just load this on startup
         /// </summary>
-        protected static int LowestPid;
+        public static int LowestPid;
 
         /// <summary>
         /// Grab lowest PID on startup
@@ -26,12 +26,12 @@ namespace BF2Statistics.ASP.Requests
                 LowestPid = Int32.Parse(Rows[0]["min"].ToString()) - 1;
         }
 
-        public GetPlayerID(ASPResponse Response, Dictionary<string, string> QueryString)
+        public GetPlayerID(HttpClient Client)
         {
             // Setup Variables
             DatabaseDriver Driver = ASPServer.Database.Driver;
             List<Dictionary<string, object>> Rows;
-            FormattedOutput Output = new FormattedOutput("pid");
+            Dictionary<string, string> QueryString = Client.Request.QueryString;
 
             // Querystring vars
             int IsAI = 0;
@@ -76,23 +76,30 @@ namespace BF2Statistics.ASP.Requests
                     Pid = Int32.Parse(Rows[0]["id"].ToString());
 
                 // Send Response
-                Output.AddRow(Pid);
+                Client.Response.WriteResponseStart();
+                Client.Response.WriteHeaderLine("pid");
+                Client.Response.WriteDataLine(Pid);
             }
             else if (ListPlayers != 0)
             {
+                // Prepare Response
+                Client.Response.WriteResponseStart();
+                Client.Response.WriteHeaderLine("pid");
+
+                // Fetch Players
                 Rows = Driver.Query("SELECT id FROM player WHERE ip <> '127.0.0.1'");
                 foreach (Dictionary<string, object> Player in Rows)
-                    Output.AddRow(Player["id"]);
+                    Client.Response.WriteDataLine(Player["id"]);
             }
             else
             {
-                Output = new FormattedOutput("asof", "err");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax");
-                Response.IsValidData(false);
+                Client.Response.WriteResponseStart(false);
+                Client.Response.WriteHeaderLine("asof", "err");
+                Client.Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
             }
 
-            Response.AddData(Output);
-            Response.Send();
+            // Send Response
+            Client.Response.Send();
         }
     }
 }

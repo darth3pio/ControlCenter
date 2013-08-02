@@ -6,12 +6,12 @@ namespace BF2Statistics.ASP.Requests
 {
     class GetRankInfo
     {
-        public GetRankInfo(ASPResponse Response, Dictionary<string, string> QueryString)
+        public GetRankInfo(HttpClient Client)
         {
             int Pid = 0;
             DatabaseDriver Driver = ASPServer.Database.Driver;
             List<Dictionary<string, object>> Rows;
-            FormattedOutput Output;
+            Dictionary<string, string> QueryString = Client.Request.QueryString;
 
             // Setup Params
             if (QueryString.ContainsKey("pid"))
@@ -21,19 +21,18 @@ namespace BF2Statistics.ASP.Requests
             Rows = Driver.Query("SELECT rank, chng, decr FROM player WHERE id=@P0", Pid);
             if (Rows.Count == 0)
             {
-                Output = new FormattedOutput("asof", "err");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist!");
-                Response.AddData(Output);
-                Response.IsValidData(false);
-                Response.Send();
+                Client.Response.WriteResponseStart(false);
+                Client.Response.WriteHeaderLine("asof", "err");
+                Client.Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp(), "Player Doesnt Exist");
+                Client.Response.Send();
                 return;
             }
 
             // Output status
-            Output = new FormattedOutput("rank", "chng", "decr");
-            Output.AddRow(Rows[0]["rank"], Rows[0]["chng"], Rows[0]["decr"]);
-            Response.AddData(Output);
-            Response.Send();
+            Client.Response.WriteResponseStart();
+            Client.Response.WriteHeaderLine("rank", "chng", "decr");
+            Client.Response.WriteDataLine(Rows[0]["rank"], Rows[0]["chng"], Rows[0]["decr"]);
+            Client.Response.Send();
 
             // Reset
             Driver.Execute("UPDATE player SET chng=0, decr=0 WHERE id=@P0", Pid);

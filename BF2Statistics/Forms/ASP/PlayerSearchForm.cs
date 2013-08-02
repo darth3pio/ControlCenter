@@ -6,6 +6,10 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Data.Common;
+using System.IO;
+using System.Xml;
+using System.Reflection;
 using BF2Statistics.ASP;
 using BF2Statistics.Database;
 using BF2Statistics.Database.QueryBuilder;
@@ -38,11 +42,19 @@ namespace BF2Statistics
         /// Sorted column sort direction
         /// </summary>
         private ListSortDirection SortDir = ListSortDirection.Ascending;
+        /// <summary>
+        /// Current executing Assembly
+        /// </summary>
+        Assembly Me = Assembly.GetExecutingAssembly();
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public PlayerSearchForm()
         {
             InitializeComponent();
-            SortedCol = DataTable.Columns[0];
+            SortedCol = DataTable.Columns[1];
+            SortedCol.HeaderCell.SortGlyphDirection = SortOrder.Ascending;
             LimitSelect.SelectedIndex = 2;
         }
 
@@ -78,11 +90,11 @@ namespace BF2Statistics
             int RowCount = 0;
             foreach (Dictionary<string, object> Row in Driver.QueryReader(Query.BuildCommand()))
             {
-                DataTable.Rows.Add(new string[] { 
+                DataTable.Rows.Add(new object[] {
+                    Image.FromStream(Me.GetManifestResourceStream("BF2Statistics.Resources.rank_" + Row["rank"].ToString() + "icon.gif")),
                     Row["id"].ToString(),
                     Row["name"].ToString(),
                     Row["clantag"].ToString(),
-                    Row["rank"].ToString(),
                     Row["score"].ToString(),
                     Row["country"].ToString(),
                     Row["permban"].ToString(),
@@ -126,12 +138,12 @@ namespace BF2Statistics
             NextBtn.Enabled = false;
 
             // Get total number of pages
-            if (TotalRows / (ListPage * Limit) > 0)
+            if (TotalFilteredRows / (ListPage * Limit) > 0)
             {
-                float total = float.Parse(TotalRows.ToString()) / float.Parse(Limit.ToString());
+                float total = float.Parse(TotalFilteredRows.ToString()) / float.Parse(Limit.ToString());
                 TotalPages = Int32.Parse(Math.Floor(total).ToString());
-                if (TotalRows % Limit != 0)
-                    TotalPages += 1;
+                if (TotalFilteredRows % Limit != 0)
+                    TotalPages++;
 
                 LastBtn.Enabled = true;
                 NextBtn.Enabled = true;
@@ -154,9 +166,8 @@ namespace BF2Statistics
             if (!String.IsNullOrWhiteSpace(Like))
                 RowCountDesc.Text += String.Format("(filtered from " + TotalRows + " total player{0})", ((TotalRows > 1) ? "s" : ""));
 
-            // Update and Focus
+            // Update
             DataTable.Update();
-            DataTable.Focus();
         }
 
         /// <summary>
@@ -176,7 +187,9 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void LimitSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
+            ListPage = 1;
             BuildList();
+            DataTable.Focus();
         }
 
         /// <summary>
@@ -189,7 +202,7 @@ namespace BF2Statistics
             if (e.RowIndex < 0)
                 return;
 
-            int Pid = Int32.Parse(DataTable.Rows[e.RowIndex].Cells[0].Value.ToString());
+            int Pid = Int32.Parse(DataTable.Rows[e.RowIndex].Cells[1].Value.ToString());
             PlayerEditForm Form = new PlayerEditForm(Pid);
             Form.ShowDialog();
             BuildList();
@@ -204,6 +217,7 @@ namespace BF2Statistics
         {
             ListPage = 1;
             BuildList();
+            DataTable.Focus();
         }
 
         /// <summary>
@@ -215,6 +229,7 @@ namespace BF2Statistics
         {
             ListPage -= 1;
             BuildList();
+            DataTable.Focus();
         }
 
         /// <summary>
@@ -226,6 +241,7 @@ namespace BF2Statistics
         {
             ListPage++;
             BuildList();
+            DataTable.Focus();
         }
 
         /// <summary>
@@ -237,6 +253,7 @@ namespace BF2Statistics
         {
             ListPage = TotalPages;
             BuildList();
+            DataTable.Focus();
         }
 
         /// <summary>
@@ -272,6 +289,11 @@ namespace BF2Statistics
             BuildList();
         }
 
+        /// <summary>
+        /// Builds the list when the PageNumber numeric upDown is changed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PageNumber_ValueChanged(object sender, EventArgs e)
         {
             int Val = Int32.Parse(PageNumber.Value.ToString());
@@ -281,5 +303,151 @@ namespace BF2Statistics
                 BuildList();
             }
         }
+
+        #region Context Menu
+
+        /// <summary>
+        /// Fired everytime the context menu is opening. It disables some options
+        /// if there is no player selected
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void contextMenu_Opening(object sender, CancelEventArgs e)
+        {
+            if (DataTable.SelectedRows.Count == 0)
+            {
+                deletePlayerToolStripMenuItem.Enabled = false;
+                exportPlayerToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                deletePlayerToolStripMenuItem.Enabled = true;
+                exportPlayerToolStripMenuItem.Enabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Delete Player Menu Item Click
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void deletePlayerMenuItem_Click(object sender, EventArgs e)
+        {
+            // Get players ID and Nick
+            int Pid = Int32.Parse(DataTable.SelectedRows[0].Cells[1].Value.ToString());
+            string Name = DataTable.SelectedRows[0].Cells[2].Value.ToString();
+
+            // Show confirm box before deleting
+            DialogResult Result = MessageBox.Show(
+                String.Format("Are you sure you want to permanently delete player \"{0}\" ({1})?", Name, Pid),
+                "Confirm", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning
+            );
+
+            // If confirmed
+            if (Result == DialogResult.OK)
+            {
+                try
+                {
+                    TaskForm.Show(this, "Delete Player", "Deleting Player \"" + Name + "\"", false);
+                    ASPServer.Database.DeletePlayer(Pid, true);
+                    BuildList();
+                }
+                catch (Exception E)
+                {
+                    // Show exception error
+                    ExceptionForm Form = new ExceptionForm(E, false);
+                    Form.Message = String.Format("Failed to remove player from database!{1}{1}Error: {0}", E.Message, Environment.NewLine);
+                    Form.ShowDialog();
+                }
+                finally
+                {
+                    // Close task form
+                    TaskForm.CloseForm();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Export player menu item click
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void exportPlayerMenuItem_Click(object sender, EventArgs e)
+        {
+            // Get players ID and Nick
+            int Pid = Int32.Parse(DataTable.SelectedRows[0].Cells[1].Value.ToString());
+            string Name = DataTable.SelectedRows[0].Cells[2].Value.ToString();
+
+            // Create export directory if it doesnt exist yet
+            string sPath = Path.Combine(Paths.DocumentsFolder, "Player Exports");
+            if (!Directory.Exists(sPath))
+                Directory.CreateDirectory(sPath);
+
+            // Have user select folder
+            FolderSelect.FolderSelectDialog Dialog = new FolderSelect.FolderSelectDialog();
+            Dialog.InitialDirectory = sPath;
+            Dialog.Title = "Select folder to export player to";
+            if (Dialog.ShowDialog())
+            {
+                try
+                {
+                    ASPServer.Database.ExportPlayerXml(sPath, Pid, Name);
+                    Notify.Show("Player Exported Successfully", String.Format("{0} ({1})", Name, Pid), AlertType.Success);
+                }
+                catch (Exception E)
+                {
+                    ExceptionForm EForm = new ExceptionForm(E, false);
+                    EForm.Message = "Unable to export player because an exception was thrown!";
+                    EForm.ShowDialog();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Exports player XML sheet
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void fromPlayerExportSheetMenuItem_Click(object sender, EventArgs e)
+        {
+            // Create export directory if it doesnt exist yet
+            string sPath = Path.Combine(Paths.DocumentsFolder, "Player Exports");
+            if (!Directory.Exists(sPath))
+                Directory.CreateDirectory(sPath);
+
+            // Show dialog
+            OpenFileDialog Dialog = new OpenFileDialog();
+            Dialog.InitialDirectory = sPath;
+            Dialog.Title = "Select Player Import File";
+            if (Dialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    ASPServer.Database.ImportPlayerXml(Dialog.FileName);
+                    Notify.Show("Player Imported Successfully", AlertType.Success);
+                    BuildList();
+                }
+                catch (Exception E)
+                {
+                    ExceptionForm EForm = new ExceptionForm(E, false);
+                    EForm.Message = "Unable to import player because an exception was thrown!";
+                    EForm.ShowDialog();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Imports players EA stats
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void fromEAStatsServerMenuItem_Click(object sender, EventArgs e)
+        {
+            EAStatsImportForm Form = new EAStatsImportForm();
+            Form.ShowDialog();
+            BuildList();
+        }
+
+        #endregion
     }
 }

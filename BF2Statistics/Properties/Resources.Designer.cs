@@ -172,6 +172,13 @@ namespace BF2Statistics.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap vistaWarning {
+            get {
+                object obj = ResourceManager.GetObject("vistaWarning", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap warning {
             get {
                 object obj = ResourceManager.GetObject("warning", resourceCulture);

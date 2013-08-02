@@ -252,7 +252,8 @@
             this.IgnoreAi.Name = "IgnoreAi";
             this.IgnoreAi.Size = new System.Drawing.Size(180, 21);
             this.IgnoreAi.TabIndex = 9;
-            this.Tipsy.SetToolTip(this.IgnoreAi, "Save AI Bot stats at the end of the round?");
+            this.Tipsy.SetToolTip(this.IgnoreAi, "Ignore AI Bot stats at the end of the round? \r\nEnabling this option will cause AI" +
+                    " stats to NOT be saved at the end of each round.");
             // 
             // label9
             // 

@@ -15,14 +15,14 @@ namespace FolderSelect
 	public class FolderSelectDialog
 	{
 		// Wrapped dialog
-		System.Windows.Forms.OpenFileDialog ofd = null;
+		OpenFileDialog ofd = null;
 
 		/// <summary>
 		/// Default constructor
 		/// </summary>
 		public FolderSelectDialog()
 		{
-			ofd = new System.Windows.Forms.OpenFileDialog();
+			ofd = new OpenFileDialog();
 
 			ofd.Filter = "Folders|\n";
 			ofd.AddExtension = false;
@@ -129,7 +129,7 @@ namespace FolderSelect
 	/// <summary>
 	/// Creates IWin32Window around an IntPtr
 	/// </summary>
-	public class WindowWrapper : System.Windows.Forms.IWin32Window
+	public class WindowWrapper : IWin32Window
 	{
 		/// <summary>
 		/// Constructor

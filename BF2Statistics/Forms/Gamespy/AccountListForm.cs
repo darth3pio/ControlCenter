@@ -136,12 +136,12 @@ namespace BF2Statistics
             NextBtn.Enabled = false;
 
             // Get total number of pages
-            if (TotalRows / (ListPage * Limit) > 0)
+            if (TotalFilteredRows / (ListPage * Limit) > 0)
             {
-                float total = float.Parse(TotalRows.ToString()) / float.Parse(Limit.ToString());
+                float total = float.Parse(TotalFilteredRows.ToString()) / float.Parse(Limit.ToString());
                 TotalPages = Int32.Parse(Math.Floor(total).ToString());
-                if (TotalRows % Limit != 0)
-                    TotalPages += 1;
+                if (TotalFilteredRows % Limit != 0)
+                    TotalPages++;
 
                 LastBtn.Enabled = true;
                 NextBtn.Enabled = true;
@@ -164,9 +164,8 @@ namespace BF2Statistics
             if (!String.IsNullOrWhiteSpace(Like))
                 RowCountDesc.Text += String.Format("(filtered from " + TotalRows + " total account{0})", ((TotalRows > 1) ? "s" : ""));
 
-            // Update and Focus
+            // Update
             DataTable.Update();
-            DataTable.Focus();
         }
 
         /// <summary>
@@ -186,7 +185,9 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void LimitSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
+            ListPage = 1;
             BuildList();
+            DataTable.Focus();
         }
 
         /// <summary>
@@ -214,6 +215,7 @@ namespace BF2Statistics
         {
             ListPage = 1;
             BuildList();
+            DataTable.Focus();
         }
 
         /// <summary>
@@ -225,6 +227,7 @@ namespace BF2Statistics
         {
             ListPage -= 1;
             BuildList();
+            DataTable.Focus();
         }
 
         /// <summary>
@@ -236,6 +239,7 @@ namespace BF2Statistics
         {
             ListPage++;
             BuildList();
+            DataTable.Focus();
         }
 
         /// <summary>
@@ -247,6 +251,7 @@ namespace BF2Statistics
         {
             ListPage = TotalPages;
             BuildList();
+            DataTable.Focus();
         }
 
         /// <summary>
@@ -295,6 +300,33 @@ namespace BF2Statistics
         private void OnlineAccountsCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             BuildList();
+        }
+
+        private void contextMenu_Opening(object sender, CancelEventArgs e)
+        {
+            menuItemDelete.Enabled = (DataTable.SelectedRows.Count != 0);
+        }
+
+        /// <summary>
+        /// Delete Account menu item click event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void menuItemDelete_Click(object sender, System.EventArgs e)
+        {
+            int Id = Int32.Parse(DataTable.SelectedRows[0].Cells[0].Value.ToString());
+            string Name = DataTable.SelectedRows[0].Cells[1].Value.ToString();
+
+            if (MessageBox.Show("Are you sure you want to delete account \"" + Name + "\"?", 
+                "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                if (LoginServer.Database.DeleteUser(Id) == 1)
+                    Notify.Show("Account deleted successfully!", AlertType.Success);
+                else
+                    Notify.Show("Failed to remove account from database!", AlertType.Warning);
+
+                BuildList();
+            }
         }
     }
 }

@@ -32,8 +32,6 @@ namespace BF2Statistics
         /// <summary>
         /// Dumps the sql into executable sql files
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ImportSqlBtn_Click(object sender, EventArgs e)
         {
             OpenFileDialog Dialog = new OpenFileDialog();
@@ -47,8 +45,6 @@ namespace BF2Statistics
         /// <summary>
         /// Imports ASP created BAK files (Mysql Out FILE)
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ImportASPBtn_Click(object sender, EventArgs e)
         {
             // Open File Select Dialog
@@ -142,8 +138,6 @@ namespace BF2Statistics
         /// <summary>
         /// Backs up the asp database
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ExportAsASPBtn_Click(object sender, EventArgs e)
         {
             // Define backup folder for this backup, and create it if it doesnt exist
@@ -158,7 +152,7 @@ namespace BF2Statistics
             LoadingForm.ShowScreen(this);
 
             // Backup each table into its own bak file
-            foreach (string Table in StatsDatabase.GetStatsTables())
+            foreach (string Table in StatsDatabase.StatsTables)
             {
                 // Create file path
                 string BakFile = Path.Combine(Folder, Table + ".bak");
@@ -223,8 +217,6 @@ namespace BF2Statistics
         /// <summary>
         /// Clears the stats database of all data
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ClearStatsBtn_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show(

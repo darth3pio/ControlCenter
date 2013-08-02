@@ -38,7 +38,7 @@ namespace BF2Statistics
             AccountEmail.Text = User["email"].ToString();
 
             // Disable options if user is online
-            if (User["session"].ToString() == "1")
+            if (User["session"].ToString() != "0")
             {
                 SatusLabel.Text = "Online (IP: " + User["lastip"].ToString() + ")";
                 UpdateBtn.Enabled = false;
@@ -144,15 +144,13 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void DeleteBtn_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Are you sure you want to delete account?", "Confirm", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            if (MessageBox.Show("Are you sure you want to delete account?", "Confirm", 
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
-                string output = "";
                 if (LoginServer.Database.DeleteUser(AccountId) == 1)
-                    output = "Account deleted successfully";
+                    Notify.Show("Account deleted successfully!", AlertType.Success);
                 else
-                    output = "Failed to remove account from database.";
-
-                MessageBox.Show(output);
+                    Notify.Show("Failed to remove account from database!", AlertType.Warning);
                 this.Close();
             }
         }

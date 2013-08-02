@@ -10,24 +10,9 @@ namespace BF2Statistics.ASP
     class ASPResponse
     {
         /// <summary>
-        /// This is the contents response code "O" or "E"
-        /// that is sent by the official Gamespy ASP.
+        /// Contains the HttpClient object
         /// </summary>
-        public enum DataType
-        {
-            OK = 'O',
-            Error = 'E'
-        }
-
-        /// <summary>
-        /// This is the response code
-        /// </summary>
-        private DataType ResponseType = DataType.OK;
-
-        /// <summary>
-        /// The Response Body to send to the client
-        /// </summary>
-        private string ResponseBody = "";
+        private HttpClient Client;
 
         /// <summary>
         /// The Http Response Object
@@ -35,57 +20,90 @@ namespace BF2Statistics.ASP
         private HttpListenerResponse Response;
 
         /// <summary>
-        /// The Http Request Object
-        /// </summary>
-        private HttpListenerRequest Request;
-
-        /// <summary>
-        /// Query String
-        /// </summary>
-        Dictionary<string, string> QueryString;
-
-        /// <summary>
         /// Our connection timer
         /// </summary>
         private Stopwatch Clock;
 
         /// <summary>
-        /// The HTTP Status Code to Send
+        /// The Response Body to send to the client
         /// </summary>
+        private StringBuilder ResponseBody;
+
+        /// <summary>
+        /// The Http Status Code
+        /// </summary>
+        protected int statusCode = (int)HttpStatusCode.OK;
+
+        /// <summary>
+        /// Gets or sets the HTTP status code to be returned to the client
+        /// See the <see cref="System.Net.HttpStatusCode"/> Enumeration
+        /// </summary>
+        /// <remarks>
+        ///     Setting the status code will also automatically update the
+        ///     <see cref="StatusDescription"/>
+        /// </remarks>
         public int StatusCode
         {
-            get { return this.Response.StatusCode; }
-            set 
+            get { return statusCode; }
+            set
             {
-                this.Response.StatusCode = value;
-                this.Response.StatusDescription = GetStatusMessage(value);
+                // Need to make sure its valid, or throw an exception
+                statusCode = value;
+                StatusDescription = GetStatusMessage(value);
             }
         }
 
         /// <summary>
-        /// Do we format the ASP data with the O/E and $ length $ ?
+        /// Gets or sets a text description of the HTTP status code returned to the client.
         /// </summary>
-        public bool FormatData = true;
+        public string StatusDescription = "OK";
+
+        /// <summary>
+        /// Indicates whether the data will be transposed
+        /// </summary>
+        public bool Transpose
+        {
+            get
+            {
+                return (
+                    Client.Request.QueryString.ContainsKey("transpose")
+                    && Client.Request.QueryString["transpose"] == "1"
+                );
+            }
+        }
+
+        /// <summary>
+        /// Internal, Temporary Formatted Output class.
+        /// We use this to easily transpose format
+        /// </summary>
+        protected FormattedOutput Formatted;
+
+        /// <summary>
+        /// Event that is called when the response is being prepared to be sent
+        /// </summary>
+        public event EventHandler SendingResponse;
+
+        /// <summary>
+        /// Event that is called when the response has been written to the
+        /// output stream.
+        /// </summary>
+        public event EventHandler SentResponse;
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="Stream"></param>
-        public ASPResponse(HttpListenerRequest Request, HttpListenerResponse Response, Dictionary<string, string> QueryString, Stopwatch Clock)
+        public ASPResponse(HttpListenerResponse Response, HttpClient Client)
         {
+            // Set Iternals
             this.Response = Response;
-            this.Request = Request;
-            this.QueryString = QueryString;
-            this.Clock = Clock;
-        }
+            this.Client = Client;
 
-        /// <summary>
-        /// Defines whether the output content is Valid Data, or Error Data
-        /// </summary>
-        /// <param name="Is"></param>
-        public void IsValidData(bool Is)
-        {
-            ResponseType = (Is) ? DataType.OK : DataType.Error;
+            // Start our Timer
+            Clock = new Stopwatch();
+            Clock.Start();
+
+            // Create a new Response Body
+            ResponseBody = new StringBuilder();
         }
 
         /// <summary>
@@ -94,37 +112,145 @@ namespace BF2Statistics.ASP
         /// <param name="Data"></param>
         public void AddData(FormattedOutput Data)
         {
-            Data.Transpose = (QueryString.ContainsKey("transpose") && QueryString["transpose"] == "1");
-            ResponseBody += "\n" + Data.ToString().Trim();
+            Data.Transpose = Transpose;
+            ResponseBody.Append(Data.ToString().Trim());
         }
 
         /// <summary>
         /// Adds HeaderData to the current output
         /// </summary>
         /// <param name="Data"></param>
-        public void AddData(Dictionary<string, object> Data)
+        public void WriteHeaderDataPair(Dictionary<string, object> Data)
         {
-            List<string> Head = new List<string>(Data.Count);
-            List<string> Body = new List<string>(Data.Count);
-            foreach (KeyValuePair<string, object> Item in Data)
+            if (Transpose)
             {
-                Head.Add(Item.Key);
-                Body.Add(Item.Value.ToString());
-            }
+                if (Formatted != null)
+                    ResponseBody.Append(Formatted.ToString());
 
-            FormattedOutput Output = new FormattedOutput(Head);
-            Output.AddRow(Body);
-            Output.Transpose = (QueryString.ContainsKey("transpose") && QueryString["transpose"] == "1");
-            ResponseBody += "\n" + Output.ToString().Trim();
+                List<string> Params = new List<string>(Data.Count);
+                foreach (KeyValuePair<string, object> Item in Data)
+                    Params.Add(Item.Key);
+
+                Formatted = new FormattedOutput(Params);
+                Formatted.Transpose = true;
+
+                Params = new List<string>(Data.Count);
+                foreach (KeyValuePair<string, object> Item in Data)
+                    Params.Add(Item.Value.ToString());
+
+                Formatted.AddRow(Params);
+            }
+            else
+            {
+                // Add Keys
+                ResponseBody.Append("\nH");
+                foreach (KeyValuePair<string, object> Item in Data)
+                    ResponseBody.Append("\t" + Item.Key);
+
+                // Add Data
+                ResponseBody.Append("\nD");
+                foreach (KeyValuePair<string, object> Item in Data)
+                    ResponseBody.Append("\t" + Item.Value);
+            }
+        }
+
+        /// <summary>
+        /// Opens the ASP response with the Valid Data opening tag ( "O" )
+        /// <remarks>Calling this method will reset all current running data.</remarks>
+        /// </summary>
+        public void WriteResponseStart()
+        {
+            ResponseBody = new StringBuilder("O");
+        }
+
+        /// <summary>
+        /// Starts the ASP formatted response
+        /// </summary>
+        /// <param name="IsValid">
+        /// Defines whether this response is valid data. If false,
+        /// the opening tag will be an "E" rather then "O"
+        /// <remarks>Calling this method will reset all current running data.</remarks>
+        /// </param>
+        public void WriteResponseStart(bool IsValid)
+        {
+            ResponseBody = new StringBuilder(((IsValid) ? "O" : "E"));
+        }
+
+        /// <summary>
+        /// Writes a Header line with the specified parameters
+        /// </summary>
+        /// <param name="Params"></param>
+        public void WriteHeaderLine(params object[] Params)
+        {
+            if (Transpose)
+            {
+                if (Formatted != null)
+                    ResponseBody.Append(Formatted.ToString());
+
+                Formatted = new FormattedOutput(Params);
+                Formatted.Transpose = true;
+            }
+            else
+                ResponseBody.AppendFormat("\nH\t{0}", String.Join("\t", Params));
+        }
+
+        /// <summary>
+        /// Writes a header line with the items provided in the List
+        /// </summary>
+        /// <param name="Headers"></param>
+        public void WriteHeaderLine(List<string> Headers)
+        {
+            if (Transpose)
+            {
+                if (Formatted != null)
+                    ResponseBody.Append(Formatted.ToString());
+
+                Formatted = new FormattedOutput(Headers);
+                Formatted.Transpose = true;
+            }
+            else
+                ResponseBody.AppendFormat("\nH\t{0}", String.Join("\t", Headers));
+        }
+
+        /// <summary>
+        /// Writes a Data line with the specified parameters
+        /// </summary>
+        /// <param name="Params"></param>
+        public void WriteDataLine(params object[] Params)
+        {
+            if (Transpose)
+                Formatted.AddRow(Params);
+            else
+                ResponseBody.AppendFormat("\nD\t{0}", String.Join("\t", Params));
+        }
+
+        /// <summary>
+        /// Writes a data line with the items provided in the List
+        /// </summary>
+        /// <param name="Params"></param>
+        public void WriteDataLine(List<string> Params)
+        {
+            if (Transpose)
+                Formatted.AddRow(Params);
+            else
+                ResponseBody.AppendFormat("\nD\t{0}", String.Join("\t", Params));
         }
 
         /// <summary>
         /// Write's clean data to the stream
         /// </summary>
         /// <param name="Message"></param>
-        public void WriteLine(string Message)
+        public void WriteFreeformLine(string Message)
         {
-            ResponseBody += "\n" + Message;
+            ResponseBody.AppendFormat("\n{0}", Message);
+        }
+
+        /// <summary>
+        /// Writes the closing ASP response tags
+        /// </summary>
+        protected void WriteResponseEnd()
+        {
+            ResponseBody.AppendFormat("\n$\t{0}\t$", (Regex.Replace(ResponseBody.ToString(), "[\t\n]", "")).Length);
         }
 
         /// <summary>
@@ -132,46 +258,80 @@ namespace BF2Statistics.ASP
         /// </summary>
         public void Send()
         {
-            // Just send response if we are not a valid response
-            if (StatusCode != 200)
-            {
-                ShowError();
+            // Make sure our client didnt send a response already
+            if (Client.ResponseSent)
                 return;
-            }
 
-            // Format data into ASP format?
-            if (FormatData)
+            // Fire Event
+            if (SendingResponse != null)
+                SendingResponse(this, null);
+
+            // Create body buffer
+            byte[] Body = new byte[0];
+
+            // Get body based on HttpStatus Code
+            if (StatusCode == 200)
             {
-                ResponseBody = ((ResponseType == DataType.OK) ? "O" : "E") + ResponseBody;
-                ResponseBody += String.Format("\n$\t{0}\t$", (Regex.Replace(ResponseBody, "[\t\n]", "")).Length);
+                // Whats left of the transposed data
+                if (Transpose && Formatted != null)
+                    ResponseBody.Append(Formatted.ToString());
+
+                // Write the data and close the stream
+                WriteResponseEnd();
+                Body = Encoding.UTF8.GetBytes(ResponseBody.ToString());
+                Response.ContentType = "text/plain";
+            }
+            else
+            {
+                // Just send response if we are not a valid response
+                Body = Encoding.UTF8.GetBytes(BuildErrorPage());
+                Response.ContentType = "text/html";
             }
 
-            // Write the data and close the stream
-            byte[] Final = Encoding.UTF8.GetBytes(ResponseBody);
-            Response.ContentLength64 = Final.Length;
+            // Set the contents length, and encoding. Instruct to close the connection
+            Response.ContentLength64 = Body.Length;
             Response.ContentEncoding = Encoding.UTF8;
             Response.KeepAlive = false;
 
-            // Log Request
+            // Send Response to the remote socket
+            Response.OutputStream.Write(Body, 0, Body.Length);
+            Response.Close();
             Clock.Stop();
-            ASPServer.AccessLog.Write("{0} - \"{1}\" [S: {2}, L: {3}, T: {4}ms]", 
-                Request.RemoteEndPoint.Address, 
-                Request.HttpMethod + " " + Request.Url.PathAndQuery + " HTTP/" + Request.ProtocolVersion.ToString(),
+
+            // Log Request
+            ASPServer.AccessLog.Write("{0} - \"{1}\" [Status: {2}, Len: {3}, Time: {4}ms]",
+                Client.RemoteEndPoint.Address,
+                String.Concat(
+                    Client.Request.HttpMethod,
+                    " ", Client.Request.Url.PathAndQuery,
+                    " HTTP/",
+                    Client.Request.ProtocolVersion
+                ),
                 StatusCode,
-                Final.Length,
+                Body.Length,
                 Clock.ElapsedMilliseconds
             );
 
-            // Send Response
-            Response.OutputStream.Write(Final, 0, Final.Length);
-            Response.Close();
+            // Fire Event
+            if (SentResponse != null)
+                SentResponse(this, null);
+        }
+
+        /// <summary>
+        /// Builds, and returns an HTML formated error page
+        /// </summary>
+        /// <returns></returns>
+        protected string BuildErrorPage()
+        {
+            string Page = Utils.GetResourceAsString("BF2Statistics.ASP.Error.html");
+            return String.Format(Page, StatusCode, StatusDescription, GetErrorDesciption());
         }
 
         /// <summary>
         /// Gets the correct HTTP Status message from the StatusCode
         /// </summary>
         /// <returns></returns>
-        public string GetStatusMessage(int StatusCode)
+        protected string GetStatusMessage(int StatusCode)
         {
             switch (StatusCode)
             {
@@ -183,35 +343,46 @@ namespace BF2Statistics.ASP
                     return "Forbidden";
                 case 404:
                     return "Not Found";
+                case 405:
+                    return "Method Not Allowed";
+                case 411:
+                    return "Length Required";
                 case 501:
-                   return "Not Implemented";
+                    return "Not Implemented";
+                case 503:
+                    return "Service Unavailable";
                 default:
-                   return "Internal Server Error";
+                    return "Internal Server Error";
             }
         }
 
         /// <summary>
-        /// Displays an error page, based off of the set HttpStatusCode
+        /// Gets the description text of an Http Error
         /// </summary>
-        private void ShowError()
+        /// <returns></returns>
+        protected string GetErrorDesciption()
         {
-            // Prepare Output Message
-            byte[] Message = Encoding.UTF8.GetBytes(Utils.GetResourceAsString("BF2Statistics.ASP.Errors." + StatusCode + ".tpl"));
-            int Len = Message.Length;
-
-            // Log Request
-            ASPServer.AccessLog.Write("{0} - \"{1}\" {2} {3}",
-                Request.RemoteEndPoint.Address,
-                Request.HttpMethod + " " + Request.Url.PathAndQuery + " HTTP/" + Request.ProtocolVersion.ToString(),
-                StatusCode,
-                Len
-            );
-
-            // Send 404
-            Response.ContentEncoding = Encoding.UTF8;
-            Response.ContentLength64 = Len;
-            Response.OutputStream.Write(Message, 0, Len);
-            Response.Close();
+            switch (StatusCode)
+            {
+                case 400:
+                    return "The server was unable to understand the request";
+                case 403:
+                    return "You don't have permission to access this page";
+                case 404:
+                    return "The requested resource is not found";
+                case 405:
+                    return "The Request Method Is Not Allowed";
+                case 411:
+                    return "The server refuses to accept the request without a defined Content- Length";
+                case 500:
+                    return "An Internal Server Error occurred during this request";
+                case 501:
+                    return "Request method is not supported";
+                case 503:
+                    return "The service is unavailable";
+                default:
+                    return "";
+            }
         }
     }
 }

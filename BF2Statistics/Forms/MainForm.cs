@@ -77,7 +77,7 @@ namespace BF2Statistics
         /// <summary>
         /// Are hosts file redirects active?
         /// </summary>
-        private bool RedirectsEnabled = false;
+        public static bool RedirectsEnabled { get; protected set; }
 
         /// <summary>
         /// A Background worker used for Hosts file redirects
@@ -173,9 +173,9 @@ namespace BF2Statistics
             LaunchClientBtn.Enabled = (!String.IsNullOrWhiteSpace(Config.ClientPath) && File.Exists(Path.Combine(Config.ClientPath, "bf2.exe")));
 
             // Register for ASP events
-            ASPServer.OnStart += new StartupEventHandler(ASPServer_OnStart);
-            ASPServer.OnShutdown += new ShutdownEventHandler(ASPServer_OnShutdown);
-            ASPServer.ClientConnected += new AspRequest(ASPServer_ClientConnected);
+            ASPServer.Started += new EventHandler(ASPServer_OnStart);
+            ASPServer.Stopped += new EventHandler(ASPServer_OnShutdown);
+            ASPServer.RequestRecieved += new AspRequest(ASPServer_ClientConnected);
             Snapshot.SnapshotProccessed += new SnapshotProccessed(Snapshot_SnapshotProccessed);
             ASP.Requests.SnapshotPost.SnapshotReceived += new SnapshotRecieved(SnapshotPost_SnapshotReceived);
 
@@ -236,10 +236,13 @@ namespace BF2Statistics
             {
                 this.Load += new EventHandler(CloseOnStart);
                 MessageBox.Show("Unable to locate the 'mods' folder. Please make sure you have selected a valid "
-                    + "battlefield 2 installation path before proceeding.", "Error");
+                    + "battlefield 2 installation path before proceeding.", 
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error
+                );
                 return false;
             }
 
+            // Get our mod directories
             string[] Mods = Directory.GetDirectories(path);
             XmlDocument Desc = new XmlDocument();
 
@@ -252,10 +255,6 @@ namespace BF2Statistics
                 // Make sure we have a mod description file
                 string DescFile = Path.Combine(D, "mod.desc");
                 if(!File.Exists(DescFile))
-                    continue;
-
-                // Make sure the server supports the mod as well...
-                if (!Directory.Exists(Path.Combine(Config.ServerPath, "mods", ModName)))
                     continue;
 
                 // Get the actual name of the mod
@@ -285,7 +284,8 @@ namespace BF2Statistics
             // If we have no mods, we cant continue :(
             if (ModSelectList.Items.Count == 0)
             {
-                MessageBox.Show("No battlefield 2 mods could be found!", "Error");
+                MessageBox.Show("No battlefield 2 mods could be found! The application can no longer continue.", 
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Load += new EventHandler(CloseOnStart);
                 return false;
             }
@@ -1152,7 +1152,7 @@ namespace BF2Statistics
                 {
                     LoadingForm.ShowScreen(this);
                     this.Enabled = false;
-                    HostsWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bWorker_RunWorkerCompleted);
+                    HostsWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(HostsWorker_Completed);
                     HostsWorker.CancelAsync();
                     return;
                 }
@@ -1212,10 +1212,10 @@ namespace BF2Statistics
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void bWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private void HostsWorker_Completed(object sender, RunWorkerCompletedEventArgs e)
         {
             // Unregister
-            HostsWorker.RunWorkerCompleted -= new RunWorkerCompletedEventHandler(bWorker_RunWorkerCompleted);
+            HostsWorker.RunWorkerCompleted -= new RunWorkerCompletedEventHandler(HostsWorker_Completed);
             UndoRedirects();
             LoadingForm.CloseForm();
             this.Enabled = true;
@@ -1428,7 +1428,7 @@ namespace BF2Statistics
         /// <summary>
         /// Update the GUI when the ASP starts up
         /// </summary>
-        private void ASPServer_OnStart()
+        private void ASPServer_OnStart(object sender, EventArgs E)
         {
             BeginInvoke((Action)delegate
             {
@@ -1450,7 +1450,7 @@ namespace BF2Statistics
         /// <summary>
         /// Update the GUI when the ASP shutsdown
         /// </summary>
-        private void ASPServer_OnShutdown()
+        private void ASPServer_OnShutdown(object sender, EventArgs E)
         {
             BeginInvoke((Action)delegate
             {

@@ -8,14 +8,18 @@
 /// </summary>
 
 using System;
-using System.Windows.Forms;
-using System.IO;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace BF2Statistics
 {
     static class Program
     {
+        /// <summary>
+        /// Specifies the Program Version
+        /// </summary>
+        public static Version Version = new Version(1, 6, 1);
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>

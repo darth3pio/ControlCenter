@@ -28,7 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.DataTable = new System.Windows.Forms.DataGridView();
+            this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.deletePlayerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.importPlayerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fromEAStatsServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fromPlayerExportSheetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportPlayerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
             this.SearchBox = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -40,14 +48,15 @@
             this.PreviousBtn = new System.Windows.Forms.Button();
             this.PageNumber = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
+            this.rank = new System.Windows.Forms.DataGridViewImageColumn();
             this.id = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.name = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clantag = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.rank = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.score = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.country = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.permban = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.DataTable)).BeginInit();
+            this.contextMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.PageNumber)).BeginInit();
             this.SuspendLayout();
             // 
@@ -56,15 +65,17 @@
             this.DataTable.AllowUserToAddRows = false;
             this.DataTable.AllowUserToDeleteRows = false;
             this.DataTable.AllowUserToOrderColumns = true;
+            this.DataTable.AllowUserToResizeRows = false;
             this.DataTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.DataTable.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.rank,
             this.id,
             this.name,
             this.clantag,
-            this.rank,
             this.score,
             this.country,
             this.permban});
+            this.DataTable.ContextMenuStrip = this.contextMenu;
             this.DataTable.Location = new System.Drawing.Point(25, 84);
             this.DataTable.MultiSelect = false;
             this.DataTable.Name = "DataTable";
@@ -75,6 +86,60 @@
             this.DataTable.TabIndex = 0;
             this.DataTable.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataTable_CellDoubleClick);
             this.DataTable.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataTable_ColumnHeaderMouseClick);
+            // 
+            // contextMenu
+            // 
+            this.contextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.deletePlayerToolStripMenuItem,
+            this.toolStripSeparator1,
+            this.importPlayerToolStripMenuItem,
+            this.exportPlayerToolStripMenuItem});
+            this.contextMenu.Name = "contextMenu";
+            this.contextMenu.Size = new System.Drawing.Size(146, 76);
+            this.contextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenu_Opening);
+            // 
+            // deletePlayerToolStripMenuItem
+            // 
+            this.deletePlayerToolStripMenuItem.Name = "deletePlayerToolStripMenuItem";
+            this.deletePlayerToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.deletePlayerToolStripMenuItem.Text = "Delete Player";
+            this.deletePlayerToolStripMenuItem.Click += new System.EventHandler(this.deletePlayerMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
+            // 
+            // importPlayerToolStripMenuItem
+            // 
+            this.importPlayerToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fromEAStatsServerToolStripMenuItem,
+            this.fromPlayerExportSheetToolStripMenuItem});
+            this.importPlayerToolStripMenuItem.Name = "importPlayerToolStripMenuItem";
+            this.importPlayerToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.importPlayerToolStripMenuItem.Text = "Import Player";
+            this.importPlayerToolStripMenuItem.TextDirection = System.Windows.Forms.ToolStripTextDirection.Horizontal;
+            // 
+            // fromEAStatsServerToolStripMenuItem
+            // 
+            this.fromEAStatsServerToolStripMenuItem.Name = "fromEAStatsServerToolStripMenuItem";
+            this.fromEAStatsServerToolStripMenuItem.Size = new System.Drawing.Size(223, 22);
+            this.fromEAStatsServerToolStripMenuItem.Text = "From Official EA Stats Server";
+            this.fromEAStatsServerToolStripMenuItem.Click += new System.EventHandler(this.fromEAStatsServerMenuItem_Click);
+            // 
+            // fromPlayerExportSheetToolStripMenuItem
+            // 
+            this.fromPlayerExportSheetToolStripMenuItem.Name = "fromPlayerExportSheetToolStripMenuItem";
+            this.fromPlayerExportSheetToolStripMenuItem.Size = new System.Drawing.Size(223, 22);
+            this.fromPlayerExportSheetToolStripMenuItem.Text = "From Player Export Sheet";
+            this.fromPlayerExportSheetToolStripMenuItem.Click += new System.EventHandler(this.fromPlayerExportSheetMenuItem_Click);
+            // 
+            // exportPlayerToolStripMenuItem
+            // 
+            this.exportPlayerToolStripMenuItem.Name = "exportPlayerToolStripMenuItem";
+            this.exportPlayerToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exportPlayerToolStripMenuItem.Text = "Export Player";
+            this.exportPlayerToolStripMenuItem.Click += new System.EventHandler(this.exportPlayerMenuItem_Click);
             // 
             // label1
             // 
@@ -199,9 +264,18 @@
             this.label3.Text = "Below is a list of all the players in your stats database. Select a player to edi" +
                 "t or view by double clicking on a player below";
             // 
+            // rank
+            // 
+            this.rank.HeaderText = "";
+            this.rank.Name = "rank";
+            this.rank.ReadOnly = true;
+            this.rank.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.rank.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            this.rank.Width = 50;
+            // 
             // id
             // 
-            this.id.HeaderText = "Player ID";
+            this.id.HeaderText = "PID";
             this.id.Name = "id";
             this.id.ReadOnly = true;
             this.id.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
@@ -209,30 +283,22 @@
             // 
             // name
             // 
-            this.name.HeaderText = "Player Nick";
+            this.name.HeaderText = "Nick";
             this.name.Name = "name";
             this.name.ReadOnly = true;
             this.name.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.name.Width = 175;
+            this.name.Width = 200;
             // 
             // clantag
             // 
-            this.clantag.HeaderText = "Clan";
+            this.clantag.HeaderText = "Clan Tag";
             this.clantag.Name = "clantag";
             this.clantag.ReadOnly = true;
             this.clantag.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
             // 
-            // rank
-            // 
-            this.rank.HeaderText = "Rank";
-            this.rank.Name = "rank";
-            this.rank.ReadOnly = true;
-            this.rank.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.rank.Width = 125;
-            // 
             // score
             // 
-            this.score.HeaderText = "Score";
+            this.score.HeaderText = "Global Score";
             this.score.Name = "score";
             this.score.ReadOnly = true;
             this.score.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
@@ -243,7 +309,6 @@
             this.country.Name = "country";
             this.country.ReadOnly = true;
             this.country.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.country.Width = 50;
             // 
             // permban
             // 
@@ -279,6 +344,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Player Search";
             ((System.ComponentModel.ISupportInitialize)(this.DataTable)).EndInit();
+            this.contextMenu.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.PageNumber)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -299,10 +365,17 @@
         private System.Windows.Forms.Button PreviousBtn;
         private System.Windows.Forms.NumericUpDown PageNumber;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ContextMenuStrip contextMenu;
+        private System.Windows.Forms.ToolStripMenuItem deletePlayerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem importPlayerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportPlayerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fromEAStatsServerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fromPlayerExportSheetToolStripMenuItem;
+        private System.Windows.Forms.DataGridViewImageColumn rank;
         private System.Windows.Forms.DataGridViewTextBoxColumn id;
         private System.Windows.Forms.DataGridViewTextBoxColumn name;
         private System.Windows.Forms.DataGridViewTextBoxColumn clantag;
-        private System.Windows.Forms.DataGridViewTextBoxColumn rank;
         private System.Windows.Forms.DataGridViewTextBoxColumn score;
         private System.Windows.Forms.DataGridViewTextBoxColumn country;
         private System.Windows.Forms.DataGridViewTextBoxColumn permban;

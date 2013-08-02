@@ -56,7 +56,7 @@ namespace BF2Statistics
                 NotEnoughPlayersBar.Value = Int32.Parse(Settings.GetValue("notEnoughPlayersRestartDelay"));
                 TimeB4RestartMapBar.Value = Int32.Parse(Settings.GetValue("timeBeforeRestartMap"));
 
-                // Friendly Fire Settigns
+                // Friendly Fire Settings
                 PunishTeamKillsBox.Checked = (Int32.Parse(Settings.GetValue("tkPunishEnabled")) == 1);
                 FriendlyFireBox.Checked = (Int32.Parse(Settings.GetValue("friendlyFireWithMines")) == 1);
                 PunishDefaultBox.Checked = (Int32.Parse(Settings.GetValue("tkPunishByDefault")) == 1);
@@ -67,8 +67,9 @@ namespace BF2Statistics
                 VehicleSplashFFBar.Value = Int32.Parse(Settings.GetValue("vehicleSplashFriendlyFire"));
 
                 // Bot Settings
+                int BotCount = Int32.Parse(Settings.GetValue("coopBotCount"));
                 BotRatioBar.Value = Int32.Parse(Settings.GetValue("coopBotRatio"));
-                BotCountBar.Value = Int32.Parse(Settings.GetValue("coopBotCount"));
+                BotCountBar.Value = ((BotCount > BotCountBar.Maximum) ? 64 : BotCount);
                 BotDifficultyBar.Value = Int32.Parse(Settings.GetValue("coopBotDifficulty"));
 
                 // Voip
@@ -109,7 +110,7 @@ namespace BF2Statistics
             catch(Exception e) 
             {
                 this.Load += new EventHandler(CloseOnStart);
-                MessageBox.Show(e.Message, "Server Settings File Error");
+                MessageBox.Show(e.Message, "Server Settings File Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -209,7 +210,7 @@ namespace BF2Statistics
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Server Settings File Save Error");
+                MessageBox.Show(ex.Message, "Server Settings File Save Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

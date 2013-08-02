@@ -62,7 +62,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\DateExtension.cs" />
+    <Compile Include="ASP\HttpClient.cs" />
+    <Compile Include="ASP\ASPRequest.cs" />
+    <Compile Include="ASP\Tools\StatsParser.cs" />
+    <Compile Include="ASP\Requests\CreatePlayer.cs" />
+    <Compile Include="ASP\Tools\AwardCriteria.cs" />
+    <Compile Include="Forms\ASP\EAStatsImportForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ASP\EAStatsImportForm.Designer.cs">
+      <DependentUpon>EAStatsImportForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Extensions\DateExtensions.cs" />
     <Compile Include="Forms\AlertForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -94,8 +105,8 @@
       <DependentUpon>ASPConfigForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ASP\ASPResponse.cs" />
-    <Compile Include="ASP\AwardData.cs" />
-    <Compile Include="ASP\BackendAward.cs" />
+    <Compile Include="ASP\Tools\AwardData.cs" />
+    <Compile Include="ASP\Tools\BackendAward.cs" />
     <Compile Include="ASP\Requests\SnapshotPost.cs" />
     <Compile Include="ASP\Requests\GetMapInfo.cs" />
     <Compile Include="ASP\Requests\GetAwardsInfo.cs" />
@@ -106,7 +117,7 @@
     <Compile Include="ASP\Requests\GetPlayerInfo.cs" />
     <Compile Include="ASP\Requests\GetRankInfo.cs" />
     <Compile Include="ASP\Requests\GetUnlocksInfo.cs" />
-    <Compile Include="ASP\FormattedOutput.cs" />
+    <Compile Include="ASP\Tools\FormattedOutput.cs" />
     <Compile Include="ASP\Requests\RankNotification.cs" />
     <Compile Include="ASP\Requests\SearchForPlayers.cs" />
     <Compile Include="ASP\Requests\SelectUnlock.cs" />
@@ -169,7 +180,7 @@
     <Compile Include="Database\DatabaseEngine.cs" />
     <Compile Include="Database\GamespyDatabase.cs" />
     <Compile Include="Extensions\DirectoryExt.cs" />
-    <Compile Include="Extensions\Extensions.cs" />
+    <Compile Include="Extensions\RandomExtensions.cs" />
     <Compile Include="Forms\Server\BF2sConfig.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -292,9 +303,17 @@
     <Compile Include="Forms\TaskForm.Designer.cs">
       <DependentUpon>TaskForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\ASP\PlayerEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ASP\PlayerEditForm.Designer.cs">
+      <DependentUpon>PlayerEditForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="TransparentLabel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Utilities\Crc16.cs" />
     <Compile Include="Utilities\Sql.cs" />
     <Compile Include="Utilities\Tipsy.cs" />
     <Compile Include="Utilities\Notify.cs" />
@@ -308,12 +327,6 @@
     </Compile>
     <Compile Include="Forms\ASP\PlayerSearchForm.Designer.cs">
       <DependentUpon>PlayerSearchForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\ASP\PlayerEditForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\ASP\PlayerEditForm.Designer.cs">
-      <DependentUpon>PlayerEditForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -335,6 +348,9 @@
     <Compile Include="Utilities\Utils.cs" />
     <Compile Include="Utilities\Validator.cs" />
     <Compile Include="ASP\ASPServer.cs" />
+    <EmbeddedResource Include="Forms\ASP\EAStatsImportForm.resx">
+      <DependentUpon>EAStatsImportForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\AlertForm.resx">
       <DependentUpon>AlertForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -416,9 +432,6 @@
     <EmbeddedResource Include="Forms\ASP\PlayerSearchForm.resx">
       <DependentUpon>PlayerSearchForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ASP\PlayerEditForm.resx">
-      <DependentUpon>PlayerEditForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\ASP\ManageStatsDBForm.resx">
       <DependentUpon>ManageStatsDBForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -438,11 +451,11 @@
     <EmbeddedResource Include="Forms\TaskForm.resx">
       <DependentUpon>TaskForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ASP\PlayerEditForm.resx">
+      <DependentUpon>PlayerEditForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="app.config" />
-    <EmbeddedResource Include="ASP\Errors\403.tpl" />
-    <EmbeddedResource Include="ASP\Errors\501.tpl" />
-    <EmbeddedResource Include="ASP\Errors\503.tpl" />
-    <EmbeddedResource Include="ASP\Errors\400.tpl" />
+    <EmbeddedResource Include="ASP\Error.html" />
     <None Include="app.manifest" />
     <EmbeddedResource Include="MedalData\PyFiles\functions.py" />
     <EmbeddedResource Include="MedalData\PyFiles\medal_data.py" />
@@ -463,7 +476,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SQL\Updates\SQLite\Gamespy.Update_1.sql" />
     <EmbeddedResource Include="SQL\MySQL.Stats.sql" />
-    <EmbeddedResource Include="ASP\Errors\404.tpl" />
     <Content Include="Logo.ico" />
     <EmbeddedResource Include="SQL\SQLite.Stats.sql" />
     <None Include="Resources\e_logo.png" />
@@ -632,6 +644,282 @@
     <None Include="Resources\AlertWarning.png" />
     <None Include="Resources\CloseBox.png" />
     <None Include="Resources\AlertSuccess.png" />
+    <EmbeddedResource Include="Resources\rank_0.png" />
+    <EmbeddedResource Include="Resources\rank_1.png" />
+    <EmbeddedResource Include="Resources\rank_2.png" />
+    <EmbeddedResource Include="Resources\rank_3.png" />
+    <EmbeddedResource Include="Resources\rank_4.png" />
+    <EmbeddedResource Include="Resources\rank_5.png" />
+    <EmbeddedResource Include="Resources\rank_6.png" />
+    <EmbeddedResource Include="Resources\rank_7.png" />
+    <EmbeddedResource Include="Resources\rank_8.png" />
+    <EmbeddedResource Include="Resources\rank_9.png" />
+    <EmbeddedResource Include="Resources\rank_10.png" />
+    <EmbeddedResource Include="Resources\rank_11.png" />
+    <EmbeddedResource Include="Resources\rank_12.png" />
+    <EmbeddedResource Include="Resources\rank_13.png" />
+    <EmbeddedResource Include="Resources\rank_14.png" />
+    <EmbeddedResource Include="Resources\rank_15.png" />
+    <EmbeddedResource Include="Resources\rank_16.png" />
+    <EmbeddedResource Include="Resources\rank_17.png" />
+    <EmbeddedResource Include="Resources\rank_18.png" />
+    <EmbeddedResource Include="Resources\rank_19.png" />
+    <EmbeddedResource Include="Resources\rank_20.png" />
+    <EmbeddedResource Include="Resources\rank_21.png" />
+    <EmbeddedResource Include="Resources\US.png" />
+    <EmbeddedResource Include="Resources\AD.png" />
+    <EmbeddedResource Include="Resources\AE.png" />
+    <EmbeddedResource Include="Resources\AF.png" />
+    <EmbeddedResource Include="Resources\AG.png" />
+    <EmbeddedResource Include="Resources\AI.png" />
+    <EmbeddedResource Include="Resources\AL.png" />
+    <EmbeddedResource Include="Resources\AM.png" />
+    <EmbeddedResource Include="Resources\AN.png" />
+    <EmbeddedResource Include="Resources\AO.png" />
+    <EmbeddedResource Include="Resources\AR.png" />
+    <EmbeddedResource Include="Resources\AS.png" />
+    <EmbeddedResource Include="Resources\AT.png" />
+    <EmbeddedResource Include="Resources\AU.png" />
+    <EmbeddedResource Include="Resources\AW.png" />
+    <EmbeddedResource Include="Resources\AZ.png" />
+    <EmbeddedResource Include="Resources\BA.png" />
+    <EmbeddedResource Include="Resources\BB.png" />
+    <EmbeddedResource Include="Resources\BD.png" />
+    <EmbeddedResource Include="Resources\BE.png" />
+    <EmbeddedResource Include="Resources\BF.png" />
+    <EmbeddedResource Include="Resources\BG.png" />
+    <EmbeddedResource Include="Resources\BH.png" />
+    <EmbeddedResource Include="Resources\BJ.png" />
+    <EmbeddedResource Include="Resources\BM.png" />
+    <EmbeddedResource Include="Resources\BN.png" />
+    <EmbeddedResource Include="Resources\BO.png" />
+    <EmbeddedResource Include="Resources\BR.png" />
+    <EmbeddedResource Include="Resources\BT.png" />
+    <EmbeddedResource Include="Resources\BW.png" />
+    <EmbeddedResource Include="Resources\BY.png" />
+    <EmbeddedResource Include="Resources\BZ.png" />
+    <EmbeddedResource Include="Resources\CA.png" />
+    <EmbeddedResource Include="Resources\CH.png" />
+    <EmbeddedResource Include="Resources\CK.png" />
+    <EmbeddedResource Include="Resources\CL.png" />
+    <EmbeddedResource Include="Resources\CM.png" />
+    <EmbeddedResource Include="Resources\CN.png" />
+    <EmbeddedResource Include="Resources\CO.png" />
+    <EmbeddedResource Include="Resources\CR.png" />
+    <EmbeddedResource Include="Resources\CU.png" />
+    <EmbeddedResource Include="Resources\CY.png" />
+    <EmbeddedResource Include="Resources\CZ.png" />
+    <EmbeddedResource Include="Resources\DE.png" />
+    <EmbeddedResource Include="Resources\DJ.png" />
+    <EmbeddedResource Include="Resources\DK.png" />
+    <EmbeddedResource Include="Resources\DO.png" />
+    <EmbeddedResource Include="Resources\DZ.png" />
+    <EmbeddedResource Include="Resources\EC.png" />
+    <EmbeddedResource Include="Resources\EE.png" />
+    <EmbeddedResource Include="Resources\EG.png" />
+    <EmbeddedResource Include="Resources\ER.png" />
+    <EmbeddedResource Include="Resources\ES.png" />
+    <EmbeddedResource Include="Resources\ET.png" />
+    <EmbeddedResource Include="Resources\FI.png" />
+    <EmbeddedResource Include="Resources\FJ.png" />
+    <EmbeddedResource Include="Resources\FO.png" />
+    <EmbeddedResource Include="Resources\FR.png" />
+    <EmbeddedResource Include="Resources\GA.png" />
+    <EmbeddedResource Include="Resources\GD.png" />
+    <EmbeddedResource Include="Resources\GE.png" />
+    <EmbeddedResource Include="Resources\GH.png" />
+    <EmbeddedResource Include="Resources\GI.png" />
+    <EmbeddedResource Include="Resources\GL.png" />
+    <EmbeddedResource Include="Resources\GM.png" />
+    <EmbeddedResource Include="Resources\GR.png" />
+    <EmbeddedResource Include="Resources\GT.png" />
+    <EmbeddedResource Include="Resources\GU.png" />
+    <EmbeddedResource Include="Resources\HK.png" />
+    <EmbeddedResource Include="Resources\HN.png" />
+    <EmbeddedResource Include="Resources\HR.png" />
+    <EmbeddedResource Include="Resources\HT.png" />
+    <EmbeddedResource Include="Resources\HU.png" />
+    <EmbeddedResource Include="Resources\ID.png" />
+    <EmbeddedResource Include="Resources\IE.png" />
+    <EmbeddedResource Include="Resources\IL.png" />
+    <EmbeddedResource Include="Resources\IN.png" />
+    <EmbeddedResource Include="Resources\IO.png" />
+    <EmbeddedResource Include="Resources\IQ.png" />
+    <EmbeddedResource Include="Resources\IR.png" />
+    <EmbeddedResource Include="Resources\IS.png" />
+    <EmbeddedResource Include="Resources\IT.png" />
+    <EmbeddedResource Include="Resources\JM.png" />
+    <EmbeddedResource Include="Resources\JO.png" />
+    <EmbeddedResource Include="Resources\JP.png" />
+    <EmbeddedResource Include="Resources\KE.png" />
+    <EmbeddedResource Include="Resources\KG.png" />
+    <EmbeddedResource Include="Resources\KH.png" />
+    <EmbeddedResource Include="Resources\KI.png" />
+    <EmbeddedResource Include="Resources\KR.png" />
+    <EmbeddedResource Include="Resources\KW.png" />
+    <EmbeddedResource Include="Resources\KY.png" />
+    <EmbeddedResource Include="Resources\KZ.png" />
+    <EmbeddedResource Include="Resources\LA.png" />
+    <EmbeddedResource Include="Resources\LB.png" />
+    <EmbeddedResource Include="Resources\LC.png" />
+    <EmbeddedResource Include="Resources\LI.png" />
+    <EmbeddedResource Include="Resources\LK.png" />
+    <EmbeddedResource Include="Resources\LS.png" />
+    <EmbeddedResource Include="Resources\LT.png" />
+    <EmbeddedResource Include="Resources\LU.png" />
+    <EmbeddedResource Include="Resources\LV.png" />
+    <EmbeddedResource Include="Resources\LY.png" />
+    <EmbeddedResource Include="Resources\MA.png" />
+    <EmbeddedResource Include="Resources\MC.png" />
+    <EmbeddedResource Include="Resources\MD.png" />
+    <EmbeddedResource Include="Resources\MG.png" />
+    <EmbeddedResource Include="Resources\MK.png" />
+    <EmbeddedResource Include="Resources\ML.png" />
+    <EmbeddedResource Include="Resources\MM.png" />
+    <EmbeddedResource Include="Resources\MN.png" />
+    <EmbeddedResource Include="Resources\MO.png" />
+    <EmbeddedResource Include="Resources\MP.png" />
+    <EmbeddedResource Include="Resources\MR.png" />
+    <EmbeddedResource Include="Resources\MT.png" />
+    <EmbeddedResource Include="Resources\MU.png" />
+    <EmbeddedResource Include="Resources\MV.png" />
+    <EmbeddedResource Include="Resources\MW.png" />
+    <EmbeddedResource Include="Resources\MX.png" />
+    <EmbeddedResource Include="Resources\MY.png" />
+    <EmbeddedResource Include="Resources\MZ.png" />
+    <EmbeddedResource Include="Resources\NA.png" />
+    <EmbeddedResource Include="Resources\NC.png" />
+    <EmbeddedResource Include="Resources\NE.png" />
+    <EmbeddedResource Include="Resources\NF.png" />
+    <EmbeddedResource Include="Resources\NG.png" />
+    <EmbeddedResource Include="Resources\NI.png" />
+    <EmbeddedResource Include="Resources\NL.png" />
+    <EmbeddedResource Include="Resources\NO.png" />
+    <EmbeddedResource Include="Resources\NP.png" />
+    <EmbeddedResource Include="Resources\NR.png" />
+    <EmbeddedResource Include="Resources\NU.png" />
+    <EmbeddedResource Include="Resources\NZ.png" />
+    <EmbeddedResource Include="Resources\OM.png" />
+    <EmbeddedResource Include="Resources\PA.png" />
+    <EmbeddedResource Include="Resources\PE.png" />
+    <EmbeddedResource Include="Resources\PF.png" />
+    <EmbeddedResource Include="Resources\PG.png" />
+    <EmbeddedResource Include="Resources\PH.png" />
+    <EmbeddedResource Include="Resources\PK.png" />
+    <EmbeddedResource Include="Resources\PL.png" />
+    <EmbeddedResource Include="Resources\PR.png" />
+    <EmbeddedResource Include="Resources\PT.png" />
+    <EmbeddedResource Include="Resources\PW.png" />
+    <EmbeddedResource Include="Resources\PY.png" />
+    <EmbeddedResource Include="Resources\QA.png" />
+    <EmbeddedResource Include="Resources\RO.png" />
+    <EmbeddedResource Include="Resources\RU.png" />
+    <EmbeddedResource Include="Resources\RW.png" />
+    <EmbeddedResource Include="Resources\SA.png" />
+    <EmbeddedResource Include="Resources\SB.png" />
+    <EmbeddedResource Include="Resources\SC.png" />
+    <EmbeddedResource Include="Resources\SD.png" />
+    <EmbeddedResource Include="Resources\SE.png" />
+    <EmbeddedResource Include="Resources\SG.png" />
+    <EmbeddedResource Include="Resources\SI.png" />
+    <EmbeddedResource Include="Resources\SK.png" />
+    <EmbeddedResource Include="Resources\SL.png" />
+    <EmbeddedResource Include="Resources\SM.png" />
+    <EmbeddedResource Include="Resources\SN.png" />
+    <EmbeddedResource Include="Resources\SR.png" />
+    <EmbeddedResource Include="Resources\SV.png" />
+    <EmbeddedResource Include="Resources\SY.png" />
+    <EmbeddedResource Include="Resources\SZ.png" />
+    <EmbeddedResource Include="Resources\TG.png" />
+    <EmbeddedResource Include="Resources\TH.png" />
+    <EmbeddedResource Include="Resources\TJ.png" />
+    <EmbeddedResource Include="Resources\TM.png" />
+    <EmbeddedResource Include="Resources\TN.png" />
+    <EmbeddedResource Include="Resources\TO.png" />
+    <EmbeddedResource Include="Resources\TR.png" />
+    <EmbeddedResource Include="Resources\TT.png" />
+    <EmbeddedResource Include="Resources\TV.png" />
+    <EmbeddedResource Include="Resources\TW.png" />
+    <EmbeddedResource Include="Resources\TZ.png" />
+    <EmbeddedResource Include="Resources\UA.png" />
+    <EmbeddedResource Include="Resources\UG.png" />
+    <EmbeddedResource Include="Resources\UK.png" />
+    <EmbeddedResource Include="Resources\UY.png" />
+    <EmbeddedResource Include="Resources\UZ.png" />
+    <EmbeddedResource Include="Resources\VA.png" />
+    <EmbeddedResource Include="Resources\VE.png" />
+    <EmbeddedResource Include="Resources\VI.png" />
+    <EmbeddedResource Include="Resources\VN.png" />
+    <EmbeddedResource Include="Resources\VU.png" />
+    <EmbeddedResource Include="Resources\XX.png" />
+    <EmbeddedResource Include="Resources\YE.png" />
+    <EmbeddedResource Include="Resources\YU.png" />
+    <EmbeddedResource Include="Resources\ZA.png" />
+    <EmbeddedResource Include="Resources\ZM.png" />
+    <EmbeddedResource Include="Resources\ZW.png" />
+    <EmbeddedResource Include="Resources\rank_0icon.gif" />
+    <EmbeddedResource Include="Resources\rank_1icon.gif" />
+    <EmbeddedResource Include="Resources\rank_2icon.gif" />
+    <EmbeddedResource Include="Resources\rank_3icon.gif" />
+    <EmbeddedResource Include="Resources\rank_4icon.gif" />
+    <EmbeddedResource Include="Resources\rank_5icon.gif" />
+    <EmbeddedResource Include="Resources\rank_6icon.gif" />
+    <EmbeddedResource Include="Resources\rank_7icon.gif" />
+    <EmbeddedResource Include="Resources\rank_8icon.gif" />
+    <EmbeddedResource Include="Resources\rank_9icon.gif" />
+    <EmbeddedResource Include="Resources\rank_10icon.gif" />
+    <EmbeddedResource Include="Resources\rank_11icon.gif" />
+    <EmbeddedResource Include="Resources\rank_12icon.gif" />
+    <EmbeddedResource Include="Resources\rank_13icon.gif" />
+    <EmbeddedResource Include="Resources\rank_14icon.gif" />
+    <EmbeddedResource Include="Resources\rank_15icon.gif" />
+    <EmbeddedResource Include="Resources\rank_16icon.gif" />
+    <EmbeddedResource Include="Resources\rank_17icon.gif" />
+    <EmbeddedResource Include="Resources\rank_18icon.gif" />
+    <EmbeddedResource Include="Resources\rank_19icon.gif" />
+    <EmbeddedResource Include="Resources\rank_20icon.gif" />
+    <EmbeddedResource Include="Resources\rank_21icon.gif" />
+    <None Include="Resources\rank_01.png" />
+    <None Include="Resources\rank_0icon1.gif" />
+    <None Include="Resources\rank_110.png" />
+    <None Include="Resources\rank_101.png" />
+    <None Include="Resources\rank_10icon1.gif" />
+    <None Include="Resources\rank_111.png" />
+    <None Include="Resources\rank_11icon1.gif" />
+    <None Include="Resources\rank_121.png" />
+    <None Include="Resources\rank_12icon1.gif" />
+    <None Include="Resources\rank_131.png" />
+    <None Include="Resources\rank_13icon1.gif" />
+    <None Include="Resources\rank_141.png" />
+    <None Include="Resources\rank_14icon1.gif" />
+    <None Include="Resources\rank_151.png" />
+    <None Include="Resources\rank_15icon1.gif" />
+    <None Include="Resources\rank_161.png" />
+    <None Include="Resources\rank_16icon1.gif" />
+    <None Include="Resources\rank_171.png" />
+    <None Include="Resources\rank_17icon1.gif" />
+    <None Include="Resources\rank_181.png" />
+    <None Include="Resources\rank_18icon1.gif" />
+    <None Include="Resources\rank_191.png" />
+    <None Include="Resources\rank_19icon1.gif" />
+    <None Include="Resources\rank_1icon1.gif" />
+    <None Include="Resources\rank_22.png" />
+    <None Include="Resources\rank_201.png" />
+    <None Include="Resources\rank_20icon1.gif" />
+    <None Include="Resources\rank_211.png" />
+    <None Include="Resources\rank_21icon1.gif" />
+    <None Include="Resources\rank_2icon1.gif" />
+    <None Include="Resources\rank_31.png" />
+    <None Include="Resources\rank_3icon1.gif" />
+    <None Include="Resources\rank_41.png" />
+    <None Include="Resources\rank_4icon1.gif" />
+    <None Include="Resources\rank_61.png" />
+    <None Include="Resources\rank_6icon1.gif" />
+    <None Include="Resources\rank_71.png" />
+    <None Include="Resources\rank_7icon1.gif" />
+    <None Include="Resources\rank_81.png" />
+    <None Include="Resources\rank_8icon1.gif" />
+    <None Include="Resources\vistaWarning.png" />
     <Content Include="SQL\MySQL.Gamespy.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

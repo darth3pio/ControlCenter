@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace BF2Statistics.MedalData
 {
-    class Rank : IAward
+    public class Rank : IAward
     {
         /// <summary>
         /// The Award ID

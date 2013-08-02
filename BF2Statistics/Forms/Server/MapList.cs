@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,7 +16,12 @@ namespace BF2Statistics
         /// <summary>
         /// An array of map names found in the servers "levels" folder
         /// </summary>
-        private string[] Maps;
+        private string[] ServerMaps;
+
+        /// <summary>
+        /// An array of map names found in the clients "levels" folder
+        /// </summary>
+        private List<string> ClientMaps;
 
         /// <summary>
         /// The full path to the current selected mod folder
@@ -23,7 +29,7 @@ namespace BF2Statistics
         private string ModPath;
 
         /// <summary>
-        /// The full path to the current selected mod's "levels" folder
+        /// The full path to the servers  current selected mod's "levels" folder
         /// </summary>
         private string LevelsPath;
 
@@ -38,14 +44,9 @@ namespace BF2Statistics
         private bool isMapSelected = false;
 
         /// <summary>
-        /// A list of supported game modes for the selected map
+        /// A dictionary, of each "GameMode" => List("Supported Map Sizes")
         /// </summary>
-        List<string> GameModes;
-
-        /// <summary>
-        /// A dictionary, of each "gameMode" => List("Supported Map Sizes")
-        /// </summary>
-        Dictionary<string, List<string>> ModeSizes;
+        Dictionary<string, List<string>> GameModes;
 
         /// <summary>
         /// Constructor
@@ -58,12 +59,14 @@ namespace BF2Statistics
             ModPath = Path.Combine(MainForm.Config.ServerPath, "mods", MainForm.SelectedMod);
             LevelsPath = Path.Combine(ModPath, "levels");
             MaplistFile = Path.Combine(ModPath, "settings", "maplist.con");
+            ClientMaps = new List<string>();
 
             // Make sure maplist.con file exists!
             if (!File.Exists(MaplistFile))
             {
                 this.Load += new EventHandler(CloseOnStart);
-                MessageBox.Show("Maplist.con file is missing! Please make sure your server path is set properly", "Error");
+                MessageBox.Show("Maplist.con file is missing! Please make sure your server path is set properly", 
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -71,14 +74,27 @@ namespace BF2Statistics
             if (!Directory.Exists(LevelsPath))
             {
                 this.Load += new EventHandler(CloseOnStart);
-                MessageBox.Show("The current selected mod does not contain a 'levels' folder. Please select a valid mod.", "Error");
+                MessageBox.Show("The current selected mod does not contain a 'levels' folder. Please select a valid mod.", 
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             // Fetch all maps for the selected mod
-            Maps = Directory.GetDirectories(LevelsPath);
-            foreach (string M in Maps)
+            ServerMaps = Directory.GetDirectories(LevelsPath);
+            foreach (string M in ServerMaps)
                 MapListSelect.Items.Add(new Item(M.Remove(0, LevelsPath.Length + 1), 1));
+
+            // Get Client maps
+            if (!String.IsNullOrEmpty(MainForm.Config.ClientPath))
+            {
+                string P = Path.Combine(MainForm.Config.ClientPath, "mods", MainForm.SelectedMod, "levels");
+                if (Directory.Exists(P))
+                {
+                    string[] ClientDirs = Directory.GetDirectories(P);
+                    foreach (string Map in ClientDirs)
+                        ClientMaps.Add(Map.Remove(0, P.Length + 1).ToLower());
+                }
+            }
 
             // Get the current maplist and display it
             MapListBox.Text = File.ReadAllText(MaplistFile).Trim();
@@ -122,8 +138,8 @@ namespace BF2Statistics
             LoadMap();
 
             // Add all map supported game modes to the GameMode select list
-            foreach (string mode in GameModes)
-                GameModeSelect.Items.Add(new KeyValueItem(mode, GameModeToString(mode)));
+            foreach (KeyValuePair<string, List<string>> Mode in GameModes)
+                GameModeSelect.Items.Add(new KeyValueItem(Mode.Key, GameModeToString(Mode.Key)));
         }
 
         /// <summary>
@@ -131,9 +147,21 @@ namespace BF2Statistics
         /// </summary>
         private void AddToMapList_Click(object sender, EventArgs e)
         {
+            // Get Values
             string map = MapListSelect.SelectedItem.ToString();
             string mode = ((KeyValueItem) GameModeSelect.SelectedItem).Key;
             string size = MapSizeSelect.SelectedItem.ToString();
+
+            // Warn user if client doesnt support map
+            if (ClientMaps.Count > 0 && !ClientMaps.Contains(map.ToLower()))
+            {
+                if (MessageBox.Show(
+                    "The Battlfield 2 Client does not contain this map! Are you sure you want to add it to the maplist?",
+                    "Confirm", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK)
+                    return;
+            }
+
+            // Add to maplist
             if (!String.IsNullOrEmpty(MapListBox.Text))
                 MapListBox.Text += Environment.NewLine;
             MapListBox.Text += String.Format("mapList.append {0} {1} {2}", map, mode, size);
@@ -171,9 +199,9 @@ namespace BF2Statistics
 
             // Add all supported map sizes. If we donot have mapsize support, I assume
             // we are in a Sp1 mod.
-            if (ModeSizes[mode].Count > 0)
+            if (GameModes[mode].Count > 0)
             {
-                foreach (string size in ModeSizes[mode])
+                foreach (string size in GameModes[mode])
                     MapSizeSelect.Items.Add(new Item(size, 1));
 
                 MapSizeSelect.Enabled = true;
@@ -223,29 +251,25 @@ namespace BF2Statistics
         private void LoadMap()
         {
             // Initialize new GameModes and MapSizes
-            GameModes = new List<string>();
-            ModeSizes = new Dictionary<string, List<string>>();
+            GameModes = new Dictionary<string, List<string>>();
             string map = MapListSelect.SelectedItem.ToString();
-            string dFile = Path.Combine(LevelsPath, map, "Info", map + ".desc");
 
-            // Load the map description file
             try
             {
+                // Load the map description file
                 XmlDocument Doc = new XmlDocument();
-                Doc.Load(dFile);
+                Doc.Load(Path.Combine(LevelsPath, map, "Info", map + ".desc"));
 
                 // Get a list of supported modes, and add them to the GameModes and Mode Sizes variables
                 XmlNodeList Modes = Doc.GetElementsByTagName("mode");
                 foreach (XmlNode m in Modes)
                 {
                     string mode = m.Attributes["type"].InnerText;
-                    GameModes.Add(mode);
-
                     List<string> temp = new List<string>();
                     foreach (XmlNode c in m.ChildNodes)
                         temp.Add(c.Attributes["players"].InnerText);
 
-                    ModeSizes.Add(mode, temp);
+                    GameModes.Add(mode, temp);
                 }
             }
             catch (Exception e)
@@ -253,7 +277,7 @@ namespace BF2Statistics
                 MessageBox.Show("There was an error loading the map descriptor file"
                     + Environment.NewLine + Environment.NewLine
                     + "Message: " + e.Message, 
-                    "Error"
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning
                 );
 
                 // Reset the GUI

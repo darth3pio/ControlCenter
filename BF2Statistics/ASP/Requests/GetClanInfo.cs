@@ -10,18 +10,18 @@ namespace BF2Statistics.ASP.Requests
     {
         protected DatabaseDriver Driver = ASPServer.Database.Driver;
 
-        public GetClanInfo(ASPResponse Response, Dictionary<string, string> QueryString)
+        public GetClanInfo(HttpClient Client)
         {
             int Type = 0;
+            Dictionary<string, string> QueryString = Client.Request.QueryString;
 
             // make sure we have a valid player ID
             if (!QueryString.ContainsKey("type") || !Int32.TryParse(QueryString["type"], out Type))
             {
-                FormattedOutput Output = new FormattedOutput("asof", "err");
-                Output.AddRow(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
-                Response.AddData(Output);
-                Response.IsValidData(false);
-                Response.Send();
+                Client.Response.WriteResponseStart(false);
+                Client.Response.WriteHeaderLine("asof", "err");
+                Client.Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp(), "Invalid Syntax!");
+                Client.Response.Send();
                 return;
             }
 
@@ -126,9 +126,9 @@ namespace BF2Statistics.ASP.Requests
 
             // Send Response
             Output1.AddRow(size, DateTime.UtcNow.ToUnixTimestamp());
-            Response.AddData(Output1);
-            Response.AddData(Output2);
-            Response.Send();
+            Client.Response.AddData(Output1);
+            Client.Response.AddData(Output2);
+            Client.Response.Send();
         }
     }
 }
