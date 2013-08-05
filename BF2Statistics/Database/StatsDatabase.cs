@@ -36,7 +36,7 @@ namespace BF2Statistics.Database
             "mapinfo",
             "player",
             "player_history",
-            "round_histroy",
+            "round_history",
             "servers",
             "unlocks",
             "vehicles",

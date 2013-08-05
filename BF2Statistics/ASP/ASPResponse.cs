@@ -61,16 +61,7 @@ namespace BF2Statistics.ASP
         /// <summary>
         /// Indicates whether the data will be transposed
         /// </summary>
-        public bool Transpose
-        {
-            get
-            {
-                return (
-                    Client.Request.QueryString.ContainsKey("transpose")
-                    && Client.Request.QueryString["transpose"] == "1"
-                );
-            }
-        }
+        public bool Transpose { get;  protected set; }
 
         /// <summary>
         /// Internal, Temporary Formatted Output class.
@@ -104,6 +95,10 @@ namespace BF2Statistics.ASP
 
             // Create a new Response Body
             ResponseBody = new StringBuilder();
+            Transpose = (
+                    Client.Request.QueryString.ContainsKey("transpose")
+                    && Client.Request.QueryString["transpose"] == "1"
+                );
         }
 
         /// <summary>

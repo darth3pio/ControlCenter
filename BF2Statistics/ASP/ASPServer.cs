@@ -73,17 +73,6 @@ namespace BF2Statistics.ASP
         public static int SessionRequests { get; protected set; }
 
         /// <summary>
-        /// Static constructor
-        /// </summary>
-        static ASPServer()
-        {
-            ServerLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspServer.log"), 3000);
-            AccessLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspAccess.log"), 3000);
-            LocalIPs = Dns.GetHostAddresses(Dns.GetHostName()).ToList();
-            SessionRequests = 0;
-        }
-
-        /// <summary>
         /// Is the webserver running?
         /// </summary>
         public static bool IsRunning
@@ -97,6 +86,17 @@ namespace BF2Statistics.ASP
                     return false;
                 }
             }
+        }
+
+        /// <summary>
+        /// Static constructor
+        /// </summary>
+        static ASPServer()
+        {
+            ServerLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspServer.log"), 3000);
+            AccessLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspAccess.log"), 3000);
+            LocalIPs = Dns.GetHostAddresses(Dns.GetHostName()).ToList();
+            SessionRequests = 0;
         }
 
         /// <summary>
@@ -171,7 +171,9 @@ namespace BF2Statistics.ASP
                 ServerLog.Write("ERROR: [DoAcceptClientCallback] \r\n\t - {0}\r\n\t - ErrorCode: {1}", E.Message, E.ErrorCode);
             }
 
-            Listener.BeginGetContext(new AsyncCallback(DoAcceptClientCallback), Listener);
+            // Begin Listening again
+            if(IsRunning) 
+                Listener.BeginGetContext(new AsyncCallback(DoAcceptClientCallback), Listener);
         }
 
         /// <summary>

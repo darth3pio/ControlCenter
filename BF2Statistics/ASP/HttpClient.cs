@@ -43,8 +43,8 @@ namespace BF2Statistics.ASP
         public HttpClient(HttpListenerContext Client)
         {
             // Fill Request / Response
-            Response = new ASPResponse(Client.Response, this);
             Request = new ASPRequest(Client.Request, this);
+            Response = new ASPResponse(Client.Response, this);
             RemoteEndPoint = Client.Request.RemoteEndPoint as IPEndPoint;
 
             // Register for events
