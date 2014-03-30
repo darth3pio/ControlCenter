@@ -8,12 +8,13 @@ namespace BF2Statistics.ASP.Requests
 {
     class GetClanInfo
     {
-        protected DatabaseDriver Driver = ASPServer.Database.Driver;
+        protected DatabaseDriver Driver;
 
-        public GetClanInfo(HttpClient Client)
+        public GetClanInfo(HttpClient Client, StatsDatabase Database)
         {
             int Type = 0;
             Dictionary<string, string> QueryString = Client.Request.QueryString;
+            Driver = Database;
 
             // make sure we have a valid player ID
             if (!QueryString.ContainsKey("type") || !Int32.TryParse(QueryString["type"], out Type))

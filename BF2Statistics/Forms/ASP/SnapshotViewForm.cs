@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Windows.Forms;
 using BF2Statistics.ASP;
 using BF2Statistics.ASP.Requests;
+using BF2Statistics.Database;
 
 namespace BF2Statistics
 {
@@ -44,7 +45,9 @@ namespace BF2Statistics
                 return;
             }
 
+            // Disable this form, and show the TaskForm
             this.Enabled = false;
+            TaskForm.Show(this, "Importing Snapshots", "Importing Snapshots", true, ProgressBarStyle.Blocks, Files.Count); 
 
             // Initialize Background worker
             bWorker = new BackgroundWorker();
@@ -72,9 +75,8 @@ namespace BF2Statistics
         {
             // Loop through each snapshot, and process it
             List<string> Files = e.Argument as List<string>;
-            TaskForm.Show(this, "Importing Snapshots", "Importing Snapshots", true, ProgressBarStyle.Blocks, Files.Count); 
             int Selected = Files.Count;
-            int i = 1;
+            StatsDatabase Database = new StatsDatabase();
 
             // Order snapshots by timestamp
             var Sorted = from _File in Files
@@ -103,20 +105,13 @@ namespace BF2Statistics
 
                     // Update status and run snapshot
                     TaskForm.UpdateStatus(String.Format("Processing: \"{0}\"", Snapshot));
-                    Snapshot Snap = new Snapshot(File.ReadAllText(Path.Combine(Paths.SnapshotTempPath, Snapshot)), Date);
-
-                    // Start Timer
-                    Stopwatch Timer = new Stopwatch();
-                    Timer.Start();
+                    Snapshot Snap = new Snapshot(File.ReadAllText(Path.Combine(Paths.SnapshotTempPath, Snapshot)), Date, Database);
 
                     // Do snapshot
                     Snap.Process();
 
                     // Move the Temp snapshot to the Processed folder
                     File.Move(Path.Combine(Paths.SnapshotTempPath, Snapshot), Path.Combine(Paths.SnapshotProcPath, Snapshot));
-
-                    // increment
-                    i++;
 
                     // Update progress
                     TaskForm.ProgressBarStep();
@@ -145,7 +140,7 @@ namespace BF2Statistics
         private void BuildList()
         {
             // Add each found snapshot to the snapshot view
-            foreach (string File in Directory.EnumerateFiles(Paths.SnapshotTempPath))
+            foreach (string File in Directory.EnumerateFiles(Paths.SnapshotTempPath, "*.txt"))
             {
                 ListViewItem Row = new ListViewItem();
                 Row.SubItems.Add(Path.GetFileName(File));

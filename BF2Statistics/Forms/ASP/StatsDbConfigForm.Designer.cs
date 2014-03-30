@@ -55,7 +55,7 @@
             0});
             this.Port.Name = "Port";
             this.Port.Size = new System.Drawing.Size(120, 20);
-            this.Port.TabIndex = 39;
+            this.Port.TabIndex = 3;
             this.Port.Value = new decimal(new int[] {
             3306,
             0,
@@ -67,7 +67,7 @@
             this.SaveBtn.Location = new System.Drawing.Point(170, 208);
             this.SaveBtn.Name = "SaveBtn";
             this.SaveBtn.Size = new System.Drawing.Size(100, 27);
-            this.SaveBtn.TabIndex = 38;
+            this.SaveBtn.TabIndex = 8;
             this.SaveBtn.Text = "Save";
             this.SaveBtn.UseVisualStyleBackColor = true;
             this.SaveBtn.Click += new System.EventHandler(this.SaveBtn_Click);
@@ -77,7 +77,7 @@
             this.TestBtn.Location = new System.Drawing.Point(64, 208);
             this.TestBtn.Name = "TestBtn";
             this.TestBtn.Size = new System.Drawing.Size(100, 27);
-            this.TestBtn.TabIndex = 37;
+            this.TestBtn.TabIndex = 7;
             this.TestBtn.Text = "Test Connection";
             this.TestBtn.UseVisualStyleBackColor = true;
             this.TestBtn.Click += new System.EventHandler(this.TestBtn_Click);
@@ -87,7 +87,7 @@
             this.DBName.Location = new System.Drawing.Point(137, 170);
             this.DBName.Name = "DBName";
             this.DBName.Size = new System.Drawing.Size(166, 20);
-            this.DBName.TabIndex = 36;
+            this.DBName.TabIndex = 6;
             // 
             // label6
             // 
@@ -104,7 +104,7 @@
             this.Password.Location = new System.Drawing.Point(137, 140);
             this.Password.Name = "Password";
             this.Password.Size = new System.Drawing.Size(166, 20);
-            this.Password.TabIndex = 34;
+            this.Password.TabIndex = 5;
             // 
             // label5
             // 
@@ -126,7 +126,7 @@
             this.TypeSelect.Location = new System.Drawing.Point(137, 17);
             this.TypeSelect.Name = "TypeSelect";
             this.TypeSelect.Size = new System.Drawing.Size(166, 21);
-            this.TypeSelect.TabIndex = 32;
+            this.TypeSelect.TabIndex = 1;
             this.TypeSelect.SelectedIndexChanged += new System.EventHandler(this.TypeSelect_SelectedIndexChanged);
             // 
             // label4
@@ -144,7 +144,7 @@
             this.Username.Location = new System.Drawing.Point(137, 111);
             this.Username.Name = "Username";
             this.Username.Size = new System.Drawing.Size(166, 20);
-            this.Username.TabIndex = 30;
+            this.Username.TabIndex = 4;
             // 
             // label3
             // 
@@ -171,7 +171,7 @@
             this.Hostname.Location = new System.Drawing.Point(137, 50);
             this.Hostname.Name = "Hostname";
             this.Hostname.Size = new System.Drawing.Size(166, 20);
-            this.Hostname.TabIndex = 27;
+            this.Hostname.TabIndex = 2;
             // 
             // label1
             // 

@@ -40,15 +40,15 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FreeImageNET">
+      <HintPath>..\Libraries\FreeImageNET.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Microsoft.VisualBasic.PowerPacks.Vs, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="MySql.Data, Version=6.5.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libraries\MySql.Data.dll</HintPath>
-    </Reference>
+    <Reference Include="MySql.Data, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SQLite, Version=1.0.84.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
+    <Reference Include="System.Data.SQLite, Version=1.0.92.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\System.Data.SQLite.dll</HintPath>
     </Reference>
@@ -67,6 +67,13 @@
     <Compile Include="ASP\Tools\StatsParser.cs" />
     <Compile Include="ASP\Requests\CreatePlayer.cs" />
     <Compile Include="ASP\Tools\AwardCriteria.cs" />
+    <Compile Include="BF2\BF2Map.cs" />
+    <Compile Include="BF2\BF2Mod.cs" />
+    <Compile Include="BF2\BF2Server.cs" />
+    <Compile Include="Exceptions\DbConnectException.cs" />
+    <Compile Include="Exceptions\InvalidMapException.cs" />
+    <Compile Include="Exceptions\InvalidModException.cs" />
+    <Compile Include="Exceptions\InvalidNameException.cs" />
     <Compile Include="Forms\ASP\EAStatsImportForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -161,6 +168,18 @@
     <Compile Include="Forms\MedalData\ScoreStatForm.designer.cs">
       <DependentUpon>ScoreStatForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Server\ImageForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Server\ImageForm.designer.cs">
+      <DependentUpon>ImageForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Server\RandomizeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Server\RandomizeForm.Designer.cs">
+      <DependentUpon>RandomizeForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Gamespy\TcpClientStream.cs" />
     <Compile Include="Database\StatsDatabase.cs" />
     <Compile Include="Events.cs" />
@@ -217,11 +236,11 @@
     <Compile Include="Forms\Server\ScoreSettings.designer.cs">
       <DependentUpon>ScoreSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Server\ServerSettings.cs">
+    <Compile Include="Forms\Server\ServerSettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Server\ServerSettings.designer.cs">
-      <DependentUpon>ServerSettings.cs</DependentUpon>
+    <Compile Include="Forms\Server\ServerSettingsForm.designer.cs">
+      <DependentUpon>ServerSettingsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Gamespy\GamespyConfig.cs">
       <SubType>Form</SubType>
@@ -331,7 +350,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Gamespy\LoginServer.cs" />
-    <Compile Include="Utilities\ServerSettingsParser.cs" />
+    <Compile Include="BF2\ServerSettings.cs" />
     <Compile Include="Forms\ASP\SnapshotViewForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -411,8 +430,14 @@
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Server\ImageForm.resx">
+      <DependentUpon>ImageForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Server\MapList.resx">
       <DependentUpon>MapList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Server\RandomizeForm.resx">
+      <DependentUpon>RandomizeForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Server\ScoreSelectForm.resx">
       <DependentUpon>ScoreSelectForm.cs</DependentUpon>
@@ -420,8 +445,8 @@
     <EmbeddedResource Include="Forms\Server\ScoreSettings.resx">
       <DependentUpon>ScoreSettings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Server\ServerSettings.resx">
-      <DependentUpon>ServerSettings.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\Server\ServerSettingsForm.resx">
+      <DependentUpon>ServerSettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Gamespy\AccountListForm.resx">
       <DependentUpon>AccountListForm.cs</DependentUpon>
@@ -471,11 +496,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="SQL\Updates\MySQL\Gamespy.Update_1.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SQL\Updates\SQLite\Gamespy.Update_1.sql" />
     <EmbeddedResource Include="SQL\MySQL.Stats.sql" />
+    <Content Include="FreeImage.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Logo.ico" />
     <EmbeddedResource Include="SQL\SQLite.Stats.sql" />
     <None Include="Resources\e_logo.png" />
@@ -920,9 +944,9 @@
     <None Include="Resources\rank_81.png" />
     <None Include="Resources\rank_8icon1.gif" />
     <None Include="Resources\vistaWarning.png" />
-    <Content Include="SQL\MySQL.Gamespy.sql">
+    <EmbeddedResource Include="SQL\MySQL.Gamespy.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </EmbeddedResource>
     <EmbeddedResource Include="SQL\SQLite.Gamespy.sql" />
     <None Include="Resources\BF2Stats_Logo.jpg" />
   </ItemGroup>

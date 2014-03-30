@@ -18,7 +18,7 @@ namespace BF2Statistics
         /// <summary>
         /// Specifies the Program Version
         /// </summary>
-        public static Version Version = new Version(1, 6, 2);
+        public static Version Version = new Version(1, 7, 0);
 
         /// <summary>
         /// The main entry point for the application.

@@ -30,6 +30,13 @@
         {
             this.components = new System.ComponentModel.Container();
             this.DataTable = new System.Windows.Forms.DataGridView();
+            this.rank = new System.Windows.Forms.DataGridViewImageColumn();
+            this.id = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.name = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.clantag = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.score = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.country = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.permban = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.deletePlayerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -48,13 +55,6 @@
             this.PreviousBtn = new System.Windows.Forms.Button();
             this.PageNumber = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
-            this.rank = new System.Windows.Forms.DataGridViewImageColumn();
-            this.id = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.name = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.clantag = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.score = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.country = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.permban = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.DataTable)).BeginInit();
             this.contextMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.PageNumber)).BeginInit();
@@ -86,6 +86,60 @@
             this.DataTable.TabIndex = 0;
             this.DataTable.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataTable_CellDoubleClick);
             this.DataTable.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataTable_ColumnHeaderMouseClick);
+            // 
+            // rank
+            // 
+            this.rank.HeaderText = "";
+            this.rank.Name = "rank";
+            this.rank.ReadOnly = true;
+            this.rank.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.rank.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            this.rank.Width = 50;
+            // 
+            // id
+            // 
+            this.id.HeaderText = "PID";
+            this.id.Name = "id";
+            this.id.ReadOnly = true;
+            this.id.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            this.id.Width = 75;
+            // 
+            // name
+            // 
+            this.name.HeaderText = "Nick";
+            this.name.Name = "name";
+            this.name.ReadOnly = true;
+            this.name.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            this.name.Width = 200;
+            // 
+            // clantag
+            // 
+            this.clantag.HeaderText = "Clan Tag";
+            this.clantag.Name = "clantag";
+            this.clantag.ReadOnly = true;
+            this.clantag.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
+            // score
+            // 
+            this.score.HeaderText = "Global Score";
+            this.score.Name = "score";
+            this.score.ReadOnly = true;
+            this.score.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
+            // country
+            // 
+            this.country.HeaderText = "Country";
+            this.country.Name = "country";
+            this.country.ReadOnly = true;
+            this.country.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
+            // permban
+            // 
+            this.permban.HeaderText = "PermBan";
+            this.permban.Name = "permban";
+            this.permban.ReadOnly = true;
+            this.permban.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            this.permban.Width = 75;
             // 
             // contextMenu
             // 
@@ -264,60 +318,6 @@
             this.label3.Text = "Below is a list of all the players in your stats database. Select a player to edi" +
                 "t or view by double clicking on a player below";
             // 
-            // rank
-            // 
-            this.rank.HeaderText = "";
-            this.rank.Name = "rank";
-            this.rank.ReadOnly = true;
-            this.rank.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.rank.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.rank.Width = 50;
-            // 
-            // id
-            // 
-            this.id.HeaderText = "PID";
-            this.id.Name = "id";
-            this.id.ReadOnly = true;
-            this.id.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.id.Width = 75;
-            // 
-            // name
-            // 
-            this.name.HeaderText = "Nick";
-            this.name.Name = "name";
-            this.name.ReadOnly = true;
-            this.name.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.name.Width = 200;
-            // 
-            // clantag
-            // 
-            this.clantag.HeaderText = "Clan Tag";
-            this.clantag.Name = "clantag";
-            this.clantag.ReadOnly = true;
-            this.clantag.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            // 
-            // score
-            // 
-            this.score.HeaderText = "Global Score";
-            this.score.Name = "score";
-            this.score.ReadOnly = true;
-            this.score.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            // 
-            // country
-            // 
-            this.country.HeaderText = "Country";
-            this.country.Name = "country";
-            this.country.ReadOnly = true;
-            this.country.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            // 
-            // permban
-            // 
-            this.permban.HeaderText = "PermBan";
-            this.permban.Name = "permban";
-            this.permban.ReadOnly = true;
-            this.permban.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            this.permban.Width = 75;
-            // 
             // PlayerSearchForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -343,6 +343,7 @@
             this.Name = "PlayerSearchForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Player Search";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.PlayerSearchForm_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.DataTable)).EndInit();
             this.contextMenu.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.PageNumber)).EndInit();

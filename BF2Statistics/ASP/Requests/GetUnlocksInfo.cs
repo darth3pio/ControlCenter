@@ -9,16 +9,17 @@ namespace BF2Statistics.ASP.Requests
         private int Pid = 0;
         private int Rank = 0;
 
-        DatabaseDriver Driver = ASPServer.Database.Driver;
+        DatabaseDriver Driver;
         List<Dictionary<string, object>> Rows;
         Dictionary<string, string> QueryString;
         ASPResponse Response;
 
-        public GetUnlocksInfo(HttpClient Client)
+        public GetUnlocksInfo(HttpClient Client, StatsDatabase Database)
         {
             // Load class Variables
             this.Response = Client.Response;
             this.QueryString = Client.Request.QueryString;
+            this.Driver = Database;
 
             // Earned and Available Unlocks
             int Earned = 0;

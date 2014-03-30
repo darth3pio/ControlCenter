@@ -6,10 +6,9 @@ namespace BF2Statistics.ASP.Requests
 {
     class GetRankInfo
     {
-        public GetRankInfo(HttpClient Client)
+        public GetRankInfo(HttpClient Client, StatsDatabase Driver)
         {
             int Pid = 0;
-            DatabaseDriver Driver = ASPServer.Database.Driver;
             List<Dictionary<string, object>> Rows;
             Dictionary<string, string> QueryString = Client.Request.QueryString;
 

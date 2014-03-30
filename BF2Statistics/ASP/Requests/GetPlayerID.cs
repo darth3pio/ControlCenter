@@ -18,18 +18,20 @@ namespace BF2Statistics.ASP.Requests
         static GetPlayerID()
         {
             // Get the lowest PID from the database
-            int DefaultPid = MainForm.Config.ASP_DefaultPID;
-            List<Dictionary<string, object>> Rows = ASPServer.Database.Driver.Query("SELECT MIN(id) AS min FROM player");
-            if (Rows.Count == 0 || String.IsNullOrWhiteSpace(Rows[0]["min"].ToString()) || (Int32.Parse(Rows[0]["min"].ToString()) > DefaultPid))
-                LowestPid = DefaultPid;
-            else
-                LowestPid = Int32.Parse(Rows[0]["min"].ToString()) - 1;
+            using (StatsDatabase Driver = new StatsDatabase())
+            {
+                int DefaultPid = MainForm.Config.ASP_DefaultPID;
+                List<Dictionary<string, object>> Rows = Driver.Query("SELECT MIN(id) AS min FROM player");
+                if (Rows.Count == 0 || String.IsNullOrWhiteSpace(Rows[0]["min"].ToString()) || (Int32.Parse(Rows[0]["min"].ToString()) > DefaultPid))
+                    LowestPid = DefaultPid;
+                else
+                    LowestPid = Int32.Parse(Rows[0]["min"].ToString()) - 1;
+            }
         }
 
-        public GetPlayerID(HttpClient Client)
+        public GetPlayerID(HttpClient Client, StatsDatabase Driver)
         {
             // Setup Variables
-            DatabaseDriver Driver = ASPServer.Database.Driver;
             List<Dictionary<string, object>> Rows;
             Dictionary<string, string> QueryString = Client.Request.QueryString;
 

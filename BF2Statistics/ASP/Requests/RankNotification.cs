@@ -6,10 +6,9 @@ namespace BF2Statistics.ASP.Requests
 {
     class RankNotification
     {
-        public RankNotification(HttpClient Client)
+        public RankNotification(HttpClient Client, StatsDatabase Driver)
         {
             int Pid = 0;
-            DatabaseDriver Driver = ASPServer.Database.Driver;
             List<Dictionary<string, object>> Rows;
 
             // Setup Params

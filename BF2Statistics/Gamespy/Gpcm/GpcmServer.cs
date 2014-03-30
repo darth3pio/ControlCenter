@@ -53,7 +53,7 @@ namespace BF2Statistics.Gamespy
                 C.Dispose();
 
             // Update Connected Clients in the Database
-            LoginServer.Database.Driver.Execute("UPDATE accounts SET session=0");
+            LoginServer.Database.Execute("UPDATE accounts SET session=0");
             Clients.Clear();
         }
 

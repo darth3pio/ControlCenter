@@ -11,10 +11,10 @@ namespace BF2Statistics
 {
     public partial class ScoreSettings : Form
     {
-        // File paths
-        private string ScoringCommonPy;
-        private string ScoringConqPy;
-        private string ScoringCoopPy;
+        // File Infos
+        private FileInfo ScoringCommonFile;
+        private FileInfo ScoringConqFile;
+        private FileInfo ScoringCoopFile;
 
         // Ai Prefix?
         protected bool PrefixAI = false;
@@ -29,13 +29,13 @@ namespace BF2Statistics
             InitializeComponent();
 
             // Assign folder vars
-            string ScoringFolder = Path.Combine(MainForm.Config.ServerPath, "mods", MainForm.SelectedMod, "python", "game");
-            ScoringCommonPy = Path.Combine(ScoringFolder, "scoringCommon.py");
-            ScoringConqPy = Path.Combine(ScoringFolder, "gamemodes", "gpm_cq.py");
-            ScoringCoopPy = Path.Combine(ScoringFolder, "gamemodes", "gpm_coop.py");
+            string ScoringFolder = Path.Combine(MainForm.SelectedMod.RootPath, "python", "game");
+            ScoringCommonFile = new FileInfo(Path.Combine(ScoringFolder, "scoringCommon.py"));
+            ScoringConqFile = new FileInfo(Path.Combine(ScoringFolder, "gamemodes", "gpm_cq.py"));
+            ScoringCoopFile = new FileInfo(Path.Combine(ScoringFolder, "gamemodes", "gpm_coop.py"));
 
             // Make sure the files all exist
-            if (!File.Exists(ScoringCommonPy) || !File.Exists(ScoringConqPy) || !File.Exists(ScoringCoopPy))
+            if (!ScoringCommonFile.Exists|| !ScoringConqFile.Exists || !ScoringCoopFile.Exists)
             {
                 MessageBox.Show("One or more scoring files are missing. Unable to modify scoring.", 
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -63,9 +63,29 @@ namespace BF2Statistics
         private void LoadSettings()
         {
             // First, we need to parse all 3 scoring files
-            string file = File.ReadAllText(ScoringCommonPy);
-            string ModPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", MainForm.SelectedMod + "_scoringCommon.py");
+            string file;
+            string ModPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", MainForm.SelectedMod.Name + "_scoringCommon.py");
             string DefaultPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", "bf2_scoringCommon.py");
+
+            // Scoring Common. Check for Read and Write access
+            try
+            {
+                using (Stream Str = ScoringCommonFile.Open(FileMode.Open, FileAccess.ReadWrite))
+                using (StreamReader Rdr = new StreamReader(Str))
+                    file = Rdr.ReadToEnd();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(
+                    "Unable to Read/Write to the Common scoring file:" + Environment.NewLine
+                    + Environment.NewLine + "File: " + ScoringCommonFile.FullName
+                    + Environment.NewLine + "Error: " + e.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning
+                    );
+
+                this.Load += new EventHandler(CloseOnStart);
+                return;
+            }
 
             // First, we are going to check for a certain string... if it exists
             // Then these config file has been reformated already, else we need
@@ -100,7 +120,12 @@ namespace BF2Statistics
                 }   
 
                 // Write formated data to the common soring file
-                File.WriteAllText(ScoringCommonPy, file);
+                using (Stream Str = ScoringCommonFile.Open(FileMode.Truncate, FileAccess.Write))
+                using (StreamWriter Wtr = new StreamWriter(Str))
+                {
+                    Wtr.Write(file);
+                    Wtr.Flush();
+                }
             }
 
             // Build our regex for getting scoring values
@@ -163,7 +188,7 @@ namespace BF2Statistics
             // Move on to the Conquest Scoring
             if (!PrefixAI)
             {
-                file = File.ReadAllText(ScoringConqPy);
+                file = File.ReadAllText(ScoringConqFile.FullName);
                 Matches = Reg.Matches(file);
 
                 foreach (Match m in Matches)
@@ -189,14 +214,33 @@ namespace BF2Statistics
                 }
             }
 
-            // Move on to the Coop Scoring
-            file = File.ReadAllText(ScoringCoopPy);
+            // Move on to the Coop Scoring. Check file for read and write access
+            try
+            {
+                using (Stream Str = ScoringCoopFile.Open(FileMode.Open, FileAccess.ReadWrite))
+                using (StreamReader Rdr = new StreamReader(Str))
+                    file = Rdr.ReadToEnd();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(
+                    "Unable to Read/Write to the Coop scoring file:" + Environment.NewLine
+                    + Environment.NewLine + "File: " + ScoringCommonFile.FullName
+                    + Environment.NewLine + "Error: " + e.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning
+                    );
+
+                this.Load += new EventHandler(CloseOnStart);
+                return;
+            }
+
+            // Process
             if (!file.Contains("AI_SCORE_CAPTURE "))
             {
                 // We need to replace the default file with the embedded one that
                 // Correctly formats the AI_ Scores
                 DefaultPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", "bf2_coop.py");
-                ModPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", MainForm.SelectedMod + "_coop.py");
+                ModPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", MainForm.SelectedMod.Name + "_coop.py");
 
                 if (!File.Exists(ModPath))
                 {
@@ -226,7 +270,12 @@ namespace BF2Statistics
                 }
 
                 // Write formated data to the common soring file
-                File.WriteAllText(ScoringCoopPy, file);
+                using (Stream Str = ScoringCoopFile.Open(FileMode.Truncate, FileAccess.Write))
+                using (StreamWriter Wtr = new StreamWriter(Str))
+                {
+                    Wtr.Write(file);
+                    Wtr.Flush();
+                }
             }
 
             Matches = Reg.Matches(file);
@@ -270,9 +319,15 @@ namespace BF2Statistics
 
         private void SaveButton_Click(object sender, EventArgs e)
         {
+            string contents;
+
             // for each of the 2 scoring files, we use regex to set the values
             // Scoring Common
-            string contents = File.ReadAllText(ScoringCommonPy);
+            using (Stream Str = ScoringCommonFile.OpenRead())
+            using (StreamReader Rdr = new StreamReader(Str))
+                contents = Rdr.ReadToEnd();
+
+            // Do replacements
             contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_KILL(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)", 
                 Prefix + "SCORE_KILL = " + KillScore.Value, RegexOptions.Multiline);
             contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_TEAMKILL(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
@@ -301,12 +356,24 @@ namespace BF2Statistics
                 Prefix + "SCORE_GIVEAMMO = " + GiveAmmo.Value, RegexOptions.Multiline);
             contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_REPAIR(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
                 Prefix + "SCORE_REPAIR = " + VehicleRepair.Value, RegexOptions.Multiline);
-            File.WriteAllText(ScoringCommonPy, contents);
+            
+            // Save File
+            using (Stream Str = ScoringCommonFile.Open(FileMode.Truncate, FileAccess.Write))
+            using (StreamWriter Wtr = new StreamWriter(Str))
+            {
+                Wtr.Write(contents);
+                Wtr.Flush();
+            }
 
             // Scoring Conquest
             if (!PrefixAI)
             {
-                contents = File.ReadAllText(ScoringConqPy);
+                // Get curent file contents
+                using (Stream Str = ScoringConqFile.OpenRead())
+                using (StreamReader Rdr = new StreamReader(Str))
+                    contents = Rdr.ReadToEnd();
+
+                // Do Replacements
                 contents = Regex.Replace(contents, @"SCORE_CAPTURE(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)", "SCORE_CAPTURE = " + ConqFlagCapture.Value);
                 contents = Regex.Replace(contents, @"SCORE_CAPTUREASSIST(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
                     "SCORE_CAPTUREASSIST = " + ConqFlagCaptureAsst.Value);
@@ -314,11 +381,22 @@ namespace BF2Statistics
                 contents = Regex.Replace(contents, @"SCORE_NEUTRALIZEASSIST(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
                     "SCORE_NEUTRALIZEASSIST = " + ConqFlagNeutralizeAsst.Value);
                 contents = Regex.Replace(contents, @"SCORE_DEFEND(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)", "SCORE_DEFENT = " + ConqDefendFlag.Value);
-                File.WriteAllText(ScoringConqPy, contents);
+
+                // Save File
+                using (Stream Str = ScoringConqFile.Open(FileMode.Truncate, FileAccess.Write))
+                using (StreamWriter Wtr = new StreamWriter(Str))
+                {
+                    Wtr.Write(contents);
+                    Wtr.Flush();
+                }
             }
 
             // Scoring Coop
-            contents = File.ReadAllText(ScoringCoopPy);
+            using (Stream Str = ScoringCoopFile.OpenRead())
+            using (StreamReader Rdr = new StreamReader(Str))
+                contents = Rdr.ReadToEnd();
+
+            // Do Replacements
             contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_CAPTURE(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
                 Prefix + "SCORE_CAPTURE = " + CoopFlagCapture.Value, RegexOptions.Multiline);
             contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_CAPTUREASSIST(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
@@ -329,7 +407,14 @@ namespace BF2Statistics
                 Prefix + "SCORE_NEUTRALIZEASSIST = " + CoopFlagNeutralizeAsst.Value, RegexOptions.Multiline);
             contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_DEFEND(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
                 Prefix + "SCORE_DEFEND = " + CoopDefendFlag.Value, RegexOptions.Multiline);
-            File.WriteAllText(ScoringCoopPy, contents);
+
+            // Save File
+            using (Stream Str = ScoringCoopFile.Open(FileMode.Truncate, FileAccess.Write))
+            using (StreamWriter Wtr = new StreamWriter(Str))
+            {
+                Wtr.Write(contents);
+                Wtr.Flush();
+            }
 
             this.Close();
         }

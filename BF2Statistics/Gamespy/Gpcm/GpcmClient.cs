@@ -232,7 +232,7 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         public void LogOut()
         {
-            LoginServer.Database.Driver.Execute("UPDATE accounts SET session=0 WHERE id=" + ClientPID);
+            LoginServer.Database.Execute("UPDATE accounts SET session=0 WHERE id=" + ClientPID);
             Dispose();
         }
 
@@ -333,7 +333,7 @@ namespace BF2Statistics.Gamespy
 
                 // Call successful login event
                 OnSuccessfulLogin(this);
-                LoginServer.Database.Driver.Execute("UPDATE accounts SET session=@P0, lastip=@P1 WHERE id=@P2", SessionKey, IpAddress, ClientPID);
+                LoginServer.Database.Execute("UPDATE accounts SET session=@P0, lastip=@P1 WHERE id=@P2", SessionKey, IpAddress, ClientPID);
             }
             else
             {

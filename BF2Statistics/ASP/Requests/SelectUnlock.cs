@@ -7,11 +7,10 @@ namespace BF2Statistics.ASP.Requests
 {
     class SelectUnlock
     {
-        public SelectUnlock(HttpClient Client)
+        public SelectUnlock(HttpClient Client, StatsDatabase Driver)
         {
             int Pid = 0;
             int Unlock = 0;
-            DatabaseDriver Driver = ASPServer.Database.Driver;
             List<Dictionary<string, object>> Rows;
 
             // Setup Params

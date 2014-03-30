@@ -21,7 +21,7 @@ namespace BF2Statistics
         /// <summary>
         /// Our database connection
         /// </summary>
-        private DatabaseDriver Driver = ASPServer.Database.Driver;
+        private StatsDatabase Driver;
 
         /// <summary>
         /// Current list page number
@@ -53,6 +53,21 @@ namespace BF2Statistics
         public PlayerSearchForm()
         {
             InitializeComponent();
+
+            // Establish DB connection
+            try
+            {
+                Driver = new StatsDatabase();
+            }
+            catch (DbConnectException Ex)
+            {
+                ASPServer.Stop();
+                ExceptionForm.ShowDbConnectError(Ex);
+                Load += (s, e) => Close(); // Close form
+                return;
+            }
+
+            // Initialize sorting
             SortedCol = DataTable.Columns[1];
             SortedCol.HeaderCell.SortGlyphDirection = SortOrder.Ascending;
             LimitSelect.SelectedIndex = 2;
@@ -349,7 +364,7 @@ namespace BF2Statistics
                 try
                 {
                     TaskForm.Show(this, "Delete Player", "Deleting Player \"" + Name + "\"", false);
-                    ASPServer.Database.DeletePlayer(Pid, true);
+                    Driver.DeletePlayer(Pid, true);
                     BuildList();
                 }
                 catch (Exception E)
@@ -391,7 +406,7 @@ namespace BF2Statistics
             {
                 try
                 {
-                    ASPServer.Database.ExportPlayerXml(sPath, Pid, Name);
+                    Driver.ExportPlayerXml(sPath, Pid, Name);
                     Notify.Show("Player Exported Successfully", String.Format("{0} ({1})", Name, Pid), AlertType.Success);
                 }
                 catch (Exception E)
@@ -423,8 +438,8 @@ namespace BF2Statistics
             {
                 try
                 {
-                    ASPServer.Database.ImportPlayerXml(Dialog.FileName);
-                    Notify.Show("Player Imported Successfully", AlertType.Success);
+                    Driver.ImportPlayerXml(Dialog.FileName);
+                    Notify.Show("Player Imported Successfully", "Operation Successful", AlertType.Success);
                     BuildList();
                 }
                 catch (Exception E)
@@ -449,5 +464,19 @@ namespace BF2Statistics
         }
 
         #endregion
+
+        /// <summary>
+        /// Closes the database connection
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PlayerSearchForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            try
+            {
+                Driver.Dispose();
+            }
+            catch (ObjectDisposedException) { }
+        }
     }
 }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using BF2Statistics.ASP;
+using BF2Statistics.Database;
 
 namespace BF2Statistics
 {
@@ -46,9 +47,24 @@ namespace BF2Statistics
                 return;
             }
 
+            StatsDatabase Database;
+
+            // Establist Database connection
+            try
+            {
+                Database = new StatsDatabase();
+            }
+            catch (DbConnectException Ex)
+            {
+                ExceptionForm.ShowDbConnectError(Ex);
+                ASPServer.Stop();
+                this.Load += new EventHandler(CloseOnStart);
+                return;
+            }
+
             // Make sure the PID doesnt exist already
             int Pid = Int32.Parse(PidTextBox.Text);
-            if (ASPServer.Database.PlayerExists(Pid))
+            if (Database.PlayerExists(Pid))
             {
                 MessageBox.Show("The player ID entered already exists.",
                     "Import Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -63,7 +79,7 @@ namespace BF2Statistics
             bWorker.WorkerReportsProgress = true;
 
             // Run Worker
-            bWorker.DoWork += new DoWorkEventHandler(ASPServer.Database.ImportEaStats);
+            bWorker.DoWork += new DoWorkEventHandler(Database.ImportEaStats);
             bWorker.ProgressChanged += new ProgressChangedEventHandler(bWorker_ProgressChanged);
             bWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bWorker_RunWorkerCompleted);
             bWorker.RunWorkerAsync(PidTextBox.Text);
@@ -92,7 +108,7 @@ namespace BF2Statistics
                 return;
             }
 
-            Notify.Show("Player Imported Successfully!", AlertType.Success);
+            Notify.Show("Player Imported Successfully!", "All the players stats and awards are now available on the server.", AlertType.Success);
             this.Close();
         }
 
@@ -103,6 +119,16 @@ namespace BF2Statistics
         {
             TaskForm.ProgressBarStep();
             TaskForm.UpdateStatus(e.UserState.ToString());
+        }
+
+        /// <summary>
+        /// Causes the form to be closed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CloseOnStart(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

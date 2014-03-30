@@ -5,24 +5,48 @@ using System.Text;
 
 namespace BF2Statistics.Database
 {
-    public class GamespyDatabase
+    public class GamespyDatabase : DatabaseDriver
     {
-        /// <summary>
-        /// Our database driver
-        /// </summary>
-        public DatabaseDriver Driver { get; protected set; }
-
-        /// <summary>
-        /// Our expected Database Version
-        /// </summary>
-        public static readonly int ExpectedVersion = 2;
-
         /// <summary>
         /// Constructor
         /// </summary>
-        public GamespyDatabase()
+        public GamespyDatabase() : 
+            base(
+                MainForm.Config.GamespyDBEngine,
+                MainForm.Config.GamespyDBHost,
+                MainForm.Config.GamespyDBPort,
+                MainForm.Config.GamespyDBName,
+                MainForm.Config.GamespyDBUser,
+                MainForm.Config.GamespyDBPass
+            )
         {
-            CheckConnection();
+            // Try and Reconnect
+            try
+            {
+                Connect();
+
+                // Try to get the database version
+                try
+                {
+                    if (Query("SELECT dbver FROM _version LIMIT 1").Count == 0)
+                        throw new Exception();
+                }
+                catch
+                {
+                    // If an exception is thrown, table doesnt exist... fresh install
+                    if (DatabaseEngine == DatabaseEngine.Sqlite)
+                        Execute(Utils.GetResourceAsString("BF2Statistics.SQL.SQLite.Gamespy.sql"));
+                    else
+                        Execute(Utils.GetResourceAsString("BF2Statistics.SQL.MySQL.Gamespy.sql"));
+                }
+            }
+            catch (Exception)
+            {
+                if (Connection != null)
+                    Connection.Dispose();
+
+                throw;
+            }
         }
 
         /// <summary>
@@ -41,8 +65,7 @@ namespace BF2Statistics.Database
         public Dictionary<string, object> GetUser(string Nick)
         {
             // Fetch the user
-            CheckConnection();
-            var Rows = Driver.Query("SELECT * FROM accounts WHERE name=@P0", Nick);
+            var Rows = this.Query("SELECT * FROM accounts WHERE name=@P0", Nick);
             return (Rows.Count == 0) ? null : Rows[0];
         }
 
@@ -54,8 +77,7 @@ namespace BF2Statistics.Database
         public Dictionary<string, object> GetUser(int Pid)
         {
             // Fetch the user
-            CheckConnection();
-            var Rows = Driver.Query("SELECT * FROM accounts WHERE id=@P0", Pid);
+            var Rows = this.Query("SELECT * FROM accounts WHERE id=@P0", Pid);
             return (Rows.Count == 0) ? null : Rows[0];
         }
 
@@ -67,8 +89,7 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public Dictionary<string, object> GetUser(string Email, string Password)
         {
-            CheckConnection();
-            var Rows = Driver.Query("SELECT * FROM accounts WHERE email=@P0 AND password=@P1", Email, Password);
+            var Rows = this.Query("SELECT * FROM accounts WHERE email=@P0 AND password=@P1", Email, Password);
             return (Rows.Count == 0) ? null : Rows[0];
         }
 
@@ -79,11 +100,9 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public List<string> GetUsersLike(string Nick)
         {
-            CheckConnection();
-
             // Generate our return list
             List<string> List = new List<string>();
-            var Rows = Driver.Query("SELECT name FROM accounts WHERE name LIKE @P0", "%" + Nick + "%");
+            var Rows = this.Query("SELECT name FROM accounts WHERE name LIKE @P0", "%" + Nick + "%");
             foreach (Dictionary<string, object> Account in Rows)
                 List.Add(Account["name"].ToString());
 
@@ -98,8 +117,7 @@ namespace BF2Statistics.Database
         public bool UserExists(string Nick)
         {
             // Fetch the user
-            CheckConnection();
-            var Rows = Driver.Query("SELECT id FROM accounts WHERE name=@P0", Nick);
+            var Rows = this.Query("SELECT id FROM accounts WHERE name=@P0", Nick);
             return (Rows.Count != 0);
         }
 
@@ -111,8 +129,7 @@ namespace BF2Statistics.Database
         public bool UserExists(int PID)
         {
             // Fetch the user
-            CheckConnection();
-            var Rows = Driver.Query("SELECT name FROM accounts WHERE id=@P0", PID);
+            var Rows = this.Query("SELECT name FROM accounts WHERE id=@P0", PID);
             return (Rows.Count != 0);
         }
 
@@ -126,13 +143,11 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public bool CreateUser(string Nick, string Pass, string Email, string Country)
         {
-            CheckConnection();
-
             // Generate PID
             int pid = 1;
 
             // User doesnt have a PID yet, Get the current max PID and increment
-            var Max = Driver.Query("SELECT MAX(id) AS max FROM accounts");
+            var Max = this.Query("SELECT MAX(id) AS max FROM accounts");
             try
             {
                 int max;
@@ -147,7 +162,7 @@ namespace BF2Statistics.Database
             }
 
             // Create the user in the database
-            int Rows = Driver.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES(@P0, @P1, @P2, @P3, @P4)",
+            int Rows = this.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES(@P0, @P1, @P2, @P3, @P4)",
                 pid, Nick, Pass, Email, Country
             );
 
@@ -164,18 +179,16 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public bool CreateUser(int Pid, string Nick, string Pass, string Email, string Country)
         {
-            CheckConnection();
-
             // Make sure the user doesnt exist!
-            var PidExists = Driver.Query("SELECT name FROM accounts WHERE id=@P0", Pid);
-            var NameExists = Driver.Query("SELECT id FROM accounts WHERE name=@P0", Nick);
+            var PidExists = this.Query("SELECT name FROM accounts WHERE id=@P0", Pid);
+            var NameExists = this.Query("SELECT id FROM accounts WHERE name=@P0", Nick);
             if (PidExists.Count == 1)
                 throw new Exception("Account ID is already taken!");
             else if(NameExists.Count == 1)
                 throw new Exception("Account username is already taken!");
 
             // Create the user in the database
-            int Rows = Driver.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES(@P0, @P1, @P2, @P3, @P4)",
+            int Rows = this.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES(@P0, @P1, @P2, @P3, @P4)",
                 Pid, Nick, Pass, Email, Country
             );
 
@@ -189,8 +202,7 @@ namespace BF2Statistics.Database
         /// <param name="Country"></param>
         public void UpdateUser(string Nick, string Country)
         {
-            CheckConnection();
-            Driver.Execute("UPDATE accounts SET country=@P0 WHERE name=@P1", Nick, Country);
+            this.Execute("UPDATE accounts SET country=@P0 WHERE name=@P1", Nick, Country);
         }
 
         /// <summary>
@@ -203,8 +215,7 @@ namespace BF2Statistics.Database
         /// <param name="NewEmail">New Account Email Address</param>
         public void UpdateUser(int Id, int NewPid, string NewNick, string NewPassword, string NewEmail)
         {
-            CheckConnection();
-            Driver.Execute("UPDATE accounts SET id=@P0, name=@P1, password=@P2, email=@P3 WHERE id=@P4", 
+            this.Execute("UPDATE accounts SET id=@P0, name=@P1, password=@P2, email=@P3 WHERE id=@P4", 
                 NewPid, NewNick, NewPassword, NewEmail, Id);
         }
 
@@ -215,8 +226,7 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public int DeleteUser(string Nick)
         {
-            CheckConnection();
-            return Driver.Execute("DELETE FROM accounts WHERE name=@P0", Nick);
+            return this.Execute("DELETE FROM accounts WHERE name=@P0", Nick);
         }
 
         /// <summary>
@@ -226,8 +236,7 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public int DeleteUser(int Pid)
         {
-            CheckConnection();
-            return Driver.Execute("DELETE FROM accounts WHERE id=@P0", Pid);
+            return this.Execute("DELETE FROM accounts WHERE id=@P0", Pid);
         }
 
         /// <summary>
@@ -237,8 +246,7 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public int GetPID(string Nick)
         {
-            CheckConnection();
-            var Rows = Driver.Query("SELECT id FROM accounts WHERE name=@P0", Nick);
+            var Rows = this.Query("SELECT id FROM accounts WHERE name=@P0", Nick);
 
             // If we have no result, we need to create a new Player :)
             if (Rows.Count == 0)
@@ -257,9 +265,8 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public int SetPID(string Nick, int Pid)
         {
-            CheckConnection();
-            bool UserExists = Driver.Query("SELECT id FROM accounts WHERE name=@P0", Nick).Count != 0;
-            bool PidExists = Driver.Query("SELECT name FROM accounts WHERE id=@P0", Pid).Count != 0;
+            bool UserExists = this.Query("SELECT id FROM accounts WHERE name=@P0", Nick).Count != 0;
+            bool PidExists = this.Query("SELECT name FROM accounts WHERE id=@P0", Pid).Count != 0;
 
             // If no user exists, return code -1
             if (UserExists)
@@ -268,7 +275,7 @@ namespace BF2Statistics.Database
             // If PID is false, the PID is not taken
             if (!PidExists)
             {
-                int Success = Driver.Execute("UPDATE accounts SET id=@P0 WHERE name=@P1", Pid, Nick);
+                int Success = this.Execute("UPDATE accounts SET id=@P0 WHERE name=@P1", Pid, Nick);
                 return (Success == 1) ? 1 : 0;
             }
 
@@ -282,108 +289,8 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public int GetNumAccounts()
         {
-            CheckConnection();
-            List<Dictionary<string, object>> r = Driver.Query("SELECT COUNT(id) AS count FROM accounts");
+            List<Dictionary<string, object>> r = this.Query("SELECT COUNT(id) AS count FROM accounts");
             return Int32.Parse(r[0]["count"].ToString());
-        }
-
-        /// <summary>
-        /// Creates the connection to the database, and handles
-        /// the excpetion (if any) that are thrown
-        /// </summary>
-        public void CheckConnection()
-        {
-            if(Driver == null || !Driver.IsConnected)
-            {
-                try
-                {
-                    // First time connection
-                    if (Driver == null)
-                    {
-                        Driver = new DatabaseDriver(
-                            MainForm.Config.GamespyDBEngine,
-                            MainForm.Config.GamespyDBHost,
-                            MainForm.Config.GamespyDBPort,
-                            MainForm.Config.GamespyDBName,
-                            MainForm.Config.GamespyDBUser,
-                            MainForm.Config.GamespyDBPass
-                        );
-
-                        // Create SQL tables on new SQLite DB's
-                        if (Driver.IsNewDatabase)
-                        {
-                            // Connect to DB
-                            Driver.Connect();
-                            string SQL = Utils.GetResourceAsString("BF2Statistics.SQL.SQLite.Gamespy.sql");
-                            Driver.Execute(SQL);
-                            return;
-                        }
-                        else
-                        {
-                            // Connect to DB
-                            Driver.Connect();
-                            CheckDatabase();
-                            return;
-                        }
-                    }
-
-                    // Connect to DB
-                    Driver.Connect();
-                }
-                catch (Exception E)
-                {
-                    string Message = "Database Connect Error: " +
-                        Environment.NewLine +
-                        E.Message +
-                        Environment.NewLine
-                        + "Forcing Server Shutdown...";
-                    throw new Exception(Message);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Checks the Gamespy database, making sure the tables exist within,
-        /// and that the database is up to date.
-        /// </summary>
-        private void CheckDatabase()
-        {
-            // Make sure our tables still exist
-            List<Dictionary<string, object>> Rows = Driver.Query("SELECT COUNT(id) AS count FROM accounts");
-
-            // Get Db Version
-            int Version = 2;
-            try {
-                Rows = Driver.Query("SELECT dbver FROM _version");
-                Version = Int32.Parse(Rows[0]["dbver"].ToString());
-            }
-            catch
-            {
-                // If an exception is thrown, table doesnt exist (Ver 1)
-                if (Driver.DatabaseEngine == DatabaseEngine.Sqlite)
-                    Driver.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.Updates.SQLite.Gamespy.Update_1.sql"));
-                else
-                    Driver.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.Updates.MySQL.Gamespy.Update_1.sql"));
-            }
-
-            // Process Updates
-            while (Version < ExpectedVersion)
-            {
-                if (Driver.DatabaseEngine == DatabaseEngine.Sqlite)
-                    Driver.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.Updates.SQLite.Gamespy.Update_" + Version + ".sql"));
-                else
-                    Driver.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.Updates.MySQL.Gamespy.Update_" + Version + ".sql"));
-                Version++;
-            }
-        }
-
-        /// <summary>
-        /// Closes the Gamespy Database Connection
-        /// </summary>
-        public void Close()
-        {
-            if (Driver != null)
-                Driver.Close();
         }
     }
 }

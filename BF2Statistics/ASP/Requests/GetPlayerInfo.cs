@@ -60,12 +60,12 @@ namespace BF2Statistics.ASP.Requests
 
         //&info=per*,cmb*,twsc,cpcp,cacp,dfcp,kila,heal,rviv,rsup,rpar,tgte,dkas,dsab,cdsc,rank,cmsc,kick,kill,deth,suic,ospm,klpm,klpr,dtpr,bksk,wdsk,bbrs,tcdr,ban,dtpm,lbtl,osaa,vrk,tsql,tsqm,tlwf,mvks,vmks,mvn*,vmr*,fkit,fmap,fveh,fwea,wtm-,wkl-,wdt-,wac-,wkd-,vtm-,vkl-,vdt-,vkd-,vkr-,atm-,awn-,alo-,abr-,ktm-,kkl-,kdt-,kkd-
 
-        public GetPlayerInfo(HttpClient Client)
+        public GetPlayerInfo(HttpClient Client, StatsDatabase Database)
         {
             // Load class Variables
             this.Response = Client.Response;
             this.QueryString = Client.Request.QueryString;
-            this.Driver = ASPServer.Database.Driver;
+            this.Driver = Database;
 
             // Setup Params
             if (QueryString.ContainsKey("pid"))

@@ -45,24 +45,19 @@ namespace BF2Statistics
         public static LogWritter ErrorLog { get; protected set; }
 
         /// <summary>
-        /// An array of found mods
-        /// </summary>
-        public static Dictionary<string, string> InstalledMods = new Dictionary<string, string>();
-
-        /// <summary>
-        /// Full path to the current selected mod's settings folder
-        /// </summary>
-        public static string SettingsPath { get; protected set; }
-
-        /// <summary>
         /// The current selected mod foldername
         /// </summary>
-        public static string SelectedMod { get; protected set; }
+        public static BF2Mod SelectedMod { get; protected set; }
 
         /// <summary>
         /// Returns a bool stating whether the stats enabled python files are installed
         /// </summary>
         public static bool StatsEnabled { get; protected set; }
+
+        /// <summary>
+        /// Returns the NotifyIcon for on the main form
+        /// </summary>
+        public static NotifyIcon SysIcon { get; protected set; }
 
         /// <summary>
         /// The Battlefield 2 server process (when running)
@@ -75,7 +70,7 @@ namespace BF2Statistics
         private Process ClientProcess;
 
         /// <summary>
-        /// Are hosts file redirects active?
+        /// Indicates whether the hosts file redirects are active for the gamespy servers
         /// </summary>
         public static bool RedirectsEnabled { get; protected set; }
 
@@ -135,7 +130,7 @@ namespace BF2Statistics
                 Directory.CreateDirectory(Paths.DocumentsFolder);
 
             // Backups folder
-            if(!Directory.Exists(Path.Combine(Paths.DocumentsFolder, "Backups")))
+            if (!Directory.Exists(Path.Combine(Paths.DocumentsFolder, "Backups")))
                 Directory.CreateDirectory(Path.Combine(Paths.DocumentsFolder, "Backups"));
 
             // Create ErrorLog file
@@ -190,7 +185,8 @@ namespace BF2Statistics
 
             // Set server tooltips
             Tipsy.SetToolTip(LoginStatusPic, "Login server is currently offline.");
-            Tipsy.SetToolTip(AspStatusPic, "Asp server is currently offline");  
+            Tipsy.SetToolTip(AspStatusPic, "Asp server is currently offline");
+            SysIcon = NotificationIcon;
         }
 
         #region Startup Methods
@@ -229,66 +225,47 @@ namespace BF2Statistics
         /// </summary>
         private bool LoadModList()
         {
-            string path = Path.Combine(Config.ServerPath, "mods");
-
-            // Make sure the levels folder exists!
-            if (!Directory.Exists(path))
+            // Load the BF2 Server
+            try
             {
-                this.Load += new EventHandler(CloseOnStart);
-                MessageBox.Show("Unable to locate the 'mods' folder. Please make sure you have selected a valid "
-                    + "battlefield 2 installation path before proceeding.", 
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error
-                );
+                BF2Server.Load(Config.ServerPath);
+            }
+            catch(Exception E)
+            {
+                MessageBox.Show(E.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
-            // Get our mod directories
-            string[] Mods = Directory.GetDirectories(path);
-            XmlDocument Desc = new XmlDocument();
-
-            // Proccess each installed mod
-            foreach (string D in Mods)
+            // Add each valid mod to the mod selection list
+            foreach (string Module in BF2Server.Mods)
             {
-                // Get just the mod folder name
-                string ModName = D.Remove(0, path.Length + 1);
-
-                // Make sure we have a mod description file
-                string DescFile = Path.Combine(D, "mod.desc");
-                if(!File.Exists(DescFile))
-                    continue;
-
-                // Get the actual name of the mod
                 try
                 {
-                    Desc.Load(DescFile);
-                    XmlNodeList Node = Desc.GetElementsByTagName("title");
-                    string Name = Node[0].InnerText.Trim();
-                    if (Name == "MODDESC_BF2_TITLE")
-                    {
-                        ModSelectList.Items.Add(new KeyValueItem(ModName, "Battlefield 2"));
+                    BF2Mod Mod = BF2Server.LoadMod(Module);
+                    ModSelectList.Items.Add(Mod);
+                    if (Mod.Name == "bf2")
                         ModSelectList.SelectedIndex = ModSelectList.Items.Count - 1;
-                        continue;
-                    }
-                    else if (Name == "MODDESC_XP_TITLE")
-                        Name = "Battlefield 2: Special Forces";
-
-                    ModSelectList.Items.Add(new KeyValueItem(ModName, Name));
-                    InstalledMods.Add(D, Name);
                 }
-                catch (Exception E)
+                catch (InvalidModException)
                 {
-                    Log(E.Message);
+                    continue;
+                }
+                catch (Exception e)
+                {
+                    Log(e.Message);
                 }
             }
 
             // If we have no mods, we cant continue :(
             if (ModSelectList.Items.Count == 0)
             {
-                MessageBox.Show("No battlefield 2 mods could be found! The application can no longer continue.", 
+                MessageBox.Show("No battlefield 2 mods could be found! The application can no longer continue.",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Load += new EventHandler(CloseOnStart);
                 return false;
             }
+            else if (ModSelectList.SelectedIndex == -1)
+                ModSelectList.SelectedIndex = 0;
 
             return true;
         }
@@ -443,7 +420,10 @@ namespace BF2Statistics
                     StartLoginserverBtn.Enabled = true;
                     LaunchEmuBtn.Enabled = true;
                     Tipsy.SetToolTip(LoginStatusPic, E.Message);
-                    Notify.Show("Unable to Start Login Servers!", E.Message, AlertType.Warning);
+
+                    // Show the DB exception form if its a DB connection error
+                    if (E is DbConnectException)
+                        ExceptionForm.ShowDbConnectError(E as DbConnectException);
                 });
             }
         }
@@ -457,12 +437,18 @@ namespace BF2Statistics
         {
             if (ClientProcess == null)
             {
-                // Get our current mod
-                string mod = ((KeyValueItem)ModSelectList.SelectedItem).Key;
+                // Make sure the Bf2 client supports this mod
+                if (!Directory.Exists(Path.Combine(Config.ClientPath, "mods", SelectedMod.Name)))
+                {
+                    MessageBox.Show("The Battlefield 2 client installation does not have the selected mod installed." +
+                        " Please install the mod before launching the BF2 client", "Mod Error", MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    return;
+                }
 
                 // Start new BF2 proccess
                 ProcessStartInfo Info = new ProcessStartInfo();
-                Info.Arguments = String.Format(" +modPath mods/{0} {1}", mod.ToLower(), ParamBox.Text.Trim());
+                Info.Arguments = String.Format(" +modPath mods/{0} {1}", SelectedMod.Name, ParamBox.Text.Trim());
                 Info.FileName = "bf2.exe";
                 Info.WorkingDirectory = Config.ClientPath;
                 ClientProcess = Process.Start(Info);
@@ -521,12 +507,9 @@ namespace BF2Statistics
         {
             if (ServerProcess == null)
             {
-                // Get our current mod
-                string mod = ((KeyValueItem)ModSelectList.SelectedItem).Key;
-
                 // Start new BF2 proccess
                 ProcessStartInfo Info = new ProcessStartInfo();
-                Info.Arguments = String.Format(" +modPath mods/{0}", mod.ToLower());
+                Info.Arguments = String.Format(" +modPath mods/{0}", SelectedMod.Name.ToLower());
 
                 // Use the global server settings file?
                 if (GlobalServerSettings.Checked)
@@ -548,7 +531,7 @@ namespace BF2Statistics
 
                 // Start process. Set working directory so we dont get errors!
                 Info.FileName = "bf2_w32ded.exe";
-                Info.WorkingDirectory = Config.ServerPath;
+                Info.WorkingDirectory = BF2Server.RootPath;
                 ServerProcess = Process.Start(Info);
 
                 // Hook into the proccess so we know when its running, and register a closing event
@@ -609,25 +592,27 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void ModSelectList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            SelectedMod = ((KeyValueItem)ModSelectList.SelectedItem).Key;
-            SettingsPath = Path.Combine(Config.ServerPath, "mods", SelectedMod, "settings");
-            string[] lines = File.ReadAllLines(Path.Combine(SettingsPath, "maplist.con"));
+            SelectedMod = (BF2Mod) ModSelectList.SelectedItem;
+            string Mapname, Type, Size;
+            SelectedMod.GetNextMapToBePlayed(out Mapname, out Type, out Size);
 
-            if (lines.Length != 0)
+            // Make sure we have a next map :S
+            if (!String.IsNullOrEmpty(Mapname))
             {
-                Match M = Regex.Match(lines[0],
-                    @"^maplist.append[\s|\t]+([""]*)(?<Mapname>[a-z0-9_]+)([""]*)[\s|\t]+([""]*)gpm_(?<Gamemode>[a-z]+)([""]*)[\s|\t]+(?<Size>[0-9]+)$", 
-                    RegexOptions.IgnoreCase
-                );
-                if (M.Success)
+                // First, try and load the map descriptor file
+                try
                 {
+                    FirstMapBox.Text = SelectedMod.LoadMap(Mapname).Title;
+                }
+                catch
+                {
+                    // If we cant load the map, lets parse the name the best we can
                     // First, convert mapname into an array, and capitalize each word
-                    string Mapname = M.Groups["Mapname"].ToString().Replace('_', ' ');
-                    string[] Parts = Mapname.Split(' ');
+                    string[] Parts = Mapname.Split('_');
                     for (int i = 0; i < Parts.Length; i++)
                     {
                         // Ignore empty parts
-                        if(String.IsNullOrWhiteSpace(Parts[i]))
+                        if (String.IsNullOrWhiteSpace(Parts[i]))
                             continue;
 
                         // Uppercase first letter of ervery word
@@ -643,28 +628,27 @@ namespace BF2Statistics
 
                     // Set map name
                     FirstMapBox.Text = MapParts.ToString();
-
-                    // Convert gametype
-                    string Type = M.Groups["Gamemode"].ToString();
-                    switch (Type)
-                    {
-                        case "coop":
-                            MapModeBox.Text = "Co-op";
-                            break;
-                        case "cq":
-                            MapModeBox.Text = "Conquest";
-                            break;
-                        case "sp1":
-                        case "sp2":
-                        case "sp3":
-                            MapModeBox.Text = "SinglePlayer";
-                            break;
-                    }
-
-                    // Set mapsize
-                    MapSizeBox.Text = M.Groups["Size"].ToString();
                 }
             }
+
+            // Convert gametype
+            switch (Type)
+            {
+                case "coop":
+                    MapModeBox.Text = "Coop";
+                    break;
+                case "cq":
+                    MapModeBox.Text = "Conquest";
+                    break;
+                case "sp1":
+                case "sp2":
+                case "sp3":
+                    MapModeBox.Text = "SinglePlayer";
+                    break;
+            }
+
+            // Set mapsize
+            MapSizeBox.Text = Size;
         }
 
         #endregion Launcher Tab
@@ -772,44 +756,51 @@ namespace BF2Statistics
         /// </summary>
         private void InstallButton_Click(object sender, EventArgs e)
         {
-            // Install
-            if (!StatsEnabled)
+            // Lock the console to prevent errors!
+            this.Enabled = false;
+            LoadingForm.ShowScreen(this);
+
+            try
             {
-                // Lock the console to prevent errors!
-                this.Enabled = false;
+                // Install
+                if (!StatsEnabled)
+                {
+                    // Remove current Python
+                    Directory.Delete(Paths.ServerPythonPath, true);
+                    System.Threading.Thread.Sleep(750);
 
-                // Remove current Python
-                Directory.Delete(Paths.ServerPythonPath, true);
+                    // Make sure we dont have an empty backup folder
+                    if (Directory.GetFiles(Paths.RankedPythonPath).Length == 0)
+                        DirectoryExt.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), Paths.ServerPythonPath, true);
+                    else
+                        DirectoryExt.Copy(Paths.RankedPythonPath, Paths.ServerPythonPath, true);
+                }
+                else // Uninstall
+                {
+                    // Backup the users bf2s python files
+                    Directory.Delete(Paths.RankedPythonPath, true);
+                    System.Threading.Thread.Sleep(750);
+                    DirectoryExt.Copy(Paths.ServerPythonPath, Paths.RankedPythonPath, true);
 
-                // Make sure we dont have an empty backup folder
-                if (Directory.GetFiles(Paths.RankedPythonPath).Length == 0)
-                    DirectoryExt.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), Paths.ServerPythonPath, true);
-                else
-                    DirectoryExt.Copy(Paths.RankedPythonPath, Paths.ServerPythonPath, true);
-
-                // unlock now that we are done
-                this.Enabled = true;
+                    // Install default python files
+                    Directory.Delete(Paths.ServerPythonPath, true);
+                    System.Threading.Thread.Sleep(750);
+                    DirectoryExt.Copy(Paths.NonRankedPythonPath, Paths.ServerPythonPath, true);
+                }
             }
-
-            // Uninstall
-            else
+            catch (Exception E)
             {
-                // Lock the console to prevent errors!
-                this.Enabled = false;
-
-                // Backup the users bf2s python files
-                Directory.Delete(Paths.RankedPythonPath, true);
-                DirectoryExt.Copy(Paths.ServerPythonPath, Paths.RankedPythonPath, true);
-
-                // Install default python files
-                Directory.Delete(Paths.ServerPythonPath, true);
-                DirectoryExt.Copy(Paths.NonRankedPythonPath, Paths.ServerPythonPath, true);
-
+                ErrorLog.Write("ERROR: [BF2sPythonInstall] " + E.Message);
+                throw;
+            }
+            finally
+            {
                 // Unlock now that we are done
+                System.Threading.Thread.Sleep(300);
+                SetInstallStatus();
                 this.Enabled = true;
+                LoadingForm.CloseForm();
             }
-
-            SetInstallStatus();
         }
 
         /// <summary>
@@ -837,6 +828,7 @@ namespace BF2Statistics
         /// </summary>
         private void BF2sRestoreBtn_Click(object sender, EventArgs e)
         {
+            // Confirm that the user wants to do this
             if (MessageBox.Show(
                     "Restoring the BF2Statistics python files will erase any and all modifications to the BF2Statistics " +
                     "python files. Are you sure you want to continue?",
@@ -845,31 +837,39 @@ namespace BF2Statistics
                     MessageBoxIcon.Warning)
                 == DialogResult.OK)
             {
+                // Lock the console to prevent errors!
+                this.Enabled = false;
+                LoadingForm.ShowScreen(this);
+
+                // Replace files with the originals
                 try
                 {
-                    // Lock the console to prevent errors!
-                    this.Enabled = false;
                     if (StatsEnabled)
                     {
                         Directory.Delete(Paths.ServerPythonPath, true);
+                        System.Threading.Thread.Sleep(750);
                         DirectoryExt.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), Paths.ServerPythonPath, true);
                     }
                     else
                     {
                         Directory.Delete(Paths.RankedPythonPath, true);
+                        System.Threading.Thread.Sleep(750);
                         DirectoryExt.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), Paths.RankedPythonPath, true);
                     }
 
                     // Show Success Message
-                    Notify.Show("Stats Python Files Have Been Restored!", AlertType.Success);
-                    this.Enabled = true; // Unlock Form
+                    Notify.Show("Stats Python Files Have Been Restored!", "Operation Successful", AlertType.Success);
                 }
                 catch (Exception E)
                 {
                     ExceptionForm EForm = new ExceptionForm(E, false);
                     EForm.Message = "Failed to restore stats python files!";
                     EForm.Show();
+                }
+                finally
+                {
                     this.Enabled = true;
+                    LoadingForm.CloseForm();
                 }
             }
         }
@@ -891,21 +891,17 @@ namespace BF2Statistics
         }
 
         /// <summary>
-        /// When the user requests to shuffle the map list, this method makes it happen
+        /// Event fired when the Randomize Maplist button is pushed
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ShuffleMapListBtn_Click(object sender, EventArgs e)
+        private void RandomMapListBtn_Click(object sender, EventArgs e)
         {
-            // Get our file path and Array of lines
-            string MaplistFile = Path.Combine(Config.ServerPath, "mods", SelectedMod, "settings", "maplist.con");
-            string[] lines = File.ReadAllLines(MaplistFile);
+            RandomizeForm F = new RandomizeForm();
+            F.ShowDialog();
 
-            // Randomize the array of lines
-            new Random().Shuffle<string>(lines);
-
-            // Save randomized lines
-            File.WriteAllLines(MaplistFile, lines);
+            // Update maplist
+            ModSelectList_SelectedIndexChanged(this, new EventArgs());
         }
 
         /// <summary>
@@ -913,15 +909,9 @@ namespace BF2Statistics
         /// </summary>
         private void EditServerSettingsBtn_Click(object sender, EventArgs e)
         {
-            string file;
-            if (GlobalServerSettings.Checked)
-                file = Path.Combine(MainForm.Root, "Python", "GlobalServerSettings.con");
-            else
-                file = Path.Combine(SettingsPath, "ServerSettings.con");
-
             try
             {
-                ServerSettings SS = new ServerSettings(file);
+                ServerSettingsForm SS = new ServerSettingsForm(GlobalServerSettings.Checked);
                 SS.ShowDialog();
             }
             catch { }
@@ -1410,7 +1400,12 @@ namespace BF2Statistics
                     StartWebserverBtn.Enabled = true;
                     AspStatusPic.Image = Resources.warning;
                     Tipsy.SetToolTip(AspStatusPic, E.Message);
-                    Notify.Show("Failed to start ASP Server!", E.Message, AlertType.Warning);
+
+                    // Show the DB exception form if its a DB connection error
+                    if (E is DbConnectException)
+                        ExceptionForm.ShowDbConnectError(E as DbConnectException);
+                    else
+                        Notify.Show("Failed to start ASP Server!", E.Message, AlertType.Warning);
                 });
             }
         }
@@ -1658,6 +1653,10 @@ namespace BF2Statistics
         {
             InstallForm IS = new InstallForm();
             IS.ShowDialog();
+
+            // Re-Init server if we need to
+            if (Config.ServerPath != BF2Server.RootPath)
+                BF2Server.Load(Config.ServerPath);
         }
 
         /// <summary>

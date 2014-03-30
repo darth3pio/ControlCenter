@@ -533,7 +533,7 @@ namespace BF2Statistics.MedalData
                 this.Enabled = true;
 
                 // Notify User
-                Notify.Show("Medal Data Profile Deleted Successfully.", AlertType.Success);
+                Notify.Show("Medal Data Profile Deleted Successfully.", "Operation Successful", AlertType.Success);
             }
         }
 
@@ -649,7 +649,7 @@ namespace BF2Statistics.MedalData
 
                 // Update variables, and display success
                 ChangesMade = false;
-                Notify.Show("Medal Data Saved Successfully!", AlertType.Success);
+                Notify.Show("Medal Data Saved Successfully!", "Operation Successful", AlertType.Success);
             }
             catch (Exception ex)
             {

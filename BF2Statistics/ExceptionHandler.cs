@@ -78,14 +78,15 @@ namespace BF2Statistics
                     if (Ex != null)
                         Log.WriteLine("Exception Code: " + Ex.ErrorCode);
                     Log.WriteLine("Target Method: " + E.TargetSite.ToString());
+                    Log.WriteLine("Os Version: " + Environment.OSVersion.VersionString);
+                    Log.WriteLine("Stats Database Driver: " + Properties.Settings.Default.StatsDBEngine);
+                    Log.WriteLine("Gamespy Database Driver: " + Properties.Settings.Default.GamespyDBEngine);
                     Log.WriteLine("StackTrace:");
                     Log.WriteLine(E.StackTrace);
-                    Log.Close();
+                    Log.Flush();
                 }
             }
             catch { }
         }
-
-        
     }
 }

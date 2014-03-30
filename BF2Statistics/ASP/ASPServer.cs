@@ -25,12 +25,7 @@ namespace BF2Statistics.ASP
         /// <summary>
         /// The HTTPListner for the webserver
         /// </summary>
-        private static HttpListener Listener = new HttpListener();
-
-        /// <summary>
-        /// The stats database object
-        /// </summary>
-        public static StatsDatabase Database;
+        private static HttpListener Listener;
 
         /// <summary>
         /// ASP server log writter
@@ -93,10 +88,17 @@ namespace BF2Statistics.ASP
         /// </summary>
         static ASPServer()
         {
-            ServerLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspServer.log"), 3000);
-            AccessLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspAccess.log"), 3000);
+            // Create our Server and Access logs
+            ServerLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspServer.log"), 1000);
+            AccessLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspAccess.log"), 1000);
+
+            // Get a list of all our local IP addresses
             LocalIPs = Dns.GetHostAddresses(Dns.GetHostName()).ToList();
             SessionRequests = 0;
+
+            // Create our HttpListener instance
+            Listener = new HttpListener();
+            Listener.Prefixes.Add("http://*/ASP/");
         }
 
         /// <summary>
@@ -107,15 +109,7 @@ namespace BF2Statistics.ASP
             if (!IsRunning)
             {
                 // Try to connect to the database
-                if (Database == null)
-                    Database = new StatsDatabase();
-                else
-                    Database.CheckConnection();
-                Database.Driver.ConnectionClosed += new StateChangeEventHandler(Driver_ConnectionClosed);
-
-                // Make sure we have the ASP prefix set
-                Listener = new HttpListener();
-                Listener.Prefixes.Add("http://*/ASP/");
+                using (StatsDatabase Database = new StatsDatabase())  { }
 
                 // Start the Listener and accept new connections
                 Listener.Start();
@@ -139,10 +133,10 @@ namespace BF2Statistics.ASP
 
                 try
                 {
+                    // Stop listening for HTTP requests
                     Listener.Stop();
-                    Database.Driver.ConnectionClosed -= new StateChangeEventHandler(Driver_ConnectionClosed);
-                    Database.Close();
-                    Listener = null;
+
+                    // Fire the stopped event
                     Stopped(null, null);
                 }
                 catch(Exception E)
@@ -170,6 +164,10 @@ namespace BF2Statistics.ASP
 
                 ServerLog.Write("ERROR: [DoAcceptClientCallback] \r\n\t - {0}\r\n\t - ErrorCode: {1}", E.Message, E.ErrorCode);
             }
+            catch (Exception E)
+            {
+                ServerLog.Write("ERROR: [DoAcceptClientCallback] \r\n\t - {0}", E.Message);
+            }
 
             // Begin Listening again
             if(IsRunning) 
@@ -183,6 +181,7 @@ namespace BF2Statistics.ASP
         {
             // Finish accepting the client
             HttpClient Client = new HttpClient(Sync as HttpListenerContext);
+            StatsDatabase Database;
 
             // Update client count, and fire connection event
             SessionRequests++;
@@ -193,23 +192,15 @@ namespace BF2Statistics.ASP
             {
                 // If we arent suppossed to be running, show a 503
                 if (!IsRunning)
-                    throw new Exception("Server is not running");
+                    throw new Exception("Unable to accept client because the server is not running");
 
                 // If database is offline, Try to re-connect
-                if (!Database.Driver.IsConnected)
-                {
-                    try { Database.CheckConnection(); }
-                    catch { }
-                    if (!Database.Driver.IsConnected)
-                    {
-                        string Message = "ERROR: Unable to establish database connection";
-                        ServerLog.Write(Message);
-                        throw new Exception(Message);
-                    }
-                }
+                Database = new StatsDatabase();
             }
-            catch
+            catch(Exception e)
             {
+                ServerLog.Write("ERROR: [HandleRequest] " + e.Message);
+
                 // Set service is unavialable
                 Client.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
                 Client.Response.Send();
@@ -234,46 +225,46 @@ namespace BF2Statistics.ASP
                 switch (Document.Replace("/asp/", ""))
                 {
                     case "bf2statistics.php":
-                        new SnapshotPost(Client);
+                        new SnapshotPost(Client, Database);
                         break;
                     case "createplayer.aspx":
-                        new CreatePlayer(Client);
+                        new CreatePlayer(Client, Database);
                         break;
                     case "getbackendinfo.aspx":
                         new GetBackendInfo(Client);
                         break;
                     case "getawardsinfo.aspx":
-                        new GetAwardsInfo(Client);
+                        new GetAwardsInfo(Client, Database);
                         break;
                     case "getclaninfo.aspx":
-                        new GetClanInfo(Client);
+                        new GetClanInfo(Client, Database);
                         break;
                     case "getleaderboard.aspx":
-                        new GetLeaderBoard(Client);
+                        new GetLeaderBoard(Client, Database);
                         break;
                     case "getmapinfo.aspx":
-                        new GetMapInfo(Client);
+                        new GetMapInfo(Client, Database);
                         break;
                     case "getplayerid.aspx":
-                        new GetPlayerID(Client);
+                        new GetPlayerID(Client, Database);
                         break;
                     case "getplayerinfo.aspx":
-                        new GetPlayerInfo(Client);
+                        new GetPlayerInfo(Client, Database);
                         break;
                     case "getrankinfo.aspx":
-                        new GetRankInfo(Client);
+                        new GetRankInfo(Client, Database);
                         break;
                     case "getunlocksinfo.aspx":
-                        new GetUnlocksInfo(Client);
+                        new GetUnlocksInfo(Client, Database);
                         break;
                     case "ranknotification.aspx":
-                        new RankNotification(Client);
+                        new RankNotification(Client, Database);
                         break;
                     case "searchforplayers.aspx":
-                        new SearchForPlayers(Client);
+                        new SearchForPlayers(Client, Database);
                         break;
                     case "selectunlock.aspx":
-                        new SelectUnlock(Client);
+                        new SelectUnlock(Client, Database);
                         break;
                     default:
                         Client.Response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -296,17 +287,8 @@ namespace BF2Statistics.ASP
                 // Make sure a response is sent to prevent client hang
                 if (!Client.ResponseSent)
                     Client.Response.Send();
-            }
-        }
 
-        private static void Driver_ConnectionClosed(object sender, StateChangeEventArgs e)
-        {
-            // Try to reconnect
-            try {
-                Database.CheckConnection();
-            }
-            catch {
-                Stop();
+                Database.Dispose();
             }
         }
 

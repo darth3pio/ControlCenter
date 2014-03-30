@@ -8,9 +8,8 @@ namespace BF2Statistics.ASP.Requests
 {
     class CreatePlayer
     {
-        public CreatePlayer(HttpClient Client)
+        public CreatePlayer(HttpClient Client, StatsDatabase Driver)
         {
-            DatabaseDriver Driver = ASPServer.Database.Driver;
             int Pid;
 
             // make sure we have a valid player ID

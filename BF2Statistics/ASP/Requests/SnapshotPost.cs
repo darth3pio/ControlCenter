@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using BF2Statistics.Database;
 
 namespace BF2Statistics.ASP.Requests
 {
@@ -9,7 +10,7 @@ namespace BF2Statistics.ASP.Requests
     {
         public static event SnapshotRecieved SnapshotReceived;
 
-        public SnapshotPost(HttpClient Client)
+        public SnapshotPost(HttpClient Client, StatsDatabase Driver)
         {
             // First and foremost. Make sure that we are authorized to be here!
             IPEndPoint RemoteIP = Client.RemoteEndPoint;
@@ -71,8 +72,8 @@ namespace BF2Statistics.ASP.Requests
             }
 
             // Create our snapshot object and filename
-            string Snapshot;
-            Snapshot SnapObj;
+            string SnapshotData;
+            Snapshot Snapshot;
             string FileName = String.Empty;
             bool BackupCreated = false;
 
@@ -81,13 +82,13 @@ namespace BF2Statistics.ASP.Requests
             {
                 // Read Snapshot
                 using (StreamReader Reader = new StreamReader(Client.Request.InputStream, Client.Request.ContentEncoding))
-                    Snapshot = Reader.ReadToEnd();
+                    SnapshotData = Reader.ReadToEnd();
 
                 // Create the Snapshot Object
-                SnapObj = new Snapshot(Snapshot, DateTime.UtcNow);
+                Snapshot = new Snapshot(SnapshotData, DateTime.UtcNow, Driver);
 
                 // Make sure data is valid!
-                if (!SnapObj.IsValidSnapshot)
+                if (!Snapshot.IsValid)
                 {
                     Notify.Show("Error Processing Snapshot!", "Snapshot Data NOT Complete or Invalid!", AlertType.Warning);
                     Client.Response.WriteResponseStart(false);
@@ -109,13 +110,12 @@ namespace BF2Statistics.ASP.Requests
             try
             {
                 // Backup the snapshot
-                FileName = SnapObj.ServerPrefix + "-" + SnapObj.MapName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt";
-                File.AppendAllText(Path.Combine(Paths.SnapshotTempPath, FileName), Snapshot);
+                FileName = Snapshot.ServerPrefix + "-" + Snapshot.MapName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt";
+                File.AppendAllText(Path.Combine(Paths.SnapshotTempPath, FileName), SnapshotData);
                 BackupCreated = true;
             }
             catch (Exception E)
             {
-                BackupCreated = true;
                 ASPServer.Log("WARNING: Unable to create Snapshot Backup File: " + E.Message);
             }
 
@@ -129,11 +129,19 @@ namespace BF2Statistics.ASP.Requests
             try
             {
                 // Do the snapshot
-                SnapObj.Process();
+                Snapshot.Process();
 
                 // Move the Temp snapshot to the Processed folder
-                if(BackupCreated)
-                    File.Move(Path.Combine(Paths.SnapshotTempPath, FileName), Path.Combine(Paths.SnapshotProcPath, FileName));
+                if (BackupCreated)
+                {
+                    try {
+                        File.Move(Path.Combine(Paths.SnapshotTempPath, FileName), Path.Combine(Paths.SnapshotProcPath, FileName));
+                    }
+                    catch (Exception e) {
+                        ASPServer.Log("WARNING: [SnapshotFileOperations] " + e.Message);
+                        File.Delete(Path.Combine(Paths.SnapshotTempPath, FileName));
+                    }
+                }
 
                 // Notify User
                 Notify.Show("Snapshot Processed Successfully!", "From Server IP: " + RemoteIP.Address.ToString(), AlertType.Success);

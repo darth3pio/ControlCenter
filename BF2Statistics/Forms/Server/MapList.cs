@@ -8,35 +8,21 @@ using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
 using System.Xml;
+using FreeImageAPI;
 
 namespace BF2Statistics
 {
     public partial class MapList : Form
     {
         /// <summary>
-        /// An array of map names found in the servers "levels" folder
-        /// </summary>
-        private string[] ServerMaps;
-
-        /// <summary>
         /// An array of map names found in the clients "levels" folder
         /// </summary>
         private List<string> ClientMaps;
 
         /// <summary>
-        /// The full path to the current selected mod folder
+        /// The selected BF2 Map object
         /// </summary>
-        private string ModPath;
-
-        /// <summary>
-        /// The full path to the servers  current selected mod's "levels" folder
-        /// </summary>
-        private string LevelsPath;
-
-        /// <summary>
-        /// Full path to the maplist.con file for the selected mod
-        /// </summary>
-        private string MaplistFile;
+        private BF2Map SelectedMap;
 
         /// <summary>
         /// Specifies whether a map is currently selected in the form
@@ -44,9 +30,9 @@ namespace BF2Statistics
         private bool isMapSelected = false;
 
         /// <summary>
-        /// A dictionary, of each "GameMode" => List("Supported Map Sizes")
+        /// Contains the full sized bitmap image of the selected map
         /// </summary>
-        Dictionary<string, List<string>> GameModes;
+        protected Bitmap MapImage;
 
         /// <summary>
         /// Constructor
@@ -55,49 +41,27 @@ namespace BF2Statistics
         {
             InitializeComponent();
 
-            // Define our paths
-            ModPath = Path.Combine(MainForm.Config.ServerPath, "mods", MainForm.SelectedMod);
-            LevelsPath = Path.Combine(ModPath, "levels");
-            MaplistFile = Path.Combine(ModPath, "settings", "maplist.con");
+            // Define vars
             ClientMaps = new List<string>();
-
-            // Make sure maplist.con file exists!
-            if (!File.Exists(MaplistFile))
-            {
-                this.Load += new EventHandler(CloseOnStart);
-                MessageBox.Show("Maplist.con file is missing! Please make sure your server path is set properly", 
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            // Make sure the levels folder exists!
-            if (!Directory.Exists(LevelsPath))
-            {
-                this.Load += new EventHandler(CloseOnStart);
-                MessageBox.Show("The current selected mod does not contain a 'levels' folder. Please select a valid mod.", 
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            BF2Mod Mod = MainForm.SelectedMod;
 
             // Fetch all maps for the selected mod
-            ServerMaps = Directory.GetDirectories(LevelsPath);
-            foreach (string M in ServerMaps)
-                MapListSelect.Items.Add(new Item(M.Remove(0, LevelsPath.Length + 1), 1));
+            foreach (string Map in Mod.Levels)
+                MapListSelect.Items.Add(Map);
 
             // Get Client maps
             if (!String.IsNullOrEmpty(MainForm.Config.ClientPath))
             {
-                string P = Path.Combine(MainForm.Config.ClientPath, "mods", MainForm.SelectedMod, "levels");
+                string P = Path.Combine(MainForm.Config.ClientPath, "mods", Mod.Name, "levels");
                 if (Directory.Exists(P))
                 {
-                    string[] ClientDirs = Directory.GetDirectories(P);
-                    foreach (string Map in ClientDirs)
-                        ClientMaps.Add(Map.Remove(0, P.Length + 1).ToLower());
+                    foreach (string Map in Directory.GetDirectories(P))
+                        ClientMaps.Add(Map.Substring(P.Length + 1).ToLower());
                 }
             }
 
             // Get the current maplist and display it
-            MapListBox.Text = File.ReadAllText(MaplistFile).Trim();
+            MapListBox.Lines = Mod.MapList;
         }
 
         #region Events
@@ -109,6 +73,9 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void MapListSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
+            // Reset image
+            MapPictureBox.Image = null;
+
             // If an error occurs while loading the maps .desc file, then just return
             if (MapListSelect.SelectedIndex == -1)
                 return;
@@ -134,12 +101,44 @@ namespace BF2Statistics
                 AddToMapList.Enabled = false;
             }
 
-            // Load our current selected map
-            LoadMap();
+            // Try and load the map object... a common error here is that the
+            // Descriptor file containing illegal XML characters
+            try
+            {
+                string map = MapListSelect.SelectedItem.ToString();
+                SelectedMap = MainForm.SelectedMod.LoadMap(map);
+                isMapSelected = true;
+            }
+            catch (Exception E)
+            {
+                // Get our Inner exception message if its an InvalidMapException
+                // We do this because InvalidMapException doesnt really tell us the issue,
+                // but if there is an inner exception, we will have the issue.
+                string mess = (E is InvalidMapException && E.InnerException != null) 
+                    ? E.InnerException.Message 
+                    : E.Message;
+                MessageBox.Show("There was an error loading the map descriptor file"
+                    + Environment.NewLine + Environment.NewLine
+                    + "Message: " + mess,
+                    "Map Loading Error", MessageBoxButtons.OK, MessageBoxIcon.Warning
+                );
+
+                // Reset the GUI
+                MapListSelect.SelectedIndex = -1;
+                GameModeSelect.Enabled = false;
+                isMapSelected = false;
+            }
+
+            // If we have no map loaded, it failed
+            if (!isMapSelected)
+                return;
 
             // Add all map supported game modes to the GameMode select list
-            foreach (KeyValuePair<string, List<string>> Mode in GameModes)
+            foreach (KeyValuePair<string, List<string>> Mode in SelectedMap.GameModes)
                 GameModeSelect.Items.Add(new KeyValueItem(Mode.Key, GameModeToString(Mode.Key)));
+
+            // Set the default map gamemode
+            GameModeSelect.SelectedIndex = 0;
         }
 
         /// <summary>
@@ -168,23 +167,6 @@ namespace BF2Statistics
         }
 
         /// <summary>
-        /// Clears the current Maplist
-        /// </summary>
-        private void ClearButton_Click(object sender, EventArgs e)
-        {
-            MapListBox.Text = "";
-        }
-
-        /// <summary>
-        /// Saves the maplist to the maplist.com file
-        /// </summary>
-        private void SaveButton_Click(object sender, EventArgs e)
-        {
-            File.WriteAllLines(MaplistFile, MapListBox.Lines);
-            this.Close();
-        }
-
-        /// <summary>
         /// Event fired when the client selects a Map Gamemode
         /// </summary>
         private void GameModeSelect_SelectedIndexChanged(object sender, EventArgs e)
@@ -199,10 +181,10 @@ namespace BF2Statistics
 
             // Add all supported map sizes. If we donot have mapsize support, I assume
             // we are in a Sp1 mod.
-            if (GameModes[mode].Count > 0)
+            if (SelectedMap.GameModes[mode].Count > 0)
             {
-                foreach (string size in GameModes[mode])
-                    MapSizeSelect.Items.Add(new Item(size, 1));
+                foreach (string size in SelectedMap.GameModes[mode])
+                    MapSizeSelect.Items.Add(size);
 
                 MapSizeSelect.Enabled = true;
             }
@@ -211,25 +193,25 @@ namespace BF2Statistics
                 switch (mode)
                 {
                     case "sp1":
-                        MapSizeSelect.Items.Add(new Item("16", 1));
+                        MapSizeSelect.Items.Add("16");
                         break;
                     case "sp2":
-                        MapSizeSelect.Items.Add(new Item("32", 1));
+                        MapSizeSelect.Items.Add("32");
                         break;
                     case "sp3":
-                        MapSizeSelect.Items.Add(new Item("64", 1));
+                        MapSizeSelect.Items.Add("64");
                         break;
                     default:
-                        MapSizeSelect.Items.Add(new Item("16", 1));
-                        MapSizeSelect.Items.Add(new Item("32", 1));
-                        MapSizeSelect.Items.Add(new Item("64", 1));
+                        MapSizeSelect.Items.Add("16");
+                        MapSizeSelect.Items.Add("32");
+                        MapSizeSelect.Items.Add("64");
                         MapSizeSelect.Enabled = true;
                         break;
                 }
-
-                // Set default index
-                MapSizeSelect.SelectedIndex = 0;
             }
+
+            // Set default index
+            MapSizeSelect.SelectedIndex = 0;
         }
 
         /// <summary>
@@ -237,55 +219,120 @@ namespace BF2Statistics
         /// </summary>
         private void MapSizeSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
+            // Reset image
+            if (MapPictureBox.Image != null)
+            {
+                Bitmap Img = MapPictureBox.Image as Bitmap;
+                Img.Dispose();
+            }
+
+            // Dispose old image
+            if (MapImage != null)
+                MapImage.Dispose();
+
+            // Enable add button
             AddToMapList.Enabled = true;
+
+            // Load map image
+            // Get Values
+            string map = MapListSelect.SelectedItem.ToString();
+            string mode = ((KeyValueItem)GameModeSelect.SelectedItem).Key;
+            string size = MapSizeSelect.SelectedItem.ToString();
+            string ImgPath = Path.Combine(SelectedMap.RootPath, "Info", mode + "_" + size + "_menumap.png");
+
+            // Alot of server files dont contain the map image files, so search the client if we need to
+            if (!File.Exists(ImgPath))
+            {
+                if (!String.IsNullOrWhiteSpace(MainForm.Config.ClientPath))
+                {
+                    ImgPath = Path.Combine(SelectedMap.RootPath, "Info", mode + "_" + size + "_menumap.png");
+
+                    // If the client doesnt have the image either, then Oh well :(
+                    if (!File.Exists(ImgPath))
+                        ImgPath = null;
+                }
+                else
+                    ImgPath = null;
+            }
+
+            // Load the image if we have one
+            if (ImgPath != null)
+            {
+                // Attempt to load image as a DDS file
+                FREE_IMAGE_FORMAT Format = FREE_IMAGE_FORMAT.FIF_UNKNOWN;
+                MapImage = FreeImage.LoadBitmap(ImgPath, FREE_IMAGE_LOAD_FLAGS.DEFAULT, ref Format);
+
+                // If we have an image bitmap, display it :D
+                if (MapImage != null)
+                {
+                    MapPictureBox.Image = new Bitmap(MapImage, 250, 250);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Event fired when the map image is clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MapPictureBox_DoubleClick(object sender, EventArgs e)
+        {
+            if (MapListSelect.SelectedIndex != -1 && MapPictureBox.Image != null)
+            {
+                ImageForm F = new ImageForm(MapImage);
+                F.ShowDialog();
+            }
+        }
+
+        /// <summary>
+        /// Clears the current Maplist
+        /// </summary>
+        private void ClearButton_Click(object sender, EventArgs e)
+        {
+            MapListBox.Text = "";
+        }
+
+        /// <summary>
+        /// Cancels any changes made to the maplist, and closes the form
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CancelBtn_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        /// <summary>
+        /// Shuffles the maps listed in the MapList box
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RandomizeBtn_Click(object sender, EventArgs e)
+        {
+            Random rnd = new Random();
+            MapListBox.Lines = MapListBox.Lines.OrderBy(line => rnd.Next()).ToArray();
+        }
+
+        /// <summary>
+        /// Saves the maplist to the maplist.com file
+        /// </summary>
+        private void SaveButton_Click(object sender, EventArgs e)
+        {
+            // Make sure we have something in the maplist!
+            if (String.IsNullOrWhiteSpace(MapListBox.Text))
+            {
+                MessageBox.Show("You must at least have 1 map before saving the maplist!", "User Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Save and close
+            MainForm.SelectedMod.MapList = MapListBox.Lines;
+            this.Close();
         }
 
         #endregion
 
         #region Helper Methods
-
-        /// <summary>
-        /// Method for loading the Map Desc file, which holds all the gamemode
-        /// and map size information for the selected map
-        /// </summary>
-        private void LoadMap()
-        {
-            // Initialize new GameModes and MapSizes
-            GameModes = new Dictionary<string, List<string>>();
-            string map = MapListSelect.SelectedItem.ToString();
-
-            try
-            {
-                // Load the map description file
-                XmlDocument Doc = new XmlDocument();
-                Doc.Load(Path.Combine(LevelsPath, map, "Info", map + ".desc"));
-
-                // Get a list of supported modes, and add them to the GameModes and Mode Sizes variables
-                XmlNodeList Modes = Doc.GetElementsByTagName("mode");
-                foreach (XmlNode m in Modes)
-                {
-                    string mode = m.Attributes["type"].InnerText;
-                    List<string> temp = new List<string>();
-                    foreach (XmlNode c in m.ChildNodes)
-                        temp.Add(c.Attributes["players"].InnerText);
-
-                    GameModes.Add(mode, temp);
-                }
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show("There was an error loading the map descriptor file"
-                    + Environment.NewLine + Environment.NewLine
-                    + "Message: " + e.Message, 
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning
-                );
-
-                // Reset the GUI
-                MapListSelect.SelectedIndex = -1;
-                GameModeSelect.Enabled = false;
-                isMapSelected = false;
-            }
-        }
 
         /// <summary>
         /// Parses a maplist.con game mode variable into a human readable one.

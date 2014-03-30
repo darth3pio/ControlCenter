@@ -49,5 +49,26 @@ namespace BF2Statistics
                 }
             }
         }
+
+        public static void Delete(string path)
+        {
+            DirectoryInfo Dir = new DirectoryInfo(path);
+            Delete(Dir);
+        }
+
+        public static void Delete(FileSystemInfo fileSystemInfo)
+        {
+            DirectoryInfo Dir = fileSystemInfo as DirectoryInfo;
+            if (Dir != null)
+            {
+                foreach (FileSystemInfo Child in Dir.GetFileSystemInfos())
+                {
+                    Delete(Child);
+                }
+            }
+
+            // Delete the root info
+            fileSystemInfo.Delete();
+        }
     }
 }

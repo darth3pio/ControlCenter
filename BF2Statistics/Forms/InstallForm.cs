@@ -125,7 +125,7 @@ namespace BF2Statistics
             // Make sure the server path is not empty
             if (String.IsNullOrWhiteSpace(ServerPath.Text))
             {
-                MessageBox.Show("You must set the server path before continuing.");
+                MessageBox.Show("You must set the server path before proceeding.");
                 return;
             }
 

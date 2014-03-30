@@ -12,9 +12,9 @@ namespace BF2Statistics
     public partial class BF2sConfig : Form
     {
         /// <summary>
-        /// Path to the BF2StatisticsConfig.py file
+        /// The BF2StatisticsConfig.py file object
         /// </summary>
-        private string CFile = Path.Combine(MainForm.Config.ServerPath, "python", "bf2", "BF2StatisticsConfig.py");
+        private FileInfo CFile;
 
         /// <summary>
         /// Path to the python stats folder
@@ -35,8 +35,11 @@ namespace BF2Statistics
         {
             InitializeComponent();
 
+            // Create our file object
+            CFile = new FileInfo(Path.Combine(MainForm.Config.ServerPath, "python", "bf2", "BF2StatisticsConfig.py"));
+
             // Make sure path exists!
-            if (!File.Exists(CFile))
+            if (!CFile.Exists)
             {
                 this.Load += new EventHandler(CloseOnStart);
                 MessageBox.Show("Bf2Statistics Config python file is missing! Please re-install the stats python", "Error");
@@ -70,7 +73,26 @@ namespace BF2Statistics
                 i++;
             }
 
-            LoadConfig();
+            // Use the stream reader to load the config
+            try
+            {
+                using (Stream Str = CFile.Open(FileMode.Open, FileAccess.ReadWrite))
+                using (StreamReader Rdr = new StreamReader(Str))
+                    FileContents = Rdr.ReadToEnd();
+
+                LoadConfig();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(
+                    "Unable to Read/Write to the Bf2Statistics Config python file:" + Environment.NewLine
+                    + Environment.NewLine + "Error: " + e.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning
+                    );
+
+                this.Load += new EventHandler(CloseOnStart);
+                return;
+            }
         }
 
         /// <summary>
@@ -78,7 +100,6 @@ namespace BF2Statistics
         /// </summary>
         private void LoadConfig()
         {
-            FileContents = File.ReadAllText(CFile);
             Match Match;
             int dummy;
 
@@ -335,7 +356,15 @@ namespace BF2Statistics
             FileContents = Regex.Replace(FileContents, @"'banned',[\s|\t]+([0-9]+)", String.Format("'banned', {0}", CmGlobalTime.Value));
             FileContents = Regex.Replace(FileContents, @"'country',[\s|\t]+'([A_Za-z]*)'", String.Format("'country', '{0}'", CmCountry.Text));
             FileContents = Regex.Replace(FileContents, @"'rank',[\s|\t]+([0-9]+)", String.Format("'rank', {0}", CmMinRank.SelectedIndex));
-            File.WriteAllText(CFile, FileContents);
+            
+            // Save File
+            using (Stream Str = CFile.Open(FileMode.Truncate, FileAccess.Write))
+            using (StreamWriter Wtr = new StreamWriter(Str))
+            {
+                Wtr.Write(FileContents);
+                Wtr.Flush();
+            }
+
             this.Close();
         }
 

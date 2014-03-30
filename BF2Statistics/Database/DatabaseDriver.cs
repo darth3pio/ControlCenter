@@ -13,7 +13,7 @@ using MySql.Data.MySqlClient;
 
 namespace BF2Statistics.Database
 {
-    public class DatabaseDriver
+    public class DatabaseDriver : IDisposable
     {
         /// <summary>
         /// Current DB Engine
@@ -23,13 +23,7 @@ namespace BF2Statistics.Database
         /// <summary>
         /// The database connection
         /// </summary>
-        protected DbConnection Connection = null;
-
-        /// <summary>
-        /// Only applies to SQLite databases, used to determine whether or not
-        /// the specified file already existed prior to attempting the connection.
-        /// </summary>
-        public bool IsNewDatabase { get; protected set; }
+        public DbConnection Connection { get; protected set; }
 
         /// <summary>
         /// Returns whether the Database connection is open
@@ -40,14 +34,12 @@ namespace BF2Statistics.Database
         }
 
         /// <summary>
-        /// Event Fired if the DB connection goes offline
+        /// Returns the current conenction state of the database
         /// </summary>
-        public event StateChangeEventHandler ConnectionClosed;
-
-        /// <summary>
-        /// Event Fired if the DB connection is established
-        /// </summary>
-        public event StateChangeEventHandler ConnectionEstablshed;
+        public ConnectionState State
+        {
+            get { return Connection.State; }
+        }
 
         /// <summary>
         /// Random, yes... But its used here when building queries dynamically
@@ -71,21 +63,26 @@ namespace BF2Statistics.Database
 
             if (this.DatabaseEngine == DatabaseEngine.Sqlite)
             {
+                // Get the file info of the database, and see if its a new DB
                 string FullPath = Path.Combine(MainForm.Root, DatabaseName + ".sqlite3");
-                IsNewDatabase = !File.Exists(FullPath) || new FileInfo(FullPath).Length == 0;
+                if(!File.Exists(FullPath))
+                    File.Open(FullPath, FileMode.OpenOrCreate).Close();
+
+                // Create the connection
                 Builder = new SQLiteConnectionStringBuilder();
                 Builder.Add("Data Source", FullPath);
                 Connection = new SQLiteConnection(Builder.ConnectionString);
             }
             else if (this.DatabaseEngine == DatabaseEngine.Mysql)
             {
-                IsNewDatabase = false;
+                // Create the connection
                 Builder = new MySqlConnectionStringBuilder();
                 Builder.Add("Server", Host);
                 Builder.Add("Port", Port);
                 Builder.Add("User ID", User);
                 Builder.Add("Password", Pass);
                 Builder.Add("Database", DatabaseName);
+                Builder.Add("Convert Zero Datetime", "true");
                 Connection = new MySqlConnection(Builder.ConnectionString);
             }
             else
@@ -95,12 +92,45 @@ namespace BF2Statistics.Database
         }
 
         /// <summary>
+        /// Destructor
+        /// </summary>
+        ~DatabaseDriver()
+        {
+            Close();
+        }
+
+        /// <summary>
+        /// Disposes the DB connection
+        /// </summary>
+        public void Dispose()
+        {
+            if(Connection != null)
+            {
+                try
+                {
+                    Close();
+                    Connection.Dispose();
+                }
+                catch (ObjectDisposedException) { }
+            }
+        }
+
+        /// <summary>
         /// Opens the database connection
         /// </summary>
         public void Connect()
         {
-            Connection.StateChange += new StateChangeEventHandler(Connection_StateChange);
-            Connection.Open();
+            if (Connection.State != ConnectionState.Open)
+            {
+                try
+                {
+                    Connection.Open();
+                }
+                catch (Exception e)
+                {
+                    throw new DbConnectException("Unable to etablish database connection", e);
+                }
+            }
         }
 
         /// <summary>
@@ -108,12 +138,9 @@ namespace BF2Statistics.Database
         /// </summary>
         public void Close()
         {
-            try
-            {
-                Connection.Close();
-
-                // Yes, this below the close is intentional
-                Connection.StateChange -= new StateChangeEventHandler(Connection_StateChange);
+            try {
+                if (Connection.State != ConnectionState.Closed)
+                    Connection.Close();
             }
             catch (ObjectDisposedException) { }
         }
@@ -182,35 +209,37 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public List<Dictionary<string, object>> Query(string Sql, List<DbParameter> Params)
         {
-            // Create the SQL Command
-            DbCommand Command = this.CreateCommand(Sql);
-
-            // Add params
-            foreach (DbParameter Param in Params)
-                Command.Parameters.Add(Param);
-
-            // Execute the query
+            // Create our Rows result
             List<Dictionary<string, object>> Rows = new List<Dictionary<string, object>>();
-            DbDataReader Reader = Command.ExecuteReader();
 
-            // If we have rows, add them to the list
-            if (Reader.HasRows)
+            // Create the SQL Command
+            using (DbCommand Command = this.CreateCommand(Sql))
             {
-                // Add each row to the rows list
-                while (Reader.Read())
-                {
-                    Dictionary<string, object> Row = new Dictionary<string, object>(Reader.FieldCount);
-                    for (int i = 0; i < Reader.FieldCount; ++i)
-                        Row.Add(Reader.GetName(i), Reader.GetValue(i));
+                // Add params
+                foreach (DbParameter Param in Params)
+                    Command.Parameters.Add(Param);
 
-                    Rows.Add(Row);
+                // Execute the query
+                using (DbDataReader Reader = Command.ExecuteReader())
+                {
+                    // If we have rows, add them to the list
+                    if (Reader.HasRows)
+                    {
+                        // Add each row to the rows list
+                        while (Reader.Read())
+                        {
+                            Dictionary<string, object> Row = new Dictionary<string, object>(Reader.FieldCount);
+                            for (int i = 0; i < Reader.FieldCount; ++i)
+                                Row.Add(Reader.GetName(i), Reader.GetValue(i));
+
+                            Rows.Add(Row);
+                        }
+                    }
+
+                    // Cleanup
+                    Reader.Close();
                 }
             }
-
-            // Cleanup
-            Reader.Close();
-            Reader.Dispose();
-            Command.Dispose();
 
             // Return Rows
             return Rows;
@@ -223,30 +252,27 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public IEnumerable<Dictionary<string, object>> QueryReader(string Sql)
         {
-            // Create the SQL Command
-            DbCommand Command = this.CreateCommand(Sql);
-
-            // Execute the query
-            DbDataReader Reader = Command.ExecuteReader();
-
-            // If we have rows, add them to the list
-            if (Reader.HasRows)
+            // Create the SQL Command, and execute the reader
+            using (DbCommand Command = this.CreateCommand(Sql))
+            using (DbDataReader Reader = Command.ExecuteReader())
             {
-                // Add each row to the rows list
-                while (Reader.Read())
+                // If we have rows, add them to the list
+                if (Reader.HasRows)
                 {
-                    Dictionary<string, object> Row = new Dictionary<string, object>(Reader.FieldCount);
-                    for (int i = 0; i < Reader.FieldCount; ++i)
-                        Row.Add(Reader.GetName(i), Reader.GetValue(i));
+                    // Add each row to the rows list
+                    while (Reader.Read())
+                    {
+                        Dictionary<string, object> Row = new Dictionary<string, object>(Reader.FieldCount);
+                        for (int i = 0; i < Reader.FieldCount; ++i)
+                            Row.Add(Reader.GetName(i), Reader.GetValue(i));
 
-                    yield return Row;
+                        yield return Row;
+                    }
                 }
-            }
 
-            // Cleanup
-            Reader.Close();
-            Reader.Dispose();
-            Command.Dispose();
+                // Cleanup
+                Reader.Close();
+            }
         }
 
         /// <summary>
@@ -257,26 +283,26 @@ namespace BF2Statistics.Database
         public IEnumerable<Dictionary<string, object>> QueryReader(DbCommand Command)
         {
             // Execute the query
-            DbDataReader Reader = Command.ExecuteReader();
-
-            // If we have rows, add them to the list
-            if (Reader.HasRows)
+            using (Command)
+            using (DbDataReader Reader = Command.ExecuteReader())
             {
-                // Add each row to the rows list
-                while (Reader.Read())
+                // If we have rows, add them to the list
+                if (Reader.HasRows)
                 {
-                    Dictionary<string, object> Row = new Dictionary<string, object>(Reader.FieldCount);
-                    for (int i = 0; i < Reader.FieldCount; ++i)
-                        Row.Add(Reader.GetName(i), Reader.GetValue(i));
+                    // Add each row to the rows list
+                    while (Reader.Read())
+                    {
+                        Dictionary<string, object> Row = new Dictionary<string, object>(Reader.FieldCount);
+                        for (int i = 0; i < Reader.FieldCount; ++i)
+                            Row.Add(Reader.GetName(i), Reader.GetValue(i));
 
-                    yield return Row;
+                        yield return Row;
+                    }
                 }
-            }
 
-            // Cleanup
-            Reader.Close();
-            Reader.Dispose();
-            Command.Dispose();
+                // Cleanup
+                Reader.Close();
+            }
         }
 
 
@@ -289,26 +315,27 @@ namespace BF2Statistics.Database
         {
             // Execute the query
             List<Dictionary<string, object>> Rows = new List<Dictionary<string, object>>();
-            DbDataReader Reader = Command.ExecuteReader();
 
-            // If we have rows, add them to the list
-            if (Reader.HasRows)
+            using (Command)
+            using (DbDataReader Reader = Command.ExecuteReader())
             {
-                // Add each row to the rows list
-                while (Reader.Read())
+                // If we have rows, add them to the list
+                if (Reader.HasRows)
                 {
-                    Dictionary<string, object> Row = new Dictionary<string, object>(Reader.FieldCount);
-                    for (int i = 0; i < Reader.FieldCount; ++i)
-                        Row.Add(Reader.GetName(i), Reader.GetValue(i));
+                    // Add each row to the rows list
+                    while (Reader.Read())
+                    {
+                        Dictionary<string, object> Row = new Dictionary<string, object>(Reader.FieldCount);
+                        for (int i = 0; i < Reader.FieldCount; ++i)
+                            Row.Add(Reader.GetName(i), Reader.GetValue(i));
 
-                    Rows.Add(Row);
+                        Rows.Add(Row);
+                    }
                 }
-            }
 
-            // Cleanup
-            Reader.Close();
-            Reader.Dispose();
-            Command.Dispose();
+                // Cleanup
+                Reader.Close();
+            }
 
             // Return Rows
             return Rows;
@@ -322,13 +349,8 @@ namespace BF2Statistics.Database
         public int Execute(string Sql)
         {
             // Create the SQL Command
-            DbCommand Command = this.CreateCommand(Sql);
-
-            // Execute command, and dispose of the command
-            int Result = Command.ExecuteNonQuery();
-            Command.Dispose();
-
-            return Result;
+            using (DbCommand Command = this.CreateCommand(Sql))
+                return Command.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -340,17 +362,15 @@ namespace BF2Statistics.Database
         public int Execute(string Sql, List<DbParameter> Params)
         {
             // Create the SQL Command
-            DbCommand Command = this.CreateCommand(Sql);
+            using (DbCommand Command = this.CreateCommand(Sql))
+            {
+                // Add params
+                foreach (DbParameter Param in Params)
+                    Command.Parameters.Add(Param);
 
-            // Add params
-            foreach (DbParameter Param in Params)
-                Command.Parameters.Add(Param);
-
-            // Execute command, and dispose of the command
-            int Result = Command.ExecuteNonQuery();
-            Command.Dispose();
-
-            return Result;
+                // Execute command, and dispose of the command
+                return Command.ExecuteNonQuery();
+            }
         }
 
         /// <summary>
@@ -364,22 +384,20 @@ namespace BF2Statistics.Database
         public int Execute(string Sql, params object[] Items)
         {
             // Create the SQL Command
-            DbCommand Command = this.CreateCommand(Sql);
-
-            // Add params
-            for (int i = 0; i < Items.Length; i++)
+            using (DbCommand Command = this.CreateCommand(Sql))
             {
-                DbParameter Param = this.CreateParam();
-                Param.ParameterName = "@P" + i;
-                Param.Value = Items[i];
-                Command.Parameters.Add(Param);
+                // Add params
+                for (int i = 0; i < Items.Length; i++)
+                {
+                    DbParameter Param = this.CreateParam();
+                    Param.ParameterName = "@P" + i;
+                    Param.Value = Items[i];
+                    Command.Parameters.Add(Param);
+                }
+
+                // Execute command, and dispose of the command
+                return Command.ExecuteNonQuery();
             }
-
-            // Execute command, and dispose of the command
-            int Result = Command.ExecuteNonQuery();
-            Command.Dispose();
-
-            return Result;
         }
 
         /// <summary>
@@ -409,26 +427,6 @@ namespace BF2Statistics.Database
         public static DatabaseEngine GetDatabaseEngine(string Name)
         {
             return ((DatabaseEngine)Enum.Parse(typeof(DatabaseEngine), Name, true));
-        }
-
-        /// <summary>
-        /// Event fired when the connection is closed
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Connection_StateChange(object sender, StateChangeEventArgs e)
-        {
-            switch (Connection.State)
-            {
-                case ConnectionState.Closed:
-                    if (ConnectionClosed != null)
-                        ConnectionClosed(sender, e);
-                    break;
-                case ConnectionState.Open:
-                    if (ConnectionEstablshed != null)
-                        ConnectionEstablshed(sender, e);
-                    break;
-            }
         }
     }
 }

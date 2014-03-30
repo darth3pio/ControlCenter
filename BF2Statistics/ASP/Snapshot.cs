@@ -19,7 +19,7 @@ namespace BF2Statistics.ASP
         /// <summary>
         /// Database driver
         /// </summary>
-        private DatabaseDriver Driver;
+        private StatsDatabase Driver;
 
         /// <summary>
         /// Debug log file
@@ -29,7 +29,7 @@ namespace BF2Statistics.ASP
         /// <summary>
         /// Returns whether the snapshot data appears to be valid, and contain no obvious errors
         /// </summary>
-        public bool IsValidSnapshot { get; protected set; }
+        public bool IsValid { get; protected set; }
 
         /// <summary>
         /// Is this a central update snapshot?
@@ -156,10 +156,10 @@ namespace BF2Statistics.ASP
         /// </summary>
         /// <param name="Snapshot">The snapshot source</param>
         /// <param name="Date">The original date in which this snapshot was created</param>
-        public Snapshot(string Snapshot, DateTime Date)
+        public Snapshot(string Snapshot, DateTime Date, StatsDatabase Database)
         {
             // Load out database connection
-            this.Driver = ASPServer.Database.Driver;
+            this.Driver = Database;
             this.Date = Date;
             this.TimeStamp = Date.ToUnixTimestamp();
 
@@ -167,22 +167,16 @@ namespace BF2Statistics.ASP
             string[] Data = Snapshot.Split('\\');
             Snapshot = null;
 
-            // Check for invalid snapshot string
-            if (Data.Length < 36 || Data.Length % 2 != 0)
+            // Check for invalid snapshot string. All snapshots have at least 36 data pairs, 
+            // and has an Even number of data sectors. We must also have an "End of File" Sector
+            if (Data.Length < 36 || Data.Length % 2 != 0 || !Data.Contains("EOF"))
             {
-                IsValidSnapshot = false;
+                IsValid = false;
                 return;
             }
 
-            // Make sure we have an End of file
-            if (Data[Data.Length - 2] != "EOF" && Data[Data.Length - 4] != "EOF")
-            {
-                IsValidSnapshot = false;
-                return;
-            }
-
-            // Define if we are central update
-            this.IsCentralUpdate = (Data[Data.Length - 2] == "cdb_update");
+            // Define if we are central update. the "cdb_update" variable must be the LAST sector in snapshot
+            this.IsCentralUpdate = (Data[Data.Length - 2] == "cdb_update" && Data[Data.Length - 1] == "1");
 
             // Server data
             this.ServerPrefix = Data[0];
@@ -218,45 +212,47 @@ namespace BF2Statistics.ASP
             {
                 IsCustomMap = true;
 
-                // Check for existing data
+                // Check for existing map data
                 List<Dictionary<string, object>> Rows = Driver.Query("SELECT id FROM mapinfo WHERE name=@P0", MapName);
                 if (Rows.Count == 0)
                 {
-                    // Create new MapId
-                    Rows = Driver.Query("SELECT MAX(id) AS id FROM mapinfo WHERE id >= " + MainForm.Config.ASP_CustomMapID);
+                    // Create new MapId. Id's 700 - 1000 are reserved for unknown maps in the Constants.py file
+                    // There should never be more then 300 unknown map id's, considering 1001 is the start of KNOWN
+                    // Custom mod map id's
+                    Rows = Driver.Query("SELECT MAX(id) AS id FROM mapinfo WHERE id BETWEEN 700 AND 1000");
                     MapId = (Rows.Count == 0 || String.IsNullOrWhiteSpace(Rows[0]["id"].ToString())) 
-                        ? MainForm.Config.ASP_CustomMapID 
+                        ? 700
                         : (Int32.Parse(Rows[0]["id"].ToString()) + 1);
 
-                    // make sure the mapid is at least the min custom map id
-                    if (MapId < MainForm.Config.ASP_CustomMapID)
-                        MapId = MainForm.Config.ASP_CustomMapID;
-
                     // Insert map data, so we dont lose this mapid we generated
-                    if (Rows.Count == 0 || MapId == MainForm.Config.ASP_CustomMapID)
-                        Driver.Execute("INSERT INTO mapinfo(id, name) VALUES (@P0, @P1)", MapId, MapName);
+                    Driver.Execute("INSERT INTO mapinfo(id, name) VALUES (@P0, @P1)", MapId, MapName);
                 }
                 else
                     MapId = Int32.Parse(Rows[0]["id"].ToString());
             }
             else
-                IsCustomMap = (MapId > MainForm.Config.ASP_CustomMapID);
+                IsCustomMap = (MapId >= 700);
 
-            // Do player snapshots, 36 is first player
+            // Do player snapshots, sector 36 is first player
             for (int i = 36; i < Data.Length; i += 2)
             {
+                // Format: "DataKey_PlayerId". PlayerId is not the PID, but rather
+                // the player INDEX
                 string[] Parts = Data[i].Split('_');
 
                 // Ignore uncomplete snapshots
                 if (Parts.Length == 1)
                 {
+                    // Unless we are at the end of file, IF there is no PID
+                    // Given for an item, the snapshot is invalid!
                     if (Parts[0] == "EOF")
                         break;
                     else
-                        IsValidSnapshot = false;
+                        IsValid = false;
                     return;
                 }
 
+                // If the item key is "pID", then we have a new player record
                 int id = int.Parse(Parts[1]);
                 if (Parts[0] == "pID")
                 {
@@ -275,17 +271,17 @@ namespace BF2Statistics.ASP
             }
 
             // Set that we appear to be valid
-            IsValidSnapshot = true;
+            IsValid = true;
         }
 
         /// <summary>
-        /// Processes the snapshot data, inserted and updating player data.
+        /// Processes the snapshot data, inserted and updating player data in the gamespy database
         /// </summary>
         /// <exception cref="InvalidDataException">Thrown if the snapshot data is invalid</exception>
         public void Process()
         {
             // Make sure we are valid, or throw exception!
-            if (!IsValidSnapshot)
+            if (!IsValid)
                 throw new InvalidDataException("Invalid Snapshot data!");
 
             // Begin Logging
@@ -301,7 +297,7 @@ namespace BF2Statistics.ASP
             if (PlayerData.Count < MainForm.Config.ASP_MinRoundPlayers)
             {
                 Log("Minimum round Player count does not meet the ASP requirement... Aborting", LogLevel.Warning);
-                return;
+                throw new Exception("Minimum round Player count does not meet the ASP requirement");
             }
 
             // Start a timer!
@@ -1047,20 +1043,16 @@ namespace BF2Statistics.ASP
                 }
                 catch (Exception E)
                 {
-                    try {
-                        Transaction.Rollback();
-                    }
-                    catch { }
-
                     // Log error
                     Log("An error occured while commiting player changes: " + E.Message, LogLevel.Error);
-                    return;
+                    throw;
                 }
             }
             catch(Exception E)
             {
                 Log("An error occured while updating player stats: " + E.Message, LogLevel.Error);
                 Transaction.Rollback();
+                throw;
             }
 
             // ********************************
@@ -1174,7 +1166,7 @@ namespace BF2Statistics.ASP
             foreach (BackendAward Award in AwardData.BackendAwards)
             {
                 int Level;
-                if (Award.CriteriaMet(Pid, out Level))
+                if (Award.CriteriaMet(Pid, Driver, out Level))
                     Found.Add(Award.AwardId, Level);
             }
             return Found;
@@ -1215,10 +1207,10 @@ namespace BF2Statistics.ASP
                         // Change current SMOC rank back to SGM
                         Driver.Execute("UPDATE player SET rank=10, chng=0, decr=1 WHERE id =" + Sid);
 
-                        // Award new SGMOC award
+                        // Award new SMOC award
                         Driver.Execute("INSERT INTO awards(id,awd,earned) VALUES(@P0,@P1,@P2)", Id, 6666666, TimeStamp);
 
-                        // Update new SGMOC's rank
+                        // Update new SMOC's rank
                         Driver.Execute("UPDATE player SET rank=11, chng=1, decr=0 WHERE id =" + Id);
                     }
                 }

@@ -6,10 +6,9 @@ namespace BF2Statistics.ASP.Requests
 {
     class SearchForPlayers
     {
-        public SearchForPlayers(HttpClient Client)
+        public SearchForPlayers(HttpClient Client, StatsDatabase Driver)
         {
             string Nick;
-            DatabaseDriver Driver = ASPServer.Database.Driver;
             List<Dictionary<string, object>> Rows;
 
             // Setup Params

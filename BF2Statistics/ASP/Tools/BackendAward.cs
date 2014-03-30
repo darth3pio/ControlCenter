@@ -33,10 +33,9 @@ namespace BF2Statistics.ASP
         /// <param name="Pid">The player ID</param>
         /// <param name="Level">The award level if the criteria is met</param>
         /// <returns></returns>
-        public bool CriteriaMet(int Pid, out int Level)
+        public bool CriteriaMet(int Pid, StatsDatabase Driver, out int Level)
         {
             // Prepare variables
-            DatabaseDriver Driver = ASPServer.Database.Driver;
             List<Dictionary<string, object>> Rows;
 
             // See if the player has the award already

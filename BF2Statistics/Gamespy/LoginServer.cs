@@ -45,7 +45,7 @@ namespace BF2Statistics.Gamespy
         /// <summary>
         /// The Login Server Log Writter
         /// </summary>
-        private static LogWritter Logger = new LogWritter(Path.Combine(MainForm.Root, "Logs", "LoginServer.log"), 3000);
+        private static LogWritter Logger;
 
         /// <summary>
         /// Event that is fired when the login server is started
@@ -64,6 +64,8 @@ namespace BF2Statistics.Gamespy
 
         static LoginServer()
         {
+            // Create our log file, and register for events
+            Logger = new LogWritter(Path.Combine(MainForm.Root, "Logs", "LoginServer.log"), 3000);
             GpcmServer.OnClientsUpdate += new EventHandler(CmServer_OnUpdate);
         }
 
@@ -73,42 +75,28 @@ namespace BF2Statistics.Gamespy
         public static void Start()
         {
             // Make sure we arent already running!
-            if (isRunning)
-                return;
+            if (isRunning) return;
 
             // Start the DB Connection
-            try {
-                Database = new GamespyDatabase();
-            }
-            catch (Exception E) {
-                Notify.Show("Failed to Start Login Server!", E.Message, AlertType.Warning);
-                throw E;
-            }
+            Database = new GamespyDatabase();
 
             // Bind gpcm server on port 29900
-            try {
+            int port = 29900;
+            try 
+            {
                 CmServer = new GpcmServer();
-            }
-            catch (Exception E) {
-                Notify.Show(
-                    "Failed to Start Login Server!", 
-                    "Error binding to port 29900: " + Environment.NewLine + E.Message, 
-                    AlertType.Warning
-                );
-                throw E;
-            }
-
-            // Bind gpsp server on port 29901
-            try {
+                port++;
                 SpServer = new GpspServer();
             }
-            catch (Exception E) {
+            catch (Exception E) 
+            {
                 Notify.Show(
-                    "Failed to Start Login Server!",
-                    "Error binding to port 29901: " + Environment.NewLine + E.Message,
+                    "Failed to Start Login Server!", 
+                    "Error binding to port " + port + ": " + Environment.NewLine + E.Message, 
                     AlertType.Warning
                 );
-                throw E;
+                Database.Dispose();
+                throw;
             }
 
             // Let the client know we are ready for connections
@@ -136,7 +124,7 @@ namespace BF2Statistics.Gamespy
             SpServer.Shutdown();
 
             // Close the database connection
-            Database.Close();
+            Database.Dispose();
 
             // Trigger the OnShutdown Event
             OnShutdown();

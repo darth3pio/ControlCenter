@@ -22,12 +22,12 @@ namespace BF2Statistics.ASP.Requests
         private int Min;
         private int Max;
 
-        public GetLeaderBoard(HttpClient Client)
+        public GetLeaderBoard(HttpClient Client, StatsDatabase Database)
         {
             // Set internal variables
             this.Response = Client.Response;
             this.QueryString = Client.Request.QueryString;
-            this.Driver = ASPServer.Database.Driver;
+            this.Driver = Database;
 
             // We need a type!
             if (!QueryString.ContainsKey("type"))

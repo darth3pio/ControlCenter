@@ -15,6 +15,13 @@ namespace BF2Statistics
         {
             InitializeComponent();
 
+            // Update for 1.7.0 .. to fix an issue with older versions
+            if (MainForm.Config.ASP_DebugLevel == 0)
+            {
+                MainForm.Config.ASP_DebugLevel = 1;
+                MainForm.Config.Save();
+            }
+
             // Set Form Values
             IgnoreAi.SelectedIndex = (MainForm.Config.ASP_IgnoreAI) ? 1 : 0;
             MinRoundTime.Value = MainForm.Config.ASP_MinRoundTime;
@@ -28,7 +35,7 @@ namespace BF2Statistics
             CustMapId.Value = MainForm.Config.ASP_CustomMapID;
             OfflinePid.Value = MainForm.Config.ASP_DefaultPID;
             UnlocksOption.SelectedIndex = MainForm.Config.ASP_UnlocksMode;
-            DebugLvl.SelectedIndex = MainForm.Config.ASP_DebugLevel;
+            DebugLvl.SelectedIndex = MainForm.Config.ASP_DebugLevel - 1;
         }
 
         /// <summary>
@@ -47,11 +54,11 @@ namespace BF2Statistics
             MainForm.Config.ASP_SmocCheck = (SmocProcessing.SelectedIndex == 1);
             MainForm.Config.ASP_GeneralCheck = (GeneralProcessing.SelectedIndex == 1);
             MainForm.Config.ASP_AwardsReqComplete = (AwdRoundComplete.SelectedIndex == 1);
-            MainForm.Config.ASP_GameHosts = AuthGameServers.Text.Replace(Environment.NewLine, ",");
+            MainForm.Config.ASP_GameHosts = String.Join(",", AuthGameServers.Lines);
             MainForm.Config.ASP_CustomMapID = Int32.Parse(CustMapId.Value.ToString());
             MainForm.Config.ASP_DefaultPID = Int32.Parse(OfflinePid.Value.ToString());
             MainForm.Config.ASP_UnlocksMode = UnlocksOption.SelectedIndex;
-            MainForm.Config.ASP_DebugLevel = DebugLvl.SelectedIndex;
+            MainForm.Config.ASP_DebugLevel = DebugLvl.SelectedIndex + 1;
 
             // Save Config
             MainForm.Config.Save();

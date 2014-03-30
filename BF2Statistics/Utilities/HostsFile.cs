@@ -22,15 +22,20 @@ namespace BF2Statistics
         protected static FileSecurity Security;
 
         /// <summary>
+        /// The fileinfo object for the HostsFile
+        /// </summary>
+        protected static FileInfo HostFile;
+
+        /// <summary>
         /// The windows permission that represents everyone
         /// </summary>
-        protected static SecurityIdentifier WorldSid;
+        protected static SecurityIdentifier WorldSid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
 
         /// <summary>
         /// Each line of the hosts file stored in a list. ALl redirects are removed
         /// from this list before being stored here.
         /// </summary>
-        public static List<string> OrigContents;
+        public static List<string> OrigContents = new List<string>();
 
         /// <summary>
         /// A list of "hostname" => "IPAddress" in the hosts file.
@@ -40,60 +45,87 @@ namespace BF2Statistics
         /// <summary>
         /// Returns whether the HOSTS file can be read from
         /// </summary>
-        public static readonly bool CanRead;
+        public static readonly bool CanRead = false;
 
         /// <summary>
         /// Returns whether the HOSTS file can be written to
         /// </summary>
-        public static readonly bool CanWrite;
+        public static readonly bool CanWrite = false;
 
         /// <summary>
         /// If CanRead or CanWrite are false, the exception that was thrown
         /// will be stored here
         /// </summary>
-        public static readonly Exception Exception;
+        public static Exception LastException { get; protected set; }
 
         /// <summary>
         /// Constructor
         /// </summary>
         static HostsFile()
         {
-            // Get the hosts file access control
-            Security = File.GetAccessControl(FilePath);
+            // Get the Hosts file object
+            HostFile = new FileInfo(FilePath);
 
-            // Get our "Everyone" user permission ID
-            WorldSid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
+            // Try to get the Access Control for the hosts file
+            try
+            {
+                Security = HostFile.GetAccessControl();
+            }
+            catch (Exception e)
+            {
+                MainForm.ErrorLog.Write("Unable to get HOST file Access Control: " + e.Message);
+                LastException = e;
+                return;
+            }
+
+            // If HOSTS file is readonly, remove that attribute!
+            if (HostFile.IsReadOnly)
+            {
+                try
+                {
+                    HostFile.IsReadOnly = false;
+                }
+                catch (Exception e)
+                {
+                    MainForm.ErrorLog.Write("HOST file is READONLY, Attribute cannot be removed: " + e.Message);
+                    LastException = e;
+                    return;
+                }
+            }
 
             // Make sure we can read the file amd write to it!
             try 
             {
-                UnLock(); // Unlock
-                OrigContents = new List<string>(File.ReadAllLines(FilePath));
+                // Unlock hosts file
+                if (!UnLock())
+                    return;
+
+                // Get the hosts file contents
+                using (StreamReader Rdr = new StreamReader(HostFile.OpenRead()))
+                {
+                    while(!Rdr.EndOfStream)
+                        OrigContents.Add(Rdr.ReadLine());
+                }
+                
                 CanRead = true;
             }
             catch (Exception e) 
             {
-                CanRead = false;
-                MainForm.ErrorLog.Write("Unable to READ the HOST file! " + e.Message);
-                Exception = e;
+                MainForm.ErrorLog.Write("Unable to READ the HOST file: " + e.Message);
+                LastException = e;
                 return;
             }
 
             // Check that we can write to the hosts file
             try
             {
-                using (FileStream Stream = File.Open(FilePath, FileMode.Open, FileAccess.Write))
-                {
-                    if (!Stream.CanWrite)
-                        throw new Exception("Hosts file cannot be written to!");
-                    else
-                        CanWrite = true;
-                }
+                using (FileStream Stream = HostFile.OpenWrite())
+                    CanWrite = true;
             }
-            catch(Exception e)
+            catch(UnauthorizedAccessException e)
             {
-                CanWrite = false;
-                Exception = e;
+                MainForm.ErrorLog.Write("Unable to WRITE to the HOST file: " + e.Message);
+                LastException = e;
                 return;
             }
 
@@ -128,31 +160,58 @@ namespace BF2Statistics
 
         /// <summary>
         /// Removes the "Deny" read permissions, and adds the "Allow" read permission
-        /// on the HOSTS file
+        /// on the HOSTS file. If the Hosts file cannot be unlocked, the exception error
+        /// will be logged in the App error log
         /// </summary>
-        public static void UnLock()
+        public static bool UnLock()
         {
             // Throw exception if there was one!
-            if (Exception != null) throw Exception;
+            if (LastException != null) throw LastException;
 
             // Allow ReadData
             Security.RemoveAccessRule(new FileSystemAccessRule(WorldSid, FileSystemRights.ReadData, AccessControlType.Deny));
             Security.AddAccessRule(new FileSystemAccessRule(WorldSid, FileSystemRights.ReadData, AccessControlType.Allow));
-            File.SetAccessControl(FilePath, Security);
+
+            // Try and set the new access control
+            try
+            {
+                HostFile.SetAccessControl(Security);
+                return true;
+            }
+            catch (Exception e)
+            {
+                MainForm.ErrorLog.Write("Unable to REMOVE the Readonly rule on Hosts File: " + e.Message);
+                LastException = e;
+                return false;
+            }
         }
 
         /// <summary>
         /// Removes the "Allow" read permissions, and adds the "Deny" read permission
-        /// on the HOSTS file
+        /// on the HOSTS file. If the Hosts file cannot be locked, the exception error
+        /// will be logged in the App error log
         /// </summary>
-        public static void Lock()
+        public static bool Lock()
         {
             // Throw exception if there was one!
-            if (Exception != null) throw Exception;
+            if (LastException != null) throw LastException;
 
+            // Donot allow Read for the Everyone Sid. This prevents the BF2 client from reading the hosts file
             Security.RemoveAccessRule(new FileSystemAccessRule(WorldSid, FileSystemRights.ReadData, AccessControlType.Allow));
             Security.AddAccessRule(new FileSystemAccessRule(WorldSid, FileSystemRights.ReadData, AccessControlType.Deny));
-            File.SetAccessControl(FilePath, Security);
+
+            // Try and set the new access control
+            try
+            {
+                HostFile.SetAccessControl(Security);
+                return true;
+            }
+            catch (Exception e)
+            {
+                MainForm.ErrorLog.Write("Unable to REMOVE the Readonly rule on Hosts File: " + e.Message);
+                LastException = e;
+                return false;
+            }
         }
 
         /// <summary>
@@ -163,7 +222,7 @@ namespace BF2Statistics
         public static void Set(string Domain, string Ip)
         {
             // Throw exception if there was one!
-            if (Exception != null) throw Exception;
+            if (LastException != null) throw LastException;
 
             if (Lines.ContainsKey(Domain))
                 Lines[Domain] = Ip;
@@ -178,7 +237,7 @@ namespace BF2Statistics
         public static void Remove(string Domain)
         {
             // Throw exception if there was one!
-            if (Exception != null) throw Exception;
+            if (LastException != null) throw LastException;
 
             if (Lines.ContainsKey(Domain))
                 Lines.Remove(Domain);
@@ -192,7 +251,7 @@ namespace BF2Statistics
         public static bool Contains(string Domain)
         {
             // Throw exception if there was one!
-            if (Exception != null) throw Exception;
+            if (LastException != null) throw LastException;
             return Lines.ContainsKey(Domain);
         }
 
@@ -204,7 +263,7 @@ namespace BF2Statistics
         public static string Get(string Domain)
         {
             // Throw exception if there was one!
-            if (Exception != null) throw Exception;
+            if (LastException != null) throw LastException;
             return Lines[Domain];
         }
 
@@ -214,7 +273,7 @@ namespace BF2Statistics
         public static void Save()
         {
             // Throw exception if there was one!
-            if (Exception != null) throw Exception;
+            if (LastException != null) throw LastException;
 
             // Convert the dictionary of lines to a list of lines
             List<string> lns = new List<string>();
@@ -231,7 +290,7 @@ namespace BF2Statistics
         public static Dictionary<string, string> GetLines()
         {
             // Throw exception if there was one!
-            if (Exception != null) throw Exception;
+            if (LastException != null) throw LastException;
             return Lines;
         }
     }

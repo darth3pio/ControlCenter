@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using BF2Statistics.Database;
 using BF2Statistics.Database.QueryBuilder;
 
 namespace BF2Statistics.ASP.Requests
 {
     class GetAwardsInfo
     {
-        public GetAwardsInfo(HttpClient Client)
+        public GetAwardsInfo(HttpClient Client, StatsDatabase Driver)
         {
             int Pid;
 
@@ -29,7 +30,7 @@ namespace BF2Statistics.ASP.Requests
             try
             {
                 // Fetch Player Awards
-                List<Dictionary<string, object>> Awards = ASPServer.Database.GetPlayerAwards(Pid);
+                List<Dictionary<string, object>> Awards = Driver.GetPlayerAwards(Pid);
 
                 // Write each award as a new data line
                 foreach (Dictionary<string, object> Award in Awards)

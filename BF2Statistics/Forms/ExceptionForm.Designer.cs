@@ -220,8 +220,6 @@
         #endregion
 
         private System.Windows.Forms.Panel panelMain;
-        private System.Windows.Forms.PictureBox ErrorIcon;
-        private System.Windows.Forms.Label InstructionText;
         private System.Windows.Forms.Panel panelMessage;
         private System.Windows.Forms.Label labelContent;
         private System.Windows.Forms.Button buttonAbort;
@@ -231,5 +229,7 @@
         private System.Windows.Forms.Button buttonDetails;
         private System.Windows.Forms.Panel panelDetails;
         private System.Windows.Forms.TextBox ExceptionDetails;
+        private System.Windows.Forms.Label InstructionText;
+        private System.Windows.Forms.PictureBox ErrorIcon;
     }
 }

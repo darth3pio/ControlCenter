@@ -17,7 +17,7 @@ namespace BF2Statistics
         /// <summary>
         /// The Gamespy database driver
         /// </summary>
-        private DatabaseDriver Driver = LoginServer.Database.Driver;
+        private GamespyDatabase Driver = LoginServer.Database;
 
         /// <summary>
         /// Current list page number
@@ -321,9 +321,9 @@ namespace BF2Statistics
                 "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 if (LoginServer.Database.DeleteUser(Id) == 1)
-                    Notify.Show("Account deleted successfully!", AlertType.Success);
+                    Notify.Show("Account deleted successfully!", "Operation Successful", AlertType.Success);
                 else
-                    Notify.Show("Failed to remove account from database!", AlertType.Warning);
+                    Notify.Show("Failed to remove account from database!", "Operation Failed", AlertType.Warning);
 
                 BuildList();
             }

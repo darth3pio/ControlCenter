@@ -6,7 +6,7 @@ namespace BF2Statistics.ASP.Requests
 {
     class GetMapInfo
     {
-        public GetMapInfo(HttpClient Client)
+        public GetMapInfo(HttpClient Client, StatsDatabase Driver)
         {
             // Setup Variables
             int Pid = 0;
@@ -16,7 +16,6 @@ namespace BF2Statistics.ASP.Requests
             string Query;
             List<Dictionary<string, object>> Rows;
             Dictionary<string, string> QueryString = Client.Request.QueryString;
-            DatabaseDriver Driver = ASPServer.Database.Driver;
 
             // Setup Params
             if (QueryString.ContainsKey("pid"))

@@ -16,13 +16,8 @@ namespace BF2Statistics.Database
     /// <summary>
     /// A class to provide common tasks against the Stats Database
     /// </summary>
-    public class StatsDatabase
+    public class StatsDatabase : DatabaseDriver
     {
-        /// <summary>
-        /// Stats database driver
-        /// </summary>
-        public DatabaseDriver Driver { get; protected set; }
-
         /// <summary>
         /// An array of Stats specific table names
         /// </summary>
@@ -63,9 +58,56 @@ namespace BF2Statistics.Database
         /// <summary>
         /// Constructor
         /// </summary>
-        public StatsDatabase()
+        public StatsDatabase():  
+            base(
+                MainForm.Config.StatsDBEngine, 
+                MainForm.Config.StatsDBHost, 
+                MainForm.Config.StatsDBPort, 
+                MainForm.Config.StatsDBName, 
+                MainForm.Config.StatsDBUser,
+                MainForm.Config.StatsDBPass
+            )
         {
-            CheckConnection();
+
+            // Try and Reconnect
+            try
+            {
+                Connect();
+
+                // Try and get database version
+                try
+                {
+                    if (Query("SELECT dbver FROM _version LIMIT 1").Count == 0)
+                        throw new Exception(); // Force insert of IP2Nation
+                }
+                catch
+                {
+                    // Table doesnt contain a _version table, so run the createTables.sql
+                    if (DatabaseEngine == DatabaseEngine.Sqlite)
+                        CreateSqliteTables();
+                    else
+                        CreateMysqlTables();
+                }
+            }
+            catch (Exception)
+            {
+                if (Connection != null)
+                    Connection.Dispose();
+
+                throw;
+            }
+
+            // Set global packet size with MySql
+            if (DatabaseEngine == DatabaseEngine.Mysql)
+                Execute("SET GLOBAL max_allowed_packet=51200");
+        }
+
+        /// <summary>
+        /// Destructor
+        /// </summary>
+        ~StatsDatabase()
+        {
+            Close();
         }
 
         #region Player Methods
@@ -77,7 +119,7 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public bool PlayerExists(int Pid)
         {
-            return (Driver.Query("SELECT name FROM player WHERE id=@P0", Pid).Count == 1);
+            return (Query("SELECT name FROM player WHERE id=@P0", Pid).Count == 1);
         }
 
         /// <summary>
@@ -87,8 +129,7 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public List<Dictionary<string, object>> GetPlayerAwards(int Pid)
         {
-            CheckConnection();
-            return Driver.Query("SELECT awd, level, earned, first FROM awards WHERE id = @P0 ORDER BY id", Pid);
+            return Query("SELECT awd, level, earned, first FROM awards WHERE id = @P0 ORDER BY id", Pid);
         }
 
         /// <summary>
@@ -101,8 +142,7 @@ namespace BF2Statistics.Database
         /// </param>
         public void DeletePlayer(int Pid, bool TaskFormOpen)
         {
-            CheckConnection();
-            DbTransaction Transaction = Driver.BeginTransaction();
+            DbTransaction Transaction = BeginTransaction();
 
             try
             {
@@ -113,9 +153,9 @@ namespace BF2Statistics.Database
                         TaskForm.UpdateStatus("Removing player from \"" + Table + "\" table...");
 
                     if (Table == "kills")
-                        Driver.Execute(String.Format("DELETE FROM {0} WHERE attacker={1} OR victim={1}", Table, Pid));
+                        Execute(String.Format("DELETE FROM {0} WHERE attacker={1} OR victim={1}", Table, Pid));
                     else
-                        Driver.Execute(String.Format("DELETE FROM {0} WHERE id={1}", Table, Pid));
+                        Execute(String.Format("DELETE FROM {0} WHERE id={1}", Table, Pid));
                 }
 
                 // Commit Transaction
@@ -123,11 +163,11 @@ namespace BF2Statistics.Database
                     TaskForm.UpdateStatus("Commiting Transaction");
                 Transaction.Commit();
             }
-            catch (Exception E)
+            catch (Exception)
             {
                 // Rollback!
                 Transaction.Rollback();
-                throw E;
+                throw;
             }
         }
 
@@ -144,7 +184,6 @@ namespace BF2Statistics.Database
                 XmlPath,
                 String.Format("{0}_{1}_{2}.xml", Name.Trim().MakeFileNameSafe(), Pid, DateTime.Now.ToString("yyyyMMdd_HHmm"))
             );
-            DatabaseDriver Driver = ASPServer.Database.Driver;
 
             // Delete file if it exists already
             if (File.Exists(sPath))
@@ -183,9 +222,9 @@ namespace BF2Statistics.Database
                     // Fetch row
                     List<Dictionary<string, object>> Rows;
                     if (Table == "kills")
-                        Rows = Driver.Query(String.Format("SELECT * FROM {0} WHERE attacker={1} OR victim={1}", Table, Pid));
+                        Rows = Query(String.Format("SELECT * FROM {0} WHERE attacker={1} OR victim={1}", Table, Pid));
                     else
-                        Rows = Driver.Query(String.Format("SELECT * FROM {0} WHERE id={1}", Table, Pid));
+                        Rows = Query(String.Format("SELECT * FROM {0} WHERE id={1}", Table, Pid));
 
                     // Write each row's columns with its value to the xml file
                     foreach (Dictionary<string, object> Row in Rows)
@@ -232,7 +271,7 @@ namespace BF2Statistics.Database
                 throw new Exception(String.Format("Player with PID {0} already exists!", Pid));
 
             // Begin Transaction
-            DbTransaction Transaction = Driver.BeginTransaction();
+            DbTransaction Transaction = BeginTransaction();
 
             // Loop through tables
             foreach (XElement Table in TableData.Elements())
@@ -240,7 +279,7 @@ namespace BF2Statistics.Database
                 // Loop through Rows
                 foreach (XElement Row in Table.Elements())
                 {
-                    InsertQueryBuilder Query = new InsertQueryBuilder(Table.Name.LocalName, Driver);
+                    InsertQueryBuilder Query = new InsertQueryBuilder(Table.Name.LocalName, this);
                     foreach (XElement Col in Row.Elements())
                     {
                         if (Col.Name.LocalName == "name")
@@ -283,7 +322,6 @@ namespace BF2Statistics.Database
             List<string[]> AwardLines;
             List<string[]> MapLines;
             InsertQueryBuilder Query;
-            DatabaseDriver Driver = ASPServer.Database.Driver;
 
             // Create Request
             string Url = String.Format(
@@ -352,14 +390,14 @@ namespace BF2Statistics.Database
             int Rounds = Int32.Parse(PlayerInfo["mode0"]) + Int32.Parse(PlayerInfo["mode1"]) + Int32.Parse(PlayerInfo["mode2"]);
 
             // Begin database transaction
-            DbTransaction Transaction = Driver.BeginTransaction();
+            DbTransaction Transaction = BeginTransaction();
 
             // Wrap all DB inserts into a try block so we can rollback on error
             try
             {
                 // Insert Player Data
                 Worker.ReportProgress(7, "Inserting Player Data Into Table: player");
-                Query = new InsertQueryBuilder("player", Driver);
+                Query = new InsertQueryBuilder("player", this);
                 Query.SetField("id", Pid);
                 Query.SetField("name", " " + PlayerInfo["nick"].Trim()); // Online accounts always start with space in bf2stats
                 Query.SetField("country", "xx");
@@ -403,7 +441,7 @@ namespace BF2Statistics.Database
 
                 // Insert Army Data
                 Worker.ReportProgress(8, "Inserting Player Data Into Table: army");
-                Query = new InsertQueryBuilder("army", Driver);
+                Query = new InsertQueryBuilder("army", this);
                 Query.SetField("id", Pid);
                 for (int i = 0; i < 10; i++)
                 {
@@ -416,7 +454,7 @@ namespace BF2Statistics.Database
 
                 // Insert Kit Data
                 Worker.ReportProgress(9, "Inserting Player Data Into Table: kits");
-                Query = new InsertQueryBuilder("kits", Driver);
+                Query = new InsertQueryBuilder("kits", this);
                 Query.SetField("id", Pid);
                 for (int i = 0; i < 7; i++)
                 {
@@ -428,7 +466,7 @@ namespace BF2Statistics.Database
 
                 // Insert Vehicle Data
                 Worker.ReportProgress(10, "Inserting Player Data Into Table: vehicles");
-                Query = new InsertQueryBuilder("vehicles", Driver);
+                Query = new InsertQueryBuilder("vehicles", this);
                 Query.SetField("id", Pid);
                 Query.SetField("timepara", 0);
                 for (int i = 0; i < 7; i++)
@@ -442,7 +480,7 @@ namespace BF2Statistics.Database
 
                 // Insert Weapon Data
                 Worker.ReportProgress(11, "Inserting Player Data Into Table: weapons");
-                Query = new InsertQueryBuilder("weapons", Driver);
+                Query = new InsertQueryBuilder("weapons", this);
                 Query.SetField("id", Pid);
                 for (int i = 0; i < 9; i++)
                 {
@@ -479,7 +517,7 @@ namespace BF2Statistics.Database
                 List<Dictionary<string, string>> Awards = StatsParser.ParseAwards(AwardLines);
                 foreach (Dictionary<string, string> Award in Awards)
                 {
-                    Query = new InsertQueryBuilder("awards", Driver);
+                    Query = new InsertQueryBuilder("awards", this);
                     Query.SetField("id", Pid);
                     Query.SetField("awd", Award["id"]);
                     Query.SetField("level", Award["level"]);
@@ -500,7 +538,7 @@ namespace BF2Statistics.Database
                 {
                     if (PlayerInfo.ContainsKey("mtm-" + MapId))
                     {
-                        Query = new InsertQueryBuilder("maps", Driver);
+                        Query = new InsertQueryBuilder("maps", this);
                         Query.SetField("id", Pid);
                         Query.SetField("mapid", MapId);
                         Query.SetField("time", PlayerInfo["mtm-" + MapId]);
@@ -515,10 +553,10 @@ namespace BF2Statistics.Database
                 // Commit transaction
                 Transaction.Commit();
             }
-            catch (Exception E)
+            catch (Exception)
             {
                 Transaction.Rollback();
-                throw E;
+                throw;
             }
         } 
 
@@ -530,106 +568,34 @@ namespace BF2Statistics.Database
         public void Truncate()
         {
             // Sqlite Database doesnt have a truncate method, so we will just recreate the database
-            if (Driver.DatabaseEngine == DatabaseEngine.Sqlite)
+            if (DatabaseEngine == DatabaseEngine.Sqlite)
             {
-                // Stop the server to delete the file
+                // Stop the server. We do this to prevent data requests
+                // while we are re-inserting the extensive IP2Nation data
                 ASPServer.Stop();
-                File.Delete(Path.Combine(MainForm.Root, MainForm.Config.StatsDBName + ".sqlite3"));
-                System.Threading.Thread.Sleep(500); // Make sure the file deletes before the ASP server starts again!
+
+                // Truncate the sqlite database file
+                File.Open(
+                    Path.Combine(MainForm.Root, MainForm.Config.StatsDBName + ".sqlite3"), 
+                    FileMode.Truncate
+                ).Close();
 
                 // Reset driver, start ASP again
-                Driver = null;
                 ASPServer.Start();
             }
             else
             {
-                // Use MySQL's truncate method to clear the tables;
+                // Use MySQL's truncate method to clear the tables. Since
+                // the IP2Nation table isnt cleared, no need to stop the ASP
                 foreach (string Table in StatsTables)
-                    Driver.Execute("TRUNCATE TABLE " + Table);
-            }
-        }
-
-        /// <summary>
-        /// Creates the connection to the database, and handles
-        /// the excpetion (if any) that are thrown
-        /// </summary>
-        /// <summary>
-        /// Creates the connection to the database, and handles
-        /// the excpetion (if any) that are thrown
-        /// </summary>
-        public void CheckConnection()
-        {
-            if (Driver == null || !Driver.IsConnected)
-            {
-                try
-                {
-                    // First time connection
-                    if (Driver == null)
-                    {
-                        // Create database connection
-                        Driver = new DatabaseDriver(
-                            MainForm.Config.StatsDBEngine,
-                            MainForm.Config.StatsDBHost,
-                            MainForm.Config.StatsDBPort,
-                            MainForm.Config.StatsDBName,
-                            MainForm.Config.StatsDBUser,
-                            MainForm.Config.StatsDBPass
-                        );
-                        Driver.Connect();
-
-                        // Create SQL tables on new SQLite DB's
-                        if (Driver.IsNewDatabase)
-                        {
-                            CreateSqliteTables(Driver);
-                            return;
-                        }
-                        else
-                        {
-                            // Try and get database version
-                            try
-                            {
-                                var Rows = Driver.Query("SELECT dbver FROM _version LIMIT 1");
-                                if (Rows.Count == 0)
-                                    throw new Exception(); // Force insert of IP2Nation
-                            }
-                            catch
-                            {
-                                // Table doesnt contain a _version table, so run the createTables.sql
-                                if (Driver.DatabaseEngine == DatabaseEngine.Sqlite)
-                                    CreateSqliteTables(Driver);
-                                else
-                                    CreateMysqlTables(Driver);
-                            }
-
-                            return;
-                        }
-                    }
-
-                    // Connect to DB
-                    Driver.Connect();
-
-                    // Set global packet size with MySql
-                    if (Driver.DatabaseEngine == DatabaseEngine.Mysql)
-                        Driver.Execute("SET GLOBAL max_allowed_packet=51200");
-                }
-                catch (Exception E)
-                {
-                    throw new Exception(
-                        "Database Connect Error: " +
-                        Environment.NewLine +
-                        E.Message +
-                        Environment.NewLine +
-                        "Forcing Server Shutdown..."
-                    );
-                }
+                    Execute("TRUNCATE TABLE " + Table);
             }
         }
 
         /// <summary>
         /// On a new Sqlite database, this method will create the default tables
         /// </summary>
-        /// <param name="Driver"></param>
-        private void CreateSqliteTables(DatabaseDriver Driver)
+        private void CreateSqliteTables()
         {
             // Show Progress Form
             MainForm.Disable();
@@ -640,26 +606,26 @@ namespace BF2Statistics.Database
             // Create Tables
             TaskForm.UpdateStatus("Creating Stats Tables");
             string SQL = Utils.GetResourceAsString("BF2Statistics.SQL.SQLite.Stats.sql");
-            Driver.Execute(SQL);
+            Execute(SQL);
 
             // Insert Ip2Nation data
             TaskForm.UpdateStatus("Inserting Ip2Nation Data");
             SQL = Utils.GetResourceAsString("BF2Statistics.SQL.Ip2nation.sql");
-            DbTransaction Transaction = Driver.BeginTransaction();
-            Driver.Execute(SQL);
+            DbTransaction Transaction = BeginTransaction();
+            Execute(SQL);
 
             // Attempt to do the transaction
             try
             {
                 Transaction.Commit();
             }
-            catch (Exception E)
+            catch
             {
                 Transaction.Rollback();
                 if(!TaskFormWasOpen)
                     TaskForm.CloseForm();
                 MainForm.Enable();
-                throw E;
+                throw;
             }
 
             // Close update progress form
@@ -670,8 +636,7 @@ namespace BF2Statistics.Database
         /// <summary>
         /// On a new Mysql database, this method will create the default tables
         /// </summary>
-        /// <param name="Driver"></param>
-        private void CreateMysqlTables(DatabaseDriver Driver)
+        private void CreateMysqlTables()
         {
             // Show Progress Form
             MainForm.Disable();
@@ -680,10 +645,10 @@ namespace BF2Statistics.Database
                 TaskForm.Show(MainForm.Instance, "Create Database", "Creating Bf2Stats Mysql Tables...", false);
 
             // To prevent packet size errors
-            Driver.Execute("SET GLOBAL max_allowed_packet=51200");
+            Execute("SET GLOBAL max_allowed_packet=51200");
 
             // Start Transaction
-            DbTransaction Transaction = Driver.BeginTransaction();
+            DbTransaction Transaction = BeginTransaction();
             TaskForm.UpdateStatus("Creating Stats Tables");
 
             // Gets Table Queries
@@ -695,22 +660,22 @@ namespace BF2Statistics.Database
             {
                 // Create Tables
                 foreach (string Query in Queries)
-                    Driver.Execute(Query);
+                    Execute(Query);
 
                 // Commit
                 Transaction.Commit();
             }
-            catch (Exception E)
+            catch
             {
                 Transaction.Rollback();
                 if (!TaskFormWasOpen)
                     TaskForm.CloseForm();
                 MainForm.Enable();
-                throw E;
+                throw;
             }
 
             // Insert Ip2Nation data
-            Transaction = Driver.BeginTransaction();
+            Transaction = BeginTransaction();
             TaskForm.UpdateStatus("Inserting Ip2Nation Data");
             SQL = Utils.GetResourceFileLines("BF2Statistics.SQL.Ip2nation.sql");
             Queries = Utilities.Sql.ExtractQueries(SQL);
@@ -720,32 +685,23 @@ namespace BF2Statistics.Database
             {
                 // Insert rows
                 foreach (string Query in Queries)
-                    Driver.Execute(Query);
+                    Execute(Query);
 
                 // Commit
                 Transaction.Commit();
             }
-            catch (Exception E)
+            catch
             {
                 Transaction.Rollback();
                 if(!TaskFormWasOpen)
                     TaskForm.CloseForm();
                 MainForm.Enable();
-                throw E;
+                throw;
             }
 
             // Close update progress form
             if (!TaskFormWasOpen) TaskForm.CloseForm();
             MainForm.Enable();
-        }
-
-        /// <summary>
-        /// Closes the database connection
-        /// </summary>
-        public void Close()
-        {
-            if (Driver != null)
-                Driver.Close();
         }
     }
 }

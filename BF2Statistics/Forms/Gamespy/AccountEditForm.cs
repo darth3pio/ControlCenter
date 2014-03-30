@@ -148,9 +148,9 @@ namespace BF2Statistics
                 MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 if (LoginServer.Database.DeleteUser(AccountId) == 1)
-                    Notify.Show("Account deleted successfully!", AlertType.Success);
+                    Notify.Show("Account deleted successfully!", "Operation Successful", AlertType.Success);
                 else
-                    Notify.Show("Failed to remove account from database!", AlertType.Warning);
+                    Notify.Show("Failed to remove account from database!", "Operation failed", AlertType.Warning);
                 this.Close();
             }
         }

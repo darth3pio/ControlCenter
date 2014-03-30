@@ -55,6 +55,9 @@ namespace BF2Statistics.Database.QueryBuilder
         /// </summary>
         public WhereStatement WhereStatement = new WhereStatement();
 
+        /// <summary>
+        /// The Having statement for this query
+        /// </summary>
         public WhereStatement HavingStatement = new WhereStatement();
 
         #endregion
@@ -70,7 +73,7 @@ namespace BF2Statistics.Database.QueryBuilder
         /// <param name="factory"></param>
         public SelectQueryBuilder(DatabaseDriver Driver)
         {
-            this.Driver= Driver;
+            this.Driver = Driver;
         }
 
         /// <summary>

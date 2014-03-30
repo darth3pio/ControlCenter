@@ -6,6 +6,10 @@ using System.Windows.Forms;
 
 namespace BF2Statistics.Utilities
 {
+    /// <summary>
+    /// Tipsy is a simple class that can Add and Remove tooltips
+    /// to form controls programatically during runtime.
+    /// </summary>
     class Tipsy
     {
         /// <summary>

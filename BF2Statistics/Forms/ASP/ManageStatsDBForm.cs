@@ -17,11 +17,6 @@ namespace BF2Statistics
     public partial class ManageStatsDBForm : Form
     {
         /// <summary>
-        /// The stats database object
-        /// </summary>
-        protected StatsDatabase Db = ASP.ASPServer.Database;
-
-        /// <summary>
         /// Constructor
         /// </summary>
         public ManageStatsDBForm()
@@ -58,20 +53,36 @@ namespace BF2Statistics
                 string[] BakFiles = Directory.GetFiles(path, "*.bak");
                 if (BakFiles.Length > 0)
                 {
+                    // Open the database connection
+                    StatsDatabase Database;
+                    try
+                    {
+                        Database = new StatsDatabase();
+                    }
+                    catch (Exception Ex)
+                    {
+                        MessageBox.Show(
+                            "Unable to connect to database\r\n\r\nMessage: " + Ex.Message,
+                            "Database Connection Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error
+                        );
+
+                        // Stop the ASP server, and close this form
+                        ASP.ASPServer.Stop();
+                        this.Close();
+                        return;
+                    }
+
                     // Show task dialog
                     TaskForm.Show(this, "Importing Stats", "Importing ASP Stats Bak Files...", false);
                     TaskForm.UpdateStatus("Removing old stats data");
 
                     // Clear old database records
-                    Db.Truncate();
+                    Database.Truncate();
                     Thread.Sleep(500);
 
-                    // To prevent packet size errors
-                    if(Db.Driver.DatabaseEngine == DatabaseEngine.Mysql)
-                        Db.Driver.Execute("SET GLOBAL max_allowed_packet=51200");
-
                     // Begin transaction
-                    DbTransaction Transaction = Db.Driver.BeginTransaction();
+                    DbTransaction Transaction = Database.BeginTransaction();
 
                     // import each table
                     foreach (string file in BakFiles)
@@ -86,19 +97,19 @@ namespace BF2Statistics
                         try
                         {
                             // Sqlite kinda sucks... no import methods
-                            if (Db.Driver.DatabaseEngine == DatabaseEngine.Sqlite)
+                            if (Database.DatabaseEngine == DatabaseEngine.Sqlite)
                             {
                                 string[] Lines = File.ReadAllLines(file);
                                 foreach (string line in Lines)
                                 {
                                     string[] Values = line.Split('\t');
-                                    Db.Driver.Execute(
+                                    Database.Execute(
                                         String.Format("INSERT INTO {0} VALUES({1})", table, "\"" + String.Join("\", \"", Values) + "\"")
                                     );
                                 }
                             }
                             else
-                                Db.Driver.Execute(String.Format("LOAD DATA INFILE '{0}' INTO TABLE {1};", file.Replace('\\', '/'), table));
+                                Database.Execute(String.Format("LOAD DATA LOCAL INFILE '{0}' INTO TABLE {1};", file.Replace('\\', '/'), table));
                         }
                         catch (Exception Ex)
                         {
@@ -120,7 +131,10 @@ namespace BF2Statistics
                     // Commit the transaction, and alert the user
                     Transaction.Commit();
                     TaskForm.CloseForm();
-                    Notify.Show("Stats imported successfully!", AlertType.Success);
+                    Notify.Show("Stats imported successfully!", "Operation Successful", AlertType.Success);
+
+                    // Displose Connection
+                    Database.Dispose();
                 }
                 else
                 {
@@ -148,6 +162,26 @@ namespace BF2Statistics
             // Abortion indicator
             bool Aborted = false;
 
+            // Open the database connection
+            StatsDatabase Database;
+            try
+            {
+                Database = new StatsDatabase();
+            }
+            catch (Exception Ex)
+            {
+                MessageBox.Show(
+                    "Unable to connect to database\r\n\r\nMessage: " + Ex.Message,
+                    "Database Connection Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error
+                );
+
+                // Stop the ASP server, and close this form
+                ASP.ASPServer.Stop();
+                this.Close();
+                return;
+            }
+
             // Show loading screen
             LoadingForm.ShowScreen(this);
 
@@ -160,19 +194,15 @@ namespace BF2Statistics
                 // Backup tables
                 try
                 {
-                    // fetch the data from the table
-                    if (Db.Driver.DatabaseEngine == DatabaseEngine.Sqlite)
+                    using (Stream Str = File.Open(BakFile, FileMode.Create))
+                    using (StreamWriter Wtr = new StreamWriter(Str))
                     {
                         // Use a memory efficient way to export this stuff
-                        StringBuilder Data = new StringBuilder();
-                        foreach(Dictionary<string, object> Row in Db.Driver.QueryReader("SELECT * FROM " + Table))
-                            Data.AppendLine(String.Join("\t", Row.Values));
+                        foreach (Dictionary<string, object> Row in Database.QueryReader("SELECT * FROM " + Table))
+                            Wtr.WriteLine(String.Join("\t", Row.Values));
 
-                        // Write to file
-                        File.AppendAllText(BakFile, Data.ToString());
+                        Wtr.Flush();
                     }
-                    else
-                        Db.Driver.Execute(String.Format("SELECT * INTO OUTFILE '{0}' FROM {1}", BakFile.Replace('\\', '/'), Table));
                 }
                 catch (Exception Ex)
                 {
@@ -212,6 +242,9 @@ namespace BF2Statistics
                     MessageBoxIcon.Information
                 );
             }
+
+            // Close the connection
+            Database.Dispose();
         }
 
         /// <summary>
@@ -227,8 +260,11 @@ namespace BF2Statistics
             {
                 try
                 {
-                    Db.Truncate();
-                    Notify.Show("Database Successfully Cleared!", AlertType.Success);
+                    using (StatsDatabase Database = new StatsDatabase())
+                    {
+                        Database.Truncate();
+                    }
+                    Notify.Show("Database Successfully Cleared!", "All stats have successfully been cleared.", AlertType.Success);
                 }
                 catch (Exception E)
                 {

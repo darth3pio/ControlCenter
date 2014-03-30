@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -76,7 +77,7 @@
             this.IgnoreAsserts = new System.Windows.Forms.CheckBox();
             this.ShowConsole = new System.Windows.Forms.CheckBox();
             this.groupBox12 = new System.Windows.Forms.GroupBox();
-            this.ShuffleMapListBtn = new System.Windows.Forms.Button();
+            this.RandomMapListBtn = new System.Windows.Forms.Button();
             this.EditMapListBtn = new System.Windows.Forms.Button();
             this.groupBox13 = new System.Windows.Forms.GroupBox();
             this.EditScoreSettingsBtn = new System.Windows.Forms.Button();
@@ -172,6 +173,7 @@
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.NotificationIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -267,7 +269,7 @@
             this.groupBox16.Size = new System.Drawing.Size(295, 72);
             this.groupBox16.TabIndex = 15;
             this.groupBox16.TabStop = false;
-            this.groupBox16.Text = "Servers";
+            this.groupBox16.Text = "Gamespy Emulators";
             // 
             // StartAspServerBtn
             // 
@@ -430,7 +432,7 @@
             this.groupBox2.Size = new System.Drawing.Size(295, 68);
             this.groupBox2.TabIndex = 13;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Mod Select";
+            this.groupBox2.Text = "Selected Mod";
             // 
             // ModSelectList
             // 
@@ -452,7 +454,7 @@
             this.LaunchWindow.Size = new System.Drawing.Size(535, 70);
             this.LaunchWindow.TabIndex = 12;
             this.LaunchWindow.TabStop = false;
-            this.LaunchWindow.Text = "Client Launcher";
+            this.LaunchWindow.Text = "Battlefield 2 Client";
             // 
             // label4
             // 
@@ -490,12 +492,12 @@
             this.groupBox3.Controls.Add(this.FirstMapBox);
             this.groupBox3.Controls.Add(this.LaunchServerBtn);
             this.groupBox3.Controls.Add(this.label5);
-            this.groupBox3.Location = new System.Drawing.Point(17, 164);
+            this.groupBox3.Location = new System.Drawing.Point(17, 166);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(535, 70);
             this.groupBox3.TabIndex = 1;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Server Launcher";
+            this.groupBox3.Text = "Battlefield 2 Server";
             // 
             // MapModeBox
             // 
@@ -732,7 +734,7 @@
             // 
             // groupBox12
             // 
-            this.groupBox12.Controls.Add(this.ShuffleMapListBtn);
+            this.groupBox12.Controls.Add(this.RandomMapListBtn);
             this.groupBox12.Controls.Add(this.EditMapListBtn);
             this.groupBox12.Location = new System.Drawing.Point(8, 51);
             this.groupBox12.Name = "groupBox12";
@@ -741,15 +743,15 @@
             this.groupBox12.TabStop = false;
             this.groupBox12.Text = "Map List";
             // 
-            // ShuffleMapListBtn
+            // RandomMapListBtn
             // 
-            this.ShuffleMapListBtn.Location = new System.Drawing.Point(142, 26);
-            this.ShuffleMapListBtn.Name = "ShuffleMapListBtn";
-            this.ShuffleMapListBtn.Size = new System.Drawing.Size(115, 28);
-            this.ShuffleMapListBtn.TabIndex = 2;
-            this.ShuffleMapListBtn.Text = "Shuffle Map List";
-            this.ShuffleMapListBtn.UseVisualStyleBackColor = true;
-            this.ShuffleMapListBtn.Click += new System.EventHandler(this.ShuffleMapListBtn_Click);
+            this.RandomMapListBtn.Location = new System.Drawing.Point(142, 26);
+            this.RandomMapListBtn.Name = "RandomMapListBtn";
+            this.RandomMapListBtn.Size = new System.Drawing.Size(115, 28);
+            this.RandomMapListBtn.TabIndex = 2;
+            this.RandomMapListBtn.Text = "Randomize Map List";
+            this.RandomMapListBtn.UseVisualStyleBackColor = true;
+            this.RandomMapListBtn.Click += new System.EventHandler(this.RandomMapListBtn_Click);
             // 
             // EditMapListBtn
             // 
@@ -1727,7 +1729,7 @@
             this.textBox2.ReadOnly = true;
             this.textBox2.Size = new System.Drawing.Size(450, 13);
             this.textBox2.TabIndex = 6;
-            this.textBox2.Text = "Copyright 2006-2013 BF2Statistics.com. All Rights Reserved";
+            this.textBox2.Text = "Copyright 2006-2014 BF2Statistics.com. All Rights Reserved";
             // 
             // textBox1
             // 
@@ -1739,7 +1741,7 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(451, 13);
             this.textBox1.TabIndex = 5;
-            this.textBox1.Text = System.String.Concat("Battlefield 2 Statistics Control Center v", Program.Version.ToString());
+            this.textBox1.Text = "Battlefield 2 Statistics Control Center v" + Program.Version.ToString();
             // 
             // pictureBox1
             // 
@@ -1750,6 +1752,12 @@
             this.pictureBox1.Size = new System.Drawing.Size(586, 80);
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
+            // 
+            // NotificationIcon
+            // 
+            this.NotificationIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("NotificationIcon.Icon")));
+            this.NotificationIcon.Text = "BF2Statistics Control Center";
+            this.NotificationIcon.Visible = true;
             // 
             // MainForm
             // 
@@ -1868,7 +1876,7 @@
         private System.Windows.Forms.Button EditAcctBtn;
         private System.Windows.Forms.GroupBox groupBox10;
         private System.Windows.Forms.GroupBox groupBox12;
-        private System.Windows.Forms.Button ShuffleMapListBtn;
+        private System.Windows.Forms.Button RandomMapListBtn;
         private System.Windows.Forms.Button EditMapListBtn;
         private System.Windows.Forms.GroupBox groupBox13;
         private System.Windows.Forms.Button EditScoreSettingsBtn;
@@ -1977,6 +1985,7 @@
         private Microsoft.VisualBasic.PowerPacks.LineShape lineShape2;
         private Microsoft.VisualBasic.PowerPacks.ShapeContainer shapeContainer1;
         private Microsoft.VisualBasic.PowerPacks.LineShape lineShape1;
+        private System.Windows.Forms.NotifyIcon NotificationIcon;
     }
 }
 

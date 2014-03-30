@@ -39,11 +39,18 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.MapListBox = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.RandomizeBtn = new System.Windows.Forms.Button();
+            this.CancelBtn = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
             this.ClearButton = new System.Windows.Forms.Button();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.MapPictureBox = new System.Windows.Forms.PictureBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.MapPictureBox)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -56,7 +63,7 @@
             this.groupBox1.Controls.Add(this.GameModeSelect);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.MapListSelect);
-            this.groupBox1.Location = new System.Drawing.Point(13, 19);
+            this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(360, 109);
             this.groupBox1.TabIndex = 0;
@@ -137,7 +144,7 @@
             // 
             this.groupBox2.BackColor = System.Drawing.SystemColors.Window;
             this.groupBox2.Controls.Add(this.MapListBox);
-            this.groupBox2.Location = new System.Drawing.Point(16, 147);
+            this.groupBox2.Location = new System.Drawing.Point(15, 129);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(356, 198);
             this.groupBox2.TabIndex = 1;
@@ -155,17 +162,39 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.RandomizeBtn);
+            this.groupBox3.Controls.Add(this.CancelBtn);
             this.groupBox3.Controls.Add(this.SaveButton);
             this.groupBox3.Controls.Add(this.ClearButton);
-            this.groupBox3.Location = new System.Drawing.Point(18, 355);
+            this.groupBox3.Location = new System.Drawing.Point(17, 332);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(354, 50);
+            this.groupBox3.Size = new System.Drawing.Size(642, 50);
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             // 
+            // RandomizeBtn
+            // 
+            this.RandomizeBtn.Location = new System.Drawing.Point(182, 14);
+            this.RandomizeBtn.Name = "RandomizeBtn";
+            this.RandomizeBtn.Size = new System.Drawing.Size(135, 26);
+            this.RandomizeBtn.TabIndex = 5;
+            this.RandomizeBtn.Text = "Shuffle Map Order";
+            this.RandomizeBtn.UseVisualStyleBackColor = true;
+            this.RandomizeBtn.Click += new System.EventHandler(this.RandomizeBtn_Click);
+            // 
+            // CancelBtn
+            // 
+            this.CancelBtn.Location = new System.Drawing.Point(325, 14);
+            this.CancelBtn.Name = "CancelBtn";
+            this.CancelBtn.Size = new System.Drawing.Size(135, 26);
+            this.CancelBtn.TabIndex = 4;
+            this.CancelBtn.Text = "Cancel Changes";
+            this.CancelBtn.UseVisualStyleBackColor = true;
+            this.CancelBtn.Click += new System.EventHandler(this.CancelBtn_Click);
+            // 
             // SaveButton
             // 
-            this.SaveButton.Location = new System.Drawing.Point(189, 15);
+            this.SaveButton.Location = new System.Drawing.Point(466, 14);
             this.SaveButton.Name = "SaveButton";
             this.SaveButton.Size = new System.Drawing.Size(135, 26);
             this.SaveButton.TabIndex = 1;
@@ -175,7 +204,7 @@
             // 
             // ClearButton
             // 
-            this.ClearButton.Location = new System.Drawing.Point(36, 15);
+            this.ClearButton.Location = new System.Drawing.Point(41, 14);
             this.ClearButton.Name = "ClearButton";
             this.ClearButton.Size = new System.Drawing.Size(135, 26);
             this.ClearButton.TabIndex = 0;
@@ -183,12 +212,43 @@
             this.ClearButton.UseVisualStyleBackColor = true;
             this.ClearButton.Click += new System.EventHandler(this.ClearButton_Click);
             // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.label4);
+            this.groupBox4.Controls.Add(this.MapPictureBox);
+            this.groupBox4.Location = new System.Drawing.Point(384, 13);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(275, 314);
+            this.groupBox4.TabIndex = 7;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Map Image";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(27, 288);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(220, 13);
+            this.label4.TabIndex = 1;
+            this.label4.Text = "Double click map image to see full size image";
+            // 
+            // MapPictureBox
+            // 
+            this.MapPictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.MapPictureBox.Location = new System.Drawing.Point(12, 23);
+            this.MapPictureBox.Name = "MapPictureBox";
+            this.MapPictureBox.Size = new System.Drawing.Size(250, 250);
+            this.MapPictureBox.TabIndex = 0;
+            this.MapPictureBox.TabStop = false;
+            this.MapPictureBox.DoubleClick += new System.EventHandler(this.MapPictureBox_DoubleClick);
+            // 
             // MapList
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.ClientSize = new System.Drawing.Size(384, 412);
+            this.ClientSize = new System.Drawing.Size(674, 392);
+            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -203,6 +263,9 @@
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.MapPictureBox)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -222,5 +285,10 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Button SaveButton;
         private System.Windows.Forms.Button ClearButton;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.PictureBox MapPictureBox;
+        private System.Windows.Forms.Button RandomizeBtn;
+        private System.Windows.Forms.Button CancelBtn;
     }
 }

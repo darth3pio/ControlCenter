@@ -29,11 +29,6 @@ namespace BF2Statistics
         private Dictionary<string, object> Player;
 
         /// <summary>
-        /// Stats Database Driver
-        /// </summary>
-        private DatabaseDriver Driver = ASPServer.Database.Driver;
-
-        /// <summary>
         /// Current executing Assembly
         /// </summary>
         Assembly Me = Assembly.GetExecutingAssembly();
@@ -56,6 +51,21 @@ namespace BF2Statistics
         /// </summary>
         private void LoadPlayer()
         {
+            StatsDatabase Driver;
+
+            // Establish DB connection
+            try
+            {
+                Driver = new StatsDatabase();
+            }
+            catch (DbConnectException Ex)
+            {
+                ExceptionForm.ShowDbConnectError(Ex);
+                ASPServer.Stop();
+                Load += (s, e) => Close(); // Close form
+                return;
+            }
+
             // Fetch Player from database
             SelectQueryBuilder Builder = new SelectQueryBuilder(Driver);
             Builder.SelectFromTable("player");
@@ -103,6 +113,9 @@ namespace BF2Statistics
             // Lock unlocks button if player is Bot
             if (Int32.Parse(Player["isbot"].ToString()) > 0)
                 ResetUnlocksBtn.Enabled = false;
+
+            // Close Connection
+            Driver.Dispose();
         }
 
         /// <summary>
@@ -110,9 +123,21 @@ namespace BF2Statistics
         /// </summary>
         private void ResetUnlocksBtn_Click(object sender, EventArgs e)
         {
-            Driver.Execute("UPDATE unlocks SET state = 'n' WHERE id = " + Pid);
-            Driver.Execute("UPDATE player SET usedunlocks = 0 WHERE id = " + Pid);
-            Notify.Show("Player Unlocks Have Been Reset", AlertType.Success);
+            try
+            {
+                using (StatsDatabase Driver = new StatsDatabase())
+                {
+                    Driver.Execute("UPDATE unlocks SET state = 'n' WHERE id = " + Pid);
+                    Driver.Execute("UPDATE player SET usedunlocks = 0 WHERE id = " + Pid);
+                    Notify.Show("Player Unlocks Have Been Reset", "This player will be able to select his new unlocks upon logging in.", AlertType.Success);
+                }
+            }
+            catch (DbConnectException Ex)
+            {
+                ASPServer.Stop();
+                ExceptionForm.ShowDbConnectError(Ex);
+                this.Close();
+            }
         }
 
         /// <summary>
@@ -133,8 +158,16 @@ namespace BF2Statistics
             {
                 try
                 {
-                    ASPServer.Database.ExportPlayerXml(sPath, Pid, Player["name"].ToString());
+                    using (StatsDatabase Driver = new StatsDatabase())
+                        Driver.ExportPlayerXml(sPath, Pid, Player["name"].ToString());
+
                     Notify.Show("Player Exported Successfully", String.Format("{0} ({1})", Player["name"].ToString(), Pid), AlertType.Success);
+                }
+                catch (DbConnectException Ex)
+                {
+                    ASPServer.Stop();
+                    ExceptionForm.ShowDbConnectError(Ex);
+                    this.Close();
                 }
                 catch (Exception E)
                 {
@@ -155,8 +188,17 @@ namespace BF2Statistics
                 try
                 {
                     TaskForm.Show(this, "Delete Player", "Deleting Player \"" + Player["name"] + "\"", false);
-                    ASPServer.Database.DeletePlayer(Pid, true);
-                    Notify.Show("Player Deleted Successfully!", AlertType.Success);
+
+                    // Delete the player
+                    using (StatsDatabase Driver = new StatsDatabase())
+                        Driver.DeletePlayer(Pid, true);
+
+                    Notify.Show("Player Deleted Successfully!", "Operation Successful", AlertType.Success);
+                }
+                catch (DbConnectException Ex)
+                {
+                    ASPServer.Stop();
+                    ExceptionForm.ShowDbConnectError(Ex);
                 }
                 catch (Exception E)
                 {
@@ -187,57 +229,69 @@ namespace BF2Statistics
         /// </summary>
         private void SaveBtn_Click(object sender, EventArgs e)
         {
-            bool Changes = false;
-            UpdateQueryBuilder Query = new UpdateQueryBuilder("player", Driver);
-            int Rank = Int32.Parse(Player["rank"].ToString());
-
-            // Update clantag
-            if (Player["clantag"].ToString() != ClanTagBox.Text.Trim())
+            try
             {
-                Player["clantag"] = ClanTagBox.Text.Trim();
-                Query.SetField("clantag", ClanTagBox.Text.Trim());
-                Changes = true;
-            }
-
-            // Update Rank
-            if (Rank != RankSelect.SelectedIndex)
-            {
-                if (Rank > RankSelect.SelectedIndex)
+                using (StatsDatabase Driver = new StatsDatabase())
                 {
-                    Query.SetField("decr", 1);
-                    Query.SetField("chng", 0);
+                    bool Changes = false;
+                    UpdateQueryBuilder Query = new UpdateQueryBuilder("player", Driver);
+                    int Rank = Int32.Parse(Player["rank"].ToString());
+
+                    // Update clantag
+                    if (Player["clantag"].ToString() != ClanTagBox.Text.Trim())
+                    {
+                        Player["clantag"] = ClanTagBox.Text.Trim();
+                        Query.SetField("clantag", ClanTagBox.Text.Trim());
+                        Changes = true;
+                    }
+
+                    // Update Rank
+                    if (Rank != RankSelect.SelectedIndex)
+                    {
+                        if (Rank > RankSelect.SelectedIndex)
+                        {
+                            Query.SetField("decr", 1);
+                            Query.SetField("chng", 0);
+                        }
+                        else
+                        {
+                            Query.SetField("decr", 0);
+                            Query.SetField("chng", 1);
+                        }
+
+                        Player["rank"] = RankSelect.SelectedIndex;
+                        Query.SetField("rank", RankSelect.SelectedIndex);
+                        Changes = true;
+                    }
+
+                    // update perm ban status
+                    if (Int32.Parse(Player["permban"].ToString()) != PermBanSelect.SelectedIndex)
+                    {
+                        Player["permban"] = PermBanSelect.SelectedIndex;
+                        Query.SetField("permban", PermBanSelect.SelectedIndex);
+                        Changes = true;
+                    }
+
+                    // If no changes made, just return
+                    if (!Changes)
+                    {
+                        MessageBox.Show("Unable to save player because no changes were made.",
+                            "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    // Preform Query
+                    Query.AddWhere("id", Comparison.Equals, Pid);
+                    Query.Execute();
+                    this.Close();
                 }
-                else
-                {
-                    Query.SetField("decr", 0);
-                    Query.SetField("chng", 1);
-                }
-
-                Player["rank"] = RankSelect.SelectedIndex;
-                Query.SetField("rank", RankSelect.SelectedIndex);
-                Changes = true;
             }
-
-            // update perm ban status
-            if (Int32.Parse(Player["permban"].ToString()) != PermBanSelect.SelectedIndex)
+            catch (DbConnectException Ex)
             {
-                Player["permban"] = PermBanSelect.SelectedIndex;
-                Query.SetField("permban", PermBanSelect.SelectedIndex);
-                Changes = true;
-            }
-
-            // If no changes made, just return
-            if (!Changes)
-            {
-                MessageBox.Show("Unable to save player because no changes were made.", 
-                    "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ASPServer.Stop();
+                ExceptionForm.ShowDbConnectError(Ex);
                 return;
             }
-
-            // Preform Query
-            Query.AddWhere("id", Comparison.Equals, Pid);
-            Query.Execute();
-            this.Close();
         }
 
         /// <summary>
@@ -277,16 +331,29 @@ namespace BF2Statistics
                 try
                 {
                     TaskForm.Show(this, "Reset Player Stats", "Reseting Player \"" + Player["name"] + "\"'s Stats", false);
-                    ASPServer.Database.DeletePlayer(Pid, true);
 
-                    // Insert a new player record
-                    Driver.Execute(
-                        "INSERT INTO player(id, name, country, joined, clantag, permban, isbot) VALUES(@P0, @P1, @P2, @P3, @P4, @P5, @P6)",
-                        Pid, Player["name"], Player["country"], Player["joined"], Player["clantag"], Player["permban"], Player["isbot"]
-                    );
+                    // Delete the players
+                    using (StatsDatabase Driver = new StatsDatabase())
+                    {
+                        Driver.DeletePlayer(Pid, true);
+
+                        // Insert a new player record
+                        Driver.Execute(
+                            "INSERT INTO player(id, name, country, joined, clantag, permban, isbot) VALUES(@P0, @P1, @P2, @P3, @P4, @P5, @P6)",
+                            Pid, Player["name"], Player["country"], Player["joined"], Player["clantag"], Player["permban"], Player["isbot"]
+                        );
+                    }
 
                     LoadPlayer();
-                    Notify.Show("Player Stats Reset Successfully!", AlertType.Success);
+                    Notify.Show("Player Stats Reset Successfully!", "Operation Successful", AlertType.Success);
+                }
+                catch (DbConnectException Ex)
+                {
+                    ASPServer.Stop();
+                    ExceptionForm.ShowDbConnectError(Ex);
+                    TaskForm.CloseForm();
+                    this.Close();
+                    return;
                 }
                 catch (Exception E)
                 {

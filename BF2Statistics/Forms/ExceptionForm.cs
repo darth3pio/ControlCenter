@@ -31,12 +31,39 @@ namespace BF2Statistics
         }
 
         /// <summary>
+        /// Gets or sets the Header text of the window
+        /// </summary>
+        public string HeaderText
+        {
+            get { return InstructionText.Text; }
+            set { InstructionText.Text = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the message to be displayed in the form
         /// </summary>
         public string Message
         {
             get { return labelContent.Text; }
             set { labelContent.Text = value; }
+        }
+
+        /// <summary>
+        /// Gets or Sets the window title
+        /// </summary>
+        public string WindowTitle
+        {
+            get { return this.Text; }
+            set { this.Text = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the Error Icon
+        /// </summary>
+        public Bitmap ImgIcon
+        {
+            get { return ErrorIcon.Image as Bitmap; }
+            set { ErrorIcon.Image = value; }
         }
 
         /// <summary>
@@ -98,6 +125,20 @@ namespace BF2Statistics
             // Append Exception Message
             labelContent.Text = String.Concat(labelContent.Text, Environment.NewLine, Environment.NewLine, ExceptionObj.Message);
             return base.ShowDialog(owner);
+        }
+
+        /// <summary>
+        /// Displays a custom version of this form to display database connection errors
+        /// </summary>
+        /// <param name="e"></param>
+        public static void ShowDbConnectError(DbConnectException e)
+        {
+            ExceptionForm F = new ExceptionForm(e, true);
+            F.WindowTitle = "Database Connect Error";
+            F.HeaderText = "Database Connect Error";
+            F.Message = "Unable to establish a connection to the database.";
+            F.ImgIcon = Properties.Resources.vistaWarning;
+            F.ShowDialog();
         }
 
         /// <summary>
