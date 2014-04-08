@@ -13,7 +13,6 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
-using System.Security.Principal;
 using BF2Statistics.Properties;
 using BF2Statistics.ASP;
 using BF2Statistics.Gamespy;
@@ -38,11 +37,6 @@ namespace BF2Statistics
         /// The instance of this form
         /// </summary>
         public static MainForm Instance { get; protected set; }
-
-        /// <summary>
-        /// The main form log file
-        /// </summary>
-        public static LogWritter ErrorLog { get; protected set; }
 
         /// <summary>
         /// The current selected mod foldername
@@ -85,18 +79,6 @@ namespace BF2Statistics
         private BackgroundWorker ServerWorker = new BackgroundWorker();
 
         /// <summary>
-        /// Returns whether the app is running in administrator mode.
-        /// </summary>
-        public static bool IsAdministrator
-        {
-            get
-            {
-                WindowsPrincipal wp = new WindowsPrincipal(WindowsIdentity.GetCurrent());
-                return wp.IsInRole(WindowsBuiltInRole.Administrator);
-            }
-        }
-
-        /// <summary>
         /// Constructor. Initializes and Displays the Applications main GUI
         /// </summary>
         public MainForm()
@@ -132,9 +114,6 @@ namespace BF2Statistics
             // Backups folder
             if (!Directory.Exists(Path.Combine(Paths.DocumentsFolder, "Backups")))
                 Directory.CreateDirectory(Path.Combine(Paths.DocumentsFolder, "Backups"));
-
-            // Create ErrorLog file
-            ErrorLog = new LogWritter(Path.Combine(Root, "Logs", "Error.log"), 3000);
 
             // Load installed Mods. If there is an error, a messagebox will be displayed, 
             // and the form closed automatically
@@ -180,7 +159,7 @@ namespace BF2Statistics
             LoginServer.OnUpdate += new EventHandler(LoginServer_OnUpdate);
 
             // Add administrator title to program title bar
-            if (IsAdministrator)
+            if (Program.IsAdministrator)
                 this.Text += " (Administrator)";
 
             // Set server tooltips
@@ -790,7 +769,7 @@ namespace BF2Statistics
             }
             catch (Exception E)
             {
-                ErrorLog.Write("ERROR: [BF2sPythonInstall] " + E.Message);
+                Program.ErrorLog.Write("ERROR: [BF2sPythonInstall] " + E.Message);
                 throw;
             }
             finally
@@ -1352,7 +1331,7 @@ namespace BF2Statistics
                     Tipsy.SetToolTip(AspStatusPic, "Asp server is currently offline");  
                 }
                 catch(Exception E) {
-                    ErrorLog.Write(E.Message);
+                    Program.ErrorLog.Write(E.Message);
                 }
             }
         }
@@ -1393,7 +1372,7 @@ namespace BF2Statistics
             catch (Exception E)
             {
                 // Check for specific error
-                ErrorLog.Write("[ASP Server] " + E.Message);
+                Program.ErrorLog.Write("[ASP Server] " + E.Message);
                 BeginInvoke((Action)delegate
                 {
                     StartAspServerBtn.Enabled = true;
@@ -1740,7 +1719,7 @@ namespace BF2Statistics
         /// <param name="message">The message to be written to the log file</param>
         public static void Log(string message)
         {
-            ErrorLog.Write(message);
+            Program.ErrorLog.Write(message);
         }
 
         /// <summary>
@@ -1749,7 +1728,7 @@ namespace BF2Statistics
         /// <param name="message">The message to be written to the log file</param>
         public static void Log(string message, params object[] items)
         {
-            ErrorLog.Write(String.Format(message, items));
+            Program.ErrorLog.Write(String.Format(message, items));
         }
     }
 }

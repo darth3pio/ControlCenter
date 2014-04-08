@@ -74,10 +74,14 @@ namespace BF2Statistics.ASP
         {
             get 
             {
-                try {
-                    return (Listener == null) ? false : Listener.IsListening;
+                try 
+                {
+                    return Listener.IsListening;
                 }
-                catch (ObjectDisposedException) {
+                catch (ObjectDisposedException) 
+                {
+                    Listener = new HttpListener();
+                    Listener.Prefixes.Add("http://*/ASP/");
                     return false;
                 }
             }
@@ -93,7 +97,7 @@ namespace BF2Statistics.ASP
             AccessLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspAccess.log"), 1000);
 
             // Get a list of all our local IP addresses
-            LocalIPs = Dns.GetHostAddresses(Dns.GetHostName()).ToList();
+            LocalIPs = new List<IPAddress>(Dns.GetHostAddresses(Dns.GetHostName()));
             SessionRequests = 0;
 
             // Create our HttpListener instance

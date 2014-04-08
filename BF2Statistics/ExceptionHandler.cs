@@ -6,6 +6,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.IO;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace BF2Statistics
 {
@@ -23,11 +24,21 @@ namespace BF2Statistics
         /// <param name="t"></param>
         public static void OnThreadException(object sender, ThreadExceptionEventArgs t)
         {
+            // Create Trace Log
+            string FileName = Path.Combine(Paths.DocumentsFolder, "ExceptionLog_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt");
+            try
+            {
+                // Try to generate a trace log
+                GenerateExceptionLog(FileName, t.Exception);
+            }
+            catch { }
+
             // Display the Exception Form
             ExceptionForm EForm = new ExceptionForm(t.Exception, true);
             EForm.Message = "An unhandled exception was thrown while trying to preform the requested task.\r\n"
                 + "If you click Continue, the application will attempt to ignore this error, and continue. "
                 + "If you click Quit, the application will close immediatly.";
+            EForm.TraceLog = FileName;
             DialogResult Result = EForm.ShowDialog();
 
             // Kill the form on abort
@@ -43,50 +54,105 @@ namespace BF2Statistics
         public static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             // Create Trace Log
-            string FileName = Path.Combine(Paths.DocumentsFolder, "traceLog_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt");
+            string FileName = Path.Combine(Paths.DocumentsFolder, "ExceptionLog_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt");
             Exception Ex = e.ExceptionObject as Exception;
-            GenerateTraceLog(FileName, Ex);
-
-            // Display the Exception Form
             ExceptionForm EForm = new ExceptionForm(Ex, false);
-            EForm.Message = "An unhandled exception was thrown while trying to preform the requested task.\r\n"
-                + "A trace log was generated under the \"My Documents/BF2Stastistics\" folder, to "
-                + "assist with debugging, and getting help with this error.";
-            EForm.LogFile = FileName;
-            EForm.ShowDialog();
-            Application.Exit();
+
+            try
+            {
+                // Try to generate a trace log
+                GenerateExceptionLog(FileName, Ex);
+
+                // Display the Exception Form
+                EForm.Message = "An unhandled exception was thrown while trying to preform the requested task.\r\n"
+                    + "A trace log was generated under the \"My Documents/BF2Stastistics\" folder, to "
+                    + "assist with debugging, and getting help with this error.";
+                EForm.TraceLog = FileName;
+            }
+            catch
+            {
+                EForm.Message = "An unhandled exception was thrown while trying to preform the requested task.\r\n"
+                    + "A trace log was unable to be generated because that threw another exception :(. The error message "
+                    + "for the trace log was stored in the program error log for debugging purposes.";
+            }
+            finally
+            {
+                EForm.ShowDialog();
+                Application.Exit();
+            }
         }
 
         /// <summary>
-        /// Generates a trace log for an exception
+        /// Generates a trace log for an exception. If an exception is thrown here, The error
+        /// will automatically be logged in the programs error log
         /// </summary>
-        /// <param name="FileName"></param>
-        /// <param name="E"></param>
-        public static void GenerateTraceLog(string FileName, Exception E)
+        public static void GenerateExceptionLog(Exception E)
+        {
+            string FileName = Path.Combine(Paths.DocumentsFolder, "ErrorLog_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt");
+            GenerateExceptionLog(FileName, E);
+        }
+
+        /// <summary>
+        /// Generates a trace log for an exception. If an exception is thrown here, The error
+        /// will automatically be logged in the programs error log
+        /// </summary>
+        /// <param name="FileName">The tracelog filepath (Must not exist yet)</param>
+        /// <param name="E">The exception to log</param>
+        public static void GenerateExceptionLog(string FileName, Exception E)
         {
             // Try to write to the log
             try
             {
+                // Generate the tracelog
                 using (StreamWriter Log = new StreamWriter(File.Open(FileName, FileMode.Create, FileAccess.Write)))
                 {
-                    Win32Exception Ex = E as Win32Exception;
-                    if (Ex == null && E.InnerException != null)
-                        Ex = E.InnerException as Win32Exception;
-
-                    Log.WriteLine("Date: " + DateTime.Now.ToString());
-                    Log.WriteLine("Exception: " + E.Message.Replace("\n", "\n\t"));
-                    if (Ex != null)
-                        Log.WriteLine("Exception Code: " + Ex.ErrorCode);
-                    Log.WriteLine("Target Method: " + E.TargetSite.ToString());
+                    // Write the header data
+                    Log.WriteLine("-------- BF2Statistics Exception Trace Log --------");
+                    Log.WriteLine("Exception Date: " + DateTime.Now.ToString());
+                    Log.WriteLine("Program Version: " + Program.Version.ToString());
                     Log.WriteLine("Os Version: " + Environment.OSVersion.VersionString);
-                    Log.WriteLine("Stats Database Driver: " + Properties.Settings.Default.StatsDBEngine);
-                    Log.WriteLine("Gamespy Database Driver: " + Properties.Settings.Default.GamespyDBEngine);
-                    Log.WriteLine("StackTrace:");
-                    Log.WriteLine(E.StackTrace);
+                    Log.WriteLine("System Type: " + ((Environment.Is64BitOperatingSystem) ? "64 Bits" : "32 Bits"));
+                    Log.WriteLine("RunAs Admin: " + ((Program.IsAdministrator) ? "True" : "False"));
+                    Log.WriteLine("Stats Driver: " + Properties.Settings.Default.StatsDBEngine);
+                    Log.WriteLine("Gamespy Driver: " + Properties.Settings.Default.GamespyDBEngine);
+                    Log.WriteLine();
+                    Log.WriteLine("-------- Exception --------");
+
+                    // Log each exception
+                    int i = 0;
+                    while(true)
+                    {
+                        // Create a stack trace
+                        StackTrace trace = new StackTrace(E, true);
+                        StackFrame frame = trace.GetFrame(0);
+
+                        // Log the current exception
+                        Log.WriteLine("Type: " + E.GetType().FullName);
+                        Log.WriteLine("Message: " + E.Message.Replace("\n", "\n\t"));
+                        Log.WriteLine("Target Method: " + frame.GetMethod().Name);
+                        Log.WriteLine("File: " + frame.GetFileName());
+                        Log.WriteLine("Line: " + frame.GetFileLineNumber());
+                        Log.WriteLine("StackTrace:");
+                        Log.WriteLine(E.StackTrace.TrimEnd());
+
+                        // If we have no more inner exceptions, end the logging
+                        if (E.InnerException == null)
+                            break;
+
+                        // Prepare next inner exception data
+                        Log.WriteLine();
+                        Log.WriteLine("-------- Inner Exception ({0}) --------", i++);
+                        E = E.InnerException;
+                    }
+
                     Log.Flush();
                 }
             }
-            catch { }
+            catch (Exception Ex)
+            {
+                Program.ErrorLog.Write("FATAL: Unable to write tracelog!!! : " + Ex.ToString());
+                throw;
+            }
         }
     }
 }

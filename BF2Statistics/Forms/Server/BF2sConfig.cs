@@ -55,7 +55,6 @@ namespace BF2Statistics
             }
 
             // Get a list of all medal data
-            int i = 0;
             string[] medalList = Directory.GetFiles(PythonPath, "medal_data_*.py");
             foreach (string file in medalList)
             {
@@ -68,9 +67,8 @@ namespace BF2Statistics
 
                 // Remove .py extension, and add it to the list of files
                 fileF = fileF.Remove(fileF.Length - 3, 3).Replace("medal_data_", "");
-                MedalData.Items.Add(new Item(fileF, i));
+                MedalData.Items.Add(fileF);
                 MedalList.Add(fileF);
-                i++;
             }
 
             // Use the stream reader to load the config

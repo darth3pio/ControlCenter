@@ -56,7 +56,7 @@ namespace BF2Statistics
                 if (Directory.Exists(P))
                 {
                     foreach (string Map in Directory.GetDirectories(P))
-                        ClientMaps.Add(Map.Substring(P.Length + 1).ToLower());
+                        ClientMaps.Add(Map.Substring(P.Length + 1));
                 }
             }
 
@@ -152,7 +152,7 @@ namespace BF2Statistics
             string size = MapSizeSelect.SelectedItem.ToString();
 
             // Warn user if client doesnt support map
-            if (ClientMaps.Count > 0 && !ClientMaps.Contains(map.ToLower()))
+            if (ClientMaps.Count > 0 && !ClientMaps.Contains(map, StringComparer.OrdinalIgnoreCase))
             {
                 if (MessageBox.Show(
                     "The Battlfield 2 Client does not contain this map! Are you sure you want to add it to the maplist?",

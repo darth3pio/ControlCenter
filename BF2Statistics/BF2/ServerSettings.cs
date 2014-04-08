@@ -15,7 +15,7 @@ namespace BF2Statistics
         /// <summary>
         ///  A list of config items
         /// </summary>
-        protected Dictionary<string, string> Items = new Dictionary<string, string>();
+        protected Dictionary<string, string> Items = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Full path to our ServerSettings.con file
@@ -48,7 +48,7 @@ namespace BF2Statistics
             }
 
             // Get all Setting Matches
-            Regex Reg = new Regex(@"sv.(?:set)?(?<name>[A-Za-z]+)[\s|\t]+([""]*)(?<value>.*)(?:\1)[\n|\r|\r\n]", RegexOptions.Multiline);
+            Regex Reg = new Regex(@"sv.(?:set)?(?<name>[A-Za-z]+)[\s|\t]+([""]*)(?<value>.*)(?:\1)");
             MatchCollection Matches = Reg.Matches(contents);
             
             // Add each found match to the Items Dictionary

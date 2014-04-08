@@ -40,7 +40,7 @@ namespace BF2Statistics
         /// <summary>
         /// A list of "hostname" => "IPAddress" in the hosts file.
         /// </summary>
-        protected static Dictionary<string, string> Lines = new Dictionary<string,string>();
+        protected static Dictionary<string, string> Entries = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Returns whether the HOSTS file can be read from
@@ -63,8 +63,32 @@ namespace BF2Statistics
         /// </summary>
         static HostsFile()
         {
-            // Get the Hosts file object
-            HostFile = new FileInfo(FilePath);
+            try
+            {
+                // Get the Hosts file object
+                HostFile = new FileInfo(FilePath);
+
+                // If HOSTS file is readonly, remove that attribute!
+                if (HostFile.IsReadOnly)
+                {
+                    try
+                    {
+                        HostFile.IsReadOnly = false;
+                    }
+                    catch (Exception e)
+                    {
+                        Program.ErrorLog.Write("HOSTS file is READONLY, Attribute cannot be removed: " + e.Message);
+                        LastException = e;
+                        return;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Program.ErrorLog.Write("Program cannot access HOSTS file in any way: " + e.Message);
+                LastException = e;
+                return; 
+            }
 
             // Try to get the Access Control for the hosts file
             try
@@ -73,24 +97,9 @@ namespace BF2Statistics
             }
             catch (Exception e)
             {
-                MainForm.ErrorLog.Write("Unable to get HOST file Access Control: " + e.Message);
+                Program.ErrorLog.Write("Unable to get HOSTS file Access Control: " + e.Message);
                 LastException = e;
                 return;
-            }
-
-            // If HOSTS file is readonly, remove that attribute!
-            if (HostFile.IsReadOnly)
-            {
-                try
-                {
-                    HostFile.IsReadOnly = false;
-                }
-                catch (Exception e)
-                {
-                    MainForm.ErrorLog.Write("HOST file is READONLY, Attribute cannot be removed: " + e.Message);
-                    LastException = e;
-                    return;
-                }
             }
 
             // Make sure we can read the file amd write to it!
@@ -111,7 +120,7 @@ namespace BF2Statistics
             }
             catch (Exception e) 
             {
-                MainForm.ErrorLog.Write("Unable to READ the HOST file: " + e.Message);
+                Program.ErrorLog.Write("Unable to READ the HOSTS file: " + e.Message);
                 LastException = e;
                 return;
             }
@@ -122,9 +131,9 @@ namespace BF2Statistics
                 using (FileStream Stream = HostFile.OpenWrite())
                     CanWrite = true;
             }
-            catch(UnauthorizedAccessException e)
+            catch(Exception e)
             {
-                MainForm.ErrorLog.Write("Unable to WRITE to the HOST file: " + e.Message);
+                Program.ErrorLog.Write("Unable to WRITE to the HOSTS file: " + e.Message);
                 LastException = e;
                 return;
             }
@@ -146,14 +155,14 @@ namespace BF2Statistics
 
                 // Add line
                 if (M.Success)
-                    Lines.Add(M.Groups["hostname"].Value.ToLower().Trim(), M.Groups["address"].Value.Trim());
+                    Entries.Add(M.Groups["hostname"].Value.ToLower().Trim(), M.Groups["address"].Value.Trim());
             }
 
             // Make sure we have a localhost loopback! Save aswell, so its available for future
-            if (!Lines.ContainsKey("localhost"))
+            if (!Entries.ContainsKey("localhost"))
             {
                 OrigContents.Add("127.0.0.1\tlocalhost");
-                Lines.Add("localhost", IPAddress.Loopback.ToString());
+                Entries.Add("localhost", IPAddress.Loopback.ToString());
                 File.WriteAllLines(FilePath, OrigContents);
             }
         }
@@ -180,7 +189,7 @@ namespace BF2Statistics
             }
             catch (Exception e)
             {
-                MainForm.ErrorLog.Write("Unable to REMOVE the Readonly rule on Hosts File: " + e.Message);
+                Program.ErrorLog.Write("Unable to REMOVE the Readonly rule on Hosts File: " + e.Message);
                 LastException = e;
                 return false;
             }
@@ -208,7 +217,7 @@ namespace BF2Statistics
             }
             catch (Exception e)
             {
-                MainForm.ErrorLog.Write("Unable to REMOVE the Readonly rule on Hosts File: " + e.Message);
+                Program.ErrorLog.Write("Unable to REMOVE the Readonly rule on Hosts File: " + e.Message);
                 LastException = e;
                 return false;
             }
@@ -224,10 +233,10 @@ namespace BF2Statistics
             // Throw exception if there was one!
             if (LastException != null) throw LastException;
 
-            if (Lines.ContainsKey(Domain))
-                Lines[Domain] = Ip;
+            if (Entries.ContainsKey(Domain))
+                Entries[Domain] = Ip;
             else
-                Lines.Add(Domain, Ip);
+                Entries.Add(Domain, Ip);
         }
 
         /// <summary>
@@ -239,8 +248,8 @@ namespace BF2Statistics
             // Throw exception if there was one!
             if (LastException != null) throw LastException;
 
-            if (Lines.ContainsKey(Domain))
-                Lines.Remove(Domain);
+            if (Entries.ContainsKey(Domain))
+                Entries.Remove(Domain);
         }
 
         /// <summary>
@@ -252,7 +261,7 @@ namespace BF2Statistics
         {
             // Throw exception if there was one!
             if (LastException != null) throw LastException;
-            return Lines.ContainsKey(Domain);
+            return Entries.ContainsKey(Domain);
         }
 
         /// <summary>
@@ -264,7 +273,7 @@ namespace BF2Statistics
         {
             // Throw exception if there was one!
             if (LastException != null) throw LastException;
-            return Lines[Domain];
+            return Entries[Domain];
         }
 
         /// <summary>
@@ -277,7 +286,7 @@ namespace BF2Statistics
 
             // Convert the dictionary of lines to a list of lines
             List<string> lns = new List<string>();
-            foreach (KeyValuePair<String, String> line in Lines)
+            foreach (KeyValuePair<String, String> line in Entries)
                 lns.Add(String.Format("{0}\t{1}", line.Value, line.Key));
 
             File.WriteAllLines(FilePath, lns);
@@ -291,7 +300,7 @@ namespace BF2Statistics
         {
             // Throw exception if there was one!
             if (LastException != null) throw LastException;
-            return Lines;
+            return Entries;
         }
     }
 }

@@ -75,7 +75,7 @@ namespace BF2Statistics
         /// <summary>
         /// Full path to the generated trace file
         /// </summary>
-        public string LogFile
+        public string TraceLog
         {
             get { return _logFile; }
             set
@@ -110,7 +110,7 @@ namespace BF2Statistics
             }
 
             // Reset log button
-            LogFile = _logFile;
+            TraceLog = _logFile;
         }
 
         new public DialogResult ShowDialog()

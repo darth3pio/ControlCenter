@@ -59,7 +59,7 @@ namespace BF2Statistics.Logging
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void LogTimer_Elapsed(object sender, ElapsedEventArgs e)
+        private void LogTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             FlushLog();
         }
@@ -97,14 +97,12 @@ namespace BF2Statistics.Logging
             if (LogQueue.Count > 0)
             {
                 using (FileStream fs = File.Open(LogFile, FileMode.Append, FileAccess.Write))
+                using (StreamWriter log = new StreamWriter(fs))
                 {
-                    using (StreamWriter log = new StreamWriter(fs))
+                    while (LogQueue.Count > 0)
                     {
-                        while (LogQueue.Count > 0)
-                        {
-                            LogMessage entry = LogQueue.Dequeue();
-                            log.WriteLine(String.Format("[{0}]\t{1}", entry.LogTime, entry.Message));
-                        }
+                        LogMessage entry = LogQueue.Dequeue();
+                        log.WriteLine(String.Format("[{0}]\t{1}", entry.LogTime, entry.Message));
                     }
                 }
             }
@@ -115,6 +113,8 @@ namespace BF2Statistics.Logging
         /// </summary>
         ~LogWritter()
         {
+            LogTimer.Stop();
+            LogTimer.Dispose();
             FlushLog();
         }
     }

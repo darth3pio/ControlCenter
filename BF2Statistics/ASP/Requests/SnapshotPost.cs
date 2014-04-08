@@ -81,7 +81,7 @@ namespace BF2Statistics.ASP.Requests
             try
             {
                 // Read Snapshot
-                using (StreamReader Reader = new StreamReader(Client.Request.InputStream, Client.Request.ContentEncoding))
+                using (StreamReader Reader = new StreamReader(Client.Request.InputStream))
                     SnapshotData = Reader.ReadToEnd();
 
                 // Create the Snapshot Object
@@ -100,7 +100,7 @@ namespace BF2Statistics.ASP.Requests
             }
             catch (Exception E)
             {
-                ASPServer.Log("ERROR: [SnapshotPreProcess] " + E.Message);
+                ASPServer.Log("ERROR: [SnapshotPreProcess] " + E.Message + " @ " + E.TargetSite);
                 Client.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
                 Client.Response.Send();
                 return;

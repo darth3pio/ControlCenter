@@ -255,7 +255,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_ACB36BDD39DA2C912B03DD49EF03738D"
+        "MsmKey" = "8:_B0ECF8691B326D69A9DB469218DC10CD"
         "OwnerKey" = "8:_466C0CA44ECD4B9DA55729F17C117922"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -328,7 +328,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_32541D8346B6E93A6B4F96059ED1697F"
+        "OwnerKey" = "8:_A63D17CF5EB3C952E6F74DA906FCE35A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -340,13 +340,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_ACB36BDD39DA2C912B03DD49EF03738D"
+        "OwnerKey" = "8:_32541D8346B6E93A6B4F96059ED1697F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A63D17CF5EB3C952E6F74DA906FCE35A"
+        "OwnerKey" = "8:_B0ECF8691B326D69A9DB469218DC10CD"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -601,6 +601,11 @@
             "AssemblyAsmDisplayName" = "8:Microsoft.VisualBasic.PowerPacks.Vs, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_32541D8346B6E93A6B4F96059ED1697F"
+                    {
+                    "Name" = "8:Microsoft.VisualBasic.PowerPacks.Vs.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:Microsoft.VisualBasic.PowerPacks.Vs.dll"
             "TargetName" = "8:"
@@ -1047,6 +1052,11 @@
             "AssemblyAsmDisplayName" = "8:FreeImageNET, Version=3.15.1.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_7A5E58E024602DB4B03EEBEEEB71F72F"
+                    {
+                    "Name" = "8:FreeImageNET.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:FreeImageNET.dll"
             "TargetName" = "8:"
@@ -1213,6 +1223,11 @@
             "AssemblyAsmDisplayName" = "8:System.Data.SQLite, Version=1.0.84.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
+                    "_A63D17CF5EB3C952E6F74DA906FCE35A"
+                    {
+                    "Name" = "8:System.Data.SQLite.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:System.Data.SQLite.dll"
             "TargetName" = "8:"
@@ -1252,13 +1267,18 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_ACB36BDD39DA2C912B03DD49EF03738D"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_B0ECF8691B326D69A9DB469218DC10CD"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:MySql.Data, Version=6.6.5.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:MySql.Data, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_B0ECF8691B326D69A9DB469218DC10CD"
+                    {
+                    "Name" = "8:MySql.Data.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:MySql.Data.dll"
             "TargetName" = "8:"
@@ -1716,6 +1736,50 @@
                 {
                 }
             }
+            "{1525181F-901A-416C-8A58-119130FE478E}:_D43F6DB414B34AD0B79A3B1DE630D04D"
+            {
+            "Name" = "8:#1918"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:PersonalFolder"
+                "Folders"
+                {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_A47B0D65FA7449D4A2FA6401987A9E66"
+                    {
+                    "Name" = "8:BF2Statistics"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_6ACC9A295940428CA0C272E0936ACF65"
+                        "Folders"
+                        {
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_03BD428F29724028AEE437460279AA9D"
+                            {
+                            "Name" = "8:Backups"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_00520E63A3174F228EB4EF95D8EE81E5"
+                                "Folders"
+                                {
+                                }
+                            }
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_696B6B3D525546ADA424254486D52F41"
+                            {
+                            "Name" = "8:Player Exports"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_CC2655F428D94AAEA4EE64D1296924ED"
+                                "Folders"
+                                {
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         "LaunchCondition"
         {
@@ -1732,15 +1796,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:BF2Statistics Control Center"
-        "ProductCode" = "8:{CE553C4F-DA8F-49B4-9FA8-A8D3EE001D31}"
-        "PackageCode" = "8:{49C95B08-150A-4323-95D1-CFC9CC8BF788}"
+        "ProductCode" = "8:{91EFB6C4-5DA3-411F-8957-F0954F613D0E}"
+        "PackageCode" = "8:{48924D8E-BEC1-4448-9470-116C982181AC}"
         "UpgradeCode" = "8:{2BC7A7AA-61E6-4E3E-9CC7-E199CC638CEB}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.7.0"
+        "ProductVersion" = "8:1.7.2"
         "Manufacturer" = "8:BF2Statistics"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.bf2statistics.com"
@@ -2302,6 +2366,34 @@
             "ProjectOutputGroupRegister" = "3:1"
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{C451E96C-EEFA-4AAF-8084-4AF115FC1C4B}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_6D87142C1B4C4EB981CA4D26A6FCFC7C"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_1C5681D20B8C4DEDB2774728B254999B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Symbols"
             "OutputProjectGuid" = "8:{C451E96C-EEFA-4AAF-8084-4AF115FC1C4B}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"

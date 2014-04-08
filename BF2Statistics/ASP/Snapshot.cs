@@ -7,10 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using System.Net;
+using System.Globalization;
 using BF2Statistics.ASP;
 using BF2Statistics.Database;
 using BF2Statistics.Logging;
 using BF2Statistics.Database.QueryBuilder;
+using BF2Statistics.Utilities;
 
 namespace BF2Statistics.ASP
 {
@@ -129,12 +131,12 @@ namespace BF2Statistics.ASP
         /// <summary>
         /// All of our players data
         /// </summary>
-        private List<Dictionary<string, string>> PlayerData;
+        private Dictionary<int, Dictionary<string, string>> PlayerData;
 
         /// <summary>
         /// All of player kill data (this can get quite huge)
         /// </summary>
-        private List<Dictionary<string, string>> KillData;
+        private Dictionary<int, Dictionary<string, string>> KillData;
 
         /// <summary>
         /// The snapshot Date
@@ -158,6 +160,7 @@ namespace BF2Statistics.ASP
         /// <param name="Date">The original date in which this snapshot was created</param>
         public Snapshot(string Snapshot, DateTime Date, StatsDatabase Database)
         {
+
             // Load out database connection
             this.Driver = Database;
             this.Date = Date;
@@ -187,8 +190,8 @@ namespace BF2Statistics.ASP
             // Map Data
             this.MapName = Data[7];
             this.MapId = int.Parse(Data[9]);
-            this.MapStart = (int)Math.Round(float.Parse(Data[11]), 0);
-            this.MapEnd = (int)Math.Round(float.Parse(Data[13]), 0);
+            this.MapStart = (int)Convert.ToDouble(Data[11], CultureInfo.InvariantCulture.NumberFormat);
+            this.MapEnd = (int)Convert.ToDouble(Data[13], CultureInfo.InvariantCulture.NumberFormat);
 
             // Misc Data
             this.WinningTeam = int.Parse(Data[15]);
@@ -204,8 +207,8 @@ namespace BF2Statistics.ASP
             this.Team2Tickets = int.Parse(Data[33]);
 
             // Setup snapshot variables
-            PlayerData = new List<Dictionary<string, string>>();
-            KillData = new List<Dictionary<string, string>>();
+            PlayerData = new Dictionary<int, Dictionary<string, string>>();
+            KillData = new Dictionary<int, Dictionary<string, string>>();
 
             // Check for custom map, with no ID
             if (MapId == 99)
@@ -220,7 +223,7 @@ namespace BF2Statistics.ASP
                     // There should never be more then 300 unknown map id's, considering 1001 is the start of KNOWN
                     // Custom mod map id's
                     Rows = Driver.Query("SELECT MAX(id) AS id FROM mapinfo WHERE id BETWEEN 700 AND 1000");
-                    MapId = (Rows.Count == 0 || String.IsNullOrWhiteSpace(Rows[0]["id"].ToString())) 
+                    MapId = (Rows.Count == 0 || String.IsNullOrWhiteSpace(Rows[0]["id"].ToString()))
                         ? 700
                         : (Int32.Parse(Rows[0]["id"].ToString()) + 1);
 
@@ -256,8 +259,8 @@ namespace BF2Statistics.ASP
                 int id = int.Parse(Parts[1]);
                 if (Parts[0] == "pID")
                 {
-                    PlayerData.Add(new Dictionary<string, string>());
-                    KillData.Add(new Dictionary<string, string>());
+                    PlayerData.Add(id, new Dictionary<string, string>());
+                    KillData.Add(id, new Dictionary<string, string>());
                 }
 
                 // Kill and death data has its own array key
@@ -267,7 +270,7 @@ namespace BF2Statistics.ASP
                 if (Parts[0] == "mvns")
                     KillData[id].Add(Data[i + 1], Data[i + 3]);
                 else
-                    PlayerData[id].Add(Parts[0], Data[i + 1]);  
+                    PlayerData[id].Add(Parts[0], Data[i + 1]);
             }
 
             // Set that we appear to be valid
@@ -331,9 +334,11 @@ namespace BF2Statistics.ASP
             try
             {
                 // Loop through each player, and process them
-                int PlayerPosition = 0;
-                foreach (Dictionary<string, string> Player in PlayerData)
+                foreach (KeyValuePair<int, Dictionary<string, string>> PlayerIndex in PlayerData)
                 {
+                    int PlayerPosition = PlayerIndex.Key;
+                    Dictionary<string, string> Player = PlayerIndex.Value;
+
                     // Parse some player data
                     int Pid = Int32.Parse(Player["pID"]);
                     int Time = Int32.Parse(Player["ctime"]);
@@ -1031,9 +1036,6 @@ namespace BF2Statistics.ASP
 
                         } // End Foreach Award
                     }
-
-                    // Increment player position
-                    PlayerPosition++;
                 } // End Foreach Player
 
                 // Commit the transaction

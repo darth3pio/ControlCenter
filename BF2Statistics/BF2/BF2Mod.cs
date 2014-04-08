@@ -106,21 +106,21 @@ namespace BF2Statistics
             // Make sure we have a mod description file
             if (!File.Exists(DescFile))
             {
-                MainForm.ErrorLog.Write("Mod \"" + ModName + "\" Does not contain mod.desc file");
+                Program.ErrorLog.Write("Mod \"" + ModName + "\" Does not contain mod.desc file");
                 throw new InvalidModException("Mod does not contain a mod.desc file");
             }
 
             // Make sure we have a levels directory
             if (!Directory.Exists(LevelsPath))
             {
-                MainForm.ErrorLog.Write("Mod \"" + ModName + "\" Does not contain a Levels folder");
+                Program.ErrorLog.Write("Mod \"" + ModName + "\" Does not contain a Levels folder");
                 throw new InvalidModException("Mod does not contain a levels folder");
             }
 
             // Make sure we have a maplist!
             if (!File.Exists(MaplistFile))
             {
-                MainForm.ErrorLog.Write("Mod \"" + ModName + "\" Does not contain a maplist.con file");
+                Program.ErrorLog.Write("Mod \"" + ModName + "\" Does not contain a maplist.con file");
                 throw new InvalidModException("Mod does not contain a a maplist.con file");
             }
 
