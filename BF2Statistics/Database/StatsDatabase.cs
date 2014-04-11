@@ -10,6 +10,7 @@ using System.Xml.Linq;
 using System.ComponentModel;
 using BF2Statistics.ASP;
 using BF2Statistics.Database.QueryBuilder;
+using System.Data.SQLite;
 
 namespace BF2Statistics.Database
 {
@@ -567,28 +568,27 @@ namespace BF2Statistics.Database
         /// </summary>
         public void Truncate()
         {
-            // Sqlite Database doesnt have a truncate method, so we will just recreate the database
+            // Start a new transaction
+            DbTransaction T = BeginTransaction();
+
+            // Sqlite Databases use an alternate method for clearing
             if (DatabaseEngine == DatabaseEngine.Sqlite)
             {
-                // Stop the server. We do this to prevent data requests
-                // while we are re-inserting the extensive IP2Nation data
-                ASPServer.Stop();
+                // Delete all records from each table
+                foreach (string Table in StatsTables)
+                    Execute("DELETE FROM " + Table);
 
-                // Truncate the sqlite database file
-                File.Open(
-                    Path.Combine(MainForm.Root, MainForm.Config.StatsDBName + ".sqlite3"), 
-                    FileMode.Truncate
-                ).Close();
-
-                // Reset driver, start ASP again
-                ASPServer.Start();
+                // Execute the VACUUM command to shrink the DB page size
+                T.Commit();
+                Execute("VACUUM;");
             }
             else
             {
-                // Use MySQL's truncate method to clear the tables. Since
-                // the IP2Nation table isnt cleared, no need to stop the ASP
+                // Use MySQL's truncate method to clear the tables.
                 foreach (string Table in StatsTables)
                     Execute("TRUNCATE TABLE " + Table);
+
+                T.Commit();
             }
         }
 

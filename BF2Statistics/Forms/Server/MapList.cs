@@ -233,6 +233,10 @@ namespace BF2Statistics
             // Enable add button
             AddToMapList.Enabled = true;
 
+            // If the freeimage library is not available, stop here
+            if (!FreeImage.IsAvailable())
+                return;
+
             // Load map image
             // Get Values
             string map = MapListSelect.SelectedItem.ToString();

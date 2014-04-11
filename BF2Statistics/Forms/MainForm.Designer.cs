@@ -67,7 +67,7 @@
             this.groupBox18 = new System.Windows.Forms.GroupBox();
             this.BF2sEditMedalDataBtn = new System.Windows.Forms.Button();
             this.InstallBox = new System.Windows.Forms.TextBox();
-            this.InstallButton = new System.Windows.Forms.Button();
+            this.BF2sInstallBtn = new System.Windows.Forms.Button();
             this.BF2sRestoreBtn = new System.Windows.Forms.Button();
             this.BF2sConfigBtn = new System.Windows.Forms.Button();
             this.label11 = new System.Windows.Forms.Label();
@@ -600,7 +600,7 @@
             // 
             this.groupBox18.Controls.Add(this.BF2sEditMedalDataBtn);
             this.groupBox18.Controls.Add(this.InstallBox);
-            this.groupBox18.Controls.Add(this.InstallButton);
+            this.groupBox18.Controls.Add(this.BF2sInstallBtn);
             this.groupBox18.Controls.Add(this.BF2sRestoreBtn);
             this.groupBox18.Controls.Add(this.BF2sConfigBtn);
             this.groupBox18.Location = new System.Drawing.Point(292, 51);
@@ -613,7 +613,7 @@
             // BF2sEditMedalDataBtn
             // 
             this.BF2sEditMedalDataBtn.Enabled = false;
-            this.BF2sEditMedalDataBtn.Location = new System.Drawing.Point(40, 144);
+            this.BF2sEditMedalDataBtn.Location = new System.Drawing.Point(37, 144);
             this.BF2sEditMedalDataBtn.Name = "BF2sEditMedalDataBtn";
             this.BF2sEditMedalDataBtn.Size = new System.Drawing.Size(197, 38);
             this.BF2sEditMedalDataBtn.TabIndex = 5;
@@ -628,25 +628,26 @@
             this.InstallBox.ForeColor = System.Drawing.Color.Red;
             this.InstallBox.Location = new System.Drawing.Point(6, 27);
             this.InstallBox.Name = "InstallBox";
+            this.InstallBox.ReadOnly = true;
             this.InstallBox.Size = new System.Drawing.Size(260, 13);
             this.InstallBox.TabIndex = 4;
             this.InstallBox.Text = "BF2 Statistics server files are currently NOT installed";
             this.InstallBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // InstallButton
+            // BF2sInstallBtn
             // 
-            this.InstallButton.Location = new System.Drawing.Point(40, 54);
-            this.InstallButton.Name = "InstallButton";
-            this.InstallButton.Size = new System.Drawing.Size(197, 38);
-            this.InstallButton.TabIndex = 3;
-            this.InstallButton.Text = "Install Ranked Python files";
-            this.InstallButton.UseVisualStyleBackColor = true;
-            this.InstallButton.Click += new System.EventHandler(this.InstallButton_Click);
+            this.BF2sInstallBtn.Location = new System.Drawing.Point(37, 54);
+            this.BF2sInstallBtn.Name = "BF2sInstallBtn";
+            this.BF2sInstallBtn.Size = new System.Drawing.Size(197, 38);
+            this.BF2sInstallBtn.TabIndex = 3;
+            this.BF2sInstallBtn.Text = "Install Ranked Python files";
+            this.BF2sInstallBtn.UseVisualStyleBackColor = true;
+            this.BF2sInstallBtn.Click += new System.EventHandler(this.InstallButton_Click);
             // 
             // BF2sRestoreBtn
             // 
             this.BF2sRestoreBtn.BackColor = System.Drawing.Color.Transparent;
-            this.BF2sRestoreBtn.Location = new System.Drawing.Point(40, 208);
+            this.BF2sRestoreBtn.Location = new System.Drawing.Point(37, 208);
             this.BF2sRestoreBtn.Name = "BF2sRestoreBtn";
             this.BF2sRestoreBtn.Size = new System.Drawing.Size(197, 38);
             this.BF2sRestoreBtn.TabIndex = 1;
@@ -657,7 +658,7 @@
             // BF2sConfigBtn
             // 
             this.BF2sConfigBtn.Enabled = false;
-            this.BF2sConfigBtn.Location = new System.Drawing.Point(40, 99);
+            this.BF2sConfigBtn.Location = new System.Drawing.Point(37, 99);
             this.BF2sConfigBtn.Name = "BF2sConfigBtn";
             this.BF2sConfigBtn.Size = new System.Drawing.Size(197, 38);
             this.BF2sConfigBtn.TabIndex = 0;
@@ -1075,6 +1076,7 @@
             this.TotalUnProcSnapCount.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.TotalUnProcSnapCount.Location = new System.Drawing.Point(183, 44);
             this.TotalUnProcSnapCount.Name = "TotalUnProcSnapCount";
+            this.TotalUnProcSnapCount.ReadOnly = true;
             this.TotalUnProcSnapCount.Size = new System.Drawing.Size(38, 13);
             this.TotalUnProcSnapCount.TabIndex = 30;
             this.TotalUnProcSnapCount.Text = "0";
@@ -1084,6 +1086,7 @@
             this.TotalSnapCount.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.TotalSnapCount.Location = new System.Drawing.Point(183, 24);
             this.TotalSnapCount.Name = "TotalSnapCount";
+            this.TotalSnapCount.ReadOnly = true;
             this.TotalSnapCount.Size = new System.Drawing.Size(38, 13);
             this.TotalSnapCount.TabIndex = 29;
             this.TotalSnapCount.Text = "0";
@@ -1741,7 +1744,7 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(451, 13);
             this.textBox1.TabIndex = 5;
-            this.textBox1.Text = "Battlefield 2 Statistics Control Center v" + Program.Version.ToString();
+            this.textBox1.Text = "Battlefield 2 Statistics Control Center v1.8.0";
             // 
             // pictureBox1
             // 
@@ -1960,7 +1963,7 @@
         private System.Windows.Forms.Button BF2sRestoreBtn;
         private System.Windows.Forms.Button BF2sConfigBtn;
         private System.Windows.Forms.TextBox InstallBox;
-        private System.Windows.Forms.Button InstallButton;
+        private System.Windows.Forms.Button BF2sInstallBtn;
         private System.Windows.Forms.Button OpenRootBtn;
         private System.Windows.Forms.Button BF2sEditMedalDataBtn;
         private System.Windows.Forms.Label label14;

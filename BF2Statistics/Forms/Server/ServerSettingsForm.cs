@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace BF2Statistics
 {
@@ -16,6 +17,23 @@ namespace BF2Statistics
         private ServerSettings Settings;
 
         /// <summary>
+        /// Indicates whether we are using a global settings file
+        /// </summary>
+        private bool UseGlobalSettings;
+
+        /// <summary>
+        /// The contents of the AiDefault.ai file
+        /// </summary>
+        private string AiDefaultText = "";
+
+        /// <summary>
+        /// An array of aiSettings matches that will need replaced in the AiDefault file
+        /// </summary>
+        private string[] AiMatches = new string[4];
+
+        private bool OrigForced;
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="UseGlobalSettings">
@@ -25,15 +43,22 @@ namespace BF2Statistics
         public ServerSettingsForm(bool UseGlobalSettings)
         {
             InitializeComponent();
+            this.UseGlobalSettings = UseGlobalSettings;
 
             // Parse settings file, and fill in form values
             try 
             {
-                // Load Settings
+                // Load Settings, and set for title
                 if (UseGlobalSettings)
+                {
                     this.Settings = new ServerSettings(Path.Combine(MainForm.Root, "Python", "GlobalServerSettings.con"));
+                    this.Text = "Global Server Settings";
+                }
                 else
+                {
                     this.Settings = MainForm.SelectedMod.ServerSettings;
+                    this.Text = MainForm.SelectedMod.Title + " Server Settings";
+                }
 
                 // General
                 ServerNameBox.Text = Settings.GetValue("serverName");
@@ -72,12 +97,6 @@ namespace BF2Statistics
                 SoldierSplashFFBar.Value = Int32.Parse(Settings.GetValue("soldierSplashFriendlyFire"));
                 VehicleSplashFFBar.Value = Int32.Parse(Settings.GetValue("vehicleSplashFriendlyFire"));
 
-                // Bot Settings
-                int BotCount = Int32.Parse(Settings.GetValue("coopBotCount"));
-                BotRatioBar.Value = Int32.Parse(Settings.GetValue("coopBotRatio"));
-                BotCountBar.Value = ((BotCount > BotCountBar.Maximum) ? 64 : BotCount);
-                BotDifficultyBar.Value = Int32.Parse(Settings.GetValue("coopBotDifficulty"));
-
                 // Voip
                 EnableVoip.Checked = (Int32.Parse(Settings.GetValue("voipEnabled")) == 1);
                 EnableRemoteVoip.Checked = (Int32.Parse(Settings.GetValue("voipServerRemote")) == 1);
@@ -112,6 +131,9 @@ namespace BF2Statistics
                 RadioSpamIntBox.Value = Int32.Parse(Settings.GetValue("radioSpamInterval", "6"));
                 RadioMaxSpamBox.Value = Int32.Parse(Settings.GetValue("radioMaxSpamFlagCount", "6"));
                 RadioBlockTimeBar.Value = Int32.Parse(Settings.GetValue("radioBlockedDurationTime", "30"));
+
+                // Bot Settings
+                GetBotSettings();
             }
             catch(Exception e) 
             {
@@ -120,6 +142,127 @@ namespace BF2Statistics
             }
         }
 
+        /// <summary>
+        /// Loads the bot settings from the Settings object and the /ai/aidefault.ai file
+        /// </summary>
+        protected void GetBotSettings()
+        {
+            // Get the Bot Count
+            int BotCount = Int32.Parse(Settings.GetValue("coopBotCount"));
+            if (BotCount > 48)
+                BotCount = 48;
+
+            // Set form values
+            BotCountBar.Value = BotCount;
+            BotRatioBar.Value = Int32.Parse(Settings.GetValue("coopBotRatio"));
+            BotDifficultyBar.Value = Int32.Parse(Settings.GetValue("coopBotDifficulty"));
+
+            // Global settings does not have a aidefault.ai file
+            if (UseGlobalSettings)
+            {
+                ForceBotCount.Enabled = false;
+                return;
+            }
+
+            // Load the mods AiDefault.ai file
+            try
+            {
+                AiDefaultText = File.ReadAllText(Path.Combine(MainForm.SelectedMod.RootPath, "ai", "AiDefault.ai"));
+            }
+            catch (Exception e)
+            {
+                Program.ErrorLog.Write("Warning: [ServerSettings] Could not open the AiDefault.ai file : " + e.Message);
+                ForceBotCount.Enabled = false;
+                return;
+            }
+
+            // Use regex to parse the settings
+            int MaxBots = 16;
+            Regex Reg = new Regex(@"aiSettings.(?<name>[A-Za-z]+)[\s|\t]+(?<value>[.0-9]+)");
+            MatchCollection Matches = Reg.Matches(AiDefaultText);
+            foreach (Match M in Matches)
+            {
+                switch (M.Groups["name"].Value.ToLower())
+                {
+                    case "overridemenusettings":
+                        ForceBotCount.Checked = OrigForced = (M.Groups["value"].Value.Trim() == "1");
+                        AiMatches[0] = M.Value;
+                        break;
+                    case "setmaxnbots":
+                        Int32.TryParse(M.Groups["value"].Value, out MaxBots);
+                        AiMatches[1] = M.Value;
+                        break;
+                    case "setbotskill":
+                        AiMatches[2] = M.Value;
+                        break;
+                    case "maxbotsincludehumans":
+                        AiMatches[3] = M.Value;
+                        break;
+                }
+            }
+
+            // Make sure Team 1's bot count is not higher then the total bot count
+            if (MaxBots < BotCount)
+                MaxBots = BotCount;
+
+            // Set values
+            int Count = MaxBots - BotCount;
+            BotCountBar1.Value = ((Count > 48) ? 48 : Count);
+            BotCountBar2.Value = BotCount;
+        }
+
+        /// <summary>
+        /// Sets the bot settings based on whether the ForceBotCount is checked
+        /// </summary>
+        protected void SetBotSettings()
+        {
+            // Save settings
+            Settings.SetValue("coopBotDifficulty", BotDifficultyBar.Value.ToString());
+
+            // If we are using global settings file, or not using the AiDefault.ai file
+            if (UseGlobalSettings || !ForceBotCount.Checked)
+            {
+                Settings.SetValue("coopBotRatio", BotRatioBar.Value.ToString());
+                Settings.SetValue("coopBotCount", BotCountBar.Value.ToString());
+
+                // Stopping point for global settings
+                if (UseGlobalSettings)
+                    return;
+            }
+            else
+            {
+                // Forcing AIDefault, set ratio to 100 and the bot count for team 2
+                Settings.SetValue("coopBotRatio", "100");
+                Settings.SetValue("coopBotCount", BotCountBar2.Value.ToString());
+            }
+
+            // No need to write to the file if we werent enabled in the first place
+            if (!OrigForced && !ForceBotCount.Checked)
+                return;
+
+            // Save Values in the AiDefault if there is changes to be made
+            if (ForceBotCount.Checked)
+            {
+                AiDefaultText = AiDefaultText.Replace(AiMatches[0], "aiSettings.overrideMenuSettings 1")
+                    .Replace(AiMatches[1], "aiSettings.setMaxNBots " + (BotCountBar2.Value + BotCountBar1.Value))
+                    .Replace(AiMatches[2], "aiSettings.setBotSkill " + (BotDifficultyBar.Value / 100f))
+                    .Replace(AiMatches[3], "aiSettings.maxBotsIncludeHumans 0");
+            }
+            else
+            {
+                // Make sure the AiDefault.ai settings are disabled
+                AiDefaultText = AiDefaultText.Replace(AiMatches[0], "aiSettings.overrideMenuSettings 0");
+            }
+
+            // Save File
+            File.WriteAllText(Path.Combine(MainForm.SelectedMod.RootPath, "ai", "AiDefault.ai"), AiDefaultText);
+        }
+
+        /// <summary>
+        /// Event fired when the cancel button is clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Cancel_Click(object sender, EventArgs e)
         {
             this.Close();
@@ -168,11 +311,6 @@ namespace BF2Statistics
             Settings.SetValue("vehicleFriendlyFire", VehicleFFBar.Value.ToString());
             Settings.SetValue("vehicleSplashFriendlyFire", VehicleSplashFFBar.Value.ToString());
 
-            // Bot Settings
-            Settings.SetValue("coopBotRatio", BotRatioBar.Value.ToString());
-            Settings.SetValue("coopBotCount", BotCountBar.Value.ToString());
-            Settings.SetValue("coopBotDifficulty", BotDifficultyBar.Value.ToString());
-
             // Voip
             Settings.SetValue("voipEnabled", (EnableVoip.Checked) ? "1" : "0");
             Settings.SetValue("voipServerRemote", (EnableRemoteVoip.Checked) ? "1" : "0");
@@ -211,6 +349,8 @@ namespace BF2Statistics
             // Save to the file
             try
             {
+                // Bot Settings
+                SetBotSettings();
                 Settings.Save();
                 this.Close();
             }
@@ -229,6 +369,20 @@ namespace BF2Statistics
         }
 
         #region Events
+
+        private void ForceBotCount_CheckedChanged(object sender, EventArgs e)
+        {
+            BotCountBar1.Enabled = ForceBotCount.Checked;
+            BotCountBar2.Enabled = ForceBotCount.Checked;
+            BotCountBar.Enabled = !ForceBotCount.Checked;
+            BotRatioBar.Enabled = !ForceBotCount.Checked;
+        }
+
+        private void InfoLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            BotCountInfoForm f = new BotCountInfoForm();
+            f.ShowDialog();
+        }
 
         private void PlayersToStartSlider_ValueChanged(object sender, EventArgs e)
         {
@@ -389,6 +543,16 @@ namespace BF2Statistics
         private void RadioBlockTimeBar_ValueChanged(object sender, EventArgs e)
         {
             RadioBlockTimeBox.Text = RadioBlockTimeBar.Value.ToString();
+        }
+
+        private void BotCountBar1_ValueChanged(object sender, EventArgs e)
+        {
+            BotCountBox1.Text = BotCountBar1.Value.ToString();
+        }
+
+        private void BotCountBar2_ValueChanged(object sender, EventArgs e)
+        {
+            BotCountBox2.Text = BotCountBar2.Value.ToString();
         }
 
         #endregion

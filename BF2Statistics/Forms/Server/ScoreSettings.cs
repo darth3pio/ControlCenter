@@ -16,17 +16,37 @@ namespace BF2Statistics
         private FileInfo ScoringConqFile;
         private FileInfo ScoringCoopFile;
 
-        // Ai Prefix?
-        protected bool PrefixAI = false;
-        protected string Prefix;
+        /// <summary>
+        /// The score settings from the scoring common
+        /// </summary>
+        protected Dictionary<string, string[]> Scores;
+
+        /// <summary>
+        /// The score settings from the conquest file
+        /// </summary>
+        protected Dictionary<string, string[]> ConqScores;
+
+        /// <summary>
+        /// score settings from the coop file
+        /// </summary>
+        protected Dictionary<string, string[]> CoopScores;
+
+        /// <summary>
+        /// Our Regex object that will parse the current score settings
+        /// </summary>
+        private Regex Reg = new Regex(
+            @"^(?<varname>[A-Z_]+)(?:[\s|\t]*)=(?:[\s|\t]*)(?<value>[-]?[0-9]+)(?:.*)$", 
+            RegexOptions.Multiline
+        );
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="PrefixAI">Are we doing AI scoring files?</param>
-        public ScoreSettings(bool PrefixAI)
+        public ScoreSettings()
         {
             InitializeComponent();
+            this.Text = MainForm.SelectedMod.Title + " Score Settings";
 
             // Assign folder vars
             string ScoringFolder = Path.Combine(MainForm.SelectedMod.RootPath, "python", "game");
@@ -42,25 +62,24 @@ namespace BF2Statistics
                 this.Load += new EventHandler(CloseOnStart);
                 return;
             }
-
-            // Are we doing AI scoring?
-            if (PrefixAI)
-            {
-                // Hide Conquest tab as its not needed for AI obviously
-                tabControl1.TabPages.Remove(tabPage2);
-                this.Prefix = "AI_";
-                this.Text = "AI Score Settings";
-                this.PrefixAI = true;
-            }
                 
-            // Load score settings
-            LoadSettings();
+            // Load Common Scoring File
+            LoadScoringCommon();
+
+            // Load the Conquest Scoring file
+            LoadConqFile();
+
+            // Load the Coop Scoring file
+            LoadCoopFile();
+
+            // Fill form values
+            FillFormFields();
         }
 
         /// <summary>
         /// Loads the scoring files, and initializes the values of all the input fields
         /// </summary>
-        private void LoadSettings()
+        private void LoadScoringCommon()
         {
             // First, we need to parse all 3 scoring files
             string file;
@@ -90,7 +109,7 @@ namespace BF2Statistics
             // First, we are going to check for a certain string... if it exists
             // Then these config file has been reformated already, else we need
             // to reformat it now
-            if (!file.Contains("AI_SCORE_KILL"))
+            if (!file.StartsWith("# BF2Statistics Formatted Common Scoring"))
             {
                 if (!File.Exists(ModPath))
                 {
@@ -129,92 +148,32 @@ namespace BF2Statistics
             }
 
             // Build our regex for getting scoring values
-            string Expression = (PrefixAI)
-                ? @"^AI_SCORE_(?<varname>[A-Z_]+)(?:[\s|\t]*)=(?:[\s|\t]*)(?<value>[-]?[0-9]+)"
-                : @"^SCORE_(?<varname>[A-Z_]+)(?:[\s|\t]*)=(?:[\s|\t]*)(?<value>[-]?[0-9]+)";
-            Regex Reg = new Regex(Expression, RegexOptions.Multiline);
+            Scores = new Dictionary<string, string[]>();
 
             // Get all matches for the ScoringCommon.py
             MatchCollection Matches = Reg.Matches(file);
             foreach (Match m in Matches)
-            {
-                switch (m.Groups["varname"].Value)
-                {
-                    case "KILL":
-                        KillScore.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "TEAMKILL":
-                        TeamKillScore.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "SUICIDE":
-                        SuicideScore.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "REVIVE":
-                        ReviveScore.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "TEAMDAMAGE":
-                        TeamDamage.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "TEAMVEHICLEDAMAGE":
-                        TeamVehicleDamage.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "DESTROYREMOTECONTROLLED":
-                        DestroyEnemyAsset.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "KILLASSIST_DRIVER": 
-                        DriverKA.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "KILLASSIST_PASSENGER":
-                        PassangerKA.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "KILLASSIST_TARGETER":
-                        TargeterKA.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "KILLASSIST_DAMAGE":
-                        DamageAssist.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "HEAL":
-                        GiveHealth.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "GIVEAMMO":
-                        GiveAmmo.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "REPAIR":
-                        VehicleRepair.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                }
-            }
+                Scores.Add(m.Groups["varname"].Value, new string[] { m.Groups["value"].Value, m.Value });
+        }
 
-            // Move on to the Conquest Scoring
-            if (!PrefixAI)
-            {
-                file = File.ReadAllText(ScoringConqFile.FullName);
-                Matches = Reg.Matches(file);
+        /// <summary>
+        /// Loads the conquest scoring file
+        /// </summary>
+        private void LoadConqFile()
+        {
+            ConqScores = new Dictionary<string, string[]>();
+            string file = File.ReadAllText(ScoringConqFile.FullName);
+            MatchCollection Matches = Reg.Matches(file);
+            foreach (Match m in Matches)
+                ConqScores.Add(m.Groups["varname"].Value, new string[] { m.Groups["value"].Value, m.Value });
+        }
 
-                foreach (Match m in Matches)
-                {
-                    switch (m.Groups["varname"].Value)
-                    {
-                        case "CAPTURE":
-                            ConqFlagCapture.Value = Int32.Parse(m.Groups["value"].Value);
-                            break;
-                        case "CAPTUREASSIST":
-                            ConqFlagCaptureAsst.Value = Int32.Parse(m.Groups["value"].Value);
-                            break;
-                        case "NEUTRALIZE":
-                            ConqFlagNeutralize.Value = Int32.Parse(m.Groups["value"].Value);
-                            break;
-                        case "NEUTRALIZEASSIST":
-                            ConqFlagNeutralizeAsst.Value = Int32.Parse(m.Groups["value"].Value);
-                            break;
-                        case "DEFEND":
-                            ConqDefendFlag.Value = Int32.Parse(m.Groups["value"].Value);
-                            break;
-                    }
-                }
-            }
-
-            // Move on to the Coop Scoring. Check file for read and write access
+        /// <summary>
+        /// Loads the Coop File Settings
+        /// </summary>
+        private void LoadCoopFile()
+        {
+            string file;
             try
             {
                 using (Stream Str = ScoringCoopFile.Open(FileMode.Open, FileAccess.ReadWrite))
@@ -235,12 +194,12 @@ namespace BF2Statistics
             }
 
             // Process
-            if (!file.Contains("AI_SCORE_CAPTURE "))
+            if (!file.StartsWith("# BF2Statistics Formatted Coop Scoring"))
             {
                 // We need to replace the default file with the embedded one that
                 // Correctly formats the AI_ Scores
-                DefaultPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", "bf2_coop.py");
-                ModPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", MainForm.SelectedMod.Name + "_coop.py");
+                string DefaultPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", "bf2_coop.py");
+                string ModPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", MainForm.SelectedMod.Name + "_coop.py");
 
                 if (!File.Exists(ModPath))
                 {
@@ -278,28 +237,77 @@ namespace BF2Statistics
                 }
             }
 
-            Matches = Reg.Matches(file);
+            CoopScores = new Dictionary<string, string[]>();
+            MatchCollection Matches = Reg.Matches(file);
             foreach (Match m in Matches)
-            {
-                switch (m.Groups["varname"].Value)
-                {
-                    case "CAPTURE":
-                        CoopFlagCapture.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "CAPTUREASSIST":
-                        CoopFlagCaptureAsst.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "NEUTRALIZE":
-                        CoopFlagNeutralize.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "NEUTRALIZEASSIST":
-                        CoopFlagNeutralizeAsst.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                    case "DEFEND":
-                        CoopDefendFlag.Value = Int32.Parse(m.Groups["value"].Value);
-                        break;
-                }
-            }
+                CoopScores.Add(m.Groups["varname"].Value, new string[] { m.Groups["value"].Value, m.Value });
+        }
+
+        /// <summary>
+        /// Fills the form values
+        /// </summary>
+        private void FillFormFields()
+        {
+            // Player Global Scoring
+            KillScore.Value = Int32.Parse(Scores["SCORE_KILL"][0]);
+            TeamKillScore.Value = Int32.Parse(Scores["SCORE_TEAMKILL"][0]);
+            SuicideScore.Value = Int32.Parse(Scores["SCORE_SUICIDE"][0]);
+            ReviveScore.Value = Int32.Parse(Scores["SCORE_REVIVE"][0]);
+            TeamDamage.Value = Int32.Parse(Scores["SCORE_TEAMDAMAGE"][0]);
+            TeamVehicleDamage.Value = Int32.Parse(Scores["SCORE_TEAMVEHICLEDAMAGE"][0]);
+            DestroyEnemyAsset.Value = Int32.Parse(Scores["SCORE_DESTROYREMOTECONTROLLED"][0]);
+            DriverKA.Value = Int32.Parse(Scores["SCORE_KILLASSIST_DRIVER"][0]);
+            PassangerKA.Value = Int32.Parse(Scores["SCORE_KILLASSIST_PASSENGER"][0]);
+            TargeterKA.Value = Int32.Parse(Scores["SCORE_KILLASSIST_TARGETER"][0]);
+            DamageAssist.Value = Int32.Parse(Scores["SCORE_KILLASSIST_DAMAGE"][0]);
+            GiveHealth.Value = Int32.Parse(Scores["SCORE_HEAL"][0]);
+            GiveAmmo.Value = Int32.Parse(Scores["SCORE_GIVEAMMO"][0]);
+            VehicleRepair.Value = Int32.Parse(Scores["SCORE_REPAIR"][0]);
+
+            // Player Conquest Settings
+            ConqFlagCapture.Value = Int32.Parse(ConqScores["SCORE_CAPTURE"][0]);
+            ConqFlagCaptureAsst.Value = Int32.Parse(ConqScores["SCORE_CAPTUREASSIST"][0]);
+            ConqFlagNeutralize.Value = Int32.Parse(ConqScores["SCORE_NEUTRALIZE"][0]);
+            ConqFlagNeutralizeAsst.Value = Int32.Parse(ConqScores["SCORE_NEUTRALIZEASSIST"][0]);
+            ConqDefendFlag.Value = Int32.Parse(ConqScores["SCORE_DEFEND"][0]);
+
+            // Player Coop Settings
+            CoopFlagCapture.Value = Int32.Parse(CoopScores["SCORE_CAPTURE"][0]);
+            CoopFlagCaptureAsst.Value = Int32.Parse(CoopScores["SCORE_CAPTUREASSIST"][0]);
+            CoopFlagNeutralize.Value = Int32.Parse(CoopScores["SCORE_NEUTRALIZE"][0]);
+            CoopFlagNeutralizeAsst.Value = Int32.Parse(CoopScores["SCORE_NEUTRALIZEASSIST"][0]);
+            CoopDefendFlag.Value = Int32.Parse(CoopScores["SCORE_DEFEND"][0]);
+
+            // AI Bots Global Scoring
+            AiKillScore.Value = Int32.Parse(Scores["AI_SCORE_KILL"][0]);
+            AiTeamKillScore.Value = Int32.Parse(Scores["AI_SCORE_TEAMKILL"][0]);
+            AiSuicideScore.Value = Int32.Parse(Scores["AI_SCORE_SUICIDE"][0]);
+            AiReviveScore.Value = Int32.Parse(Scores["AI_SCORE_REVIVE"][0]);
+            AiTeamDamage.Value = Int32.Parse(Scores["AI_SCORE_TEAMDAMAGE"][0]);
+            AiTeamVehicleDamage.Value = Int32.Parse(Scores["AI_SCORE_TEAMVEHICLEDAMAGE"][0]);
+            AiDestroyEnemyAsset.Value = Int32.Parse(Scores["AI_SCORE_DESTROYREMOTECONTROLLED"][0]);
+            AiDriverKA.Value = Int32.Parse(Scores["AI_SCORE_KILLASSIST_DRIVER"][0]);
+            AiPassangerKA.Value = Int32.Parse(Scores["AI_SCORE_KILLASSIST_PASSENGER"][0]);
+            AiTargeterKA.Value = Int32.Parse(Scores["AI_SCORE_KILLASSIST_TARGETER"][0]);
+            AiDamageAssist.Value = Int32.Parse(Scores["AI_SCORE_KILLASSIST_DAMAGE"][0]);
+            AiGiveHealth.Value = Int32.Parse(Scores["AI_SCORE_HEAL"][0]);
+            AiGiveAmmo.Value = Int32.Parse(Scores["AI_SCORE_GIVEAMMO"][0]);
+            AiVehicleRepair.Value = Int32.Parse(Scores["AI_SCORE_REPAIR"][0]);
+
+            // AI Bots Conquest Settings
+            AiFlagCapture.Value = Int32.Parse(CoopScores["AI_SCORE_CAPTURE"][0]);
+            AiFlagCaptureAsst.Value = Int32.Parse(CoopScores["AI_SCORE_CAPTUREASSIST"][0]);
+            AiFlagNeutralize.Value = Int32.Parse(CoopScores["AI_SCORE_NEUTRALIZE"][0]);
+            AiFlagNeutralizeAsst.Value = Int32.Parse(CoopScores["AI_SCORE_NEUTRALIZEASSIST"][0]);
+            AiDefendFlag.Value = Int32.Parse(CoopScores["AI_SCORE_DEFEND"][0]);
+
+            // Replenish Scoring
+            RepairPointLimit.Value = Int32.Parse(Scores["REPAIR_POINT_LIMIT"][0]);
+            HealPointLimit.Value = Int32.Parse(Scores["HEAL_POINT_LIMIT"][0]);
+            AmmoPointLimit.Value = Int32.Parse(Scores["GIVEAMMO_POINT_LIMIT"][0]);
+            TeamDamageLimit.Value = Int32.Parse(Scores["TEAMDAMAGE_POINT_LIMIT"][0]);
+            TeamVDamageLimit.Value = Int32.Parse(Scores["TEAMVEHICLEDAMAGE_POINT_LIMIT"][0]);
+            ReplenishInterval.Value = Int32.Parse(Scores["REPLENISH_POINT_MIN_INTERVAL"][0]);
         }
 
         /// <summary>
@@ -312,50 +320,69 @@ namespace BF2Statistics
 
         #region Events
 
+        /// <summary>
+        /// Event fired when the Cancel button is pressed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Cancel_Click(object sender, EventArgs e)
         {
             this.Close();
         }
 
+        /// <summary>
+        /// Event fired when the Save buttons is pressed.
+        /// Saves all the current scoring settings
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SaveButton_Click(object sender, EventArgs e)
         {
             string contents;
 
-            // for each of the 2 scoring files, we use regex to set the values
-            // Scoring Common
+            // ========================================== Scoring Common
+            // Get current file contents
             using (Stream Str = ScoringCommonFile.OpenRead())
             using (StreamReader Rdr = new StreamReader(Str))
                 contents = Rdr.ReadToEnd();
 
-            // Do replacements
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_KILL(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)", 
-                Prefix + "SCORE_KILL = " + KillScore.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_TEAMKILL(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_TEAMKILL = " + TeamKillScore.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_SUICIDE(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_SUICIDE = " + SuicideScore.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_REVIVE(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_REVIVE = " + ReviveScore.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_TEAMDAMAGE(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_TEAMDAMAGE = " + TeamDamage.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_DESTROYREMOTECONTROLLED(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_DESTROYREMOTECONTROLLED = " + DestroyEnemyAsset.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_TEAMVEHICLEDAMAGE(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_TEAMVEHICLEDAMAGE = " + TeamVehicleDamage.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_KILLASSIST_DRIVER(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_KILLASSIST_DRIVER = " + DriverKA.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_KILLASSIST_PASSENGER(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_KILLASSIST_PASSENGER = " + PassangerKA.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_KILLASSIST_TARGETER(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_KILLASSIST_TARGETER = " + TargeterKA.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_KILLASSIST_DAMAGE(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_KILLASSIST_DAMAGE = " + DamageAssist.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_HEAL(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_HEAL = " + GiveHealth.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_GIVEAMMO(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_GIVEAMMO = " + GiveAmmo.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_REPAIR(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_REPAIR = " + VehicleRepair.Value, RegexOptions.Multiline);
+            // Player
+            contents = Regex.Replace(contents, Scores["SCORE_KILL"][1], "SCORE_KILL = " + KillScore.Value);
+            contents = Regex.Replace(contents, Scores["SCORE_TEAMKILL"][1], "SCORE_TEAMKILL = " + TeamKillScore.Value);
+            contents = Regex.Replace(contents, Scores["SCORE_SUICIDE"][1], "SCORE_SUICIDE = " + SuicideScore.Value);
+            contents = Regex.Replace(contents, Scores["SCORE_REVIVE"][1], "SCORE_REVIVE = " + ReviveScore.Value);
+            contents = Regex.Replace(contents, Scores["SCORE_TEAMDAMAGE"][1], "SCORE_TEAMDAMAGE = " + TeamDamage.Value);
+            contents = Regex.Replace(contents, Scores["SCORE_TEAMVEHICLEDAMAGE"][1], "SCORE_TEAMVEHICLEDAMAGE = " + TeamVehicleDamage.Value);
+            contents = Regex.Replace(contents, Scores["SCORE_DESTROYREMOTECONTROLLED"][1], "SCORE_DESTROYREMOTECONTROLLED = " + DestroyEnemyAsset.Value);
+            contents = Regex.Replace(contents, Scores["SCORE_KILLASSIST_DRIVER"][1], "SCORE_KILLASSIST_DRIVER = " + DriverKA.Value);
+            contents = Regex.Replace(contents, Scores["SCORE_KILLASSIST_PASSENGER"][1], "SCORE_KILLASSIST_PASSENGER = " + PassangerKA.Value);
+            contents = Regex.Replace(contents, Scores["SCORE_KILLASSIST_TARGETER"][1], "SCORE_KILLASSIST_TARGETER = " + TargeterKA.Value);
+            contents = Regex.Replace(contents, Scores["SCORE_KILLASSIST_DAMAGE"][1], "SCORE_KILLASSIST_DAMAGE = " + DamageAssist.Value);
+            contents = Regex.Replace(contents, Scores["SCORE_HEAL"][1], "SCORE_HEAL = " + GiveHealth.Value);
+            contents = Regex.Replace(contents, Scores["SCORE_GIVEAMMO"][1], "SCORE_GIVEAMMO = " + GiveAmmo.Value);
+            contents = Regex.Replace(contents, Scores["SCORE_REPAIR"][1], "SCORE_REPAIR = " + VehicleRepair.Value);
+            // Bots
+            contents = Regex.Replace(contents, Scores["AI_SCORE_KILL"][1], "AI_SCORE_KILL = " + AiKillScore.Value);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_TEAMKILL"][1], "AI_SCORE_TEAMKILL = " + AiTeamKillScore.Value);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_SUICIDE"][1], "AI_SCORE_SUICIDE = " + AiSuicideScore.Value);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_REVIVE"][1], "AI_SCORE_REVIVE = " + AiReviveScore.Value);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_TEAMDAMAGE"][1], "AI_SCORE_TEAMDAMAGE = " + AiTeamDamage.Value);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_TEAMVEHICLEDAMAGE"][1], "AI_SCORE_TEAMVEHICLEDAMAGE = " + AiTeamVehicleDamage.Value);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_DESTROYREMOTECONTROLLED"][1], "AI_SCORE_DESTROYREMOTECONTROLLED = " + AiDestroyEnemyAsset.Value);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_KILLASSIST_DRIVER"][1], "AI_SCORE_KILLASSIST_DRIVER = " + AiDriverKA.Value);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_KILLASSIST_PASSENGER"][1], "AI_SCORE_KILLASSIST_PASSENGER = " + AiPassangerKA.Value);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_KILLASSIST_TARGETER"][1], "AI_SCORE_KILLASSIST_TARGETER = " + AiTargeterKA.Value);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_KILLASSIST_DAMAGE"][1], "AI_SCORE_KILLASSIST_DAMAGE = " + AiDamageAssist.Value);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_HEAL"][1], "AI_SCORE_HEAL = " + AiGiveHealth.Value);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_GIVEAMMO"][1], "AI_SCORE_GIVEAMMO = " + AiGiveAmmo.Value);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_REPAIR"][1], "AI_SCORE_REPAIR = " + AiVehicleRepair.Value);
+            // Replenish
+            contents = Regex.Replace(contents, Scores["REPAIR_POINT_LIMIT"][1], "REPAIR_POINT_LIMIT = " + RepairPointLimit.Value);
+            contents = Regex.Replace(contents, Scores["HEAL_POINT_LIMIT"][1], "HEAL_POINT_LIMIT = " + HealPointLimit.Value);
+            contents = Regex.Replace(contents, Scores["GIVEAMMO_POINT_LIMIT"][1], "GIVEAMMO_POINT_LIMIT = " + AmmoPointLimit.Value);
+            contents = Regex.Replace(contents, Scores["TEAMDAMAGE_POINT_LIMIT"][1], "TEAMDAMAGE_POINT_LIMIT = " + TeamDamageLimit.Value);
+            contents = Regex.Replace(contents, Scores["TEAMVEHICLEDAMAGE_POINT_LIMIT"][1], "TEAMVEHICLEDAMAGE_POINT_LIMIT = " + TeamVDamageLimit.Value);
+            contents = Regex.Replace(contents, Scores["REPLENISH_POINT_MIN_INTERVAL"][1], "REPLENISH_POINT_MIN_INTERVAL = " + ReplenishInterval.Value);
             
             // Save File
             using (Stream Str = ScoringCommonFile.Open(FileMode.Truncate, FileAccess.Write))
@@ -365,48 +392,46 @@ namespace BF2Statistics
                 Wtr.Flush();
             }
 
-            // Scoring Conquest
-            if (!PrefixAI)
+            // ========================================== Scoring Conquest
+            // Get curent file contents
+            using (Stream Str = ScoringConqFile.OpenRead())
+            using (StreamReader Rdr = new StreamReader(Str))
+                contents = Rdr.ReadToEnd();
+
+            // Do Replacements
+            contents = Regex.Replace(contents, ConqScores["SCORE_CAPTURE"][1], "SCORE_CAPTURE = " + ConqFlagCapture.Value);
+            contents = Regex.Replace(contents, ConqScores["SCORE_CAPTUREASSIST"][1], "SCORE_CAPTUREASSIST = " + ConqFlagCaptureAsst.Value);
+            contents = Regex.Replace(contents, ConqScores["SCORE_NEUTRALIZE"][1], "SCORE_NEUTRALIZE = " + ConqFlagNeutralize.Value);
+            contents = Regex.Replace(contents, ConqScores["SCORE_NEUTRALIZEASSIST"][1], "SCORE_NEUTRALIZEASSIST = " + ConqFlagNeutralizeAsst.Value);
+            contents = Regex.Replace(contents, ConqScores["SCORE_DEFEND"][1], "SCORE_DEFEND = " + ConqDefendFlag.Value);
+
+            // Save File
+            using (Stream Str = ScoringConqFile.Open(FileMode.Truncate, FileAccess.Write))
+            using (StreamWriter Wtr = new StreamWriter(Str))
             {
-                // Get curent file contents
-                using (Stream Str = ScoringConqFile.OpenRead())
-                using (StreamReader Rdr = new StreamReader(Str))
-                    contents = Rdr.ReadToEnd();
-
-                // Do Replacements
-                contents = Regex.Replace(contents, @"SCORE_CAPTURE(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)", "SCORE_CAPTURE = " + ConqFlagCapture.Value);
-                contents = Regex.Replace(contents, @"SCORE_CAPTUREASSIST(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                    "SCORE_CAPTUREASSIST = " + ConqFlagCaptureAsst.Value);
-                contents = Regex.Replace(contents, @"SCORE_NEUTRALIZE(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)", "SCORE_NEUTRALIZE = " + ConqFlagNeutralize.Value);
-                contents = Regex.Replace(contents, @"SCORE_NEUTRALIZEASSIST(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                    "SCORE_NEUTRALIZEASSIST = " + ConqFlagNeutralizeAsst.Value);
-                contents = Regex.Replace(contents, @"SCORE_DEFEND(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)", "SCORE_DEFENT = " + ConqDefendFlag.Value);
-
-                // Save File
-                using (Stream Str = ScoringConqFile.Open(FileMode.Truncate, FileAccess.Write))
-                using (StreamWriter Wtr = new StreamWriter(Str))
-                {
-                    Wtr.Write(contents);
-                    Wtr.Flush();
-                }
+                Wtr.Write(contents);
+                Wtr.Flush();
             }
 
-            // Scoring Coop
+            // ========================================== Scoring Coop
+            // Get current file contents
             using (Stream Str = ScoringCoopFile.OpenRead())
             using (StreamReader Rdr = new StreamReader(Str))
                 contents = Rdr.ReadToEnd();
 
             // Do Replacements
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_CAPTURE(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_CAPTURE = " + CoopFlagCapture.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_CAPTUREASSIST(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_CAPTUREASSIST = " + CoopFlagCaptureAsst.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_NEUTRALIZE(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_NEUTRALIZE = " + CoopFlagNeutralize.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_NEUTRALIZEASSIST(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_NEUTRALIZEASSIST = " + CoopFlagNeutralizeAsst.Value, RegexOptions.Multiline);
-            contents = Regex.Replace(contents, @"^" + Prefix + @"SCORE_DEFEND(?:[\s|\t]*)=(?:[\s|\t]*)([-]?[0-9]+)",
-                Prefix + "SCORE_DEFEND = " + CoopDefendFlag.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, CoopScores["SCORE_CAPTURE"][1], "SCORE_CAPTURE = " + CoopFlagCapture.Value);
+            contents = Regex.Replace(contents, CoopScores["SCORE_CAPTUREASSIST"][1], "SCORE_CAPTUREASSIST = " + CoopFlagCaptureAsst.Value);
+            contents = Regex.Replace(contents, CoopScores["SCORE_NEUTRALIZE"][1], "SCORE_NEUTRALIZE = " + CoopFlagNeutralize.Value);
+            contents = Regex.Replace(contents, CoopScores["SCORE_NEUTRALIZEASSIST"][1], "SCORE_NEUTRALIZEASSIST = " + CoopFlagNeutralizeAsst.Value);
+            contents = Regex.Replace(contents, CoopScores["SCORE_DEFEND"][1], "SCORE_DEFEND = " + CoopDefendFlag.Value);
+            // Bots
+            contents = Regex.Replace(contents, CoopScores["AI_SCORE_CAPTURE"][1], "AI_SCORE_CAPTURE = " + AiFlagCapture.Value);
+            contents = Regex.Replace(contents, CoopScores["AI_SCORE_CAPTUREASSIST"][1], "AI_SCORE_CAPTUREASSIST = " + AiFlagCaptureAsst.Value);
+            contents = Regex.Replace(contents, CoopScores["AI_SCORE_NEUTRALIZE"][1], "AI_SCORE_NEUTRALIZE = " + AiFlagNeutralize.Value);
+            contents = Regex.Replace(contents, CoopScores["AI_SCORE_NEUTRALIZEASSIST"][1], "AI_SCORE_NEUTRALIZEASSIST = " + AiFlagNeutralizeAsst.Value);
+            contents = Regex.Replace(contents, CoopScores["AI_SCORE_DEFEND"][1], "AI_SCORE_DEFEND = " + AiDefendFlag.Value);
+            
 
             // Save File
             using (Stream Str = ScoringCoopFile.Open(FileMode.Truncate, FileAccess.Write))
@@ -416,6 +441,12 @@ namespace BF2Statistics
                 Wtr.Flush();
             }
 
+            // Remove the ServerSettings.con file as that screws with the replenish scores
+            FileInfo file = new FileInfo(Path.Combine(MainForm.SelectedMod.RootPath, "Settings", "ScoreManagerSetup.con"));
+            if (file.Exists)
+                file.Rename("ScoreManagerSetup.con.bak");
+                
+            // Close this form
             this.Close();
         }
 
@@ -450,6 +481,37 @@ namespace BF2Statistics
             CoopFlagNeutralize.Value = 2;
             CoopFlagNeutralizeAsst.Value = 1;
             CoopDefendFlag.Value = 1;
+
+            // Scoring Common
+            AiKillScore.Value = 2;
+            AiReviveScore.Value = 2;
+            AiDestroyEnemyAsset.Value = 1;
+            AiGiveHealth.Value = 1;
+            AiGiveAmmo.Value = 1;
+            AiVehicleRepair.Value = 1;
+            AiTeamKillScore.Value = -4;
+            AiTeamDamage.Value = -2;
+            AiTeamVehicleDamage.Value = -1;
+            AiSuicideScore.Value = -2;
+            AiDriverKA.Value = 1;
+            AiPassangerKA.Value = 1;
+            AiTargeterKA.Value = 0;
+            AiDamageAssist.Value = 1;
+
+            // Conquest
+            AiFlagCapture.Value = 2;
+            AiFlagCaptureAsst.Value = 1;
+            AiFlagNeutralize.Value = 2;
+            AiFlagNeutralizeAsst.Value = 1;
+            AiDefendFlag.Value = 1;
+
+            // Replensih
+            RepairPointLimit.Value = 100;
+            HealPointLimit.Value = 100;
+            AmmoPointLimit.Value = 100;
+            TeamDamageLimit.Value = 50;
+            TeamVDamageLimit.Value = 50;
+            ReplenishInterval.Value = 30;
         }
 
         #endregion

@@ -144,6 +144,14 @@
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.groupBox26 = new System.Windows.Forms.GroupBox();
+            this.InfoLink = new System.Windows.Forms.LinkLabel();
+            this.groupBox31 = new System.Windows.Forms.GroupBox();
+            this.BotCountBar1 = new System.Windows.Forms.TrackBar();
+            this.BotCountBox1 = new System.Windows.Forms.TextBox();
+            this.groupBox32 = new System.Windows.Forms.GroupBox();
+            this.BotCountBar2 = new System.Windows.Forms.TrackBar();
+            this.BotCountBox2 = new System.Windows.Forms.TextBox();
+            this.ForceBotCount = new System.Windows.Forms.CheckBox();
             this.groupBox29 = new System.Windows.Forms.GroupBox();
             this.BotCountBar = new System.Windows.Forms.TrackBar();
             this.BotCountBox = new System.Windows.Forms.TextBox();
@@ -239,6 +247,10 @@
             this.tabPage4.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.groupBox26.SuspendLayout();
+            this.groupBox31.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.BotCountBar1)).BeginInit();
+            this.groupBox32.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.BotCountBar2)).BeginInit();
             this.groupBox29.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.BotCountBar)).BeginInit();
             this.groupBox28.SuspendLayout();
@@ -1713,10 +1725,14 @@
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Size = new System.Drawing.Size(605, 349);
             this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "COOP";
+            this.tabPage3.Text = "Coop Bots";
             // 
             // groupBox26
             // 
+            this.groupBox26.Controls.Add(this.InfoLink);
+            this.groupBox26.Controls.Add(this.groupBox31);
+            this.groupBox26.Controls.Add(this.groupBox32);
+            this.groupBox26.Controls.Add(this.ForceBotCount);
             this.groupBox26.Controls.Add(this.groupBox29);
             this.groupBox26.Controls.Add(this.groupBox28);
             this.groupBox26.Controls.Add(this.groupBox27);
@@ -1725,6 +1741,104 @@
             this.groupBox26.Size = new System.Drawing.Size(594, 337);
             this.groupBox26.TabIndex = 0;
             this.groupBox26.TabStop = false;
+            // 
+            // InfoLink
+            // 
+            this.InfoLink.AutoSize = true;
+            this.InfoLink.Location = new System.Drawing.Point(339, 206);
+            this.InfoLink.Name = "InfoLink";
+            this.InfoLink.Size = new System.Drawing.Size(61, 13);
+            this.InfoLink.TabIndex = 41;
+            this.InfoLink.TabStop = true;
+            this.InfoLink.Text = "More Info...";
+            this.InfoLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.InfoLink_LinkClicked);
+            // 
+            // groupBox31
+            // 
+            this.groupBox31.Controls.Add(this.BotCountBar1);
+            this.groupBox31.Controls.Add(this.BotCountBox1);
+            this.groupBox31.Location = new System.Drawing.Point(11, 250);
+            this.groupBox31.Name = "groupBox31";
+            this.groupBox31.Size = new System.Drawing.Size(283, 54);
+            this.groupBox31.TabIndex = 40;
+            this.groupBox31.TabStop = false;
+            this.groupBox31.Text = "Team 1 Bot Count";
+            // 
+            // BotCountBar1
+            // 
+            this.BotCountBar1.AutoSize = false;
+            this.BotCountBar1.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.BotCountBar1.Enabled = false;
+            this.BotCountBar1.LargeChange = 8;
+            this.BotCountBar1.Location = new System.Drawing.Point(6, 19);
+            this.BotCountBar1.Maximum = 48;
+            this.BotCountBar1.Name = "BotCountBar1";
+            this.BotCountBar1.Size = new System.Drawing.Size(240, 29);
+            this.BotCountBar1.SmallChange = 2;
+            this.BotCountBar1.TabIndex = 8;
+            this.BotCountBar1.TickFrequency = 4;
+            this.BotCountBar1.Value = 16;
+            this.BotCountBar1.ValueChanged += new System.EventHandler(this.BotCountBar1_ValueChanged);
+            // 
+            // BotCountBox1
+            // 
+            this.BotCountBox1.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.BotCountBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.BotCountBox1.Location = new System.Drawing.Point(252, 19);
+            this.BotCountBox1.Name = "BotCountBox1";
+            this.BotCountBox1.ReadOnly = true;
+            this.BotCountBox1.Size = new System.Drawing.Size(20, 13);
+            this.BotCountBox1.TabIndex = 10;
+            this.BotCountBox1.Text = "16";
+            // 
+            // groupBox32
+            // 
+            this.groupBox32.Controls.Add(this.BotCountBar2);
+            this.groupBox32.Controls.Add(this.BotCountBox2);
+            this.groupBox32.Location = new System.Drawing.Point(300, 250);
+            this.groupBox32.Name = "groupBox32";
+            this.groupBox32.Size = new System.Drawing.Size(283, 54);
+            this.groupBox32.TabIndex = 39;
+            this.groupBox32.TabStop = false;
+            this.groupBox32.Text = "Team 2 Bot Count";
+            // 
+            // BotCountBar2
+            // 
+            this.BotCountBar2.AutoSize = false;
+            this.BotCountBar2.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.BotCountBar2.Enabled = false;
+            this.BotCountBar2.LargeChange = 8;
+            this.BotCountBar2.Location = new System.Drawing.Point(6, 19);
+            this.BotCountBar2.Maximum = 48;
+            this.BotCountBar2.Name = "BotCountBar2";
+            this.BotCountBar2.Size = new System.Drawing.Size(240, 29);
+            this.BotCountBar2.SmallChange = 2;
+            this.BotCountBar2.TabIndex = 11;
+            this.BotCountBar2.TickFrequency = 4;
+            this.BotCountBar2.Value = 16;
+            this.BotCountBar2.ValueChanged += new System.EventHandler(this.BotCountBar2_ValueChanged);
+            // 
+            // BotCountBox2
+            // 
+            this.BotCountBox2.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.BotCountBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.BotCountBox2.Location = new System.Drawing.Point(252, 19);
+            this.BotCountBox2.Name = "BotCountBox2";
+            this.BotCountBox2.ReadOnly = true;
+            this.BotCountBox2.Size = new System.Drawing.Size(20, 13);
+            this.BotCountBox2.TabIndex = 12;
+            this.BotCountBox2.Text = "16";
+            // 
+            // ForceBotCount
+            // 
+            this.ForceBotCount.AutoSize = true;
+            this.ForceBotCount.Location = new System.Drawing.Point(195, 205);
+            this.ForceBotCount.Name = "ForceBotCount";
+            this.ForceBotCount.Size = new System.Drawing.Size(147, 17);
+            this.ForceBotCount.TabIndex = 38;
+            this.ForceBotCount.Text = "Force More Than 48 Bots";
+            this.ForceBotCount.UseVisualStyleBackColor = true;
+            this.ForceBotCount.CheckedChanged += new System.EventHandler(this.ForceBotCount_CheckedChanged);
             // 
             // groupBox29
             // 
@@ -1743,12 +1857,12 @@
             this.BotCountBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.BotCountBar.LargeChange = 8;
             this.BotCountBar.Location = new System.Drawing.Point(6, 19);
-            this.BotCountBar.Maximum = 64;
+            this.BotCountBar.Maximum = 48;
             this.BotCountBar.Name = "BotCountBar";
             this.BotCountBar.Size = new System.Drawing.Size(240, 29);
             this.BotCountBar.SmallChange = 2;
             this.BotCountBar.TabIndex = 8;
-            this.BotCountBar.TickFrequency = 8;
+            this.BotCountBar.TickFrequency = 4;
             this.Tipsy.SetToolTip(this.BotCountBar, "The maximum number of players allowed on your server at once.");
             this.BotCountBar.Value = 16;
             this.BotCountBar.ValueChanged += new System.EventHandler(this.BotCountBar_ValueChanged);
@@ -2160,7 +2274,7 @@
             this.Tipsy.InitialDelay = 500;
             this.Tipsy.ReshowDelay = 100;
             // 
-            // ServerSettings
+            // ServerSettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -2171,7 +2285,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "ServerSettings";
+            this.Name = "ServerSettingsForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Server Settings";
             this.groupBox1.ResumeLayout(false);
@@ -2254,6 +2368,13 @@
             this.tabPage4.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
             this.groupBox26.ResumeLayout(false);
+            this.groupBox26.PerformLayout();
+            this.groupBox31.ResumeLayout(false);
+            this.groupBox31.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.BotCountBar1)).EndInit();
+            this.groupBox32.ResumeLayout(false);
+            this.groupBox32.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.BotCountBar2)).EndInit();
             this.groupBox29.ResumeLayout(false);
             this.groupBox29.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.BotCountBar)).EndInit();
@@ -2433,5 +2554,13 @@
         private System.Windows.Forms.TextBox RadioBlockTimeBox;
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.TrackBar RadioBlockTimeBar;
+        private System.Windows.Forms.CheckBox ForceBotCount;
+        private System.Windows.Forms.GroupBox groupBox31;
+        private System.Windows.Forms.TrackBar BotCountBar1;
+        private System.Windows.Forms.TextBox BotCountBox1;
+        private System.Windows.Forms.GroupBox groupBox32;
+        private System.Windows.Forms.TrackBar BotCountBar2;
+        private System.Windows.Forms.TextBox BotCountBox2;
+        private System.Windows.Forms.LinkLabel InfoLink;
     }
 }

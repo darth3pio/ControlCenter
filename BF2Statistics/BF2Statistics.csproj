@@ -13,6 +13,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -25,7 +26,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -85,6 +85,13 @@
     <Compile Include="BF2\BF2Map.cs" />
     <Compile Include="BF2\BF2Mod.cs" />
     <Compile Include="BF2\BF2Server.cs" />
+    <Compile Include="Extensions\FileExtensions.cs" />
+    <Compile Include="Forms\Server\BotCountInfoForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Server\BotCountInfoForm.Designer.cs">
+      <DependentUpon>BotCountInfoForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Exceptions\DbConnectException.cs" />
     <Compile Include="Exceptions\InvalidMapException.cs" />
     <Compile Include="Exceptions\InvalidModException.cs" />
@@ -238,12 +245,6 @@
     </Compile>
     <Compile Include="Forms\Server\MapList.designer.cs">
       <DependentUpon>MapList.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\Server\ScoreSelectForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\Server\ScoreSelectForm.designer.cs">
-      <DependentUpon>ScoreSelectForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Server\ScoreSettings.cs">
       <SubType>Form</SubType>
@@ -444,6 +445,9 @@
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Server\BotCountInfoForm.resx">
+      <DependentUpon>BotCountInfoForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Server\ImageForm.resx">
       <DependentUpon>ImageForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -452,9 +456,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Server\RandomizeForm.resx">
       <DependentUpon>RandomizeForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Server\ScoreSelectForm.resx">
-      <DependentUpon>ScoreSelectForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Server\ScoreSettings.resx">
       <DependentUpon>ScoreSettings.cs</DependentUpon>

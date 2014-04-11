@@ -180,7 +180,7 @@ namespace BF2Statistics
                 StatsEnabled = true;
                 InstallBox.ForeColor = Color.Green;
                 InstallBox.Text = "BF2 Statistics server files are currently installed.";
-                InstallButton.Text = "Uninstall BF2 Statistics Python";
+                BF2sInstallBtn.Text = "Uninstall BF2 Statistics Python";
                 BF2sConfigBtn.Enabled = true;
                 BF2sEditMedalDataBtn.Enabled = true;
                 StatsStatusPic.Image = Resources.check;
@@ -191,7 +191,7 @@ namespace BF2Statistics
                 StatsEnabled = false;
                 InstallBox.ForeColor = Color.Red;
                 InstallBox.Text = "BF2 Statistics server files are currently NOT installed";
-                InstallButton.Text = "Install BF2 Statistics Python";
+                BF2sInstallBtn.Text = "Install BF2 Statistics Python";
                 BF2sConfigBtn.Enabled = false;
                 BF2sEditMedalDataBtn.Enabled = false;
                 StatsStatusPic.Image = Resources.error;
@@ -270,7 +270,7 @@ namespace BF2Statistics
                 bool MatchFound = false;
 
                 // Login server redirect
-                if (HostsFile.Contains("gpcm.gamespy.com"))
+                if (HostsFile.HasEntry("gpcm.gamespy.com"))
                 {
                     MatchFound = true;
                     GpcmCheckbox.Checked = true;
@@ -279,7 +279,7 @@ namespace BF2Statistics
                 }
 
                 // Stat server redirect
-                if (HostsFile.Contains("bf2web.gamespy.com"))
+                if (HostsFile.HasEntry("bf2web.gamespy.com"))
                 {
                     MatchFound = true;
                     Bf2webCheckbox.Checked = true;
@@ -313,12 +313,10 @@ namespace BF2Statistics
         /// </summary>
         private void CountSnapshots()
         {
-            string[] Files = Directory.GetFiles(Paths.SnapshotTempPath);
-            TotalUnProcSnapCount.Text = Files.Length.ToString();
-            TotalUnProcSnapCount.Update();
-            Files = Directory.GetFiles(Paths.SnapshotProcPath);
-            TotalSnapCount.Text = Files.Length.ToString();
-            TotalSnapCount.Update();
+            /// Unprocessed
+            TotalUnProcSnapCount.Text = Directory.GetFiles(Paths.SnapshotTempPath).Length.ToString();
+            // Processed
+            TotalSnapCount.Text = Directory.GetFiles(Paths.SnapshotProcPath).Length.ToString();
         }
 
         /// <summary>
@@ -331,18 +329,18 @@ namespace BF2Statistics
             {
                 if (Path.GetDirectoryName(P.MainModule.FileName) == Config.ServerPath)
                 {
-                    ServerProcess = P;
-
                     // Hook into the proccess so we know when its running, and register a closing event
+                    ServerProcess = P;
                     ServerProcess.EnableRaisingEvents = true;
                     ServerProcess.Exited += new EventHandler(BF2Server_Exited);
 
-                    // Set status to online
+                    // Set the status to online in the Status Overview
                     ServerStatusPic.Image = Resources.check;
                     LaunchServerBtn.Text = "Shutdown Server";
 
                     // Disable the Restore bf2s python files while server is running
                     BF2sRestoreBtn.Enabled = false;
+                    BF2sInstallBtn.Enabled = false;
                     break;
                 }
             }
@@ -523,6 +521,7 @@ namespace BF2Statistics
 
                 // Disable the Restore bf2s python files while server is running
                 BF2sRestoreBtn.Enabled = false;
+                BF2sInstallBtn.Enabled = false;
             }
             else
             {
@@ -559,6 +558,7 @@ namespace BF2Statistics
                 LaunchServerBtn.Text = "Launch Server";
                 ServerProcess = null;
                 BF2sRestoreBtn.Enabled = true;
+                BF2sInstallBtn.Enabled = true;
                 this.Enabled = true;
                 LoadingForm.CloseForm();
             }
@@ -903,24 +903,9 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void EditScoreSettingsBtn_Click(object sender, EventArgs e)
         {
-            ScoreSettings SS;
-            ScoreSelectForm SSF = new ScoreSelectForm();
-            DialogResult R = SSF.ShowDialog();
-
-            // Player
-            if (R == DialogResult.Yes)
-                SS = new ScoreSettings(true);
-            else if (R == DialogResult.No)
-                SS = new ScoreSettings(false);
-            else
-                return;
-
-            try
-            {
-                // Show score form
-                SS.ShowDialog();
-            }
-            catch { }
+            // Show score form
+            ScoreSettings SS = new ScoreSettings();
+            SS.ShowDialog();
         }
 
         #endregion Server Settings Tab
@@ -1709,6 +1694,9 @@ namespace BF2Statistics
             // Shutdown ASP Server
             if (ASPServer.IsRunning)
                 ASPServer.Stop();
+
+            // Unlock the hosts file
+            HostsFile.UnLock();
         }
 
         #endregion Closer Methods

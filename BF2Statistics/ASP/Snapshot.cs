@@ -367,7 +367,7 @@ namespace BF2Statistics.ASP
                     MapDeaths += Deaths;
 
                     // Fix N/A Ip address
-                    if (Player["ip"] == "N/A")
+                    if (Player["ip"].ToUpper() == "N/A")
                         Player["ip"] = "127.0.0.1";
 
                     // Sometimes Squad times are negative.. idk why, but we need to fix that here

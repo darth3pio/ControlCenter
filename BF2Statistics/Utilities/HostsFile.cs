@@ -174,8 +174,9 @@ namespace BF2Statistics
         /// </summary>
         public static bool UnLock()
         {
-            // Throw exception if there was one!
-            if (LastException != null) throw LastException;
+            // Make sure we have a security object
+            if (Security == null)
+                return false;
 
             // Allow ReadData
             Security.RemoveAccessRule(new FileSystemAccessRule(WorldSid, FileSystemRights.ReadData, AccessControlType.Deny));
@@ -202,8 +203,9 @@ namespace BF2Statistics
         /// </summary>
         public static bool Lock()
         {
-            // Throw exception if there was one!
-            if (LastException != null) throw LastException;
+            // Make sure we have a security object
+            if (Security == null)
+                return false;
 
             // Donot allow Read for the Everyone Sid. This prevents the BF2 client from reading the hosts file
             Security.RemoveAccessRule(new FileSystemAccessRule(WorldSid, FileSystemRights.ReadData, AccessControlType.Allow));
@@ -257,7 +259,7 @@ namespace BF2Statistics
         /// </summary>
         /// <param name="Domain">The domain name</param>
         /// <returns></returns>
-        public static bool Contains(string Domain)
+        public static bool HasEntry(string Domain)
         {
             // Throw exception if there was one!
             if (LastException != null) throw LastException;

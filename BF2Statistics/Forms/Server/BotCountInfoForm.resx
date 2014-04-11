@@ -117,4 +117,20 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="richTextBox1.Text" xml:space="preserve">
+    <value>By default, Battlefield 2 only supports up to 48 bots in the ServerSettings.con file.To achieve a greater number of bots, One must also modify the AiDefault.ai file located in the mods AI folder.
+
+By forcing the bot count over 48, this program will also modify the AiDefault.ai file to achieve this.
+
+The forumla is as follows:
+    AiDefault: aiSettings.overrideMenuSettings = Must be enabled to load more then 48 bots in game
+    AiDefault: aiSettings.setMaxNBots = The number of bots to load into the game
+    ServerSettings: coopBotCount = Is the number to bots to load into team # 2
+    ServerSettings: coopBotRatio = Set to 100, to force  "coopBotCount" # of bots to team 2
+
+The number of Bots in team 1 is the remaining bot count (setMaxNBots - coopBotCount)
+The number of Bots in team 2 is the coopBotCount
+
+NOTE: If you are using the Aix 2 mod, this system is complitible, as it is the system used for Aix 2 :)</value>
+  </data>
 </root>
