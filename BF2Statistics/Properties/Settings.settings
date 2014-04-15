@@ -50,9 +50,6 @@
     <Setting Name="StatsDBName" Type="System.String" Scope="User">
       <Value Profile="(Default)">bf2stats</Value>
     </Setting>
-    <Setting Name="ASP_CustomMapID" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">700</Value>
-    </Setting>
     <Setting Name="ASP_DefaultPID" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">29000000</Value>
     </Setting>

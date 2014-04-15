@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Text;
 using System.Collections.Generic;
+using System.Data.Common;
 using BF2Statistics.Database;
 
 namespace BF2Statistics.ASP.Requests
@@ -60,19 +62,29 @@ namespace BF2Statistics.ASP.Requests
                     // Grab new Player ID
                     Pid = LowestPid--;
 
+                    // Create New Player Unlock Data
+                    StringBuilder Query = new StringBuilder("INSERT INTO unlocks VALUES ");
+
+                    // Normal unlocks
+                    for (int i = 11; i < 100; i += 11)
+                        Query.AppendFormat("({0}, {1}, 'n'), ", Pid, i);
+
+                    // Sf Unlocks
+                    for (int i = 111; i < 556; i += 111)
+                    {
+                        Query.AppendFormat("({0}, {1}, 'n')", Pid, i);
+                        if (i != 555) 
+                            Query.Append(", ");
+                    }
+
                     // Create Player
                     Driver.Execute(
                         "INSERT INTO player(id, name, joined, isbot) VALUES(@P0, @P1, @P2, @P3)",
                         Pid, PlayerNick, DateTime.UtcNow.ToUnixTimestamp(), IsAI
                     );
 
-                    // Create Player Unlock Data
-                    string Query = "INSERT INTO unlocks VALUES ";
-                    for (int i = 11; i < 100; i += 11)
-                        Query += String.Format("({0}, {1}, 'n'), ", Pid, i);
-                    for (int i = 111; i < 556; i += 111)
-                        Query += String.Format("({0}, {1}, 'n'), ", Pid, i);
-                    Driver.Execute(Query.TrimEnd(new char[] { ',', ' ' }));
+                    // Create player unlocks
+                    Driver.Execute(Query.ToString());
                 }
                 else
                     Pid = Int32.Parse(Rows[0]["id"].ToString());

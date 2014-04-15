@@ -42,7 +42,6 @@ namespace BF2Statistics
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="PrefixAI">Are we doing AI scoring files?</param>
         public ScoreSettings()
         {
             InitializeComponent();
@@ -64,13 +63,15 @@ namespace BF2Statistics
             }
                 
             // Load Common Scoring File
-            LoadScoringCommon();
+            if (!LoadScoringCommon())
+                return;
+
+            // Load the Coop Scoring file
+            if (!LoadCoopFile())
+                return;
 
             // Load the Conquest Scoring file
             LoadConqFile();
-
-            // Load the Coop Scoring file
-            LoadCoopFile();
 
             // Fill form values
             FillFormFields();
@@ -79,7 +80,7 @@ namespace BF2Statistics
         /// <summary>
         /// Loads the scoring files, and initializes the values of all the input fields
         /// </summary>
-        private void LoadScoringCommon()
+        private bool LoadScoringCommon()
         {
             // First, we need to parse all 3 scoring files
             string file;
@@ -103,7 +104,7 @@ namespace BF2Statistics
                     );
 
                 this.Load += new EventHandler(CloseOnStart);
-                return;
+                return false;
             }
 
             // First, we are going to check for a certain string... if it exists
@@ -120,7 +121,7 @@ namespace BF2Statistics
                         MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     {
                         this.Load += new EventHandler(CloseOnStart);
-                        return;
+                        return false;
                     }
 
                     file = File.ReadAllText(DefaultPath);
@@ -132,7 +133,7 @@ namespace BF2Statistics
                         + " Do you want to Format now?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     {
                         this.Load += new EventHandler(CloseOnStart);
-                        return;
+                        return false;
                     }
 
                     file = File.ReadAllText(ModPath);
@@ -154,6 +155,8 @@ namespace BF2Statistics
             MatchCollection Matches = Reg.Matches(file);
             foreach (Match m in Matches)
                 Scores.Add(m.Groups["varname"].Value, new string[] { m.Groups["value"].Value, m.Value });
+
+            return true;
         }
 
         /// <summary>
@@ -171,7 +174,7 @@ namespace BF2Statistics
         /// <summary>
         /// Loads the Coop File Settings
         /// </summary>
-        private void LoadCoopFile()
+        private bool LoadCoopFile()
         {
             string file;
             try
@@ -190,7 +193,7 @@ namespace BF2Statistics
                     );
 
                 this.Load += new EventHandler(CloseOnStart);
-                return;
+                return false;
             }
 
             // Process
@@ -210,7 +213,7 @@ namespace BF2Statistics
                         "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     {
                         this.Load += new EventHandler(CloseOnStart);
-                        return;
+                        return false;
                     }
 
                     file = File.ReadAllText(DefaultPath);
@@ -222,7 +225,7 @@ namespace BF2Statistics
                         + " Do you want to Format now?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     {
                         this.Load += new EventHandler(CloseOnStart);
-                        return;
+                        return false;
                     }
 
                     file = File.ReadAllText(ModPath);
@@ -241,6 +244,8 @@ namespace BF2Statistics
             MatchCollection Matches = Reg.Matches(file);
             foreach (Match m in Matches)
                 CoopScores.Add(m.Groups["varname"].Value, new string[] { m.Groups["value"].Value, m.Value });
+
+            return true;
         }
 
         /// <summary>

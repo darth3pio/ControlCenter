@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Collections.Generic;
 using BF2Statistics.Database;
 
@@ -68,25 +69,53 @@ namespace BF2Statistics.ASP.Requests
                     // Add each unlock's state
                     Dictionary<string, bool> Unlocks = new Dictionary<string, bool>();
                     Rows = Driver.Query("SELECT kit, state FROM unlocks WHERE id=@P0 ORDER BY kit ASC", Pid);
-                    foreach (Dictionary<string, object> Unlock in Rows)
+                    if (Rows.Count == 0)
                     {
-                        // Add unlock to output if its a base unlock
-                        int Id = Int32.Parse(Unlock["kit"].ToString());
-                        if (Id < 78)
-                            Response.WriteDataLine(Unlock["kit"], Unlock["state"]);
+                        // Create Player Unlock Data
+                        StringBuilder Query = new StringBuilder("INSERT INTO unlocks VALUES ");
 
-                        // Add Unlock to list
-                        Unlocks.Add(Unlock["kit"].ToString(), (Unlock["state"].ToString() == "s"));
+                        // Normal unlocks
+                        for (int i = 11; i < 100; i += 11)
+                        {
+                            // 88 and above are Special Forces unlocks, and wont display at all if the base unlocks are not earned
+                            if (i < 78 ) 
+                                Response.WriteDataLine(i, "n");
+                            Query.AppendFormat("({0}, {1}, 'n'), ", Pid, i);
+                        }
+
+                        // Sf Unlocks, Dont display these because thats how Gamespy does it
+                        for (int i = 111; i < 556; i += 111)
+                        {
+                            Query.AppendFormat("({0}, {1}, 'n')", Pid, i);
+                            if (i != 555) 
+                                Query.Append(", ");
+                        }
+
+                        // Do Insert
+                        Driver.Execute(Query.ToString());
                     }
+                    else
+                    {
+                        foreach (Dictionary<string, object> Unlock in Rows)
+                        {
+                            // Add unlock to output if its a base unlock
+                            int Id = Int32.Parse(Unlock["kit"].ToString());
+                            if (Id < 78)
+                                Response.WriteDataLine(Unlock["kit"], Unlock["state"]);
 
-                    // Add SF Unlocks... We need the base class unlock unlocked first
-                    CheckUnlock(88, 22, Unlocks);
-                    CheckUnlock(99, 33, Unlocks);
-                    CheckUnlock(111, 44, Unlocks);
-                    CheckUnlock(222, 55, Unlocks);
-                    CheckUnlock(333, 66, Unlocks);
-                    CheckUnlock(444, 11, Unlocks);
-                    CheckUnlock(555, 77, Unlocks);
+                            // Add Unlock to list
+                            Unlocks.Add(Unlock["kit"].ToString(), (Unlock["state"].ToString() == "s"));
+                        }
+
+                        // Add SF Unlocks... We need the base class unlock unlocked first
+                        CheckUnlock(88, 22, Unlocks);
+                        CheckUnlock(99, 33, Unlocks);
+                        CheckUnlock(111, 44, Unlocks);
+                        CheckUnlock(222, 55, Unlocks);
+                        CheckUnlock(333, 66, Unlocks);
+                        CheckUnlock(444, 11, Unlocks);
+                        CheckUnlock(555, 77, Unlocks);
+                    }
                     break;
 
                 // All Unlocked
@@ -108,9 +137,7 @@ namespace BF2Statistics.ASP.Requests
                     Response.WriteHeaderLine("enlisted", "officer");
                     Response.WriteDataLine(0, 0);
                     Response.WriteHeaderLine("id", "state");
-                    for (int i = 11; i < 100; i += 11)
-                        Response.WriteDataLine(i, "n");
-                    for (int i = 111; i < 556; i += 111)
+                    for (int i = 11; i < 78; i += 11)
                         Response.WriteDataLine(i, "n");
                     break;
             }

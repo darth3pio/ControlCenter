@@ -147,15 +147,15 @@ namespace BF2Statistics.ASP.Requests
             Out.Add("time", Player["time"]);
             Out.Add("smoc", (Int32.Parse(Player["rank"].ToString()) == 11) ? 1 : 0);
             Out.Add("cmsc", Player["skillscore"]);
-            Out.Add("osaa", " "); // Overall small-arms accuracy
+            Out.Add("osaa", " "); // Overall small-arms accuracy, Filled Later
             Out.Add("kill", Player["kills"]);
             Out.Add("kila", Player["damageassists"]);
             Out.Add("deth", Player["deaths"]);
             Out.Add("suic", Player["suicides"]);
             Out.Add("bksk", Player["killstreak"]);
             Out.Add("wdsk", Player["deathstreak"]);
-            Out.Add("tvcr", "");    // Top Victim
-            Out.Add("topr", "");    // Top Oppenent
+            Out.Add("tvcr", "");    // Top Victim, Filled Later
+            Out.Add("topr", "");    // Top Oppenent, Filled Later
             Out.Add("klpm", Math.Round((60 * (float.Parse(Player["kills"].ToString()) / Time)), 2));    // Kills per minute
             Out.Add("dtpm", Math.Round((60 * (float.Parse(Player["deaths"].ToString()) / Time)), 2));   // Deaths per Minute
             Out.Add("ospm", Math.Round((60 * (float.Parse(Player["score"].ToString()) / Time)), 2));    // Score Per Minute
@@ -179,20 +179,20 @@ namespace BF2Statistics.ASP.Requests
             Out.Add("tcdr", Player["cmdtime"]);     // Time As Commander
             Out.Add("ban", Player["banned"]);       // Times Banned
             Out.Add("lbtl", Player["lastonline"]);  // Player Last Battle
-            Out.Add("vrk", "");    // Vehicle Road Kills
+            Out.Add("vrk", "");    // Vehicle Road Kills, Filled Later
             Out.Add("tsql", Player["sqltime"]);     // Time As Squad Leaders
             Out.Add("tsqm", Player["sqmtime"]);     // Time As Squad Members
             Out.Add("tlwf", Player["lwtime"]);      // Time As Lone Wolf
             Out.Add("mvks", "0");      // Top Victim Kills
             Out.Add("vmks", "0");      // Top Opponent Kills
-            Out.Add("mvns", " ");      // Top Victim Name
-            Out.Add("mvrs", " ");      // Top Victim Rank
-            Out.Add("vmns", " ");      // Top Opponent Name
-            Out.Add("vmrs", " ");      // Top Opponent Rank
-            Out.Add("fkit", "");      // Favorite Kit
-            Out.Add("fmap", "");      // Favorite Map
-            Out.Add("fveh", "");      // Favorite Vehicle
-            Out.Add("fwea", "");      // Favorite Weapon
+            Out.Add("mvns", " ");      // Top Victim Name, Filled Later
+            Out.Add("mvrs", " ");      // Top Victim Rank, Filled Later
+            Out.Add("vmns", " ");      // Top Opponent Name, Filled Later
+            Out.Add("vmrs", " ");      // Top Opponent Rank, Filled Later
+            Out.Add("fkit", "");      // Favorite Kit, Filled Later
+            Out.Add("fmap", "");      // Favorite Map, Filled Later
+            Out.Add("fveh", "");      // Favorite Vehicle, Filled Later
+            Out.Add("fwea", "");      // Favorite Weapon, Filled Later
             Out.Add("tnv", "0");      // NIGHT VISION GOGGLES Time - NOT USED
             Out.Add("tgm", "0");      // GAS MASK TIME - NOT USED
 
@@ -313,14 +313,14 @@ namespace BF2Statistics.ASP.Requests
         ///     Originally this method was smaller and faster... BUT, good Ol'
         ///     BF2 wasnt having my new format... unfortunatly, if the headers
         ///     arent all grouped together, the mapinfo wont parse in the bf2
-        ///     client, there for this method is bigger and written differently
+        ///     client, therefor this method is bigger and written differently
         ///     then it should be... just keep that in mind ;)
         /// </remarks>
         /// </summary>
         private void DoMapRequest()
         {
             bool Extended = Info.Contains("mbs-");
-            int CustomMapId = MainForm.Config.ASP_CustomMapID;
+            int CustomMapId = 700;
 
             // Check if the player exists
             Rows = Driver.Query("SELECT name FROM player WHERE id=@P0", Pid);
@@ -1166,6 +1166,9 @@ namespace BF2Statistics.ASP.Requests
             }
         }
 
+        /// <summary>
+        /// Adds the players favorite map data to the response
+        /// </summary>
         private void GetFavMap()
         {
             Rows = Driver.Query("SELECT mapid FROM maps WHERE id=@P0 ORDER BY time DESC LIMIT 1", Pid);

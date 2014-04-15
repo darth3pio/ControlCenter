@@ -115,6 +115,7 @@ namespace BF2Statistics
                     Log.WriteLine("RunAs Admin: " + ((Program.IsAdministrator) ? "True" : "False"));
                     Log.WriteLine("Stats Driver: " + Properties.Settings.Default.StatsDBEngine);
                     Log.WriteLine("Gamespy Driver: " + Properties.Settings.Default.GamespyDBEngine);
+                    Log.WriteLine("Selected Mod: " + ((MainForm.SelectedMod == null) ? "null" : MainForm.SelectedMod.Name));
                     Log.WriteLine();
                     Log.WriteLine("-------- Exception --------");
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BF2Statistics.Database;
+using BF2Statistics.Database.QueryBuilder;
 
 namespace BF2Statistics.ASP.Requests
 {
@@ -9,23 +10,19 @@ namespace BF2Statistics.ASP.Requests
         public GetMapInfo(HttpClient Client, StatsDatabase Driver)
         {
             // Setup Variables
-            int Pid = 0;
-            int MapId = 0;
-            int CustomOnly = 0;
+            int Pid = 0, MapId = 0, CustomOnly = 0;
             string MapName = "";
-            string Query;
-            List<Dictionary<string, object>> Rows;
-            Dictionary<string, string> QueryString = Client.Request.QueryString;
+            SelectQueryBuilder Query = new SelectQueryBuilder(Driver);
 
-            // Setup Params
-            if (QueryString.ContainsKey("pid"))
-                Int32.TryParse(QueryString["pid"], out Pid);
-            if (QueryString.ContainsKey("mapid"))
-                Int32.TryParse(QueryString["mapid"], out MapId);
-            if (QueryString.ContainsKey("customonly"))
-                Int32.TryParse(QueryString["customonly"], out CustomOnly);
-            if (QueryString.ContainsKey("mapname"))
-                MapName = QueryString["mapname"];
+            // Setup QueryString Params
+            if (Client.Request.QueryString.ContainsKey("pid"))
+                Int32.TryParse(Client.Request.QueryString["pid"], out Pid);
+            if (Client.Request.QueryString.ContainsKey("mapid"))
+                Int32.TryParse(Client.Request.QueryString["mapid"], out MapId);
+            if (Client.Request.QueryString.ContainsKey("customonly"))
+                Int32.TryParse(Client.Request.QueryString["customonly"], out CustomOnly);
+            if (Client.Request.QueryString.ContainsKey("mapname"))
+                MapName = Client.Request.QueryString["mapname"].Trim();
 
             // Prepare Response
             Client.Response.WriteResponseStart();
@@ -33,33 +30,36 @@ namespace BF2Statistics.ASP.Requests
             // Is this a Player Map Request?
             if (Pid != 0)
             {
-                Query = "SELECT m.*, mi.name AS mapname "
-                    + "FROM maps m JOIN mapinfo mi ON m.mapid = mi.id "
-                    + "WHERE m.id = @P0 "
-                    + "ORDER BY mapid";
-                Rows = Driver.Query(Query, Pid);
+                // Build our query statement
+                Query.SelectFromTable("maps");
+                Query.SelectColumns("maps.*", "mapinfo.name AS mapname");
+                Query.AddJoin(JoinType.InnerJoin, "mapinfo", "id", Comparison.Equals, "maps", "mapid");
+                Query.AddWhere("maps.id", Comparison.Equals, Pid);
+                Query.AddOrderBy("mapid", Sorting.Ascending);
 
+                // Execute the reader, and add each map to the output
                 Client.Response.WriteHeaderLine("mapid", "mapname", "time", "win", "loss", "best", "worst");
-                foreach (Dictionary<string, object> Map in Rows)
+                foreach (Dictionary<string, object> Map in Driver.QueryReader(Query.BuildCommand()))
                     Client.Response.WriteDataLine(Map["mapid"], Map["mapname"], Map["time"], Map["win"], Map["loss"], Map["best"], Map["worst"]);
             }
             else
             {
-                // Build the Query
-                string MapLimit = (CustomOnly == 1) ? " AND id >= " + MainForm.Config.ASP_CustomMapID : "";
-                Query = "SELECT id, name, score, time, times, kills, deaths FROM mapinfo ";
+                // Build our query statement
+                Query.SelectFromTable("mapinfo");
+                Query.SelectColumns("id", "name", "score", "time", "times", "kills", "deaths");
+                Query.AddOrderBy("id", Sorting.Ascending);
+
+                // Select our where statement
                 if (MapId > 0)
-                    Query += String.Format("WHERE id = {0} {1}", MapId, MapLimit);
-                else if (!String.IsNullOrWhiteSpace(MapName))
-                    Query += String.Format("WHERE name = {0} {1}", MapName, MapLimit);
-                else if (!String.IsNullOrWhiteSpace(MapLimit))
-                    Query += String.Format("WHERE {0} ORDER BY id", MapLimit);
+                    Query.AddWhere("id", Comparison.Equals, MapId);
+                else if (!String.IsNullOrEmpty(MapName))
+                    Query.AddWhere("name", Comparison.Equals, MapName);
+                else if (CustomOnly == 1)
+                    Query.AddWhere("id", Comparison.GreaterOrEquals, 700);
 
-                // Get the list of maps
-                Rows = Driver.Query(Query);
-
+                // Execute the reader, and add each map to the output
                 Client.Response.WriteHeaderLine("mapid", "name", "score", "time", "times", "kills", "deaths");
-                foreach (Dictionary<string, object> Map in Rows)
+                foreach (Dictionary<string, object> Map in Driver.QueryReader(Query.BuildCommand()))
                     Client.Response.WriteDataLine(Map["id"], Map["name"], Map["score"], Map["time"], Map["times"], Map["kills"], Map["deaths"]);
             }
 

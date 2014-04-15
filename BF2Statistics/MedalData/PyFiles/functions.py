@@ -1,6 +1,6 @@
 """ 
 	Generated With BF2 Statistics Medal Data Editor
-	All Excess line breaks removed fom medal definitions
+	All Excess line breaks removed from medal definitions
 
 	DONOT remove any #stop or #end tags. Doing so will break the
 	Medal Data Editor from being able to parse this file.

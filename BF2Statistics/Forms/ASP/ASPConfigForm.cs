@@ -32,7 +32,6 @@ namespace BF2Statistics
             GeneralProcessing.SelectedIndex = MainForm.Config.ASP_GeneralCheck ? 1 : 0;
             AwdRoundComplete.SelectedIndex = MainForm.Config.ASP_AwardsReqComplete ? 1 : 0;
             AuthGameServers.Lines = MainForm.Config.ASP_GameHosts.Split(',');
-            CustMapId.Value = MainForm.Config.ASP_CustomMapID;
             OfflinePid.Value = MainForm.Config.ASP_DefaultPID;
             UnlocksOption.SelectedIndex = MainForm.Config.ASP_UnlocksMode;
             DebugLvl.SelectedIndex = MainForm.Config.ASP_DebugLevel - 1;
@@ -55,7 +54,6 @@ namespace BF2Statistics
             MainForm.Config.ASP_GeneralCheck = (GeneralProcessing.SelectedIndex == 1);
             MainForm.Config.ASP_AwardsReqComplete = (AwdRoundComplete.SelectedIndex == 1);
             MainForm.Config.ASP_GameHosts = String.Join(",", AuthGameServers.Lines);
-            MainForm.Config.ASP_CustomMapID = Int32.Parse(CustMapId.Value.ToString());
             MainForm.Config.ASP_DefaultPID = Int32.Parse(OfflinePid.Value.ToString());
             MainForm.Config.ASP_UnlocksMode = UnlocksOption.SelectedIndex;
             MainForm.Config.ASP_DebugLevel = DebugLvl.SelectedIndex + 1;

@@ -174,6 +174,7 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.NotificationIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.ChkUpdateBtn = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -1660,6 +1661,7 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.ChkUpdateBtn);
             this.groupBox5.Controls.Add(this.OpenRootBtn);
             this.groupBox5.Controls.Add(this.SetupBtn);
             this.groupBox5.Controls.Add(this.pictureBox2);
@@ -1744,7 +1746,7 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(451, 13);
             this.textBox1.TabIndex = 5;
-            this.textBox1.Text = "Battlefield 2 Statistics Control Center v1.8.0";
+            this.textBox1.Text = "Battlefield 2 Statistics Control Center v" + Program.Version.ToString();
             // 
             // pictureBox1
             // 
@@ -1761,6 +1763,16 @@
             this.NotificationIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("NotificationIcon.Icon")));
             this.NotificationIcon.Text = "BF2Statistics Control Center";
             this.NotificationIcon.Visible = true;
+            // 
+            // ChkUpdateBtn
+            // 
+            this.ChkUpdateBtn.Location = new System.Drawing.Point(414, 200);
+            this.ChkUpdateBtn.Name = "ChkUpdateBtn";
+            this.ChkUpdateBtn.Size = new System.Drawing.Size(125, 25);
+            this.ChkUpdateBtn.TabIndex = 12;
+            this.ChkUpdateBtn.Text = "Check For Updates";
+            this.ChkUpdateBtn.UseVisualStyleBackColor = true;
+            this.ChkUpdateBtn.Click += new System.EventHandler(this.ChkUpdateBtn_Click);
             // 
             // MainForm
             // 
@@ -1989,6 +2001,7 @@
         private Microsoft.VisualBasic.PowerPacks.ShapeContainer shapeContainer1;
         private Microsoft.VisualBasic.PowerPacks.LineShape lineShape1;
         private System.Windows.Forms.NotifyIcon NotificationIcon;
+        private System.Windows.Forms.Button ChkUpdateBtn;
     }
 }
 

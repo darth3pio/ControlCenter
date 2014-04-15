@@ -168,6 +168,7 @@ namespace BF2Statistics
             SysIcon = NotificationIcon;
         }
 
+
         #region Startup Methods
 
         /// <summary>
@@ -1631,6 +1632,16 @@ namespace BF2Statistics
         private void OpenRootBtn_Click(object sender, EventArgs e)
         {
             Process.Start(Root);
+        }
+
+        /// <summary>
+        /// Check for Updates Button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ChkUpdateBtn_Click(object sender, EventArgs e)
+        {
+            Process.Start("https://github.com/BF2Statistics/ControlCenter/releases/latest");
         }
 
         #endregion About Tab

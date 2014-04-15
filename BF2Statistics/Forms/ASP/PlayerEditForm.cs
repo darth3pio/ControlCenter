@@ -125,10 +125,32 @@ namespace BF2Statistics
         {
             try
             {
-                using (StatsDatabase Driver = new StatsDatabase())
+                // Create New Player Unlock Data
+                StringBuilder Query = new StringBuilder("INSERT INTO unlocks VALUES ");
+
+                // Normal unlocks
+                for (int i = 11; i < 100; i += 11)
+                    Query.AppendFormat("({0}, {1}, 'n'), ", Pid, i);
+
+                // Sf Unlocks
+                for (int i = 111; i < 556; i += 111)
                 {
-                    Driver.Execute("UPDATE unlocks SET state = 'n' WHERE id = " + Pid);
+                    Query.AppendFormat("({0}, {1}, 'n')", Pid, i);
+                    if (i != 555) 
+                        Query.Append(", ");
+                }
+
+                // Do driver queries
+                using (StatsDatabase Driver = new StatsDatabase())
+                using (DbTransaction T = Driver.BeginTransaction())
+                {
+                    // Perform queries
+                    Driver.Execute("DELETE FROM unlocks WHERE id = " + Pid);
                     Driver.Execute("UPDATE player SET usedunlocks = 0 WHERE id = " + Pid);
+                    Driver.Execute(Query.ToString());
+                    T.Commit();
+
+                    // Notify user
                     Notify.Show("Player Unlocks Have Been Reset", "This player will be able to select his new unlocks upon logging in.", AlertType.Success);
                 }
             }

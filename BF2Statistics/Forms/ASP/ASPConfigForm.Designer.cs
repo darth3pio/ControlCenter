@@ -53,12 +53,10 @@
             this.DebugLvl = new System.Windows.Forms.ComboBox();
             this.UnlocksOption = new System.Windows.Forms.ComboBox();
             this.OfflinePid = new System.Windows.Forms.NumericUpDown();
-            this.CustMapId = new System.Windows.Forms.NumericUpDown();
             this.AuthGameServers = new System.Windows.Forms.TextBox();
             this.label15 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.SaveBtn = new System.Windows.Forms.Button();
             this.CancelBtn = new System.Windows.Forms.Button();
@@ -69,7 +67,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.MinRoundTime)).BeginInit();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.OfflinePid)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CustMapId)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -324,12 +321,10 @@
             this.groupBox2.Controls.Add(this.DebugLvl);
             this.groupBox2.Controls.Add(this.UnlocksOption);
             this.groupBox2.Controls.Add(this.OfflinePid);
-            this.groupBox2.Controls.Add(this.CustMapId);
             this.groupBox2.Controls.Add(this.AuthGameServers);
             this.groupBox2.Controls.Add(this.label15);
             this.groupBox2.Controls.Add(this.label13);
             this.groupBox2.Controls.Add(this.label12);
-            this.groupBox2.Controls.Add(this.label11);
             this.groupBox2.Controls.Add(this.label10);
             this.groupBox2.Location = new System.Drawing.Point(371, 12);
             this.groupBox2.Name = "groupBox2";
@@ -388,32 +383,13 @@
             0,
             0});
             // 
-            // CustMapId
-            // 
-            this.CustMapId.Location = new System.Drawing.Point(152, 164);
-            this.CustMapId.Maximum = new decimal(new int[] {
-            10000,
-            0,
-            0,
-            0});
-            this.CustMapId.Name = "CustMapId";
-            this.CustMapId.Size = new System.Drawing.Size(97, 20);
-            this.CustMapId.TabIndex = 13;
-            this.Tipsy.SetToolTip(this.CustMapId, "Default MapID. All maps that do not have an ID number will increment off of this " +
-                    "number.\r\nNot recomended to change");
-            this.CustMapId.Value = new decimal(new int[] {
-            700,
-            0,
-            0,
-            0});
-            // 
             // AuthGameServers
             // 
             this.AuthGameServers.Location = new System.Drawing.Point(21, 59);
             this.AuthGameServers.Multiline = true;
             this.AuthGameServers.Name = "AuthGameServers";
             this.AuthGameServers.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.AuthGameServers.Size = new System.Drawing.Size(311, 92);
+            this.AuthGameServers.Size = new System.Drawing.Size(311, 124);
             this.AuthGameServers.TabIndex = 7;
             this.Tipsy.SetToolTip(this.AuthGameServers, resources.GetString("AuthGameServers.ToolTip"));
             // 
@@ -443,15 +419,6 @@
             this.label12.Size = new System.Drawing.Size(86, 13);
             this.label12.TabIndex = 3;
             this.label12.Text = "Offline Player ID:";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(18, 168);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(78, 13);
-            this.label11.TabIndex = 2;
-            this.label11.Text = "Custom MapId:";
             // 
             // label10
             // 
@@ -513,7 +480,6 @@
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.OfflinePid)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CustMapId)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -531,7 +497,6 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Label label13;
@@ -549,7 +514,6 @@
         private System.Windows.Forms.ComboBox DebugLvl;
         private System.Windows.Forms.ComboBox UnlocksOption;
         private System.Windows.Forms.NumericUpDown OfflinePid;
-        private System.Windows.Forms.NumericUpDown CustMapId;
         private System.Windows.Forms.Button SaveBtn;
         private System.Windows.Forms.Button CancelBtn;
         private System.Windows.Forms.ToolTip Tipsy;

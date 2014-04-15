@@ -160,7 +160,7 @@ namespace BF2Statistics.Database
                 }
 
                 // Commit Transaction
-                if(TaskFormOpen)
+                if (TaskFormOpen)
                     TaskForm.UpdateStatus("Commiting Transaction");
                 Transaction.Commit();
             }
@@ -169,6 +169,11 @@ namespace BF2Statistics.Database
                 // Rollback!
                 Transaction.Rollback();
                 throw;
+            }
+            finally
+            {
+                // Dispose of the transaction
+                Transaction.Dispose();
             }
         }
 
@@ -295,6 +300,7 @@ namespace BF2Statistics.Database
 
             // Commit Transaction
             Transaction.Commit();
+            Transaction.Dispose();
         }
 
         /// <summary>
@@ -559,6 +565,11 @@ namespace BF2Statistics.Database
                 Transaction.Rollback();
                 throw;
             }
+            finally
+            {
+                // Dispose dispose the transaction
+                Transaction.Dispose();
+            }
         } 
 
         #endregion Player Methods
@@ -569,26 +580,27 @@ namespace BF2Statistics.Database
         public void Truncate()
         {
             // Start a new transaction
-            DbTransaction T = BeginTransaction();
-
-            // Sqlite Databases use an alternate method for clearing
-            if (DatabaseEngine == DatabaseEngine.Sqlite)
+            using (DbTransaction T = BeginTransaction())
             {
-                // Delete all records from each table
-                foreach (string Table in StatsTables)
-                    Execute("DELETE FROM " + Table);
+                // Sqlite Databases use an alternate method for clearing
+                if (DatabaseEngine == DatabaseEngine.Sqlite)
+                {
+                    // Delete all records from each table
+                    foreach (string Table in StatsTables)
+                        Execute("DELETE FROM " + Table);
 
-                // Execute the VACUUM command to shrink the DB page size
-                T.Commit();
-                Execute("VACUUM;");
-            }
-            else
-            {
-                // Use MySQL's truncate method to clear the tables.
-                foreach (string Table in StatsTables)
-                    Execute("TRUNCATE TABLE " + Table);
+                    // Execute the VACUUM command to shrink the DB page size
+                    T.Commit();
+                    Execute("VACUUM;");
+                }
+                else
+                {
+                    // Use MySQL's truncate method to clear the tables.
+                    foreach (string Table in StatsTables)
+                        Execute("TRUNCATE TABLE " + Table);
 
-                T.Commit();
+                    T.Commit();
+                }
             }
         }
 
@@ -622,15 +634,16 @@ namespace BF2Statistics.Database
             catch
             {
                 Transaction.Rollback();
-                if(!TaskFormWasOpen)
-                    TaskForm.CloseForm();
-                MainForm.Enable();
                 throw;
             }
-
-            // Close update progress form
-            if(!TaskFormWasOpen) TaskForm.CloseForm();
-            MainForm.Enable();
+            finally
+            {
+                // Close update progress form
+                if (!TaskFormWasOpen) 
+                    TaskForm.CloseForm();
+                MainForm.Enable();
+                Transaction.Dispose();
+            }
         }
 
         /// <summary>
@@ -671,6 +684,7 @@ namespace BF2Statistics.Database
                 if (!TaskFormWasOpen)
                     TaskForm.CloseForm();
                 MainForm.Enable();
+                Transaction.Dispose();
                 throw;
             }
 
@@ -693,15 +707,16 @@ namespace BF2Statistics.Database
             catch
             {
                 Transaction.Rollback();
-                if(!TaskFormWasOpen)
-                    TaskForm.CloseForm();
-                MainForm.Enable();
                 throw;
             }
-
-            // Close update progress form
-            if (!TaskFormWasOpen) TaskForm.CloseForm();
-            MainForm.Enable();
+            finally
+            {
+                // Close update progress form
+                if (!TaskFormWasOpen) 
+                    TaskForm.CloseForm();
+                MainForm.Enable();
+                Transaction.Dispose();
+            }
         }
     }
 }

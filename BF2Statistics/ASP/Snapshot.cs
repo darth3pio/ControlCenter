@@ -379,7 +379,6 @@ namespace BF2Statistics.ASP
                     Log(String.Format("Processing Player ({0})", Pid), LogLevel.Notice);
 
                     // Fetch the player
-                    string Query;
                     Rows = Driver.Query("SELECT COUNT(id) AS count FROM player WHERE id=@P0", Pid);
                     if (int.Parse(Rows[0]["count"].ToString()) == 0)
                     {
@@ -444,13 +443,22 @@ namespace BF2Statistics.ASP
                         // Insert Player Data
                         InsertQuery.Execute();
 
-                        // Create Player Unlock Data
-                        Query = "INSERT INTO unlocks VALUES ";
+                        // Create New Player Unlock Data
+                        StringBuilder Q = new StringBuilder("INSERT INTO unlocks VALUES ");
+
+                        // Normal unlocks
                         for (int i = 11; i < 100; i += 11)
-                            Query += String.Format("({0}, {1}, 'n'), ", Pid, i);
+                            Q.AppendFormat("({0}, {1}, 'n'), ", Pid, i);
+
+                        // Sf Unlocks
                         for (int i = 111; i < 556; i += 111)
-                            Query += String.Format("({0}, {1}, 'n'), ", Pid, i);
-                        Driver.Execute(Query.TrimEnd(new char[] { ',', ' ' }));
+                        {
+                            Q.AppendFormat("({0}, {1}, 'n')", Pid, i);
+                            if (i != 555) Q.Append(", ");
+                        }
+
+                        // Execute query
+                        Driver.Execute(Q.ToString());
                     }
                     else
                     {
@@ -568,7 +576,7 @@ namespace BF2Statistics.ASP
                     Log(String.Format("Processing Army Data ({0})", Pid), LogLevel.Notice);
 
                     // DO team counts
-                    if(Army == Team1Army)
+                    if (Army == Team1Army)
                     {
                         Team1Players++;
                         if (CompletedRound) // Completed round?
@@ -636,8 +644,8 @@ namespace BF2Statistics.ASP
                         // Prevent database errors with custom army IDs
                         if (Army < 14)
                         {
-                            string Best = (Int32.Parse(Rows[0]["best" + Army].ToString()) > RoundScore) 
-                                ? Rows[0]["best" + Army].ToString() 
+                            string Best = (Int32.Parse(Rows[0]["best" + Army].ToString()) > RoundScore)
+                                ? Rows[0]["best" + Army].ToString()
                                 : Player["rs"];
                             string Worst = (Int32.Parse(Rows[0]["worst" + Army].ToString()) > RoundScore)
                                 ? Rows[0]["worst" + Army].ToString()
@@ -963,6 +971,7 @@ namespace BF2Statistics.ASP
                             int Level = Award.Value;
 
                             // If isMedal
+                            string Query;
                             if (AwardId > 2000000 && AwardId < 3000000)
                                 Query = String.Format("SELECT level FROM awards WHERE id={0} AND awd={1}", Pid, AwardId);
                             else
@@ -977,7 +986,7 @@ namespace BF2Statistics.ASP
                                     First = TimeStamp;
 
                                 // Badges
-                                else if(AwardId < 2000000)
+                                else if (AwardId < 2000000)
                                 {
                                     // Need to do extra work for Badges as more than one badge per round may have been awarded
                                     for (int j = 1; j < Level; j++)
@@ -1050,11 +1059,16 @@ namespace BF2Statistics.ASP
                     throw;
                 }
             }
-            catch(Exception E)
+            catch (Exception E)
             {
                 Log("An error occured while updating player stats: " + E.Message, LogLevel.Error);
                 Transaction.Rollback();
                 throw;
+            }
+            finally
+            {
+                // At last, dispose of the transaction
+                Transaction.Dispose();
             }
 
             // ********************************

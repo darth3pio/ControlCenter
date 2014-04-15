@@ -40,6 +40,7 @@ namespace BF2Statistics
         public MapList()
         {
             InitializeComponent();
+            this.Text = MainForm.SelectedMod.Title + " Map List Editor";
 
             // Define vars
             ClientMaps = new List<string>();

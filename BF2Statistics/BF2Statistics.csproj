@@ -330,6 +330,7 @@
     <Compile Include="Forms\MedalData\SaveForm.Designer.cs">
       <DependentUpon>SaveForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Updater.cs" />
     <Compile Include="Utilities\Networking.cs" />
     <Compile Include="Paths.cs" />
     <Compile Include="Forms\TaskForm.cs">

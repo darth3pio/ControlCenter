@@ -217,18 +217,6 @@ namespace BF2Statistics.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("700")]
-        public int ASP_CustomMapID {
-            get {
-                return ((int)(this["ASP_CustomMapID"]));
-            }
-            set {
-                this["ASP_CustomMapID"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("29000000")]
         public int ASP_DefaultPID {
             get {

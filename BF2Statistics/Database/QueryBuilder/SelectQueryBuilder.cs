@@ -165,20 +165,40 @@ namespace BF2Statistics.Database.QueryBuilder
 
         #region Joins
 
+        /// <summary>
+        /// Adds a join clause to the current query object
+        /// </summary>
+        /// <param name="newJoin"></param>
         public void AddJoin(JoinClause newJoin)
         {
             this.Joins.Add(newJoin);
         }
 
+        /// <summary>
+        /// Creates a new Join clause statement fot the current query object
+        /// </summary>
+        /// <param name="join"></param>
+        /// <param name="toTableName"></param>
+        /// <param name="toColumnName"></param>
+        /// <param name="operator"></param>
+        /// <param name="fromTableName"></param>
+        /// <param name="fromColumnName"></param>
         public void AddJoin(JoinType join, string toTableName, string toColumnName, Comparison @operator, string fromTableName, string fromColumnName)
         {
-            //this.Joins.Add(new JoinClause(join, toTableName, toColumnName, @operator, fromTableName, fromColumnName));
+            this.Joins.Add(new JoinClause(join, toTableName, toColumnName, @operator, fromTableName, fromColumnName));
         }
 
         #endregion Joins
 
         #region Wheres
 
+        /// <summary>
+        /// Creates a where clause to add to the query's where statement
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="operator"></param>
+        /// <param name="compareValue"></param>
+        /// <returns></returns>
         public WhereClause AddWhere(string field, Comparison @operator, object compareValue)
         {
             WhereClause Clause = new WhereClause(field, @operator, compareValue);
@@ -186,6 +206,10 @@ namespace BF2Statistics.Database.QueryBuilder
             return Clause;
         }
 
+        /// <summary>
+        /// Adds a where clause to the current query statement
+        /// </summary>
+        /// <param name="Clause"></param>
         public void AddWhere(WhereClause Clause)
         {
             this.WhereStatement.Add(Clause);
@@ -204,11 +228,20 @@ namespace BF2Statistics.Database.QueryBuilder
 
         #region Orderby
 
+        /// <summary>
+        /// Adds an OrderBy clause to the current query object
+        /// </summary>
+        /// <param name="Clause"></param>
         public void AddOrderBy(OrderByClause Clause)
         {
             OrderByStatements.Add(Clause);
         }
 
+        /// <summary>
+        /// Creates and adds a new Oderby clause to the current query object
+        /// </summary>
+        /// <param name="FieldName"></param>
+        /// <param name="Order"></param>
         public void AddOrderBy(string FieldName, Sorting Order)
         {
             OrderByStatements.Add(new OrderByClause(FieldName, Order));
