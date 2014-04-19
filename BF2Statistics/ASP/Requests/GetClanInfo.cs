@@ -10,6 +10,20 @@ namespace BF2Statistics.ASP.Requests
     {
         protected DatabaseDriver Driver;
 
+        /// <summary>
+        /// This request provides claninfo to the bf2server, to set the filter rules
+        /// for players joining the server.
+        /// </summary>
+        /// <queryParam name="type" type="int">The Listype (whitelist, blacklist)</queryParam>
+        /// <queryParam name ="clantag" type="string">Specified the required clantag</queryParam>
+        /// <queryParam name="score" type="int">The minimum required score</queryParam>
+        /// <queryParam name="rank" type="int">The minimum required ranked</queryParam>
+        /// <queryParam name="time" type="int">The minimum required global time</queryParam>
+        /// <queryParam name="kdratio" type="float">The minimum required kill/death ratio</queryParam>
+        /// <queryParam name="country" type="string">The country code (Ex: us, br, no) required, seperated by comma, that is required</queryParam>
+        /// <queryParam name="banned" type="int">Specified the maximum ban count to be accepted into the list</queryParam>
+        /// <param name="Client">The HttpClient who made the request</param>
+        /// <param name="Driver">The Stats Database Driver. Connection errors are handled in the calling object</param>
         public GetClanInfo(HttpClient Client, StatsDatabase Database)
         {
             int Type = 0;

@@ -60,6 +60,13 @@ namespace BF2Statistics.ASP.Requests
 
         //&info=per*,cmb*,twsc,cpcp,cacp,dfcp,kila,heal,rviv,rsup,rpar,tgte,dkas,dsab,cdsc,rank,cmsc,kick,kill,deth,suic,ospm,klpm,klpr,dtpr,bksk,wdsk,bbrs,tcdr,ban,dtpm,lbtl,osaa,vrk,tsql,tsqm,tlwf,mvks,vmks,mvn*,vmr*,fkit,fmap,fveh,fwea,wtm-,wkl-,wdt-,wac-,wkd-,vtm-,vkl-,vdt-,vkd-,vkr-,atm-,awn-,alo-,abr-,ktm-,kkl-,kdt-,kkd-
 
+        /// <summary>
+        /// This request provides details on a particular player
+        /// </summary>
+        /// <queryParam name="pid" type="int">The unique player ID</queryParam>
+        /// <queryParam name="info" type="string">The requested player data keys, seperated by a comma</queryParam>
+        /// <param name="Client">The HttpClient who made the request</param>
+        /// <param name="Driver">The Stats Database Driver. Connection errors are handled in the calling object</param>
         public GetPlayerInfo(HttpClient Client, StatsDatabase Database)
         {
             // Load class Variables
@@ -154,8 +161,8 @@ namespace BF2Statistics.ASP.Requests
             Out.Add("suic", Player["suicides"]);
             Out.Add("bksk", Player["killstreak"]);
             Out.Add("wdsk", Player["deathstreak"]);
-            Out.Add("tvcr", "");    // Top Victim, Filled Later
-            Out.Add("topr", "");    // Top Oppenent, Filled Later
+            Out.Add("tvcr", "0");    // Top Victim, Filled Later
+            Out.Add("topr", "0");    // Top Oppenent, Filled Later
             Out.Add("klpm", Math.Round((60 * (float.Parse(Player["kills"].ToString()) / Time)), 2));    // Kills per minute
             Out.Add("dtpm", Math.Round((60 * (float.Parse(Player["deaths"].ToString()) / Time)), 2));   // Deaths per Minute
             Out.Add("ospm", Math.Round((60 * (float.Parse(Player["score"].ToString()) / Time)), 2));    // Score Per Minute
@@ -179,7 +186,7 @@ namespace BF2Statistics.ASP.Requests
             Out.Add("tcdr", Player["cmdtime"]);     // Time As Commander
             Out.Add("ban", Player["banned"]);       // Times Banned
             Out.Add("lbtl", Player["lastonline"]);  // Player Last Battle
-            Out.Add("vrk", "");    // Vehicle Road Kills, Filled Later
+            Out.Add("vrk", "0");    // Vehicle Road Kills, Filled Later
             Out.Add("tsql", Player["sqltime"]);     // Time As Squad Leaders
             Out.Add("tsqm", Player["sqmtime"]);     // Time As Squad Members
             Out.Add("tlwf", Player["lwtime"]);      // Time As Lone Wolf

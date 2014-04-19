@@ -31,6 +31,15 @@ namespace BF2Statistics.ASP.Requests
             }
         }
 
+        /// <summary>
+        /// This request provides details on a particular players rank, and
+        /// whether or not to show the user a promotion/demotion announcement
+        /// </summary>
+        /// <queryParam name="nick" type="string">The unique player's Name</queryParam>
+        /// <queryParam name="ai" type="int">Defines whether the player is a bot (used by bf2server)</queryParam>
+        /// <queryParam name="playerlist" type="int">Defines whether to list the players who's nick is similair to the Nick param</queryParam>
+        /// <param name="Client">The HttpClient who made the request</param>
+        /// <param name="Driver">The Stats Database Driver. Connection errors are handled in the calling object</param>
         public GetPlayerID(HttpClient Client, StatsDatabase Driver)
         {
             // Setup Variables

@@ -7,63 +7,88 @@ namespace BF2Statistics.ASP.Requests
 {
     class GetUnlocksInfo
     {
+        /// <summary>
+        /// Player's Unique Id
+        /// </summary>
         private int Pid = 0;
+
+        /// <summary>
+        /// The Player's Rank
+        /// </summary>
         private int Rank = 0;
 
+        /// <summary>
+        /// Our stats database driver
+        /// </summary>
         DatabaseDriver Driver;
+
+        /// <summary>
+        /// Database Rows result
+        /// </summary>
         List<Dictionary<string, object>> Rows;
-        Dictionary<string, string> QueryString;
+
+        /// <summary>
+        /// Our Http/Asp Response
+        /// </summary>
         ASPResponse Response;
 
+        /// <summary>
+        /// This request provides details of the players unlocked weapons
+        /// </summary>
+        /// <queryParam name="pid" type="int">The unique player ID</queryParam>
+        /// <queryParam name ="nick" type="string">Unique player nickname</queryParam>
+        /// <param name="Client">The HttpClient who made the request</param>
+        /// <param name="Driver">The Stats Database Driver. Connection errors are handled in the calling object</param>
         public GetUnlocksInfo(HttpClient Client, StatsDatabase Database)
         {
             // Load class Variables
             this.Response = Client.Response;
-            this.QueryString = Client.Request.QueryString;
             this.Driver = Database;
 
             // Earned and Available Unlocks
+            int HasUsed = 0;
             int Earned = 0;
             int Available = 0;
 
             // Get player ID
-            if (QueryString.ContainsKey("pid"))
-                Int32.TryParse(QueryString["pid"], out Pid);
+            if (Client.Request.QueryString.ContainsKey("pid"))
+                Int32.TryParse(Client.Request.QueryString["pid"], out Pid);
 
             // Prepare Output
             Response.WriteResponseStart();
             Response.WriteHeaderLine("pid", "nick", "asof");
 
+            // Our ourput changes based on the selected Unlocks config setting
             switch(MainForm.Config.ASP_UnlocksMode)
             {
-                // Player Based
+                // Player Based - Unlocks are earned
                 case 0:
                     // Make sure the player exists
-                    Rows = Driver.Query("SELECT name, score, rank, usedunlocks FROM player WHERE id=@P0", Pid);
+                    Rows = Driver.Query("SELECT name, score, rank, availunlocks, usedunlocks FROM player WHERE id=@P0", Pid);
                     if(Rows.Count == 0)
                         goto case 2; // No Unlocks
 
                     // Start Output
                     Response.WriteDataLine(Pid, Rows[0]["name"].ToString().Trim(), DateTime.UtcNow.ToUnixTimestamp());
 
-                    // Get total number of unlocks player is allowed to have
+                    // Get total number of unlocks player is allowed to have givin his rank, and bonus unlocks
                     Rank = Int32.Parse(Rows[0]["rank"].ToString());
-                    Earned = Int32.Parse(Rows[0]["usedunlocks"].ToString());
-                    Available = GetBonusUnlocks();
+                    HasUsed = Int32.Parse(Rows[0]["usedunlocks"].ToString());
+                    Available = Int32.Parse(Rows[0]["availunlocks"].ToString());
+                    Earned = GetBonusUnlocks();
 
-                    // Determine total unlocks available
+                    // Determine total unlocks available, based on what he has earned, minus what he has used already
                     Rows = Driver.Query("SELECT COUNT(id) AS count FROM unlocks WHERE id = @P0 AND state = 's'", Pid);
                     int Used = Int32.Parse(Rows[0]["count"].ToString());
-                    if (Used > 0)
-                    {
-                        // Update unlocks data
-                        Available -= Used;
-                        Driver.Execute("UPDATE player SET availunlocks = @P0, usedunlocks = @P1 WHERE id = @P2", Available, Used, Pid);
-                    }
+                    Earned -= Used;
+
+                    // Update database if the database is off
+                    if (Earned != Available || HasUsed != Used)
+                        Driver.Execute("UPDATE player SET availunlocks = @P0, usedunlocks = @P1 WHERE id = @P2", Earned, Used, Pid);
 
                     // Output more
                     Response.WriteHeaderLine("enlisted", "officer");
-                    Response.WriteDataLine(Available, 0);
+                    Response.WriteDataLine(Earned, 0);
                     Response.WriteHeaderLine("id", "state");
 
                     // Add each unlock's state

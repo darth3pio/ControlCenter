@@ -631,6 +631,18 @@ namespace BF2Statistics
             MapSizeBox.Text = Size;
         }
 
+        /// <summary>
+        /// Event fired when the Extra Params button is clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ExtraParamBtn_Click(object sender, EventArgs e)
+        {
+            ClientParamsForm F = new ClientParamsForm(ParamBox.Text);
+            if (F.ShowDialog() == DialogResult.OK)
+                ParamBox.Text = ClientParamsForm.ParamString;
+        }
+
         #endregion Launcher Tab
 
         #region Login Emulator Tab

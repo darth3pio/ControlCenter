@@ -7,6 +7,15 @@ namespace BF2Statistics.ASP.Requests
 {
     class GetMapInfo
     {
+        /// <summary>
+        /// This request provides details on a particular players map info
+        /// </summary>
+        /// <queryParam name="pid" type="int">The unique player ID</queryParam>
+        /// <queryParam name="mapid" type="int">The unique map ID</queryParam>
+        /// <queryParam name="customonly" type="int">Defines whether to only display custom maps</queryParam>
+        /// <queryParam name="mapname" type="string">The unique map's name</queryParam>
+        /// <param name="Client">The HttpClient who made the request</param>
+        /// <param name="Driver">The Stats Database Driver. Connection errors are handled in the calling object</param>
         public GetMapInfo(HttpClient Client, StatsDatabase Driver)
         {
             // Setup Variables

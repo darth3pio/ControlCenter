@@ -85,6 +85,12 @@
     <Compile Include="BF2\BF2Map.cs" />
     <Compile Include="BF2\BF2Mod.cs" />
     <Compile Include="BF2\BF2Server.cs" />
+    <Compile Include="Forms\ClientParamsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ClientParamsForm.Designer.cs">
+      <DependentUpon>ClientParamsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions\FileExtensions.cs" />
     <Compile Include="Forms\Server\BotCountInfoForm.cs">
       <SubType>Form</SubType>
@@ -383,6 +389,9 @@
     <Compile Include="Utilities\Utils.cs" />
     <Compile Include="Utilities\Validator.cs" />
     <Compile Include="ASP\ASPServer.cs" />
+    <EmbeddedResource Include="Forms\ClientParamsForm.resx">
+      <DependentUpon>ClientParamsForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\ASP\EAStatsImportForm.resx">
       <DependentUpon>EAStatsImportForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -512,6 +521,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\Settings.png" />
+    <None Include="Resources\Settins.png" />
     <EmbeddedResource Include="SQL\MySQL.Stats.sql" />
     <Content Include="FreeImage.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -4,6 +4,11 @@ namespace BF2Statistics.ASP.Requests
 {
     class GetBackendInfo
     {
+        /// <summary>
+        /// This request provides details of the backend version, and lists the unlocks
+        /// </summary>
+        /// <param name="Client">The HttpClient who made the request</param>
+        /// <param name="Driver">The Stats Database Driver. Connection errors are handled in the calling object</param>
         public GetBackendInfo(HttpClient Client)
         {
             // Add timestamp and version info

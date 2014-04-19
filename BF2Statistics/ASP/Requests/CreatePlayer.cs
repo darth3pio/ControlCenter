@@ -8,6 +8,13 @@ namespace BF2Statistics.ASP.Requests
 {
     class CreatePlayer
     {
+        /// <summary>
+        /// This request creates a player with the specified Pid when called
+        /// </summary>
+        /// <queryParam name="pid" type="int">The unique player ID</queryParam>
+        /// <queryParam name ="nick" type="string">Unique player nickname</queryParam>
+        /// <param name="Client">The HttpClient who made the request</param>
+        /// <param name="Driver">The Stats Database Driver. Connection errors are handled in the calling object</param>
         public CreatePlayer(HttpClient Client, StatsDatabase Driver)
         {
             int Pid;

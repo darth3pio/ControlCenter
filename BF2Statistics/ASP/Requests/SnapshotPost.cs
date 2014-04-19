@@ -8,8 +8,16 @@ namespace BF2Statistics.ASP.Requests
 {
     class SnapshotPost
     {
+        /// <summary>
+        /// Event fires when a snapshot has been sucessfully recieved
+        /// </summary>
         public static event SnapshotRecieved SnapshotReceived;
 
+        /// <summary>
+        /// This request takes snapshot data, and processes it into the stats database
+        /// </summary>
+        /// <param name="Client">The HttpClient who made the request</param>
+        /// <param name="Driver">The Stats Database Driver. Connection errors are handled in the calling object</param>
         public SnapshotPost(HttpClient Client, StatsDatabase Driver)
         {
             // First and foremost. Make sure that we are authorized to be here!

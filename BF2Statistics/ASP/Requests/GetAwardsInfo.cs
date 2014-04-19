@@ -7,6 +7,12 @@ namespace BF2Statistics.ASP.Requests
 {
     class GetAwardsInfo
     {
+        /// <summary>
+        /// This request provides a list of awards for a particular player
+        /// </summary>
+        /// <queryParam name="pid" type="int">The unique player ID</queryParam>
+        /// <param name="Client">The HttpClient who made the request</param>
+        /// <param name="Driver">The Stats Database Driver. Connection errors are handled in the calling object</param>
         public GetAwardsInfo(HttpClient Client, StatsDatabase Driver)
         {
             int Pid;

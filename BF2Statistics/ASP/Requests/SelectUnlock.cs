@@ -7,6 +7,13 @@ namespace BF2Statistics.ASP.Requests
 {
     class SelectUnlock
     {
+        /// <summary>
+        /// This request sets the unlock details for a player, when he picks an unlock
+        /// </summary>
+        /// <queryParam name="pid" type="int">The unique player ID</queryParam>
+        /// <queryParam name="id" type="int">The unique unlock ID</queryParam>
+        /// <param name="Client">The HttpClient who made the request</param>
+        /// <param name="Driver">The Stats Database Driver. Connection errors are handled in the calling object</param>
         public SelectUnlock(HttpClient Client, StatsDatabase Driver)
         {
             int Pid = 0;
@@ -40,21 +47,15 @@ namespace BF2Statistics.ASP.Requests
                 return;
             }
 
-            // Start a new Transaction
-            DbTransaction Transaction = Driver.BeginTransaction();
-
-            // Update Unlock
+            // Update Unlock, setting its state to 's' (unlocked)
             Driver.Execute("UPDATE unlocks SET state = 's' WHERE id = @P0 AND kit = @P1", Pid, Unlock);
 
-            // Subtract 1 unlock
+            // Update players used and avail unlock counts
             Driver.Execute("UPDATE player SET availunlocks = @P0, usedunlocks = @P1 WHERE id = @P2", 
                 int.Parse(Rows[0]["availunlocks"].ToString()) - 1,
                 int.Parse(Rows[0]["usedunlocks"].ToString()) + 1,
                 Pid
             );
-
-            // Commits the Transaction
-            Transaction.Commit();
 
             // Send Response
             Client.Response.WriteResponseStart();

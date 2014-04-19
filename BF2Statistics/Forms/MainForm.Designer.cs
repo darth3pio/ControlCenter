@@ -51,6 +51,7 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.ModSelectList = new System.Windows.Forms.ComboBox();
             this.LaunchWindow = new System.Windows.Forms.GroupBox();
+            this.ExtraParamBtn = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.ParamBox = new System.Windows.Forms.TextBox();
             this.LaunchClientBtn = new System.Windows.Forms.Button();
@@ -165,6 +166,7 @@
             this.Bf2webAddress = new System.Windows.Forms.TextBox();
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.ChkUpdateBtn = new System.Windows.Forms.Button();
             this.OpenRootBtn = new System.Windows.Forms.Button();
             this.SetupBtn = new System.Windows.Forms.Button();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
@@ -172,9 +174,8 @@
             this.Bf2StatisticsLink = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.NotificationIcon = new System.Windows.Forms.NotifyIcon(this.components);
-            this.ChkUpdateBtn = new System.Windows.Forms.Button();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -447,6 +448,7 @@
             // 
             // LaunchWindow
             // 
+            this.LaunchWindow.Controls.Add(this.ExtraParamBtn);
             this.LaunchWindow.Controls.Add(this.label4);
             this.LaunchWindow.Controls.Add(this.ParamBox);
             this.LaunchWindow.Controls.Add(this.LaunchClientBtn);
@@ -456,6 +458,16 @@
             this.LaunchWindow.TabIndex = 12;
             this.LaunchWindow.TabStop = false;
             this.LaunchWindow.Text = "Battlefield 2 Client";
+            // 
+            // ExtraParamBtn
+            // 
+            this.ExtraParamBtn.Image = ((System.Drawing.Image)(resources.GetObject("ExtraParamBtn.Image")));
+            this.ExtraParamBtn.Location = new System.Drawing.Point(487, 37);
+            this.ExtraParamBtn.Name = "ExtraParamBtn";
+            this.ExtraParamBtn.Size = new System.Drawing.Size(29, 24);
+            this.ExtraParamBtn.TabIndex = 5;
+            this.ExtraParamBtn.UseVisualStyleBackColor = true;
+            this.ExtraParamBtn.Click += new System.EventHandler(this.ExtraParamBtn_Click);
             // 
             // label4
             // 
@@ -470,9 +482,8 @@
             // 
             this.ParamBox.Location = new System.Drawing.Point(181, 39);
             this.ParamBox.Name = "ParamBox";
-            this.ParamBox.Size = new System.Drawing.Size(330, 20);
+            this.ParamBox.Size = new System.Drawing.Size(300, 20);
             this.ParamBox.TabIndex = 3;
-            this.ParamBox.Text = "+fullscreen 1";
             // 
             // LaunchClientBtn
             // 
@@ -1675,6 +1686,16 @@
             this.groupBox5.TabIndex = 9;
             this.groupBox5.TabStop = false;
             // 
+            // ChkUpdateBtn
+            // 
+            this.ChkUpdateBtn.Location = new System.Drawing.Point(414, 200);
+            this.ChkUpdateBtn.Name = "ChkUpdateBtn";
+            this.ChkUpdateBtn.Size = new System.Drawing.Size(125, 25);
+            this.ChkUpdateBtn.TabIndex = 12;
+            this.ChkUpdateBtn.Text = "Check For Updates";
+            this.ChkUpdateBtn.UseVisualStyleBackColor = true;
+            this.ChkUpdateBtn.Click += new System.EventHandler(this.ChkUpdateBtn_Click);
+            // 
             // OpenRootBtn
             // 
             this.OpenRootBtn.Location = new System.Drawing.Point(283, 200);
@@ -1748,6 +1769,12 @@
             this.textBox1.TabIndex = 5;
             this.textBox1.Text = "Battlefield 2 Statistics Control Center v" + Program.Version.ToString();
             // 
+            // NotificationIcon
+            // 
+            this.NotificationIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("NotificationIcon.Icon")));
+            this.NotificationIcon.Text = "BF2Statistics Control Center";
+            this.NotificationIcon.Visible = true;
+            // 
             // pictureBox1
             // 
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
@@ -1757,22 +1784,6 @@
             this.pictureBox1.Size = new System.Drawing.Size(586, 80);
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
-            // 
-            // NotificationIcon
-            // 
-            this.NotificationIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("NotificationIcon.Icon")));
-            this.NotificationIcon.Text = "BF2Statistics Control Center";
-            this.NotificationIcon.Visible = true;
-            // 
-            // ChkUpdateBtn
-            // 
-            this.ChkUpdateBtn.Location = new System.Drawing.Point(414, 200);
-            this.ChkUpdateBtn.Name = "ChkUpdateBtn";
-            this.ChkUpdateBtn.Size = new System.Drawing.Size(125, 25);
-            this.ChkUpdateBtn.TabIndex = 12;
-            this.ChkUpdateBtn.Text = "Check For Updates";
-            this.ChkUpdateBtn.UseVisualStyleBackColor = true;
-            this.ChkUpdateBtn.Click += new System.EventHandler(this.ChkUpdateBtn_Click);
             // 
             // MainForm
             // 
@@ -2002,6 +2013,7 @@
         private Microsoft.VisualBasic.PowerPacks.LineShape lineShape1;
         private System.Windows.Forms.NotifyIcon NotificationIcon;
         private System.Windows.Forms.Button ChkUpdateBtn;
+        private System.Windows.Forms.Button ExtraParamBtn;
     }
 }
 

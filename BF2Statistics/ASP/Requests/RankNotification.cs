@@ -6,6 +6,12 @@ namespace BF2Statistics.ASP.Requests
 {
     class RankNotification
     {
+        /// <summary>
+        /// This request clears all rank announcements for a specific player
+        /// </summary>
+        /// <queryParam name="pid" type="int">The unique player ID</queryParam>
+        /// <param name="Client">The HttpClient who made the request</param>
+        /// <param name="Driver">The Stats Database Driver. Connection errors are handled in the calling object</param>
         public RankNotification(HttpClient Client, StatsDatabase Driver)
         {
             int Pid = 0;

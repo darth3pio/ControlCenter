@@ -157,8 +157,9 @@ namespace BF2Statistics.ASP
         {
             try
             {
-                HttpListenerContext Client = Listener.EndGetContext(Sync);
-                ThreadPool.QueueUserWorkItem(HandleRequest, Client);
+                // Finish accepting the client
+                HttpListenerContext Context = Listener.EndGetContext(Sync);
+                ThreadPool.QueueUserWorkItem(HandleRequest, new HttpClient(Context));
             }
             catch (HttpListenerException E)
             {
@@ -183,8 +184,8 @@ namespace BF2Statistics.ASP
         /// </summary>
         private static void HandleRequest(object Sync)
         {
-            // Finish accepting the client
-            HttpClient Client = new HttpClient(Sync as HttpListenerContext);
+            // Setup the variables
+            HttpClient Client = Sync as HttpClient;
             StatsDatabase Database;
 
             // Update client count, and fire connection event
@@ -216,6 +217,7 @@ namespace BF2Statistics.ASP
                 && Client.Request.HttpMethod != "POST"
                 && Client.Request.HttpMethod != "HEAD")
             {
+                ServerLog.Write("NOTICE: [HandleRequest] Invalid HttpMethod {0} used by client", Client.Request.HttpMethod);
                 Client.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
                 Client.Response.Send();
                 return;

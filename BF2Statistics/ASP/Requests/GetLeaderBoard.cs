@@ -22,6 +22,17 @@ namespace BF2Statistics.ASP.Requests
         private int Min;
         private int Max;
 
+        /// <summary>
+        /// This request provides details of the leaderboard
+        /// </summary>
+        /// <queryParam name="pid" type="int">The unique player ID</queryParam>
+        /// <queryParam name ="nick" type="string">Unique player nickname</queryParam>
+        /// <queryParam name="type" type="string">"score", "kit", "vehicle", "weapon"</queryParam>
+        /// <queryParam name="id" type="int|string (score)">the various fetch variables (kit ids, vehicle id's etc etc)</queryParam>
+        /// <queryParam name="before" type="int">The number of players before</queryParam>
+        /// <queryParam name="after" type="int">The number of players after</queryParam>
+        /// <param name="Client">The HttpClient who made the request</param>
+        /// <param name="Driver">The Stats Database Driver. Connection errors are handled in the calling object</param>
         public GetLeaderBoard(HttpClient Client, StatsDatabase Database)
         {
             // Set internal variables
