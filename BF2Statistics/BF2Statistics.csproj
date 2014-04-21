@@ -85,6 +85,7 @@
     <Compile Include="BF2\BF2Map.cs" />
     <Compile Include="BF2\BF2Mod.cs" />
     <Compile Include="BF2\BF2Server.cs" />
+    <Compile Include="Extensions\IntExtensions.cs" />
     <Compile Include="Forms\ClientParamsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -210,7 +211,7 @@
     </Compile>
     <Compile Include="Gamespy\TcpClientStream.cs" />
     <Compile Include="Database\StatsDatabase.cs" />
-    <Compile Include="Events.cs" />
+    <Compile Include="Delegates.cs" />
     <Compile Include="Forms\Gamespy\AccountEditForm.cs">
       <SubType>Form</SubType>
     </Compile>

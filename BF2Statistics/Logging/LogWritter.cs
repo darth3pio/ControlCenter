@@ -17,39 +17,44 @@ namespace BF2Statistics.Logging
         /// <summary>
         /// Full path to the log file
         /// </summary>
-        private string LogFile;
+        private FileInfo LogFile;
 
         /// <summary>
         /// Our Timer object for writing to the log file
         /// </summary>
         private Timer LogTimer;
         
-        public LogWritter(string LogFile)
+        /// <summary>
+        /// Creates a new Log Writter, Appending all messages to a logfile
+        /// </summary>
+        /// <param name="FileLocation">The location of the logfile. If the file doesnt exist,
+        /// It will be created.</param>
+        public LogWritter(string FileLocation) : this(FileLocation, false) { }
+
+        /// <summary>
+        /// Creates a new Log Writter instance
+        /// </summary>
+        /// <param name="FileLocation">The location of the logfile. If the file doesnt exist,
+        /// It will be created.</param>
+        /// <param name="Truncate">If set to true and the logfile is over 1MB, it will be truncated to 0 length</param>
+        public LogWritter(string FileLocation, bool Truncate)
         {
-            this.LogFile = LogFile;
+            LogFile = new FileInfo(FileLocation);
             LogQueue = new Queue<LogMessage>();
 
-            // Create file if it doesnt exist
-            if (!File.Exists(LogFile))
-                File.Create(LogFile).Close();
+            // Test that we are able to open and write to the file
+            using (FileStream stream = LogFile.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            {
+                // If the file is over 1MB, and we want to truncate big files
+                if (Truncate && LogFile.Length > 1048576)
+                {
+                    stream.SetLength(0);
+                    stream.Flush();
+                }
+            }
 
-            // Start a log timer, and auto write new logs every 10 seconds
-            LogTimer = new Timer(10000);
-            LogTimer.Elapsed += new ElapsedEventHandler(LogTimer_Elapsed);
-            LogTimer.Start();
-        }
-
-        public LogWritter(string LogFile, int UpdateInterval)
-        {
-            this.LogFile = LogFile;
-            LogQueue = new Queue<LogMessage>();
-
-            // Create file if it doesnt exist
-            if (!File.Exists(LogFile))
-                File.Create(LogFile).Close();
-
-            // Start a log timer, and auto write new logs every X seconds
-            LogTimer = new Timer(UpdateInterval);
+            // Start a log timer, and auto write new logs every 3 seconds
+            LogTimer = new Timer(3000);
             LogTimer.Elapsed += new ElapsedEventHandler(LogTimer_Elapsed);
             LogTimer.Start();
         }
@@ -96,7 +101,7 @@ namespace BF2Statistics.Logging
             // Only log if we have a queue
             if (LogQueue.Count > 0)
             {
-                using (FileStream fs = File.Open(LogFile, FileMode.Append, FileAccess.Write))
+                using (FileStream fs = LogFile.Open(FileMode.Append, FileAccess.Write, FileShare.Read))
                 using (StreamWriter log = new StreamWriter(fs))
                 {
                     while (LogQueue.Count > 0)

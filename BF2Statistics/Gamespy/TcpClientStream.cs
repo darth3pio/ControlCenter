@@ -29,7 +29,27 @@ namespace BF2Statistics.Gamespy
         /// <summary>
         /// StreamLog Object
         /// </summary>
-        private static LogWritter StreamLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "Stream.log"), 3000);
+        private static LogWritter StreamLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "Stream.log"));
+
+        /// <summary>
+        /// Our message buffer
+        /// </summary>
+        private byte[] buffer = new byte[2048];
+
+        /// <summary>
+        /// Our remote message from the buffer, converted to a string
+        /// </summary>
+        private StringBuilder Message = new StringBuilder();
+
+        /// <summary>
+        /// Event fired when a completed message has been recieved
+        /// </summary>
+        public event DataRecivedEvent DataReceived;
+
+        /// <summary>
+        /// Event fire when the remote connection is closed
+        /// </summary>
+        public event ConnectionClosed OnDisconnect;
 
         /// <summary>
         /// Constructor
@@ -40,74 +60,85 @@ namespace BF2Statistics.Gamespy
             this.Client = client;
             this.Stream = client.GetStream();
             this.Debugging = MainForm.Config.DebugStream;
+            Stream.BeginRead(buffer, 0, buffer.Length, new AsyncCallback(DoRead), Stream);
         }
 
         /// <summary>
-        /// Returns a bool based off on wether there is data available to be read
+        /// Callback for BeginRead. This method handles the message parsing
         /// </summary>
-        /// <returns></returns>
-        public bool HasData()
+        /// <param name="ar"></param>
+        private void DoRead(IAsyncResult ar)
         {
-            return Stream.DataAvailable;
-        }
-
-        /// <summary>
-        /// Reads from the client stream. Will rest until data is recieved
-        /// </summary>
-        /// <returns>The completed data from the client</returns>
-        public string Read()
-        {
-            // Prepare variables
+            // End the Async Read
             int bytesRead = 0;
-            byte[] buffer = new byte[Client.ReceiveBufferSize];
-            StringBuilder Message = new StringBuilder();
-
-            // Read while there is data to read
-            do
+            try
             {
-                bytesRead += Stream.Read(buffer, 0, Client.ReceiveBufferSize);
-                Message.Append(Encoding.UTF8.GetString(buffer).TrimEnd((char)0));
-            } 
-            while (Stream.DataAvailable);
+                bytesRead = Stream.EndRead(ar);
+            }
+            catch (IOException e)
+            {
+                // If we got an IOException, client connection is lost
+                if (Client.Client.IsConnected())
+                    Log("ERROR: IOException Thrown during read: " + e.Message);
+            }
+            catch (ObjectDisposedException) { } // Fired when a the login server is shutown
 
-            // Debugging
-            if (Debugging)
-                Log("Port {0} Recieves: {1}", ((IPEndPoint)Client.Client.LocalEndPoint).Port, Message.ToString());
+            // Force disconnet (Specifically for Gpsp, whom will spam null strings)
+            if (bytesRead == 0)
+            {
+                OnDisconnect();
+                return;
+            }
 
-            // Return
-            return (bytesRead == 0) ? "" : Message.ToString();
+            // Add message to buffer
+            Message.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
+
+            // If we have no more data, then the message is complete
+            if (!Stream.DataAvailable)
+            {
+                // Debugging
+                if (Debugging)
+                    Log("Port {0} Recieves: {1}", ((IPEndPoint)Client.Client.LocalEndPoint).Port, Message.ToString());
+
+                // tell our parent that we recieved a message
+                DataReceived(Message.ToString());
+                Message = new StringBuilder();
+            }
+
+            // Begin a new Read
+            Stream.BeginRead(buffer, 0, buffer.Length, new AsyncCallback(DoRead), Stream);
         }
 
         /// <summary>
         /// Writes a message to the client stream
         /// </summary>
         /// <param name="message">The complete message to be sent to the client</param>
-        public void Write(string message)
+        public void Send(string message)
         {
             if (Debugging)
                 Log("Port {0} Sends: {1}", ((IPEndPoint)Client.Client.LocalEndPoint).Port, message);
 
-            this.Write(Encoding.ASCII.GetBytes(message));
+            this.Send(Encoding.ASCII.GetBytes(message));
         }
 
         /// <summary>
         /// Writes a message to the client stream
         /// </summary>
         /// <param name="message">The complete message to be sent to the client</param>
-        public void Write(string message, params object[] items)
+        public void Send(string message, params object[] items)
         {
             message = String.Format(message, items);
             if (Debugging)
                 Log("Port {0} Sends: {1}", ((IPEndPoint)Client.Client.LocalEndPoint).Port, message);
 
-            this.Write(Encoding.ASCII.GetBytes(message));
+            this.Send(Encoding.ASCII.GetBytes(message));
         }
 
         /// <summary>
         /// Writes a message to the client stream
         /// </summary>
         /// <param name="bytes">An array of bytes to send to the stream</param>
-        public void Write(byte[] bytes)
+        public void Send(byte[] bytes)
         {
             Stream.Write(bytes, 0, bytes.Length);
         }

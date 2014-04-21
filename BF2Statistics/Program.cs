@@ -21,7 +21,7 @@ namespace BF2Statistics
         /// <summary>
         /// Specifies the Program Version
         /// </summary>
-        public static Version Version = new Version(1, 8, 2);
+        public static Version Version = new Version(1, 8, 3);
 
         /// <summary>
         /// The main form log file
@@ -51,7 +51,7 @@ namespace BF2Statistics
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(ExceptionHandler.OnUnhandledException);
 
             // Create ErrorLog file
-            ErrorLog = new LogWritter(Path.Combine(Application.StartupPath, "Logs", "Error.log"), 3000);
+            ErrorLog = new LogWritter(Path.Combine(Application.StartupPath, "Logs", "Error.log"));
 
             // Load the main form!
             Application.EnableVisualStyles();

@@ -26,9 +26,14 @@ namespace BF2Statistics.Gamespy
         private TcpClient Client;
 
         /// <summary>
-        /// Client background thread
+        /// The TcpClient's Endpoint
         /// </summary>
-        private Thread ClientThread;
+        private EndPoint ClientEP;
+
+        /// <summary>
+        /// Event fired when the connection is closed
+        /// </summary>
+        public static event GpspConnectionClosed OnDisconnect;
 
         /// <summary>
         /// Constructor
@@ -41,14 +46,13 @@ namespace BF2Statistics.Gamespy
 
             // Set the client variable
             this.Client = client;
+            this.ClientEP = client.Client.RemoteEndPoint;
+            LoginServer.Log("[GPSP] Client Connected: {0}", ClientEP);
 
             // Init a new client stream class
             Stream = new TcpClientStream(client);
-
-            // Handle client communications in a background thread
-            ClientThread = new Thread(new ThreadStart(Start));
-            ClientThread.IsBackground = true;
-            ClientThread.Start();
+            Stream.DataReceived += new DataRecivedEvent(Stream_DataRecived);
+            Stream.OnDisconnect += new ConnectionClosed(Stream_OnDisconnect);
         }
 
         /// <summary>
@@ -56,7 +60,8 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         ~GpspClient()
         {
-            this.Dispose();
+            if(!Disposed)
+                this.Dispose();
         }
 
         /// <summary>
@@ -64,49 +69,47 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         public void Dispose()
         {
-            if (Client.Client.Connected)
+            // If connection is still alive, disconnect user
+            if (Client.Client.IsConnected())
                 Client.Close();
 
+            // Call disconnect event
+            if (OnDisconnect != null)
+                OnDisconnect(this);
+
+            // Preapare to be unloaded from memory
             this.Disposed = true;
+
+            // Log
+            LoginServer.Log("[GPSP] Client Disconnected: {0}", ClientEP);
         }
 
         /// <summary>
-        /// Starts the GPSP.gamespy.com listner for this client
+        /// ECallback for when when the client stream is disconnected
         /// </summary>
-        public void Start()
+        protected void Stream_OnDisconnect()
         {
-            LoginServer.Log("[GPSP] Client Connected: {0}", Client.Client.RemoteEndPoint);
-
-            while (Client.Client.IsConnected())
-            {
-                Update();
-                Thread.Sleep(200);
-            }
-
-            LoginServer.Log("[GPSP] Client Disconnected: {0}", Client.Client.RemoteEndPoint);
             Dispose();
         }
 
         /// <summary>
-        /// Main Listener loop
+        /// Callback for when a message has been recieved by the connected client
         /// </summary>
-        public void Update()
+        public void Stream_DataRecived(string message)
         {
-            if (Stream.HasData())
-            {
-                // Parse input message
-                string message = Stream.Read();
-                string[] recv = message.Split('\\');
+            // Parse input message
+            string[] recv = message.Split('\\');
+            if (recv.Length == 1)
+                return;
 
-                switch (recv[1])
-                {
-                    case "nicks":
-                        SendGPSP(recv);
-                        break;
-                    case "check":
-                        SendCheck(recv);
-                        break;
-                }
+            switch (recv[1])
+            {
+                case "nicks":
+                    SendGPSP(recv);
+                    break;
+                case "check":
+                    SendCheck(recv);
+                    break;
             }
         }
 
@@ -123,7 +126,7 @@ namespace BF2Statistics.Gamespy
                 ClientData = LoginServer.Database.GetUser(GetParameterValue(recv, "email"), GetParameterValue(recv, "pass"));
                 if (ClientData == null)
                 {
-                    Stream.Write("\\nr\\0\\ndone\\\\final\\");
+                    Stream.Send("\\nr\\0\\ndone\\\\final\\");
                     return;
                 }
             }
@@ -133,7 +136,7 @@ namespace BF2Statistics.Gamespy
                 return;
             }
 
-            Stream.Write("\\nr\\1\\nick\\{0}\\uniquenick\\{0}\\ndone\\\\final\\", ClientData["name"]);
+            Stream.Send("\\nr\\1\\nick\\{0}\\uniquenick\\{0}\\ndone\\\\final\\", ClientData["name"]);
         }
 
         /// <summary>
@@ -143,7 +146,7 @@ namespace BF2Statistics.Gamespy
         private void SendCheck(string[] recv)
         {
             try {
-                Stream.Write("\\cur\\0\\pid\\{0}\\final\\", LoginServer.Database.GetPID(GetParameterValue(recv, "nick")));
+                Stream.Send("\\cur\\0\\pid\\{0}\\final\\", LoginServer.Database.GetPID(GetParameterValue(recv, "nick")));
             }
             catch
             {

@@ -26,7 +26,7 @@ namespace BF2Statistics.ASP
         /// <summary>
         /// Debug log file
         /// </summary>
-        private static LogWritter DebugLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "StatsDebug.log"), 3000);
+        private static LogWritter DebugLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "StatsDebug.log"));
 
         /// <summary>
         /// Returns whether the snapshot data appears to be valid, and contain no obvious errors
@@ -222,10 +222,8 @@ namespace BF2Statistics.ASP
                     // Create new MapId. Id's 700 - 1000 are reserved for unknown maps in the Constants.py file
                     // There should never be more then 300 unknown map id's, considering 1001 is the start of KNOWN
                     // Custom mod map id's
-                    Rows = Driver.Query("SELECT MAX(id) AS id FROM mapinfo WHERE id BETWEEN 700 AND 1000");
-                    MapId = (Rows.Count == 0 || String.IsNullOrWhiteSpace(Rows[0]["id"].ToString()))
-                        ? 700
-                        : (Int32.Parse(Rows[0]["id"].ToString()) + 1);
+                    Rows = Driver.Query("SELECT COALESCE(MAX(id), 699) AS id FROM mapinfo WHERE id BETWEEN 700 AND 1000");
+                    MapId = Int32.Parse(Rows[0]["id"].ToString()) + 1;
 
                     // Insert map data, so we dont lose this mapid we generated
                     Driver.Execute("INSERT INTO mapinfo(id, name) VALUES (@P0, @P1)", MapId, MapName);
@@ -962,71 +960,80 @@ namespace BF2Statistics.ASP
                     // Do we require round completion for award processing?
                     if (CompletedRound || !MainForm.Config.ASP_AwardsReqComplete)
                     {
-                        // Get our list of awards we earned in the round
-                        Dictionary<int, int> Awards = GetRoundAwards(Pid, Player);
+                        // Prepare query
+                        InsertQuery = new InsertQueryBuilder("awards", Driver);
+                        Dictionary<int, int> Awards = new Dictionary<int, int>();
+
+                        // Extract player awards
+                        foreach (KeyValuePair<string, string> Item in Player)
+                        {
+                            if (AwardData.Awards.ContainsKey(Item.Key))
+                                Awards.Add(AwardData.Awards[Item.Key], Int32.Parse(Item.Value));
+                        }
+
+                        // Add Backend awards too
+                        foreach (BackendAward Award in AwardData.BackendAwards)
+                        {
+                            int Level = 1;
+                            if (Award.CriteriaMet(Pid, Driver, ref Level))
+                                Awards.Add(Award.AwardId, Level);
+                        }
+
+                        // Now we loop though each players earned award, and store them in the database
                         foreach (KeyValuePair<int, int> Award in Awards)
                         {
-                            int First = 0;
-                            int AwardId = Award.Key;
-                            int Level = Award.Value;
+                            // Get our award type. Award.Key is the ID, Award.Value is the level (or count)
+                            bool IsMedal = Award.Key.InRange(2000000, 3000000);
+                            bool IsBadge = (Award.Key < 2000000);
 
-                            // If isMedal
-                            string Query;
-                            if (AwardId > 2000000 && AwardId < 3000000)
-                                Query = String.Format("SELECT level FROM awards WHERE id={0} AND awd={1}", Pid, AwardId);
-                            else
-                                Query = String.Format("SELECT level FROM awards WHERE id={0} AND awd={1} AND level={2}", Pid, AwardId, Level);
+                            // Build our query
+                            string Query = "SELECT COUNT(*) FROM awards WHERE id=@P0 AND awd=@P1";
+                            if (IsBadge)
+                                Query += " AND level=" + Award.Value.ToString();
 
                             // Check for prior awarding of award
-                            Rows = Driver.Query(Query);
-                            if (Rows.Count == 0)
+                            if (Convert.ToInt32(Driver.ExecuteScalar(Query, Pid, Award.Key)) == 0)
                             {
-                                // Medals
-                                if (AwardId > 2000000 && AwardId < 3000000)
-                                    First = TimeStamp;
-
-                                // Badges
-                                else if (AwardId < 2000000)
+                                // Need to do extra work for Badges as more than one badge level may have been awarded.
+                                // The snapshot will only post the highest awarded level of a badge, so here we award
+                                // the lower level badges if the player does not have them.
+                                if (IsBadge)
                                 {
-                                    // Need to do extra work for Badges as more than one badge per round may have been awarded
-                                    for (int j = 1; j < Level; j++)
+                                    // Check all prior badge levels, and make sure the player has them
+                                    for (int j = 1; j < Award.Value; j++)
                                     {
-                                        Rows = Driver.Query("SELECT level FROM awards WHERE id=@P0 AND awd=@P1 AND level=@P2", Pid, AwardId, j);
-                                        if (Rows.Count == 0)
+                                        Query = "SELECT COUNT(*) FROM awards WHERE id=@P0 AND awd=@P1 AND level=@P2";
+                                        if (Convert.ToInt32(Driver.ExecuteScalar(Query, Pid, Award.Key, j)) == 0)
                                         {
                                             // Prepare Query
-                                            InsertQuery = new InsertQueryBuilder("awards", Driver);
                                             InsertQuery.SetField("id", Pid);
-                                            InsertQuery.SetField("awd", AwardId);
+                                            InsertQuery.SetField("awd", Award.Key);
                                             InsertQuery.SetField("level", j);
                                             InsertQuery.SetField("earned", (TimeStamp - 5) + j);
-                                            InsertQuery.SetField("first", First);
+                                            InsertQuery.SetField("first", 0);
                                             InsertQuery.Execute();
                                         }
                                     }
                                 }
 
                                 // Add the players award
-                                InsertQuery = new InsertQueryBuilder("awards", Driver);
                                 InsertQuery.SetField("id", Pid);
-                                InsertQuery.SetField("awd", AwardId);
-                                InsertQuery.SetField("level", Level);
+                                InsertQuery.SetField("awd", Award.Key);
+                                InsertQuery.SetField("level", Award.Value);
                                 InsertQuery.SetField("earned", TimeStamp);
-                                InsertQuery.SetField("first", First);
+                                InsertQuery.SetField("first", ((IsMedal) ? TimeStamp : 0));
                                 InsertQuery.Execute();
 
                             }
-                            else
+                            else // === Player has recived this award prior === //
                             {
-                                // Player has recived this award prior //
-
-                                // If award if a medal (Because ribbons and badges are only awarded once ever!)
-                                if (AwardId > 2000000 && AwardId < 3000000)
+                                // Only update medals because ribbons and badges are only awarded once ever!
+                                if (IsMedal)
                                 {
                                     // Prepare Query
                                     UpdateQuery = new UpdateQueryBuilder("awards", Driver);
                                     Where = UpdateQuery.AddWhere("id", Comparison.Equals, Pid);
-                                    Where.AddClause(LogicOperator.And, "awd", Comparison.Equals, AwardId);
+                                    Where.AddClause(LogicOperator.And, "awd", Comparison.Equals, Award.Key);
                                     UpdateQuery.SetField("level", 1, ValueMode.Add);
                                     UpdateQuery.SetField("earned", TimeStamp, ValueMode.Set);
                                     UpdateQuery.Execute();
@@ -1034,7 +1041,7 @@ namespace BF2Statistics.ASP
                             }
 
                             // Add best round count if player earned best round medal
-                            if (OnWinningTeam && AwardId == 2051907)
+                            if (Award.Key == 2051907)
                             {
                                 // Prepare Query
                                 UpdateQuery = new UpdateQueryBuilder("army", Driver);
@@ -1047,7 +1054,7 @@ namespace BF2Statistics.ASP
                     }
                 } // End Foreach Player
 
-                // Commit the transaction
+                // === Commit the transaction === ///
                 try
                 {
                     Transaction.Commit();
@@ -1137,7 +1144,7 @@ namespace BF2Statistics.ASP
 
             // Call our Finished Event
             Timer = new TimeSpan(Clock.ElapsedTicks);
-            Log(String.Format("Snapshot ({0}) processed in {1} milliseconds", MapName, Timer.Milliseconds), LogLevel.Info);
+            Log(String.Format("Snapshot ({0}) processed in {1} milliseconds [{2} Queries]", MapName, Timer.Milliseconds, Driver.NumQueries), LogLevel.Info);
             SnapshotProccessed();
         }
 
@@ -1161,31 +1168,6 @@ namespace BF2Statistics.ASP
 
             // Fix country!
             return (CC == "xx" || CC == "01") ? MainForm.Config.ASP_LocalIpCountryCode : CC;
-        }
-
-        /// <summary>
-        /// This method gets the award id's of all awards earned by a player, in a round
-        /// </summary>
-        /// <param name="Player"></param>
-        /// <returns></returns>
-        private Dictionary<int, int> GetRoundAwards(int Pid, Dictionary<string, string> Player)
-        {
-            // Award format, Id => Level Earned
-            Dictionary<int, int> Found = new Dictionary<int, int>();
-            foreach (KeyValuePair<string, string> Item in Player)
-            {
-                if(AwardData.Awards.ContainsKey(Item.Key))
-                    Found.Add(AwardData.Awards[Item.Key], Int32.Parse(Item.Value));
-            }
-
-            // Add Backend awards too
-            foreach (BackendAward Award in AwardData.BackendAwards)
-            {
-                int Level;
-                if (Award.CriteriaMet(Pid, Driver, out Level))
-                    Found.Add(Award.AwardId, Level);
-            }
-            return Found;
         }
 
         /// <summary>

@@ -33,45 +33,34 @@ namespace BF2Statistics.ASP
         /// <param name="Pid">The player ID</param>
         /// <param name="Level">The award level if the criteria is met</param>
         /// <returns></returns>
-        public bool CriteriaMet(int Pid, StatsDatabase Driver, out int Level)
+        public bool CriteriaMet(int Pid, StatsDatabase Driver, ref int Level)
         {
-            // Prepare variables
-            List<Dictionary<string, object>> Rows;
+            // Get the award count (or level for badges) for this award
+            string Query = "SELECT COALESCE(max(level), 0) FROM awards WHERE id=@P0 AND awd=@P1";
+            int AwardCount = Convert.ToInt32(Driver.ExecuteScalar(Query, Pid, AwardId));
+            bool IsRibbon = (AwardId > 3000000);
 
-            // See if the player has the award already
-            Rows = Driver.Query("SELECT level FROM awards WHERE id=@P0 AND awd=@P1 ORDER BY level DESC", Pid, AwardId);
-            int AwardCount = Rows.Count;
-            bool MeetsCriteria = false;
-
-            // If award is a medal, We Can receive multiple times. Badges also fall under this catagory
-            // because there is different levels to the badges. Ribbons can only be awarded once!
-            if (AwardId < 3000000)
-                // Can receive multiple times (Medal | Badge)
-                Level = ((AwardCount > 0) ? Int32.Parse(Rows[0]["level"].ToString()) + 1 : 1);
-            else
-                Level = 1;
-
-            // Can only recieve ribbons once in a lifetime
-            if (AwardId > 3000000 && AwardCount > 0)
+            // Can only recieve ribbons once in a lifetime, so return false if we have it already
+            if (IsRibbon && AwardCount > 0)
                 return false;
+
+            // Medals and Badges can receive multiple times (Badges are award level, not count)
+            if (!IsRibbon)
+                Level = AwardCount + 1;
 
             // Loop through each criteria and see if we have met the criteria
             foreach (AwardCriteria Criteria in Criterias)
             {
-                // Check to see if the player meets the requirments for the award
+                // Build the query. We always use a count() or sum() to return a sortof bool.
                 string Where = Criteria.Where.Replace("###", Level.ToString());
-                Rows = Driver.Query(String.Format("SELECT {0} AS checkval FROM {1} WHERE id={2} AND {3};", Criteria.Field, Criteria.Table, Pid, Where));
-                if (Int32.Parse(Rows[0]["checkval"].ToString()) < Criteria.ExpectedResult)
-                {
-                    // Criteria not met... no use continuing
-                    MeetsCriteria = false;
-                    break;
-                }
-                else
-                    MeetsCriteria = true;
+                Query = String.Format("SELECT {0} FROM {1} WHERE id={2} AND {3}", Criteria.Field, Criteria.Table, Pid, Where);
+
+                // If we dont meet the expected result, the criteria is unmet, no use continuing
+                if (Convert.ToInt32(Driver.ExecuteScalar(Query)) < Criteria.ExpectedResult)
+                    return false;
             }
 
-            return MeetsCriteria;
+            return true;
         }
     }
 }

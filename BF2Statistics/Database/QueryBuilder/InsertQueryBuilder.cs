@@ -171,10 +171,9 @@ namespace BF2Statistics.Database.QueryBuilder
         /// <returns></returns>
         public int Execute()
         {
-            DbCommand Command = BuildCommand();
-            int Result = Command.ExecuteNonQuery();
-            Command.Dispose();
-            return Result;
+            Driver.NumQueries++;
+            using (DbCommand Command = BuildCommand())
+                return Command.ExecuteNonQuery();
         }
 
         #endregion Query

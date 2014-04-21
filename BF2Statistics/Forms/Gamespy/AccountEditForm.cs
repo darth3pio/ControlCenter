@@ -28,7 +28,7 @@ namespace BF2Statistics
 
             // Register for Events
             GpcmClient.OnSuccessfulLogin += new ConnectionUpdate(GpcmClient_OnSuccessfulLogin);
-            GpcmClient.OnDisconnect += new ConnectionUpdate(GpcmClient_OnDisconnect);
+            GpcmClient.OnDisconnect += new GpcmConnectionClosed(GpcmClient_OnDisconnect);
             
             // Fill the account information boxes
             Dictionary<string, object> User = LoginServer.Database.GetUser(AccountId);
@@ -175,7 +175,7 @@ namespace BF2Statistics
         private void AccountEditForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             GpcmClient.OnSuccessfulLogin -= new ConnectionUpdate(GpcmClient_OnSuccessfulLogin);
-            GpcmClient.OnDisconnect -= new ConnectionUpdate(GpcmClient_OnDisconnect);
+            GpcmClient.OnDisconnect -= new GpcmConnectionClosed(GpcmClient_OnDisconnect);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace BF2Statistics.Gamespy
     /// create new user accounts, and fetch profile information
     /// <remarks>gpcm.gamespy.com</remarks>
     /// </summary>
-    class GpcmClient : IDisposable
+    public class GpcmClient : IDisposable
     {
         #region Variables
 
@@ -47,7 +47,7 @@ namespace BF2Statistics.Gamespy
 
         /// <summary>
         /// The Clients generated proof string, used for checking password validity.
-        /// This is used as part of the hash used to "proove" to the client
+        /// This is used as part of the hash used to "prove" to the client
         /// that the password in our database matches what the user enters
         /// </summary>
         private string ClientChallengeKey;
@@ -82,14 +82,14 @@ namespace BF2Statistics.Gamespy
         private TcpClient Connection;
 
         /// <summary>
+        /// The TcpClient's Endpoint
+        /// </summary>
+        private EndPoint ClientEP;
+
+        /// <summary>
         /// The Connected Clients IpAddress
         /// </summary>
         public IPAddress IpAddress = null;
-
-        /// <summary>
-        /// Active client thread
-        /// </summary>
-        private Thread ClientThread;
 
         /// <summary>
         /// A random... random
@@ -170,7 +170,7 @@ namespace BF2Statistics.Gamespy
         /// the socket gets disconnected. This event will not fire
         /// unless OnSuccessfulLogin event was fired first.
         /// </summary>
-        public static event ConnectionUpdate OnDisconnect;
+        public static event GpcmConnectionClosed OnDisconnect;
 
         #endregion Variables
 
@@ -192,14 +192,20 @@ namespace BF2Statistics.Gamespy
             // Set default variable values
             ClientNick = "Connecting...";
             Connection = Client;
-            IpAddress = ((IPEndPoint)Connection.Client.RemoteEndPoint).Address;
-            Stream = new TcpClientStream(Client);
+            ClientEP = Connection.Client.RemoteEndPoint;
+            IpAddress = ((IPEndPoint)ClientEP).Address;
             Disposed = false;
 
-            // Handle client communications in a background thread
-            ClientThread = new Thread(new ThreadStart(HandleClient));
-            ClientThread.IsBackground = true;
-            ClientThread.Start();
+            // Create our Client Stream
+            Stream = new TcpClientStream(Client);
+            Stream.DataReceived += new DataRecivedEvent(Stream_DataRecived);
+            Stream.OnDisconnect += new ConnectionClosed(Stream_OnDisconnect);
+
+            // Log Incoming Connections
+            LoginServer.Log("[GPCM] Client Connected: {0}", ClientEP);
+
+            // Start by sending the server challenge
+            SendServerChallenge();
         }
 
         /// <summary>
@@ -207,7 +213,8 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         ~GpcmClient()
         {
-            this.Dispose();
+            if (!Disposed)
+                this.Dispose();
         }
 
         /// <summary>
@@ -225,6 +232,9 @@ namespace BF2Statistics.Gamespy
 
             // Preapare to be unloaded from memory
             this.Disposed = true;
+
+            // Log
+            LoginServer.Log("[GPCM] Client Disconnected: {0}", ClientEP);
         }
 
         /// <summary>
@@ -236,34 +246,62 @@ namespace BF2Statistics.Gamespy
             Dispose();
         }
 
-        #region Steps
+        #region Stream Callbacks
+
+        /// <summary>
+        /// Main listner loop. Keeps an open stream between the client and server while
+        /// the client is logged in / playing
+        /// </summary>
+        private void Stream_DataRecived(string message)
+        {
+            // Read client message, and parse it into key value pairs
+            string[] recieved = message.TrimStart(Backslash).Split(Backslash);
+            Dictionary<string, string> Recv = ConvertToKeyValue(recieved);
+
+            // Switch by task
+            switch (recieved[0])
+            {
+                case "newuser":
+                    HandleNewUser(Recv);
+                    Step++;
+                    break;
+                case "login":
+                    ProcessLogin(Recv);
+                    Step++;
+                    break;
+                case "getprofile":
+                    if (Step < 2)
+                    {
+                        SendProfile(false);
+                        Step++;
+                    }
+                    else
+                        SendProfile(true);
+                    break;
+                case "updatepro":
+                    UpdateUser(Recv);
+                    Step++;
+                    break;
+                case "logout":
+                    LogOut();
+                    break;
+                default:
+                    LoginServer.Log("Unkown Message Passed: {0}", message);
+                    break;
+            }
+        }
 
         /// <summary>
         /// Main loop for handling the client stream
         /// </summary>
-        private void HandleClient()
+        private void Stream_OnDisconnect()
         {
-            // If there is data in the stream, clear it out!
-            if(Stream.HasData())
-                Stream.Read();
-
-            // Get our client endpoint and Log thier connection
-            EndPoint ClientEP = Connection.Client.RemoteEndPoint;
-            LoginServer.Log("[GPCM] Client Connected: {0}", ClientEP);
-
-            // Start by sending the server challenge
-            SendServerChallenge();
-
-            // While client remains connected, continuelly check for updates
-            while (Connection.Client.IsConnected())
-            {
-                Update();
-                Thread.Sleep(200);
-            }
-
-            LoginServer.Log("[GPCM] Client Disconnected: {0}", ClientEP);
-            Dispose(); 
+            LogOut();
         }
+
+        #endregion Stream Callbacks
+
+        #region Login Steps
 
         /// <summary>
         ///  This method starts off by sending a random string 10 characters
@@ -280,7 +318,7 @@ namespace BF2Statistics.Gamespy
 
             // Next we send the client the challenge key
             ServerChallengeKey = Temp.ToString();
-            Stream.Write("\\lc\\1\\challenge\\{0}\\id\\1\\final\\", ServerChallengeKey);
+            Stream.Send("\\lc\\1\\challenge\\{0}\\id\\1\\final\\", ServerChallengeKey);
         }
 
         /// <summary>
@@ -301,7 +339,7 @@ namespace BF2Statistics.Gamespy
                 User = LoginServer.Database.GetUser(ClientNick);
                 if (User == null)
                 {
-                    Stream.Write("\\error\\\\err\\265\\fatal\\\\errmsg\\The uniquenick provided is incorrect!\\id\\1\\final\\");
+                    Stream.Send("\\error\\\\err\\265\\fatal\\\\errmsg\\The uniquenick provided is incorrect!\\id\\1\\final\\");
                     Dispose();
                     return;
                 }
@@ -322,7 +360,7 @@ namespace BF2Statistics.Gamespy
                 SessionKey = Crc.ComputeChecksum(ClientNick);
 
                 // Password is correct
-                Stream.Write(
+                Stream.Send(
                     "\\lc\\2\\sesskey\\{0}\\proof\\{1}\\userid\\{2}\\profileid\\{2}\\uniquenick\\{3}\\lt\\{4}__\\id\\1\\final\\",
                     SessionKey, 
                     GenerateProof(ServerChallengeKey, ClientChallengeKey),
@@ -338,7 +376,7 @@ namespace BF2Statistics.Gamespy
             else
             {
                 // Password is incorrect with database value
-                Stream.Write("\\error\\\\err\\260\\fatal\\\\errmsg\\The password provided is incorrect.\\id\\1\\final\\");
+                Stream.Send("\\error\\\\err\\260\\fatal\\\\errmsg\\The password provided is incorrect.\\id\\1\\final\\");
                 Dispose();
             }
         }
@@ -349,58 +387,11 @@ namespace BF2Statistics.Gamespy
         /// <param name="retrieve">Determines the return ID</param>
         private void SendProfile(bool retrieve)
         {
-            Stream.Write(
+            Stream.Send(
                 "\\pi\\\\profileid\\{0}\\nick\\{1}\\userid\\{0}\\email\\{2}\\sig\\{3}\\uniquenick\\{1}\\pid\\0\\firstname\\\\lastname\\" +
                 "\\countrycode\\{4}\\birthday\\16844722\\lon\\0.000000\\lat\\0.000000\\loc\\\\id\\{5}\\final\\",
                 User["id"], ClientNick, User["email"], GenerateSig(), User["country"], (retrieve ? "5" : "2")
             );
-        }
-
-        /// <summary>
-        /// Main listner loop. Keeps an open stream between the client and server while
-        /// the client is logged in / playing
-        /// </summary>
-        private void Update()
-        {
-            if (Stream.HasData())
-            {
-                // Read client message, and parse it into key value pairs
-                string message = Stream.Read();
-                string[] recieved = message.TrimStart(Backslash).Split(Backslash);
-                Dictionary<string, string> Recv = ConvertToKeyValue(recieved);
-
-                // Switch by task
-                switch (recieved[0])
-                {
-                    case "newuser":
-                        HandleNewUser(Recv);
-                        Step++;
-                        break;
-                    case "login":
-                        ProcessLogin(Recv);
-                        Step++;
-                        break;
-                    case "getprofile":
-                        if (Step < 2)
-                        {
-                            SendProfile(false);
-                            Step++;
-                        }
-                        else
-                            SendProfile(true);
-                        break;
-                    case "updatepro":
-                        UpdateUser(Recv);
-                        Step++;
-                        break;
-                    case "logout":
-                        LogOut();
-                        break;
-                    default:
-                        LoginServer.Log("Unkown Message Passed: {0}", message);
-                        break;
-                }
-            } 
         }
 
         #endregion Steps
@@ -422,7 +413,7 @@ namespace BF2Statistics.Gamespy
             {
                 if (LoginServer.Database.UserExists(Nick))
                 {
-                    Stream.Write("\\error\\\\err\\516\\fatal\\\\errmsg\\This account name is already in use!\\id\\1\\final\\");
+                    Stream.Send("\\error\\\\err\\516\\fatal\\\\errmsg\\This account name is already in use!\\id\\1\\final\\");
                     Dispose();
                     return;
                 }
@@ -441,12 +432,12 @@ namespace BF2Statistics.Gamespy
             // Fetch the user to make sure we are good
             if (!result || User == null)
             {
-                Stream.Write("\\error\\\\err\\516\\fatal\\\\errmsg\\Error creating account!\\id\\1\\final\\");
+                Stream.Send("\\error\\\\err\\516\\fatal\\\\errmsg\\Error creating account!\\id\\1\\final\\");
                 Dispose();
                 return;
             }
 
-            Stream.Write("\\nur\\\\userid\\{0}\\profileid\\{0}\\id\\1\\final\\", User["id"]);
+            Stream.Send("\\nur\\\\userid\\{0}\\profileid\\{0}\\id\\1\\final\\", User["id"]);
         }
 
 

@@ -96,6 +96,10 @@ namespace BF2Statistics
                     break;
                 }
 
+                // Reset query Count
+                Database.NumQueries = 0;
+
+                // Process the snapshot
                 try
                 {
                     // Parse date of snapshot

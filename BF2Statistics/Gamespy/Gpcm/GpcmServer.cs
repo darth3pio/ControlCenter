@@ -35,8 +35,8 @@ namespace BF2Statistics.Gamespy
             Listener.BeginAcceptTcpClient(new AsyncCallback(AcceptClient), null);
 
             // Enlist for events
-            GpcmClient.OnSuccessfulLogin += new ConnectionUpdate(Client_OnSuccessfulLogin);
-            GpcmClient.OnDisconnect += new ConnectionUpdate(GpcmClient_OnDisconnect);
+            GpcmClient.OnSuccessfulLogin += new ConnectionUpdate(GpcmClient_OnSuccessfulLogin);
+            GpcmClient.OnDisconnect += new GpcmConnectionClosed(GpcmClient_OnDisconnect);
         }
 
         /// <summary>
@@ -46,11 +46,13 @@ namespace BF2Statistics.Gamespy
         {
             // Stop updating client checks
             Listener.Stop();
-            GpcmClient.OnDisconnect -= new ConnectionUpdate(GpcmClient_OnDisconnect);
+
+            // Unregister events so we dont get a shit ton of calls
+            GpcmClient.OnDisconnect -= new GpcmConnectionClosed(GpcmClient_OnDisconnect);
 
             // Disconnected all connected clients
             foreach (GpcmClient C in Clients)
-                C.Dispose();
+                C.Dispose(); // Donot call logout here!
 
             // Update Connected Clients in the Database
             LoginServer.Database.Execute("UPDATE accounts SET session=0");
@@ -104,16 +106,24 @@ namespace BF2Statistics.Gamespy
             catch { }
         }
 
-        private void Client_OnSuccessfulLogin(object sender)
+        /// <summary>
+        /// Callback for a successful login
+        /// </summary>
+        /// <param name="sender"></param>
+        private void GpcmClient_OnSuccessfulLogin(object sender)
         {
-            OnClientsUpdate(new object(), new ClientList(Clients));
+            OnClientsUpdate(this, new ClientList(Clients));
         }
 
-        private void GpcmClient_OnDisconnect(object sender)
+        /// <summary>
+        /// Callback for when a connection had disconnected
+        /// </summary>
+        /// <param name="client">The client object whom is disconnecting</param>
+        private void GpcmClient_OnDisconnect(GpcmClient client)
         {
             // Remove client, and call OnUpdate Event
-            Clients.Remove((GpcmClient)sender);
-            OnClientsUpdate(new object(), new ClientList(Clients));
+            Clients.Remove(client);
+            OnClientsUpdate(this, new ClientList(Clients));
         }
     }
 }

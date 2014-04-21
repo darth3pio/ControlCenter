@@ -103,16 +103,23 @@ namespace BF2Statistics.ASP
             // Peoples Madallion
             { new BackendAward(2021613, new AwardCriteria("army", "count(id)", 1, "time2 >= 360000*### AND best2 >= 100*### AND win2 >= 100*###")) },
 
-            // European Union Special Service Medal
-            { new BackendAward(3191305, 
+            // European Union Service Medal
+            { new BackendAward(2270521, new AwardCriteria("army", "count(id)", 1, "time9 >= 360000*### AND best9 >= 100*### AND win9 >= 100*###")) },
+
+            // European Union Service Ribbon
+            { new BackendAward(3270519, 
+                // 1 second on each map
                 new AwardCriteria("maps", "count(mapid)", 3, "mapid IN (10,11,110) AND time >= 1"),
-                new AwardCriteria("maps", "sum(time)", 180000, "mapid IN (10,11,110) AND time >= 1"))
+                // 50 Hours played between the 3 maps
+                new AwardCriteria("maps", "sum(time)", 180000, "mapid IN (10,11,110)"))
             },
 
-            // North American Service Medal
-            { new BackendAward(3191305,  
+            // North American Service Ribbon
+            { new BackendAward(3271401,  
+                // 1 second on each map
                 new AwardCriteria("maps", "count(mapid)", 3, "mapid IN (200,201,202) AND time >= 1"),
-                new AwardCriteria("maps", "sum(time)", 90000, "mapid IN (200,201,202) AND time >= 1"))
+                // 25 Hours played between the 3 maps
+                new AwardCriteria("maps", "sum(time)", 90000, "mapid IN (200,201,202)"))
             },
 
             // Xpack //

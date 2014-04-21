@@ -42,6 +42,11 @@ namespace BF2Statistics.Database
         }
 
         /// <summary>
+        /// Gets the number of queries ran by this instance
+        /// </summary>
+        public int NumQueries = 0;
+
+        /// <summary>
         /// Random, yes... But its used here when building queries dynamically
         /// </summary>
         protected static char Comma = ',';
@@ -212,6 +217,9 @@ namespace BF2Statistics.Database
             // Create our Rows result
             List<Dictionary<string, object>> Rows = new List<Dictionary<string, object>>();
 
+            // Increase Query Count
+            NumQueries++;
+
             // Create the SQL Command
             using (DbCommand Command = this.CreateCommand(Sql))
             {
@@ -252,6 +260,9 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public IEnumerable<Dictionary<string, object>> QueryReader(string Sql)
         {
+            // Increase Query Count
+            NumQueries++;
+
             // Create the SQL Command, and execute the reader
             using (DbCommand Command = this.CreateCommand(Sql))
             using (DbDataReader Reader = Command.ExecuteReader())
@@ -282,6 +293,9 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public IEnumerable<Dictionary<string, object>> QueryReader(DbCommand Command)
         {
+            // Increase Query Count
+            NumQueries++;
+
             // Execute the query
             using (Command)
             using (DbDataReader Reader = Command.ExecuteReader())
@@ -315,6 +329,9 @@ namespace BF2Statistics.Database
         {
             // Execute the query
             List<Dictionary<string, object>> Rows = new List<Dictionary<string, object>>();
+
+            // Increase Query Count
+            NumQueries++;
 
             using (Command)
             using (DbDataReader Reader = Command.ExecuteReader())
@@ -356,7 +373,7 @@ namespace BF2Statistics.Database
         /// <summary>
         /// Executes a statement on the database (Update, Delete, Insert)
         /// </summary>
-        /// <param name="Sql">The SQL statement to be executes</param>
+        /// <param name="Sql">The SQL statement to be executed</param>
         /// <param name="Params">A list of Sqlparameters</param>
         /// <returns>Returns the number of rows affected by the statement</returns>
         public int Execute(string Sql, List<DbParameter> Params)
@@ -364,6 +381,9 @@ namespace BF2Statistics.Database
             // Create the SQL Command
             using (DbCommand Command = this.CreateCommand(Sql))
             {
+                // Increase Query Count
+                NumQueries++;
+
                 // Add params
                 foreach (DbParameter Param in Params)
                     Command.Parameters.Add(Param);
@@ -376,7 +396,7 @@ namespace BF2Statistics.Database
         /// <summary>
         /// Executes a statement on the database (Update, Delete, Insert)
         /// </summary>
-        /// <param name="Sql">The SQL statement to be executes</param>
+        /// <param name="Sql">The SQL statement to be executed</param>
         /// <param name="Items">Additional parameters are parameter values for the query.
         /// The first parameter replaces @P0, second @P1 etc etc.
         /// </param>
@@ -395,8 +415,80 @@ namespace BF2Statistics.Database
                     Command.Parameters.Add(Param);
                 }
 
+                // Increase Query Count
+                NumQueries++;
+
                 // Execute command, and dispose of the command
                 return Command.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// Executes the query, and returns the first column of the first row in the result 
+        /// set returned by the query. Additional columns or rows are ignored.
+        /// </summary>
+        /// <param name="Sql">The SQL statement to be executed</param>
+        /// <returns></returns>
+        public object ExecuteScalar(string Sql)
+        {
+            // Increase Query Count
+            NumQueries++;
+
+            // Create the SQL Command
+            using (DbCommand Command = this.CreateCommand(Sql))
+                return Command.ExecuteScalar();
+        }
+
+        /// <summary>
+        /// Executes the query, and returns the first column of the first row in the result 
+        /// set returned by the query. Additional columns or rows are ignored.
+        /// </summary>
+        /// <param name="Sql">The SQL statement to be executed</param>
+        /// <param name="Params">A list of Sqlparameters</param>
+        /// <returns></returns>
+        public object ExecuteScalar(string Sql, List<DbParameter> Params)
+        {
+            // Create the SQL Command
+            using (DbCommand Command = this.CreateCommand(Sql))
+            {
+                // Increase Query Count
+                NumQueries++;
+
+                // Add params
+                foreach (DbParameter Param in Params)
+                    Command.Parameters.Add(Param);
+
+                // Execute command, and dispose of the command
+                return Command.ExecuteScalar();
+            }
+        }
+
+        /// <summary>
+        /// Executes the query, and returns the first column of the first row in the result 
+        /// set returned by the query. Additional columns or rows are ignored.
+        /// </summary>
+        /// <param name="Sql">The SQL statement to be executed</param>
+        /// <param name="Items"></param>
+        /// <returns></returns>
+        public object ExecuteScalar(string Sql, params object[] Items)
+        {
+            // Create the SQL Command
+            using (DbCommand Command = this.CreateCommand(Sql))
+            {
+                // Add params
+                for (int i = 0; i < Items.Length; i++)
+                {
+                    DbParameter Param = this.CreateParam();
+                    Param.ParameterName = "@P" + i;
+                    Param.Value = Items[i];
+                    Command.Parameters.Add(Param);
+                }
+
+                // Increase Query Count
+                NumQueries++;
+
+                // Execute command, and dispose of the command
+                return Command.ExecuteScalar();
             }
         }
 

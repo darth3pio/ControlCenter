@@ -16,14 +16,9 @@ namespace BF2Statistics.Gamespy
         private TcpListener Listener;
 
         /// <summary>
-        /// Our client connection thread
-        /// </summary>
-        private Thread ConnectionsThread;
-
-        /// <summary>
         /// List of connected clients
         /// </summary>
-        private List<GpspClient> Clients = new List<GpspClient>();
+        public List<GpspClient> Clients = new List<GpspClient>();
 
         public GpspServer()
         {
@@ -31,13 +26,11 @@ namespace BF2Statistics.Gamespy
             Listener = new TcpListener(IPAddress.Any, 29901);
             Listener.Start();
 
+            // Register for disconnect
+            GpspClient.OnDisconnect += new GpspConnectionClosed(GpspClient_OnDisconnect);
+
             // Create a new thread to accept the connection
             Listener.BeginAcceptTcpClient(new AsyncCallback(AcceptClient), null);
-
-            // Start a new thread for accepting clients
-            ConnectionsThread = new Thread(new ThreadStart(UpdateConnections));
-            ConnectionsThread.IsBackground = true;
-            ConnectionsThread.Start();
         }
 
         /// <summary>
@@ -47,36 +40,16 @@ namespace BF2Statistics.Gamespy
         {
             // Stop updating client checks
             Listener.Stop();
-            ConnectionsThread.Abort();
+
+            // Unregister events so we dont get a shit ton of calls
+            GpspClient.OnDisconnect -= new GpspConnectionClosed(GpspClient_OnDisconnect);
 
             // Disconnected all connected clients
             foreach (GpspClient C in Clients)
                 C.Dispose();
 
-            // Unbind the port
-            Listener.Stop();
-        }
-
-        /// <summary>
-        /// Update the connected clients
-        /// </summary>
-        private void UpdateConnections()
-        {
-            // Keep looping
-            while (true)
-            {
-                // Remove from back to front
-                for (int i = Clients.Count - 1; i >= 0; i--)
-                {
-                    if (Clients[i].Disposed)
-                    {
-                        lock (Clients)
-                        Clients.RemoveAt(i);
-                    }
-                }
-
-                Thread.Sleep(500);
-            }
+            // clear clients
+            Clients.Clear();
         }
 
         /// <summary>
@@ -94,6 +67,15 @@ namespace BF2Statistics.Gamespy
                 Clients.Add(new GpspClient(Client));
             }
             catch { }
+        }
+
+        /// <summary>
+        /// Callback for when a connection had disconnected
+        /// </summary>
+        /// <param name="sender">The client object whom is disconnecting</param>
+        private void GpspClient_OnDisconnect(GpspClient client)
+        {
+            Clients.Remove(client);
         }
     }
 }
