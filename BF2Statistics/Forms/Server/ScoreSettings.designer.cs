@@ -132,6 +132,13 @@
             this.label48 = new System.Windows.Forms.Label();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.groupBox13 = new System.Windows.Forms.GroupBox();
+            this.label56 = new System.Windows.Forms.Label();
+            this.label55 = new System.Windows.Forms.Label();
+            this.label54 = new System.Windows.Forms.Label();
+            this.label53 = new System.Windows.Forms.Label();
+            this.label52 = new System.Windows.Forms.Label();
+            this.label51 = new System.Windows.Forms.Label();
+            this.ReplenishInterval = new System.Windows.Forms.NumericUpDown();
             this.label50 = new System.Windows.Forms.Label();
             this.TeamVDamageLimit = new System.Windows.Forms.NumericUpDown();
             this.label49 = new System.Windows.Forms.Label();
@@ -146,13 +153,6 @@
             this.Cancel = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
             this.ResetButton = new System.Windows.Forms.Button();
-            this.ReplenishInterval = new System.Windows.Forms.NumericUpDown();
-            this.label51 = new System.Windows.Forms.Label();
-            this.label52 = new System.Windows.Forms.Label();
-            this.label53 = new System.Windows.Forms.Label();
-            this.label54 = new System.Windows.Forms.Label();
-            this.label55 = new System.Windows.Forms.Label();
-            this.label56 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox6.SuspendLayout();
@@ -213,12 +213,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.AiKillScore)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.groupBox13.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ReplenishInterval)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TeamVDamageLimit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TeamDamageLimit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AmmoPointLimit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.HealPointLimit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RepairPointLimit)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ReplenishInterval)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -1448,6 +1448,84 @@
             this.groupBox13.TabStop = false;
             this.groupBox13.Text = "Replenish Scoring";
             // 
+            // label56
+            // 
+            this.label56.AutoSize = true;
+            this.label56.Location = new System.Drawing.Point(249, 195);
+            this.label56.Name = "label56";
+            this.label56.Size = new System.Drawing.Size(356, 13);
+            this.label56.TabIndex = 38;
+            this.label56.Text = "The number of seconds before a player can recieve replenish points again";
+            // 
+            // label55
+            // 
+            this.label55.AutoSize = true;
+            this.label55.Location = new System.Drawing.Point(249, 147);
+            this.label55.Name = "label55";
+            this.label55.Size = new System.Drawing.Size(448, 13);
+            this.label55.TabIndex = 37;
+            this.label55.Text = "The number of damage that must be done to a team vehicle to recieve a Team Damage" +
+                " Point";
+            // 
+            // label54
+            // 
+            this.label54.AutoSize = true;
+            this.label54.Location = new System.Drawing.Point(249, 120);
+            this.label54.Name = "label54";
+            this.label54.Size = new System.Drawing.Size(448, 13);
+            this.label54.TabIndex = 36;
+            this.label54.Text = "The number of health points that must be done to a teamate to recieve a Team Dama" +
+                "ge Point";
+            // 
+            // label53
+            // 
+            this.label53.AutoSize = true;
+            this.label53.Location = new System.Drawing.Point(249, 94);
+            this.label53.Name = "label53";
+            this.label53.Size = new System.Drawing.Size(342, 13);
+            this.label53.TabIndex = 35;
+            this.label53.Text = "The number of ammo that must be restored to recieve a Resupply Point";
+            // 
+            // label52
+            // 
+            this.label52.AutoSize = true;
+            this.label52.Location = new System.Drawing.Point(249, 68);
+            this.label52.Name = "label52";
+            this.label52.Size = new System.Drawing.Size(352, 13);
+            this.label52.TabIndex = 34;
+            this.label52.Text = "The number of health points that must be restored to recieve a Heal Point";
+            // 
+            // label51
+            // 
+            this.label51.AutoSize = true;
+            this.label51.Location = new System.Drawing.Point(249, 41);
+            this.label51.Name = "label51";
+            this.label51.Size = new System.Drawing.Size(380, 13);
+            this.label51.TabIndex = 33;
+            this.label51.Text = "The number of vehicle hit points that must be repaired to recieve a Repair Point";
+            // 
+            // ReplenishInterval
+            // 
+            this.ReplenishInterval.Location = new System.Drawing.Point(189, 193);
+            this.ReplenishInterval.Maximum = new decimal(new int[] {
+            999,
+            0,
+            0,
+            0});
+            this.ReplenishInterval.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.ReplenishInterval.Name = "ReplenishInterval";
+            this.ReplenishInterval.Size = new System.Drawing.Size(40, 20);
+            this.ReplenishInterval.TabIndex = 32;
+            this.ReplenishInterval.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
             // label50
             // 
             this.label50.AutoSize = true;
@@ -1460,8 +1538,8 @@
             // TeamVDamageLimit
             // 
             this.TeamVDamageLimit.Location = new System.Drawing.Point(189, 145);
-            this.TeamVDamageLimit.Maximum = new decimal(new int[] {
-            999,
+            this.TeamVDamageLimit.Minimum = new decimal(new int[] {
+            1,
             0,
             0,
             0});
@@ -1486,8 +1564,8 @@
             // TeamDamageLimit
             // 
             this.TeamDamageLimit.Location = new System.Drawing.Point(189, 118);
-            this.TeamDamageLimit.Maximum = new decimal(new int[] {
-            999,
+            this.TeamDamageLimit.Minimum = new decimal(new int[] {
+            1,
             0,
             0,
             0});
@@ -1503,8 +1581,8 @@
             // AmmoPointLimit
             // 
             this.AmmoPointLimit.Location = new System.Drawing.Point(189, 92);
-            this.AmmoPointLimit.Maximum = new decimal(new int[] {
-            999,
+            this.AmmoPointLimit.Minimum = new decimal(new int[] {
+            1,
             0,
             0,
             0});
@@ -1520,8 +1598,8 @@
             // HealPointLimit
             // 
             this.HealPointLimit.Location = new System.Drawing.Point(189, 66);
-            this.HealPointLimit.Maximum = new decimal(new int[] {
-            999,
+            this.HealPointLimit.Minimum = new decimal(new int[] {
+            1,
             0,
             0,
             0});
@@ -1537,8 +1615,8 @@
             // RepairPointLimit
             // 
             this.RepairPointLimit.Location = new System.Drawing.Point(189, 39);
-            this.RepairPointLimit.Maximum = new decimal(new int[] {
-            999,
+            this.RepairPointLimit.Minimum = new decimal(new int[] {
+            1,
             0,
             0,
             0});
@@ -1616,74 +1694,6 @@
             this.ResetButton.Text = "Reset To default";
             this.ResetButton.UseVisualStyleBackColor = true;
             this.ResetButton.Click += new System.EventHandler(this.ResetButton_Click);
-            // 
-            // ReplenishInterval
-            // 
-            this.ReplenishInterval.Location = new System.Drawing.Point(189, 193);
-            this.ReplenishInterval.Maximum = new decimal(new int[] {
-            999,
-            0,
-            0,
-            0});
-            this.ReplenishInterval.Name = "ReplenishInterval";
-            this.ReplenishInterval.Size = new System.Drawing.Size(40, 20);
-            this.ReplenishInterval.TabIndex = 32;
-            // 
-            // label51
-            // 
-            this.label51.AutoSize = true;
-            this.label51.Location = new System.Drawing.Point(249, 41);
-            this.label51.Name = "label51";
-            this.label51.Size = new System.Drawing.Size(380, 13);
-            this.label51.TabIndex = 33;
-            this.label51.Text = "The number of vehicle hit points that must be repaired to recieve a Repair Point";
-            // 
-            // label52
-            // 
-            this.label52.AutoSize = true;
-            this.label52.Location = new System.Drawing.Point(249, 68);
-            this.label52.Name = "label52";
-            this.label52.Size = new System.Drawing.Size(352, 13);
-            this.label52.TabIndex = 34;
-            this.label52.Text = "The number of health points that must be restored to recieve a Heal Point";
-            // 
-            // label53
-            // 
-            this.label53.AutoSize = true;
-            this.label53.Location = new System.Drawing.Point(249, 94);
-            this.label53.Name = "label53";
-            this.label53.Size = new System.Drawing.Size(342, 13);
-            this.label53.TabIndex = 35;
-            this.label53.Text = "The number of ammo that must be restored to recieve a Resupply Point";
-            // 
-            // label54
-            // 
-            this.label54.AutoSize = true;
-            this.label54.Location = new System.Drawing.Point(249, 120);
-            this.label54.Name = "label54";
-            this.label54.Size = new System.Drawing.Size(448, 13);
-            this.label54.TabIndex = 36;
-            this.label54.Text = "The number of health points that must be done to a teamate to recieve a Team Dama" +
-                "ge Point";
-            // 
-            // label55
-            // 
-            this.label55.AutoSize = true;
-            this.label55.Location = new System.Drawing.Point(249, 147);
-            this.label55.Name = "label55";
-            this.label55.Size = new System.Drawing.Size(448, 13);
-            this.label55.TabIndex = 37;
-            this.label55.Text = "The number of damage that must be done to a team vehicle to recieve a Team Damage" +
-                " Point";
-            // 
-            // label56
-            // 
-            this.label56.AutoSize = true;
-            this.label56.Location = new System.Drawing.Point(249, 195);
-            this.label56.Name = "label56";
-            this.label56.Size = new System.Drawing.Size(356, 13);
-            this.label56.TabIndex = 38;
-            this.label56.Text = "The number of seconds before a player can recieve replenish points again";
             // 
             // ScoreSettings
             // 
@@ -1773,12 +1783,12 @@
             this.tabPage3.ResumeLayout(false);
             this.groupBox13.ResumeLayout(false);
             this.groupBox13.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ReplenishInterval)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.TeamVDamageLimit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.TeamDamageLimit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.AmmoPointLimit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.HealPointLimit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.RepairPointLimit)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ReplenishInterval)).EndInit();
             this.ResumeLayout(false);
 
         }

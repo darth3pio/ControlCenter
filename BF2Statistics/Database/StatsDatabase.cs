@@ -17,7 +17,7 @@ namespace BF2Statistics.Database
     /// <summary>
     /// A class to provide common tasks against the Stats Database
     /// </summary>
-    public class StatsDatabase : DatabaseDriver
+    public class StatsDatabase : DatabaseDriver, IDisposable
     {
         /// <summary>
         /// An array of Stats specific table names
@@ -78,7 +78,7 @@ namespace BF2Statistics.Database
                 // Try and get database version
                 try
                 {
-                    if (Query("SELECT dbver FROM _version LIMIT 1").Count == 0)
+                    if (base.Query("SELECT dbver FROM _version LIMIT 1").Count == 0)
                         throw new Exception(); // Force insert of IP2Nation
                 }
                 catch
@@ -100,7 +100,7 @@ namespace BF2Statistics.Database
 
             // Set global packet size with MySql
             if (DatabaseEngine == DatabaseEngine.Mysql)
-                Execute("SET GLOBAL max_allowed_packet=51200");
+                base.Execute("SET GLOBAL max_allowed_packet=51200");
         }
 
         /// <summary>
@@ -108,7 +108,8 @@ namespace BF2Statistics.Database
         /// </summary>
         ~StatsDatabase()
         {
-            Close();
+            if (!IsDisposed)
+                base.Dispose();
         }
 
         #region Player Methods
@@ -120,7 +121,7 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public bool PlayerExists(int Pid)
         {
-            return (Query("SELECT name FROM player WHERE id=@P0", Pid).Count == 1);
+            return (base.Query("SELECT name FROM player WHERE id=@P0", Pid).Count == 1);
         }
 
         /// <summary>
@@ -130,7 +131,7 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public List<Dictionary<string, object>> GetPlayerAwards(int Pid)
         {
-            return Query("SELECT awd, level, earned, first FROM awards WHERE id = @P0 ORDER BY id", Pid);
+            return base.Query("SELECT awd, level, earned, first FROM awards WHERE id = @P0 ORDER BY id", Pid);
         }
 
         /// <summary>
@@ -154,9 +155,9 @@ namespace BF2Statistics.Database
                         TaskForm.UpdateStatus("Removing player from \"" + Table + "\" table...");
 
                     if (Table == "kills")
-                        Execute(String.Format("DELETE FROM {0} WHERE attacker={1} OR victim={1}", Table, Pid));
+                        base.Execute(String.Format("DELETE FROM {0} WHERE attacker={1} OR victim={1}", Table, Pid));
                     else
-                        Execute(String.Format("DELETE FROM {0} WHERE id={1}", Table, Pid));
+                        base.Execute(String.Format("DELETE FROM {0} WHERE id={1}", Table, Pid));
                 }
 
                 // Commit Transaction
@@ -228,9 +229,9 @@ namespace BF2Statistics.Database
                     // Fetch row
                     List<Dictionary<string, object>> Rows;
                     if (Table == "kills")
-                        Rows = Query(String.Format("SELECT * FROM {0} WHERE attacker={1} OR victim={1}", Table, Pid));
+                        Rows = base.Query(String.Format("SELECT * FROM {0} WHERE attacker={1} OR victim={1}", Table, Pid));
                     else
-                        Rows = Query(String.Format("SELECT * FROM {0} WHERE id={1}", Table, Pid));
+                        Rows = base.Query(String.Format("SELECT * FROM {0} WHERE id={1}", Table, Pid));
 
                     // Write each row's columns with its value to the xml file
                     foreach (Dictionary<string, object> Row in Rows)
@@ -285,16 +286,16 @@ namespace BF2Statistics.Database
                 // Loop through Rows
                 foreach (XElement Row in Table.Elements())
                 {
-                    InsertQueryBuilder Query = new InsertQueryBuilder(Table.Name.LocalName, this);
+                    InsertQueryBuilder QueryBuilder = new InsertQueryBuilder(Table.Name.LocalName, this);
                     foreach (XElement Col in Row.Elements())
                     {
                         if (Col.Name.LocalName == "name")
-                            Query.SetField(Col.Name.LocalName, Col.Value.UnescapeXML());
+                            QueryBuilder.SetField(Col.Name.LocalName, Col.Value.UnescapeXML());
                         else
-                            Query.SetField(Col.Name.LocalName, Col.Value);
+                            QueryBuilder.SetField(Col.Name.LocalName, Col.Value);
                     }
 
-                    Query.Execute();
+                    QueryBuilder.Execute();
                 }
             }
 
@@ -587,17 +588,17 @@ namespace BF2Statistics.Database
                 {
                     // Delete all records from each table
                     foreach (string Table in StatsTables)
-                        Execute("DELETE FROM " + Table);
+                        base.Execute("DELETE FROM " + Table);
 
                     // Execute the VACUUM command to shrink the DB page size
                     T.Commit();
-                    Execute("VACUUM;");
+                    base.Execute("VACUUM;");
                 }
                 else
                 {
                     // Use MySQL's truncate method to clear the tables.
                     foreach (string Table in StatsTables)
-                        Execute("TRUNCATE TABLE " + Table);
+                        base.Execute("TRUNCATE TABLE " + Table);
 
                     T.Commit();
                 }
@@ -618,13 +619,13 @@ namespace BF2Statistics.Database
             // Create Tables
             TaskForm.UpdateStatus("Creating Stats Tables");
             string SQL = Utils.GetResourceAsString("BF2Statistics.SQL.SQLite.Stats.sql");
-            Execute(SQL);
+            base.Execute(SQL);
 
             // Insert Ip2Nation data
             TaskForm.UpdateStatus("Inserting Ip2Nation Data");
             SQL = Utils.GetResourceAsString("BF2Statistics.SQL.Ip2nation.sql");
             DbTransaction Transaction = BeginTransaction();
-            Execute(SQL);
+            base.Execute(SQL);
 
             // Attempt to do the transaction
             try
@@ -658,7 +659,7 @@ namespace BF2Statistics.Database
                 TaskForm.Show(MainForm.Instance, "Create Database", "Creating Bf2Stats Mysql Tables...", false);
 
             // To prevent packet size errors
-            Execute("SET GLOBAL max_allowed_packet=51200");
+            base.Execute("SET GLOBAL max_allowed_packet=51200");
 
             // Start Transaction
             DbTransaction Transaction = BeginTransaction();
@@ -673,7 +674,7 @@ namespace BF2Statistics.Database
             {
                 // Create Tables
                 foreach (string Query in Queries)
-                    Execute(Query);
+                    base.Execute(Query);
 
                 // Commit
                 Transaction.Commit();
@@ -699,7 +700,7 @@ namespace BF2Statistics.Database
             {
                 // Insert rows
                 foreach (string Query in Queries)
-                    Execute(Query);
+                    base.Execute(Query);
 
                 // Commit
                 Transaction.Commit();

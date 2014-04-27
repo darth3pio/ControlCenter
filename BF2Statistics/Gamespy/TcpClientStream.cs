@@ -27,6 +27,11 @@ namespace BF2Statistics.Gamespy
         private bool Debugging;
 
         /// <summary>
+        /// If set to true, we will not contiue listening anymore
+        /// </summary>
+        public bool IsClosing = false;
+
+        /// <summary>
         /// StreamLog Object
         /// </summary>
         private static LogWritter StreamLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "Stream.log"));
@@ -60,14 +65,14 @@ namespace BF2Statistics.Gamespy
             this.Client = client;
             this.Stream = client.GetStream();
             this.Debugging = MainForm.Config.DebugStream;
-            Stream.BeginRead(buffer, 0, buffer.Length, new AsyncCallback(DoRead), Stream);
+            Stream.BeginRead(buffer, 0, buffer.Length, new AsyncCallback(ReadCallback), Stream);
         }
 
         /// <summary>
         /// Callback for BeginRead. This method handles the message parsing
         /// </summary>
         /// <param name="ar"></param>
-        private void DoRead(IAsyncResult ar)
+        private void ReadCallback(IAsyncResult ar)
         {
             // End the Async Read
             int bytesRead = 0;
@@ -83,10 +88,10 @@ namespace BF2Statistics.Gamespy
             }
             catch (ObjectDisposedException) { } // Fired when a the login server is shutown
 
-            // Force disconnet (Specifically for Gpsp, whom will spam null strings)
+            // Force disconnect (Specifically for Gpsp, whom will spam null bytes)
             if (bytesRead == 0)
             {
-                OnDisconnect();
+                OnDisconnect(); // Parent is responsible for closing the connection
                 return;
             }
 
@@ -106,7 +111,8 @@ namespace BF2Statistics.Gamespy
             }
 
             // Begin a new Read
-            Stream.BeginRead(buffer, 0, buffer.Length, new AsyncCallback(DoRead), Stream);
+            if (!IsClosing)
+                Stream.BeginRead(buffer, 0, buffer.Length, new AsyncCallback(ReadCallback), Stream);
         }
 
         /// <summary>

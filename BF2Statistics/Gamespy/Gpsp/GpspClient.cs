@@ -51,7 +51,7 @@ namespace BF2Statistics.Gamespy
 
             // Init a new client stream class
             Stream = new TcpClientStream(client);
-            Stream.DataReceived += new DataRecivedEvent(Stream_DataRecived);
+            Stream.DataReceived += new DataRecivedEvent(Stream_DataReceived);
             Stream.OnDisconnect += new ConnectionClosed(Stream_OnDisconnect);
         }
 
@@ -71,7 +71,10 @@ namespace BF2Statistics.Gamespy
         {
             // If connection is still alive, disconnect user
             if (Client.Client.IsConnected())
+            {
+                Stream.IsClosing = true;
                 Client.Close();
+            }
 
             // Call disconnect event
             if (OnDisconnect != null)
@@ -95,7 +98,7 @@ namespace BF2Statistics.Gamespy
         /// <summary>
         /// Callback for when a message has been recieved by the connected client
         /// </summary>
-        public void Stream_DataRecived(string message)
+        public void Stream_DataReceived(string message)
         {
             // Parse input message
             string[] recv = message.Split('\\');

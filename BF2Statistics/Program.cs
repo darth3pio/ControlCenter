@@ -21,7 +21,7 @@ namespace BF2Statistics
         /// <summary>
         /// Specifies the Program Version
         /// </summary>
-        public static Version Version = new Version(1, 8, 3);
+        public static Version Version = new Version(1, 8, 4);
 
         /// <summary>
         /// The main form log file

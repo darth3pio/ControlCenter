@@ -22,7 +22,7 @@ namespace BF2Statistics.Gamespy
 
         public GpspServer()
         {
-            // Attempt to bind to port 29900
+            // Attempt to bind to port 29901
             Listener = new TcpListener(IPAddress.Any, 29901);
             Listener.Start();
 

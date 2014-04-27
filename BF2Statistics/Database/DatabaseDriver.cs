@@ -52,6 +52,11 @@ namespace BF2Statistics.Database
         protected static char Comma = ',';
 
         /// <summary>
+        /// Indicates whether the disposed method was called
+        /// </summary>
+        protected bool IsDisposed = false;
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="Engine">The string name, from the GetDatabaseEngine() method</param>
@@ -66,12 +71,12 @@ namespace BF2Statistics.Database
             this.DatabaseEngine = GetDatabaseEngine(Engine);
             DbConnectionStringBuilder Builder;
 
+            // Establish the connection
             if (this.DatabaseEngine == DatabaseEngine.Sqlite)
             {
                 // Get the file info of the database, and see if its a new DB
                 string FullPath = Path.Combine(MainForm.Root, DatabaseName + ".sqlite3");
-                if(!File.Exists(FullPath))
-                    File.Open(FullPath, FileMode.OpenOrCreate).Close();
+                File.Open(FullPath, FileMode.OpenOrCreate).Close();
 
                 // Create the connection
                 Builder = new SQLiteConnectionStringBuilder();
@@ -101,7 +106,7 @@ namespace BF2Statistics.Database
         /// </summary>
         ~DatabaseDriver()
         {
-            Close();
+            Dispose();
         }
 
         /// <summary>
@@ -109,14 +114,16 @@ namespace BF2Statistics.Database
         /// </summary>
         public void Dispose()
         {
-            if(Connection != null)
+            if(Connection != null && !IsDisposed)
             {
                 try
                 {
-                    Close();
+                    Connection.Close();
                     Connection.Dispose();
                 }
                 catch (ObjectDisposedException) { }
+
+                IsDisposed = true;
             }
         }
 

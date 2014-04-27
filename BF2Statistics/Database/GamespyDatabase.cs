@@ -5,7 +5,10 @@ using System.Text;
 
 namespace BF2Statistics.Database
 {
-    public class GamespyDatabase : DatabaseDriver
+    /// <summary>
+    /// A class to provide common tasks against the Gamespy Login Database
+    /// </summary>
+    public class GamespyDatabase : DatabaseDriver, IDisposable
     {
         /// <summary>
         /// Constructor
@@ -28,16 +31,16 @@ namespace BF2Statistics.Database
                 // Try to get the database version
                 try
                 {
-                    if (Query("SELECT dbver FROM _version LIMIT 1").Count == 0)
+                    if (base.Query("SELECT dbver FROM _version LIMIT 1").Count == 0)
                         throw new Exception();
                 }
                 catch
                 {
                     // If an exception is thrown, table doesnt exist... fresh install
                     if (DatabaseEngine == DatabaseEngine.Sqlite)
-                        Execute(Utils.GetResourceAsString("BF2Statistics.SQL.SQLite.Gamespy.sql"));
+                        base.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.SQLite.Gamespy.sql"));
                     else
-                        Execute(Utils.GetResourceAsString("BF2Statistics.SQL.MySQL.Gamespy.sql"));
+                        base.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.MySQL.Gamespy.sql"));
                 }
             }
             catch (Exception)
@@ -54,7 +57,8 @@ namespace BF2Statistics.Database
         /// </summary>
         ~GamespyDatabase()
         {
-            Close();
+            if (!IsDisposed)
+                base.Dispose();
         }
 
         /// <summary>
@@ -65,7 +69,7 @@ namespace BF2Statistics.Database
         public Dictionary<string, object> GetUser(string Nick)
         {
             // Fetch the user
-            var Rows = this.Query("SELECT * FROM accounts WHERE name=@P0", Nick);
+            var Rows = base.Query("SELECT * FROM accounts WHERE name=@P0", Nick);
             return (Rows.Count == 0) ? null : Rows[0];
         }
 
@@ -77,7 +81,7 @@ namespace BF2Statistics.Database
         public Dictionary<string, object> GetUser(int Pid)
         {
             // Fetch the user
-            var Rows = this.Query("SELECT * FROM accounts WHERE id=@P0", Pid);
+            var Rows = base.Query("SELECT * FROM accounts WHERE id=@P0", Pid);
             return (Rows.Count == 0) ? null : Rows[0];
         }
 
@@ -89,7 +93,7 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public Dictionary<string, object> GetUser(string Email, string Password)
         {
-            var Rows = this.Query("SELECT * FROM accounts WHERE email=@P0 AND password=@P1", Email, Password);
+            var Rows = base.Query("SELECT * FROM accounts WHERE email=@P0 AND password=@P1", Email, Password);
             return (Rows.Count == 0) ? null : Rows[0];
         }
 
@@ -102,7 +106,7 @@ namespace BF2Statistics.Database
         {
             // Generate our return list
             List<string> List = new List<string>();
-            var Rows = this.Query("SELECT name FROM accounts WHERE name LIKE @P0", "%" + Nick + "%");
+            var Rows = base.Query("SELECT name FROM accounts WHERE name LIKE @P0", "%" + Nick + "%");
             foreach (Dictionary<string, object> Account in Rows)
                 List.Add(Account["name"].ToString());
 
@@ -117,8 +121,7 @@ namespace BF2Statistics.Database
         public bool UserExists(string Nick)
         {
             // Fetch the user
-            var Rows = this.Query("SELECT id FROM accounts WHERE name=@P0", Nick);
-            return (Rows.Count != 0);
+            return (base.Query("SELECT id FROM accounts WHERE name=@P0", Nick).Count != 0);
         }
 
         /// <summary>
@@ -129,40 +132,27 @@ namespace BF2Statistics.Database
         public bool UserExists(int PID)
         {
             // Fetch the user
-            var Rows = this.Query("SELECT name FROM accounts WHERE id=@P0", PID);
-            return (Rows.Count != 0);
+            return (base.Query("SELECT name FROM accounts WHERE id=@P0", PID).Count != 0);
         }
 
         /// <summary>
         /// Creates a new Gamespy Account
         /// </summary>
+        /// <remarks>Used by the login server when a create account request is made</remarks>
         /// <param name="Nick">The Account Name</param>
         /// <param name="Pass">The Account Password</param>
         /// <param name="Email">The Account Email Address</param>
         /// <param name="Country">The Country Code for this Account</param>
-        /// <returns></returns>
+        /// <returns>A bool indicating whether the account was created sucessfully</returns>
         public bool CreateUser(string Nick, string Pass, string Email, string Country)
         {
-            // Generate PID
-            int pid = 1;
-
-            // User doesnt have a PID yet, Get the current max PID and increment
-            var Max = this.Query("SELECT MAX(id) AS max FROM accounts");
-            try
-            {
-                int max;
-                Int32.TryParse(Max[0]["max"].ToString(), out max);
-                pid = (max + 1);
-                if (pid < 500000000)
-                    pid = 500000000;
-            }
-            catch
-            {
-                pid = 500000000;
-            }
+            // User doesnt have a PID yet, So we generate one based off the current max PID
+            var Row = base.Query("SELECT COALESCE(MAX(id), 500000000) AS max FROM accounts");
+            int max = Int32.Parse(Row[0]["max"].ToString()) + 1;
+            int pid = (max < 500000000) ? 500000000 : max;
 
             // Create the user in the database
-            int Rows = this.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES(@P0, @P1, @P2, @P3, @P4)",
+            int Rows = base.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES(@P0, @P1, @P2, @P3, @P4)",
                 pid, Nick, Pass, Email, Country
             );
 
@@ -172,23 +162,23 @@ namespace BF2Statistics.Database
         /// <summary>
         /// Creates a new Gamespy Account
         /// </summary>
+        /// <remarks>Only used in the Gamespy Account Creation Form</remarks>
+        /// <param name="Pid">The Profile Id to assign this account</param>
         /// <param name="Nick">The Account Name</param>
         /// <param name="Pass">The Account Password</param>
         /// <param name="Email">The Account Email Address</param>
         /// <param name="Country">The Country Code for this Account</param>
-        /// <returns></returns>
+        /// <returns>A bool indicating whether the account was created sucessfully</returns>
         public bool CreateUser(int Pid, string Nick, string Pass, string Email, string Country)
         {
             // Make sure the user doesnt exist!
-            var PidExists = this.Query("SELECT name FROM accounts WHERE id=@P0", Pid);
-            var NameExists = this.Query("SELECT id FROM accounts WHERE name=@P0", Nick);
-            if (PidExists.Count == 1)
+            if (UserExists(Pid))
                 throw new Exception("Account ID is already taken!");
-            else if(NameExists.Count == 1)
+            else if(UserExists(Nick))
                 throw new Exception("Account username is already taken!");
 
             // Create the user in the database
-            int Rows = this.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES(@P0, @P1, @P2, @P3, @P4)",
+            int Rows = base.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES(@P0, @P1, @P2, @P3, @P4)",
                 Pid, Nick, Pass, Email, Country
             );
 
@@ -202,7 +192,7 @@ namespace BF2Statistics.Database
         /// <param name="Country"></param>
         public void UpdateUser(string Nick, string Country)
         {
-            this.Execute("UPDATE accounts SET country=@P0 WHERE name=@P1", Nick, Country);
+            base.Execute("UPDATE accounts SET country=@P0 WHERE name=@P1", Nick, Country);
         }
 
         /// <summary>
@@ -215,7 +205,7 @@ namespace BF2Statistics.Database
         /// <param name="NewEmail">New Account Email Address</param>
         public void UpdateUser(int Id, int NewPid, string NewNick, string NewPassword, string NewEmail)
         {
-            this.Execute("UPDATE accounts SET id=@P0, name=@P1, password=@P2, email=@P3 WHERE id=@P4", 
+            base.Execute("UPDATE accounts SET id=@P0, name=@P1, password=@P2, email=@P3 WHERE id=@P4", 
                 NewPid, NewNick, NewPassword, NewEmail, Id);
         }
 
@@ -226,7 +216,7 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public int DeleteUser(string Nick)
         {
-            return this.Execute("DELETE FROM accounts WHERE name=@P0", Nick);
+            return base.Execute("DELETE FROM accounts WHERE name=@P0", Nick);
         }
 
         /// <summary>
@@ -236,25 +226,18 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public int DeleteUser(int Pid)
         {
-            return this.Execute("DELETE FROM accounts WHERE id=@P0", Pid);
+            return base.Execute("DELETE FROM accounts WHERE id=@P0", Pid);
         }
 
         /// <summary>
-        /// Deletes a Gamespy Account
+        /// Fetches a Gamespy Account id from an account name
         /// </summary>
         /// <param name="Nick"></param>
         /// <returns></returns>
         public int GetPID(string Nick)
         {
-            var Rows = this.Query("SELECT id FROM accounts WHERE name=@P0", Nick);
-
-            // If we have no result, we need to create a new Player :)
-            if (Rows.Count == 0)
-                return 0;
-
-            int pid;
-            Int32.TryParse(Rows[0]["id"].ToString(), out pid);
-            return pid;
+            var Rows = base.Query("SELECT id FROM accounts WHERE name=@P0", Nick);
+            return (Rows.Count == 0) ? 0 : Int32.Parse(Rows[0]["id"].ToString());
         }
 
         /// <summary>
@@ -265,22 +248,17 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public int SetPID(string Nick, int Pid)
         {
-            bool UserExists = this.Query("SELECT id FROM accounts WHERE name=@P0", Nick).Count != 0;
-            bool PidExists = this.Query("SELECT name FROM accounts WHERE id=@P0", Pid).Count != 0;
-
             // If no user exists, return code -1
-            if (UserExists)
+            if (!UserExists(Nick))
                 return -1;
 
-            // If PID is false, the PID is not taken
-            if (!PidExists)
-            {
-                int Success = this.Execute("UPDATE accounts SET id=@P0 WHERE name=@P1", Pid, Nick);
-                return (Success == 1) ? 1 : 0;
-            }
+            // If the Pid already exists, return -2
+            if (UserExists(Pid))
+                return -2;
 
-            // PID exists already
-            return -2;
+            // If PID is false, the PID is not taken
+            int Success = base.Execute("UPDATE accounts SET id=@P0 WHERE name=@P1", Pid, Nick);
+            return (Success > 0) ? 1 : 0;
         }
 
         /// <summary>
@@ -289,8 +267,8 @@ namespace BF2Statistics.Database
         /// <returns></returns>
         public int GetNumAccounts()
         {
-            List<Dictionary<string, object>> r = this.Query("SELECT COUNT(id) AS count FROM accounts");
-            return Int32.Parse(r[0]["count"].ToString());
+            var Row = base.Query("SELECT COUNT(id) AS count FROM accounts");
+            return Int32.Parse(Row[0]["count"].ToString());
         }
     }
 }
