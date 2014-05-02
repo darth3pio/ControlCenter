@@ -59,7 +59,7 @@ namespace BF2Statistics.Database
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="Engine">The string name, from the GetDatabaseEngine() method</param>
+        /// <param name="Engine">The string name, for the GetDatabaseEngine() method</param>
         /// <param name="Host">The Database server IP Address</param>
         /// <param name="Port">The Database server Port Number</param>
         /// <param name="DatabaseName">The name of the database</param>
@@ -76,7 +76,8 @@ namespace BF2Statistics.Database
             {
                 // Get the file info of the database, and see if its a new DB
                 string FullPath = Path.Combine(MainForm.Root, DatabaseName + ".sqlite3");
-                File.Open(FullPath, FileMode.OpenOrCreate).Close();
+                if(!File.Exists(FullPath))
+                    File.Open(FullPath, FileMode.Create, FileAccess.Read, FileShare.ReadWrite).Close();
 
                 // Create the connection
                 Builder = new SQLiteConnectionStringBuilder();

@@ -19,15 +19,13 @@ namespace BF2Statistics.ASP.Requests
         /// </summary>
         static GetPlayerID()
         {
-            // Get the lowest PID from the database
+            // Get the lowest Offline PID from the database
             using (StatsDatabase Driver = new StatsDatabase())
             {
                 int DefaultPid = MainForm.Config.ASP_DefaultPID;
-                List<Dictionary<string, object>> Rows = Driver.Query("SELECT MIN(id) AS min FROM player");
-                if (Rows.Count == 0 || String.IsNullOrWhiteSpace(Rows[0]["min"].ToString()) || (Int32.Parse(Rows[0]["min"].ToString()) > DefaultPid))
-                    LowestPid = DefaultPid;
-                else
-                    LowestPid = Int32.Parse(Rows[0]["min"].ToString()) - 1;
+                var Rows = Driver.Query(String.Format("SELECT COALESCE(MIN(id), {0}) AS min FROM player", DefaultPid));
+                int Lowest = Int32.Parse(Rows[0]["min"].ToString());
+                LowestPid = (Lowest > DefaultPid) ? DefaultPid : Lowest -1;
             }
         }
 
