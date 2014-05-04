@@ -150,7 +150,7 @@ namespace BF2Statistics
             ASPServer.Started += new EventHandler(ASPServer_OnStart);
             ASPServer.Stopped += new EventHandler(ASPServer_OnShutdown);
             ASPServer.RequestRecieved += new AspRequest(ASPServer_ClientConnected);
-            Snapshot.SnapshotProccessed += new SnapshotProccessed(Snapshot_SnapshotProccessed);
+            Snapshot.SnapshotProcessed += new SnapshotProccessed(Snapshot_SnapshotProccessed);
             ASP.Requests.SnapshotPost.SnapshotReceived += new SnapshotRecieved(SnapshotPost_SnapshotReceived);
 
             // Register for Login server events

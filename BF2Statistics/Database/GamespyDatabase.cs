@@ -146,17 +146,41 @@ namespace BF2Statistics.Database
         /// <returns>A bool indicating whether the account was created sucessfully</returns>
         public bool CreateUser(string Nick, string Pass, string Email, string Country)
         {
-            // User doesnt have a PID yet, So we generate one based off the current max PID
-            var Row = base.Query("SELECT COALESCE(MAX(id), 500000000) AS max FROM accounts");
-            int max = Int32.Parse(Row[0]["max"].ToString()) + 1;
-            int pid = (max < 500000000) ? 500000000 : max;
+            int Pid = 0;
+
+            // Attempt to connect to stats database, and get a PID from there
+            try
+            {
+                // try see if the player ID exists in the stats database
+                using (StatsDatabase Db = new StatsDatabase())
+                {
+                    // NOTE: online account names in the stats DB start with a single space!
+                    var Row = Db.Query("SELECT id FROM player WHERE upper(name) = upper(@P0)", " " + Nick);
+                    Pid = (Row.Count == 0) ? GenerateAccountId() : Int32.Parse(Row[0]["id"].ToString());
+                }
+            }
+            catch
+            {
+                Pid = GenerateAccountId();
+            }
 
             // Create the user in the database
             int Rows = base.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES(@P0, @P1, @P2, @P3, @P4)",
-                pid, Nick, Pass, Email, Country
+                Pid, Nick, Pass, Email, Country
             );
 
             return (Rows != 0);
+        }
+
+        /// <summary>
+        /// Generates a new Account Id
+        /// </summary>
+        /// <returns></returns>
+        private int GenerateAccountId()
+        {
+            var Row = base.Query("SELECT COALESCE(MAX(id), 500000000) AS max FROM accounts");
+            int max = Int32.Parse(Row[0]["max"].ToString()) + 1;
+            return (max < 500000000) ? 500000000 : max;
         }
 
         /// <summary>

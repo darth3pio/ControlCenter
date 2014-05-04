@@ -151,7 +151,7 @@ namespace BF2Statistics.ASP
         /// <summary>
         /// On Finish Event
         /// </summary>
-        public static event SnapshotProccessed SnapshotProccessed;
+        public static event SnapshotProccessed SnapshotProcessed;
 
         /// <summary>
         /// Initializes a new Snapshot, with the specified Date it was Posted
@@ -381,8 +381,6 @@ namespace BF2Statistics.ASP
                     if (int.Parse(Rows[0]["count"].ToString()) == 0)
                     {
                         // === New Player === //
-
-                        // Log
                         Log(String.Format("Adding NEW Player ({0})", Pid), LogLevel.Notice);
 
                         // Get playres country code
@@ -461,8 +459,6 @@ namespace BF2Statistics.ASP
                     else
                     {
                         // Existing Player
-
-                        // Log
                         Log(String.Format("Updating EXISTING Player ({0})", Pid), LogLevel.Notice);
 
                         // Fetch Player
@@ -479,14 +475,11 @@ namespace BF2Statistics.ASP
                             CC = GetCountryCode(PlayerIp);
 
                         // Verify/Correct Rank
-                        if (MainForm.Config.ASP_StatsRankCheck)
+                        if (MainForm.Config.ASP_StatsRankCheck && DbRank > CurRank)
                         {
                             // Fail-safe in-case rank data was not obtained and reset to '0' in-game.
-                            if (DbRank > CurRank)
-                            {
-                                Player["rank"] = DbRank.ToString();
-                                DebugLog.Write("Rank Correction ({0}), Using database rank ({1})", Pid, DbRank);
-                            }
+                            Player["rank"] = DbRank.ToString();
+                            DebugLog.Write("Rank Correction ({0}), Using database rank ({1})", Pid, DbRank);
                         }
 
                         // Calcuate best killstreak/deathstreak
@@ -1041,7 +1034,7 @@ namespace BF2Statistics.ASP
                             }
 
                             // Add best round count if player earned best round medal
-                            if (Award.Key == 2051907)
+                            if (Award.Key == 2051907 && Army < 14)
                             {
                                 // Prepare Query
                                 UpdateQuery = new UpdateQueryBuilder("army", Driver);
@@ -1051,20 +1044,81 @@ namespace BF2Statistics.ASP
                             }
 
                         } // End Foreach Award
-                    }
+                    } // End Award Processing
                 } // End Foreach Player
 
-                // === Commit the transaction === ///
-                try
+                // ********************************
+                // Process ServerInfo
+                // ********************************
+                //Log("Processing Game Server", LogLevel.Notice);
+
+                // ********************************
+                // Process MapInfo
+                // ********************************
+                Log(String.Format("Processing Map Info ({0}:{1})", MapName, MapId), LogLevel.Notice);
+
+                TimeSpan Timer = new TimeSpan(MapEnd - MapStart);
+                Rows = Driver.Query("SELECT COUNT(id) AS count FROM mapinfo WHERE id=" + MapId);
+                if (Int32.Parse(Rows[0]["count"].ToString()) == 0)
                 {
-                    Transaction.Commit();
+                    // Prepare Query
+                    InsertQuery = new InsertQueryBuilder("mapinfo", Driver);
+                    InsertQuery.SetField("id", MapId);
+                    InsertQuery.SetField("name", MapName);
+                    InsertQuery.SetField("score", MapScore);
+                    InsertQuery.SetField("time", Timer.Seconds);
+                    InsertQuery.SetField("times", 1);
+                    InsertQuery.SetField("kills", MapKills);
+                    InsertQuery.SetField("deaths", MapDeaths);
+                    InsertQuery.SetField("custom", (IsCustomMap) ? 1 : 0);
+                    InsertQuery.Execute();
                 }
-                catch (Exception E)
+                else
                 {
-                    // Log error
-                    Log("An error occured while commiting player changes: " + E.Message, LogLevel.Error);
-                    throw;
+                    UpdateQuery = new UpdateQueryBuilder("mapinfo", Driver);
+                    UpdateQuery.AddWhere("id", Comparison.Equals, MapId);
+                    UpdateQuery.SetField("score", MapScore, ValueMode.Add);
+                    UpdateQuery.SetField("time", Timer.Seconds, ValueMode.Add);
+                    UpdateQuery.SetField("times", 1, ValueMode.Add);
+                    UpdateQuery.SetField("kills", MapKills, ValueMode.Add);
+                    UpdateQuery.SetField("deaths", MapDeaths, ValueMode.Add);
+                    UpdateQuery.Execute();
                 }
+
+
+                // ********************************
+                // Process RoundInfo
+                // ********************************
+                Log("Processing Round Info", LogLevel.Notice);
+                InsertQuery = new InsertQueryBuilder("round_history", Driver);
+                InsertQuery.SetField("timestamp", MapStart);
+                InsertQuery.SetField("mapid", MapId);
+                InsertQuery.SetField("time", Timer.Seconds);
+                InsertQuery.SetField("team1", Team1Army);
+                InsertQuery.SetField("team2", Team2Army);
+                InsertQuery.SetField("tickets1", Team1Tickets);
+                InsertQuery.SetField("tickets2", Team2Tickets);
+                InsertQuery.SetField("pids1", Team1Players);
+                InsertQuery.SetField("pids1_end", Team1PlayersEnd);
+                InsertQuery.SetField("pids2", Team2Players);
+                InsertQuery.SetField("pids2_end", Team2PlayersEnd);
+                InsertQuery.Execute();
+
+                // ********************************
+                // Process Smoc And General Ranks
+                // ********************************
+                if (MainForm.Config.ASP_SmocCheck) SmocCheck();
+                if (MainForm.Config.ASP_GeneralCheck) GenCheck();
+
+                // ********************************
+                // Commit the Transaction and Log
+                // ********************************
+                Transaction.Commit();
+
+                // Call our Finished Event
+                Timer = new TimeSpan(Clock.ElapsedTicks);
+                Log(String.Format("Snapshot ({0}) processed in {1} milliseconds [{2} Queries]", MapName, Timer.Milliseconds, Driver.NumQueries), LogLevel.Info);
+                SnapshotProcessed();
             }
             catch (Exception E)
             {
@@ -1077,75 +1131,6 @@ namespace BF2Statistics.ASP
                 // At last, dispose of the transaction
                 Transaction.Dispose();
             }
-
-            // ********************************
-            // Process ServerInfo
-            // ********************************
-            //Log("Processing Game Server", LogLevel.Notice);
-
-            // ********************************
-            // Process MapInfo
-            // ********************************
-            Log(String.Format("Processing Map Info ({0}:{1})", MapName, MapId), LogLevel.Notice);
-
-            TimeSpan Timer = new TimeSpan(Convert.ToInt64(MapEnd - MapStart));
-            Rows = Driver.Query("SELECT COUNT(id) AS count FROM mapinfo WHERE id=" + MapId);
-            if(Int32.Parse(Rows[0]["count"].ToString()) == 0)
-            {
-                // Prepare Query
-                InsertQuery = new InsertQueryBuilder("mapinfo", Driver);
-                InsertQuery.SetField("id", MapId);
-                InsertQuery.SetField("name", MapName);
-                InsertQuery.SetField("score", MapScore);
-                InsertQuery.SetField("time", Timer.Seconds);
-                InsertQuery.SetField("times", 1);
-                InsertQuery.SetField("kills", MapKills);
-                InsertQuery.SetField("deaths", MapDeaths);
-                InsertQuery.SetField("custom", (IsCustomMap) ? 1 : 0);
-                InsertQuery.Execute();
-            }
-            else
-            {
-                UpdateQuery = new UpdateQueryBuilder("mapinfo", Driver);
-                UpdateQuery.AddWhere("id", Comparison.Equals, MapId);
-                UpdateQuery.SetField("score", MapScore, ValueMode.Add);
-                UpdateQuery.SetField("time", Timer.Seconds, ValueMode.Add);
-                UpdateQuery.SetField("times", 1, ValueMode.Add);
-                UpdateQuery.SetField("kills", MapKills, ValueMode.Add);
-                UpdateQuery.SetField("deaths", MapDeaths, ValueMode.Add);
-                UpdateQuery.Execute();
-            }
-
-
-            // ********************************
-            // Process RoundInfo
-            // ********************************
-            Log("Processing Round Info", LogLevel.Notice);
-            InsertQuery = new InsertQueryBuilder("round_history", Driver);
-            InsertQuery.SetField("timestamp", MapStart);
-            InsertQuery.SetField("mapid", MapId);
-            InsertQuery.SetField("time", Timer.Seconds);
-            InsertQuery.SetField("team1", Team1Army);
-            InsertQuery.SetField("team2", Team2Army);
-            InsertQuery.SetField("tickets1", Team1Tickets);
-            InsertQuery.SetField("tickets2", Team2Tickets);
-            InsertQuery.SetField("pids1", Team1Players);
-            InsertQuery.SetField("pids1_end", Team1PlayersEnd);
-            InsertQuery.SetField("pids2", Team2Players);
-            InsertQuery.SetField("pids2_end", Team2PlayersEnd);
-            InsertQuery.Execute();
-
-
-            // ********************************
-            // Process Smoc And General Ranks
-            // ********************************
-            if (MainForm.Config.ASP_SmocCheck) SmocCheck();
-            if (MainForm.Config.ASP_GeneralCheck) GenCheck();
-
-            // Call our Finished Event
-            Timer = new TimeSpan(Clock.ElapsedTicks);
-            Log(String.Format("Snapshot ({0}) processed in {1} milliseconds [{2} Queries]", MapName, Timer.Milliseconds, Driver.NumQueries), LogLevel.Info);
-            SnapshotProccessed();
         }
 
         /// <summary>
