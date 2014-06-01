@@ -65,7 +65,7 @@ namespace BF2Statistics.Gamespy
         static LoginServer()
         {
             // Create our log file, and register for events
-            Logger = new LogWritter(Path.Combine(MainForm.Root, "Logs", "LoginServer.log"), true);
+            Logger = new LogWritter(Path.Combine(Program.RootPath, "Logs", "LoginServer.log"), true);
             GpcmServer.OnClientsUpdate += new EventHandler(CmServer_OnUpdate);
         }
 

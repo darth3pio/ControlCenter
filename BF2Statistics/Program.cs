@@ -3,7 +3,7 @@
 /// Battlefield 2 Statistics Control Center
 /// ---------------------------------------
 /// Created By: Steven Wilson <Wilson212>
-/// Copyright (C) 2013, Steven Wilson. All Rights Reserved
+/// Copyright (C) 2013-2014, Steven Wilson. All Rights Reserved
 /// ---------------------------------------
 /// </summary>
 
@@ -21,7 +21,12 @@ namespace BF2Statistics
         /// <summary>
         /// Specifies the Program Version
         /// </summary>
-        public static Version Version = new Version(1, 8, 6);
+        public static readonly Version Version = new Version(1, 8, 7);
+
+        /// <summary>
+        /// Specifies the installation directory of this program
+        /// </summary>
+        public static readonly string RootPath = Application.StartupPath;
 
         /// <summary>
         /// The main form log file

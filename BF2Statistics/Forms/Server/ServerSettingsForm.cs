@@ -51,7 +51,7 @@ namespace BF2Statistics
                 // Load Settings, and set for title
                 if (UseGlobalSettings)
                 {
-                    this.Settings = new ServerSettings(Path.Combine(MainForm.Root, "Python", "GlobalServerSettings.con"));
+                    this.Settings = new ServerSettings(Path.Combine(Program.RootPath, "Python", "GlobalServerSettings.con"));
                     this.Text = "Global Server Settings";
                 }
                 else

@@ -129,21 +129,6 @@ CREATE TABLE IF NOT EXISTS `awards` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `data`
---
-
-CREATE TABLE IF NOT EXISTS `data` (
-  `stat` varchar(100) NOT NULL,
-  `data` text NOT NULL,
-  `pid` varchar(100) NOT NULL,
-  `nick` varchar(100) NOT NULL,
-  `update_time` int(11) NOT NULL,
-  UNIQUE KEY `stat` (`stat`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `ip2nation`
 --
 
@@ -364,7 +349,7 @@ CREATE TABLE IF NOT EXISTS `round_history` (
   UNIQUE KEY `id` (`id`),
   KEY `timestamp` (`timestamp`),
   KEY `mapid` (`mapid`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=181 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -384,7 +369,7 @@ CREATE TABLE IF NOT EXISTS `servers` (
   `lastupdate` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`),
   UNIQUE KEY `ip-prefix-unq` (`ip`,`prefix`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 

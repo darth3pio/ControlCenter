@@ -84,8 +84,8 @@ namespace BF2Statistics
         {
             // First, we need to parse all 3 scoring files
             string file;
-            string ModPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", MainForm.SelectedMod.Name + "_scoringCommon.py");
-            string DefaultPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", "bf2_scoringCommon.py");
+            string ModPath = Path.Combine(Program.RootPath, "Python", "ScoringFiles", MainForm.SelectedMod.Name + "_scoringCommon.py");
+            string DefaultPath = Path.Combine(Program.RootPath, "Python", "ScoringFiles", "bf2_scoringCommon.py");
 
             // Scoring Common. Check for Read and Write access
             try
@@ -162,13 +162,18 @@ namespace BF2Statistics
         /// <summary>
         /// Loads the conquest scoring file
         /// </summary>
+        /// <remarks>We do a search and replace for the word DEFENT because the AIX devs spelled DEFEND incorrectly!</remarks>
         private void LoadConqFile()
         {
             ConqScores = new Dictionary<string, string[]>();
-            string file = File.ReadAllText(ScoringConqFile.FullName);
-            MatchCollection Matches = Reg.Matches(file);
-            foreach (Match m in Matches)
-                ConqScores.Add(m.Groups["varname"].Value, new string[] { m.Groups["value"].Value, m.Value });
+            using (Stream Str = ScoringConqFile.Open(FileMode.Open, FileAccess.ReadWrite))
+            using (StreamReader Rdr = new StreamReader(Str))
+            {
+                string file = Rdr.ReadToEnd().Replace("SCORE_DEFENT", "SCORE_DEFEND");
+                MatchCollection Matches = Reg.Matches(file);
+                foreach (Match m in Matches)
+                    ConqScores.Add(m.Groups["varname"].Value, new string[] { m.Groups["value"].Value, m.Value });
+            }
         }
 
         /// <summary>
@@ -201,8 +206,8 @@ namespace BF2Statistics
             {
                 // We need to replace the default file with the embedded one that
                 // Correctly formats the AI_ Scores
-                string DefaultPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", "bf2_coop.py");
-                string ModPath = Path.Combine(MainForm.Root, "Python", "ScoringFiles", MainForm.SelectedMod.Name + "_coop.py");
+                string DefaultPath = Path.Combine(Program.RootPath, "Python", "ScoringFiles", "bf2_coop.py");
+                string ModPath = Path.Combine(Program.RootPath, "Python", "ScoringFiles", MainForm.SelectedMod.Name + "_coop.py");
 
                 if (!File.Exists(ModPath))
                 {

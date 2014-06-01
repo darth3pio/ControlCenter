@@ -74,14 +74,9 @@ namespace BF2Statistics.Database
             // Establish the connection
             if (this.DatabaseEngine == DatabaseEngine.Sqlite)
             {
-                // Get the file info of the database, and see if its a new DB
-                string FullPath = Path.Combine(MainForm.Root, DatabaseName + ".sqlite3");
-                if(!File.Exists(FullPath))
-                    File.Open(FullPath, FileMode.Create, FileAccess.Read, FileShare.ReadWrite).Close();
-
                 // Create the connection
                 Builder = new SQLiteConnectionStringBuilder();
-                Builder.Add("Data Source", FullPath);
+                Builder.Add("Data Source", Path.Combine(Program.RootPath, DatabaseName + ".sqlite3"));
                 Connection = new SQLiteConnection(Builder.ConnectionString);
             }
             else if (this.DatabaseEngine == DatabaseEngine.Mysql)

@@ -48,12 +48,12 @@ namespace BF2Statistics
 
             // Define python paths
             ServerPythonPath = Path.Combine(MainForm.Config.ServerPath, "python", "bf2");
-            NonRankedPythonPath = Path.Combine(MainForm.Root, "Python", "NonRanked");
-            RankedPythonPath = Path.Combine(MainForm.Root, "Python", "Ranked", "Backup");
+            NonRankedPythonPath = Path.Combine(Program.RootPath, "Python", "NonRanked");
+            RankedPythonPath = Path.Combine(Program.RootPath, "Python", "Ranked", "Backup");
 
             // Define Snapshot Paths
-            SnapshotTempPath = Path.Combine(MainForm.Root, "Snapshots", "Temp");
-            SnapshotProcPath = Path.Combine(MainForm.Root, "Snapshots", "Processed");
+            SnapshotTempPath = Path.Combine(Program.RootPath, "Snapshots", "Temp");
+            SnapshotProcPath = Path.Combine(Program.RootPath, "Snapshots", "Processed");
         }
     }
 }

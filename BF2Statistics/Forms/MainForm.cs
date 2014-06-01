@@ -29,11 +29,6 @@ namespace BF2Statistics
         public static Settings Config = Settings.Default;
 
         /// <summary>
-        /// Startup root directory for this application
-        /// </summary>
-        public static string Root = Application.StartupPath;
-
-        /// <summary>
         /// The instance of this form
         /// </summary>
         public static MainForm Instance { get; protected set; }
@@ -491,7 +486,7 @@ namespace BF2Statistics
 
                 // Use the global server settings file?
                 if (GlobalServerSettings.Checked)
-                    Info.Arguments += " +config " + Path.Combine(MainForm.Root, "Python", "GlobalServerSettings.con");
+                    Info.Arguments += " +config " + Path.Combine(Program.RootPath, "Python", "GlobalServerSettings.con");
 
                 // Moniter Con Files?
                 if (FileMoniter.Checked)
@@ -763,7 +758,7 @@ namespace BF2Statistics
 
                     // Make sure we dont have an empty backup folder
                     if (Directory.GetFiles(Paths.RankedPythonPath).Length == 0)
-                        DirectoryExt.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), Paths.ServerPythonPath, true);
+                        DirectoryExt.Copy(Path.Combine(Program.RootPath, "Python", "Ranked", "Original"), Paths.ServerPythonPath, true);
                     else
                         DirectoryExt.Copy(Paths.RankedPythonPath, Paths.ServerPythonPath, true);
                 }
@@ -840,13 +835,13 @@ namespace BF2Statistics
                     {
                         Directory.Delete(Paths.ServerPythonPath, true);
                         System.Threading.Thread.Sleep(750);
-                        DirectoryExt.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), Paths.ServerPythonPath, true);
+                        DirectoryExt.Copy(Path.Combine(Program.RootPath, "Python", "Ranked", "Original"), Paths.ServerPythonPath, true);
                     }
                     else
                     {
                         Directory.Delete(Paths.RankedPythonPath, true);
                         System.Threading.Thread.Sleep(750);
-                        DirectoryExt.Copy(Path.Combine(MainForm.Root, "Python", "Ranked", "Original"), Paths.RankedPythonPath, true);
+                        DirectoryExt.Copy(Path.Combine(Program.RootPath, "Python", "Ranked", "Original"), Paths.RankedPythonPath, true);
                     }
 
                     // Show Success Message
@@ -1499,7 +1494,7 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void ViewAccessLogBtn_Click(object sender, EventArgs e)
         {
-            Process.Start(Path.Combine(Root, "Logs", "AspAccess.log"));
+            Process.Start(Path.Combine(Program.RootPath, "Logs", "AspAccess.log"));
         }
 
         /// <summary>
@@ -1509,7 +1504,7 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void ViewErrorLogBtn_Click(object sender, EventArgs e)
         {
-            Process.Start(Path.Combine(Root, "Logs", "AspServer.log"));
+            Process.Start(Path.Combine(Program.RootPath, "Logs", "AspServer.log"));
         }
 
         /// <summary>
@@ -1520,7 +1515,7 @@ namespace BF2Statistics
         private void ViewSnapshotLogBtn_Click(object sender, EventArgs e)
         {
             // Make sure the log file exists... It doesnt get created on startup like the others
-            string fPath = Path.Combine(Root, "Logs", "StatsDebug.log");
+            string fPath = Path.Combine(Program.RootPath, "Logs", "StatsDebug.log");
             if (!File.Exists(fPath))
                 File.Create(fPath).Close();
 
@@ -1643,7 +1638,7 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void OpenRootBtn_Click(object sender, EventArgs e)
         {
-            Process.Start(Root);
+            Process.Start(Program.RootPath);
         }
 
         /// <summary>

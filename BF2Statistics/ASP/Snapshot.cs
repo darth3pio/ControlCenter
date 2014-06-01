@@ -26,7 +26,7 @@ namespace BF2Statistics.ASP
         /// <summary>
         /// Debug log file
         /// </summary>
-        private static LogWritter DebugLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "StatsDebug.log"));
+        private static LogWritter DebugLog = new LogWritter(Path.Combine(Program.RootPath, "Logs", "StatsDebug.log"));
 
         /// <summary>
         /// Returns whether the snapshot data appears to be valid, and contain no obvious errors

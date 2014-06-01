@@ -34,7 +34,7 @@ namespace BF2Statistics.Gamespy
         /// <summary>
         /// StreamLog Object
         /// </summary>
-        private static LogWritter StreamLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "Stream.log"));
+        private static LogWritter StreamLog = new LogWritter(Path.Combine(Program.RootPath, "Logs", "Stream.log"));
 
         /// <summary>
         /// Our message buffer

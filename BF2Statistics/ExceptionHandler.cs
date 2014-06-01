@@ -88,7 +88,7 @@ namespace BF2Statistics
         /// </summary>
         public static void GenerateExceptionLog(Exception E)
         {
-            string FileName = Path.Combine(Paths.DocumentsFolder, "ErrorLog_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt");
+            string FileName = Path.Combine(Paths.DocumentsFolder, "ExceptionLog_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt");
             GenerateExceptionLog(FileName, E);
         }
 

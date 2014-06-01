@@ -162,7 +162,7 @@ namespace BF2Statistics.Database
 
                 // Commit Transaction
                 if (TaskFormOpen)
-                    TaskForm.UpdateStatus("Commiting Transaction");
+                    TaskForm.UpdateStatus("Committing Transaction");
                 Transaction.Commit();
             }
             catch (Exception)
@@ -179,7 +179,7 @@ namespace BF2Statistics.Database
         }
 
         /// <summary>
-        /// Exports a players stats and histroy into an Xml file
+        /// Exports a players stats and history into an Xml file
         /// </summary>
         /// <param name="XmlPath">The folder path to where the XML will be saved</param>
         /// <param name="Pid">Player ID</param>

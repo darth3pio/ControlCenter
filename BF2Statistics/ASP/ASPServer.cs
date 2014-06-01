@@ -93,8 +93,8 @@ namespace BF2Statistics.ASP
         static ASPServer()
         {
             // Create our Server and Access logs
-            ServerLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspServer.log"));
-            AccessLog = new LogWritter(Path.Combine(MainForm.Root, "Logs", "AspAccess.log"), true);
+            ServerLog = new LogWritter(Path.Combine(Program.RootPath, "Logs", "AspServer.log"));
+            AccessLog = new LogWritter(Path.Combine(Program.RootPath, "Logs", "AspAccess.log"), true);
 
             // Get a list of all our local IP addresses
             LocalIPs = new List<IPAddress>(Dns.GetHostAddresses(Dns.GetHostName()));
