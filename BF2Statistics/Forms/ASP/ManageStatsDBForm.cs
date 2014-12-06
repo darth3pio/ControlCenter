@@ -10,6 +10,7 @@ using System.IO;
 using System.Threading;
 using System.Data.SqlClient;
 using BF2Statistics.Database;
+using BF2Statistics.Web;
 using FolderSelect;
 
 namespace BF2Statistics
@@ -68,7 +69,7 @@ namespace BF2Statistics
                         );
 
                         // Stop the ASP server, and close this form
-                        ASP.ASPServer.Stop();
+                        HttpServer.Stop();
                         this.Close();
                         return;
                     }
@@ -177,7 +178,7 @@ namespace BF2Statistics
                 );
 
                 // Stop the ASP server, and close this form
-                ASP.ASPServer.Stop();
+                HttpServer.Stop();
                 this.Close();
                 return;
             }

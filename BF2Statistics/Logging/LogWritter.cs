@@ -43,10 +43,10 @@ namespace BF2Statistics.Logging
             LogQueue = new Queue<LogMessage>();
 
             // Test that we are able to open and write to the file
-            using (FileStream stream = LogFile.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            using (FileStream stream = LogFile.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
             {
-                // If the file is over 1MB, and we want to truncate big files
-                if (Truncate && LogFile.Length > 1048576)
+                // If the file is over 2MB, and we want to truncate big files
+                if (Truncate && LogFile.Length > 2097152)
                 {
                     stream.SetLength(0);
                     stream.Flush();

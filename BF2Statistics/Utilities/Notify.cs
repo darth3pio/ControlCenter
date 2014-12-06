@@ -7,6 +7,11 @@ using System.Threading;
 
 namespace BF2Statistics
 {
+    public enum AlertType
+    {
+        Info, Success, Warning
+    }
+
     /// <summary>
     /// Notify is a class that queues and shows Alert "toast" messages
     /// to the user, which spawn just above the task bar, in the lower

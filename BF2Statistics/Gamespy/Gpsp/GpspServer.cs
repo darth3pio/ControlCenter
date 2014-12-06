@@ -20,6 +20,11 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         public List<GpspClient> Clients = new List<GpspClient>();
 
+        /// <summary>
+        /// Signifies whether we are shutting down or not
+        /// </summary>
+        private bool isShutingDown = false;
+
         public GpspServer()
         {
             // Attempt to bind to port 29901
@@ -39,6 +44,7 @@ namespace BF2Statistics.Gamespy
         public void Shutdown()
         {
             // Stop updating client checks
+            isShutingDown = true;
             Listener.Stop();
 
             // Unregister events so we dont get a shit ton of calls
@@ -58,15 +64,25 @@ namespace BF2Statistics.Gamespy
         /// <param name="ar"></param>
         private void AcceptClient(IAsyncResult ar)
         {
+            bool Accepting = false;
+
             // End the operation and display the received data on  
             // the console.
             try
             {
                 TcpClient Client = Listener.EndAcceptTcpClient(ar);
                 Listener.BeginAcceptTcpClient(new AsyncCallback(AcceptClient), null);
+                Accepting = true;
+
+                // Process last so there is no delay in accepting connections
                 Clients.Add(new GpspClient(Client));
             }
             catch { }
+            finally
+            {
+                if (!Accepting && !isShutingDown)
+                    Listener.BeginAcceptTcpClient(new AsyncCallback(AcceptClient), null);
+            }
         }
 
         /// <summary>

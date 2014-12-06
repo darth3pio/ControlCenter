@@ -250,7 +250,10 @@ namespace BF2Statistics
             {
                 if (!String.IsNullOrWhiteSpace(MainForm.Config.ClientPath))
                 {
-                    ImgPath = Path.Combine(SelectedMap.RootPath, "Info", mode + "_" + size + "_menumap.png");
+                    ImgPath = Path.Combine(
+                        MainForm.Config.ClientPath, "mods", MainForm.SelectedMod.Name, "levels", 
+                        SelectedMap.Name, "Info", mode + "_" + size + "_menumap.png"
+                    );
 
                     // If the client doesnt have the image either, then Oh well :(
                     if (!File.Exists(ImgPath))

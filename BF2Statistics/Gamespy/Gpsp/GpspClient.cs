@@ -5,6 +5,7 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using BF2Statistics.Database;
 
 namespace BF2Statistics.Gamespy
 {
@@ -51,8 +52,8 @@ namespace BF2Statistics.Gamespy
 
             // Init a new client stream class
             Stream = new TcpClientStream(client);
-            Stream.DataReceived += new DataRecivedEvent(Stream_DataReceived);
             Stream.OnDisconnect += new ConnectionClosed(Stream_OnDisconnect);
+            Stream.DataReceived += new DataRecivedEvent(Stream_DataReceived);
         }
 
         /// <summary>
@@ -60,7 +61,7 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         ~GpspClient()
         {
-            if(!Disposed)
+            if (!Disposed)
                 this.Dispose();
         }
 
@@ -126,14 +127,17 @@ namespace BF2Statistics.Gamespy
             Dictionary<string, object> ClientData;
             try
             {
-                ClientData = LoginServer.Database.GetUser(GetParameterValue(recv, "email"), GetParameterValue(recv, "pass"));
-                if (ClientData == null)
+                using (GamespyDatabase Db = new GamespyDatabase())
                 {
-                    Stream.Send("\\nr\\0\\ndone\\\\final\\");
-                    return;
+                    ClientData = Db.GetUser(GetParameterValue(recv, "email"), GetParameterValue(recv, "pass"));
+                    if (ClientData == null)
+                    {
+                        Stream.Send("\\nr\\0\\ndone\\\\final\\");
+                        return;
+                    }
                 }
             }
-            catch 
+            catch
             {
                 Dispose();
                 return;
@@ -148,8 +152,12 @@ namespace BF2Statistics.Gamespy
         /// <param name="recv"></param>
         private void SendCheck(string[] recv)
         {
-            try {
-                Stream.Send("\\cur\\0\\pid\\{0}\\final\\", LoginServer.Database.GetPID(GetParameterValue(recv, "nick")));
+            try
+            {
+                using (GamespyDatabase Db = new GamespyDatabase())
+                {
+                    Stream.Send("\\cur\\0\\pid\\{0}\\final\\", Db.GetPID(GetParameterValue(recv, "nick")));
+                }
             }
             catch
             {

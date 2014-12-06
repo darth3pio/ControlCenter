@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<MapData>
+  <!-- 
+    Maps listed here will be displayed on the bf2stats player page. Simply add
+    maps to the list to display, or comment them out to remove them from display.
+    
+    When adding maps, you should also create a 64x64 image of the map and place it in: 
+    /Resources/game-images/maps/map_{MAPID}.jpg. This will allow an image to be shown on the player
+    page if this map is a favorite.
+    
+    Map Attributes (required):
+      * "id" => The map id as defined in the Constants.py file
+      * "mod" => The mod (or Expansion) the map is played in. This attribute is used to list
+        the accumulated play time for each expansion under the "Expansion" field in the player page.
+        If the map is custom, and will not be used for expansion time, leave this attribute empty
+        Accepted values are:
+          "bf" => Vanilla Battlefield 2
+          "sf" => Special Forces expansion
+          "ef" => Euro Force expansion
+          "af" => Armored Fury expansion
+          "" => Leave empty for Custom maps where time played does not accumulate towards an expansion
+          
+    ** Any changes made to this file will require the Http Server be restarted if running to take affect.
+  -->
+  <maps>
+    <map id="0" mod="bf">Kubra Dam</map>
+    <map id="1" mod="bf">Mashtuur City</map>
+    <map id="2" mod="bf">Operation Clean Sweep</map>
+    <map id="3" mod="bf">Zatar Wetlands</map>
+    <map id="4" mod="bf">Strike at Karkand</map>
+    <map id="5" mod="bf">Sharqi Peninsula</map>
+    <map id="6" mod="bf">Gulf Of Oman</map>
+    <map id="10" mod="ef">Operation Smoke Screen</map>
+    <map id="11" mod="ef">Taraba Quarry</map>
+    <map id="12" mod="bf">Road To Jalalabad</map>
+    <map id="100" mod="bf">Daqing Oilfields</map>
+    <map id="101" mod="bf">Dalian Plant</map>
+    <map id="102" mod="bf">Dragon Valley</map>
+    <map id="103" mod="bf">Fushe Pass</map>
+    <map id="105" mod="bf">Songhua Stalemate</map>
+    <map id="110" mod="ef">Great Wall</map>
+    <map id="200" mod="af">Midnight Sun</map>
+    <map id="201" mod="af">Operation Road Rage</map>
+    <map id="202" mod="af">Operation Harvest</map>
+    <map id="300" mod="sf">Devils Perch</map>
+    <map id="301" mod="sf">Iron Gator</map>
+    <map id="302" mod="sf">Night Flight</map>
+    <map id="303" mod="sf">Warlord</map>
+    <map id="304" mod="sf">Leviathan</map>
+    <map id="305" mod="sf">Mass Destruction</map>
+    <map id="306" mod="sf">Surge</map>
+    <map id="307" mod="sf">Ghost Town</map>
+    <map id="601" mod="sf">Wake Island 2007</map>
+  </maps>
+</MapData>

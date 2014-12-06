@@ -40,7 +40,6 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.AccountPass = new System.Windows.Forms.TextBox();
-            this.AccountName = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.JoinServerPort = new System.Windows.Forms.NumericUpDown();
@@ -56,6 +55,7 @@
             this.DisableSwiff = new System.Windows.Forms.CheckBox();
             this.CancelBtn = new System.Windows.Forms.Button();
             this.SaveBtn = new System.Windows.Forms.Button();
+            this.ProfileSelect = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -132,16 +132,16 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(20, 71);
+            this.label3.Location = new System.Drawing.Point(34, 70);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(53, 13);
+            this.label3.Size = new System.Drawing.Size(42, 13);
             this.label3.TabIndex = 9;
-            this.label3.Text = "Account: ";
+            this.label3.Text = "Profile: ";
             // 
             // AutoLogin
             // 
             this.AutoLogin.AutoSize = true;
-            this.AutoLogin.Location = new System.Drawing.Point(46, 41);
+            this.AutoLogin.Location = new System.Drawing.Point(46, 27);
             this.AutoLogin.Name = "AutoLogin";
             this.AutoLogin.Size = new System.Drawing.Size(113, 17);
             this.AutoLogin.TabIndex = 10;
@@ -166,8 +166,8 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.ProfileSelect);
             this.groupBox2.Controls.Add(this.AccountPass);
-            this.groupBox2.Controls.Add(this.AccountName);
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.AutoLogin);
             this.groupBox2.Controls.Add(this.label3);
@@ -181,23 +181,15 @@
             // AccountPass
             // 
             this.AccountPass.Enabled = false;
-            this.AccountPass.Location = new System.Drawing.Point(90, 96);
+            this.AccountPass.Location = new System.Drawing.Point(90, 102);
             this.AccountPass.Name = "AccountPass";
             this.AccountPass.Size = new System.Drawing.Size(118, 20);
             this.AccountPass.TabIndex = 13;
             // 
-            // AccountName
-            // 
-            this.AccountName.Enabled = false;
-            this.AccountName.Location = new System.Drawing.Point(90, 68);
-            this.AccountName.Name = "AccountName";
-            this.AccountName.Size = new System.Drawing.Size(118, 20);
-            this.AccountName.TabIndex = 12;
-            // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(20, 99);
+            this.label4.Location = new System.Drawing.Point(20, 105);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(56, 13);
             this.label4.TabIndex = 11;
@@ -311,9 +303,9 @@
             this.Restart.AutoSize = true;
             this.Restart.Location = new System.Drawing.Point(35, 43);
             this.Restart.Name = "Restart";
-            this.Restart.Size = new System.Drawing.Size(60, 17);
+            this.Restart.Size = new System.Drawing.Size(156, 17);
             this.Restart.TabIndex = 2;
-            this.Restart.Text = "Restart";
+            this.Restart.Text = "Restart (Skips Intro Movies)";
             this.Restart.UseVisualStyleBackColor = true;
             // 
             // PlayNow
@@ -355,6 +347,15 @@
             this.SaveBtn.Text = "Save";
             this.SaveBtn.UseVisualStyleBackColor = true;
             this.SaveBtn.Click += new System.EventHandler(this.SaveBtn_Click);
+            // 
+            // ProfileSelect
+            // 
+            this.ProfileSelect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ProfileSelect.FormattingEnabled = true;
+            this.ProfileSelect.Location = new System.Drawing.Point(90, 67);
+            this.ProfileSelect.Name = "ProfileSelect";
+            this.ProfileSelect.Size = new System.Drawing.Size(121, 21);
+            this.ProfileSelect.TabIndex = 14;
             // 
             // ClientParamsForm
             // 
@@ -411,11 +412,11 @@
         private System.Windows.Forms.CheckBox NoSound;
         private System.Windows.Forms.CheckBox LowPriority;
         private System.Windows.Forms.TextBox AccountPass;
-        private System.Windows.Forms.TextBox AccountName;
         private System.Windows.Forms.NumericUpDown JoinServerPort;
         private System.Windows.Forms.TextBox JoinServerPass;
         private System.Windows.Forms.TextBox JoinServerIp;
         private System.Windows.Forms.Button CancelBtn;
         private System.Windows.Forms.Button SaveBtn;
+        private System.Windows.Forms.ComboBox ProfileSelect;
     }
 }

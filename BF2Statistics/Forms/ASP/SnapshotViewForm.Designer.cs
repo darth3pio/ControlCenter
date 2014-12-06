@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SnapshotView = new System.Windows.Forms.ListView();
@@ -35,6 +36,13 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.SelectAllBtn = new System.Windows.Forms.Button();
             this.SelectNoneBtn = new System.Windows.Forms.Button();
+            this.MenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.Details_MenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ViewSelect = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.MoveSnapshotMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // columnHeader1
@@ -45,7 +53,7 @@
             // columnHeader2
             // 
             this.columnHeader2.Text = "Snapshot";
-            this.columnHeader2.Width = 480;
+            this.columnHeader2.Width = 500;
             // 
             // SnapshotView
             // 
@@ -55,16 +63,18 @@
             this.columnHeader2});
             this.SnapshotView.FullRowSelect = true;
             this.SnapshotView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.SnapshotView.Location = new System.Drawing.Point(6, 61);
+            this.SnapshotView.Location = new System.Drawing.Point(6, 106);
+            this.SnapshotView.MultiSelect = false;
             this.SnapshotView.Name = "SnapshotView";
             this.SnapshotView.Size = new System.Drawing.Size(580, 250);
             this.SnapshotView.TabIndex = 0;
             this.SnapshotView.UseCompatibleStateImageBehavior = false;
             this.SnapshotView.View = System.Windows.Forms.View.Details;
+            this.SnapshotView.MouseClick += new System.Windows.Forms.MouseEventHandler(this.SnapshotView_MouseClick);
             // 
             // ImportBtn
             // 
-            this.ImportBtn.Location = new System.Drawing.Point(453, 327);
+            this.ImportBtn.Location = new System.Drawing.Point(453, 372);
             this.ImportBtn.Name = "ImportBtn";
             this.ImportBtn.Size = new System.Drawing.Size(111, 30);
             this.ImportBtn.TabIndex = 1;
@@ -76,7 +86,7 @@
             // 
             this.textBox1.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox1.Location = new System.Drawing.Point(10, 20);
+            this.textBox1.Location = new System.Drawing.Point(10, 47);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(575, 35);
@@ -86,7 +96,7 @@
             // 
             // SelectAllBtn
             // 
-            this.SelectAllBtn.Location = new System.Drawing.Point(30, 327);
+            this.SelectAllBtn.Location = new System.Drawing.Point(30, 372);
             this.SelectAllBtn.Name = "SelectAllBtn";
             this.SelectAllBtn.Size = new System.Drawing.Size(111, 30);
             this.SelectAllBtn.TabIndex = 3;
@@ -96,7 +106,7 @@
             // 
             // SelectNoneBtn
             // 
-            this.SelectNoneBtn.Location = new System.Drawing.Point(147, 327);
+            this.SelectNoneBtn.Location = new System.Drawing.Point(147, 372);
             this.SelectNoneBtn.Name = "SelectNoneBtn";
             this.SelectNoneBtn.Size = new System.Drawing.Size(111, 30);
             this.SelectNoneBtn.TabIndex = 4;
@@ -104,12 +114,68 @@
             this.SelectNoneBtn.UseVisualStyleBackColor = true;
             this.SelectNoneBtn.Click += new System.EventHandler(this.SelectNoneBtn_Click);
             // 
+            // MenuStrip
+            // 
+            this.MenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.Details_MenuItem,
+            this.MoveSnapshotMenuItem});
+            this.MenuStrip.Name = "MenuStrip";
+            this.MenuStrip.Size = new System.Drawing.Size(257, 70);
+            // 
+            // Details_MenuItem
+            // 
+            this.Details_MenuItem.Name = "Details_MenuItem";
+            this.Details_MenuItem.Size = new System.Drawing.Size(256, 22);
+            this.Details_MenuItem.Text = "View Game Details";
+            this.Details_MenuItem.Click += new System.EventHandler(this.Details_MenuItem_Click);
+            // 
+            // ViewSelect
+            // 
+            this.ViewSelect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ViewSelect.FormattingEnabled = true;
+            this.ViewSelect.Items.AddRange(new object[] {
+            "Un-Processed (Incomplete) Snapshots",
+            "Processed (Complete) Snapshots"});
+            this.ViewSelect.Location = new System.Drawing.Point(236, 20);
+            this.ViewSelect.Name = "ViewSelect";
+            this.ViewSelect.Size = new System.Drawing.Size(210, 21);
+            this.ViewSelect.TabIndex = 7;
+            this.ViewSelect.SelectedIndexChanged += new System.EventHandler(this.ViewSelect_SelectedIndexChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(149, 23);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(81, 13);
+            this.label1.TabIndex = 8;
+            this.label1.Text = "Snapshot View:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(12, 85);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(289, 13);
+            this.label2.TabIndex = 9;
+            this.label2.Text = "* Right click on a snaphot to view the Snapshot Game Data";
+            // 
+            // MoveSnapshotMenuItem
+            // 
+            this.MoveSnapshotMenuItem.Name = "MoveSnapshotMenuItem";
+            this.MoveSnapshotMenuItem.Size = new System.Drawing.Size(256, 22);
+            this.MoveSnapshotMenuItem.Text = "Move To Processed / UnProcessed";
+            this.MoveSnapshotMenuItem.Click += new System.EventHandler(this.MoveSnapshotMenuItem_Click);
+            // 
             // SnapshotViewForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.ClientSize = new System.Drawing.Size(594, 372);
+            this.ClientSize = new System.Drawing.Size(594, 422);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.ViewSelect);
             this.Controls.Add(this.SelectNoneBtn);
             this.Controls.Add(this.SelectAllBtn);
             this.Controls.Add(this.textBox1);
@@ -120,7 +186,8 @@
             this.MinimizeBox = false;
             this.Name = "SnapshotViewForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Unprocessed Snapshots";
+            this.Text = "Snapshot Data";
+            this.MenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -135,6 +202,12 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button SelectAllBtn;
         private System.Windows.Forms.Button SelectNoneBtn;
+        private System.Windows.Forms.ContextMenuStrip MenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem Details_MenuItem;
+        private System.Windows.Forms.ComboBox ViewSelect;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ToolStripMenuItem MoveSnapshotMenuItem;
 
     }
 }

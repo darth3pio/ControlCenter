@@ -98,6 +98,8 @@ namespace BF2Statistics
         /// <param name="State"></param>
         protected static void DoCheckUpdates(Object State)
         {
+            // By pass SSL Cert checks
+            ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
             using (WebClient Wc = new WebClient())
             {
                 try
@@ -108,9 +110,6 @@ namespace BF2Statistics
                     Wc.Headers["Accept-Language"] = "en-US,en;q=0.8";
                     Wc.Headers["Accept-Encoding"] = "gzip,deflate,sdch";
 
-                    // By pass SSL Cert checks
-                    ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-
                     // Add basic Auth header
                     //Wc.Headers.Add(HttpRequestHeader.Authorization, "Basic " + Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes("username:pass")));
 
@@ -118,7 +117,7 @@ namespace BF2Statistics
                     string V = Wc.DownloadString(Url);
                     Version.TryParse(V, out NewVersion);
                 }
-                catch (WebException e)
+                catch (WebException)
                 {
 
                 }

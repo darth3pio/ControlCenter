@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using BF2Statistics.Gamespy;
+using BF2Statistics.Database;
 
 namespace BF2Statistics
 {
@@ -31,23 +32,26 @@ namespace BF2Statistics
             GpcmClient.OnDisconnect += new GpcmConnectionClosed(GpcmClient_OnDisconnect);
             
             // Fill the account information boxes
-            Dictionary<string, object> User = LoginServer.Database.GetUser(AccountId);
-            PlayerID.Value = AccountId = Int32.Parse(User["id"].ToString());
-            AccountNick.Text = User["name"].ToString();
-            AccountPass.Text = User["password"].ToString();
-            AccountEmail.Text = User["email"].ToString();
+            using (GamespyDatabase Database = new GamespyDatabase())
+            {
+                Dictionary<string, object> User = Database.GetUser(AccountId);
+                PlayerID.Value = AccountId = Int32.Parse(User["id"].ToString());
+                AccountNick.Text = User["name"].ToString();
+                AccountPass.Text = User["password"].ToString();
+                AccountEmail.Text = User["email"].ToString();
 
-            // Disable options if user is online
-            if (User["session"].ToString() != "0")
-            {
-                SatusLabel.Text = "Online (IP: " + User["lastip"].ToString() + ")";
-                UpdateBtn.Enabled = false;
-                DeleteBtn.Enabled = false;
-                DisconnectBtn.Enabled = true;
-            }
-            else
-            {
-                SatusLabel.Text = "Offline";
+                // Disable options if user is online
+                if (User["session"].ToString() != "0")
+                {
+                    SatusLabel.Text = "Online (IP: " + User["lastip"].ToString() + ")";
+                    UpdateBtn.Enabled = false;
+                    DeleteBtn.Enabled = false;
+                    DisconnectBtn.Enabled = true;
+                }
+                else
+                {
+                    SatusLabel.Text = "Offline";
+                }
             }
         }
 
@@ -102,38 +106,41 @@ namespace BF2Statistics
         {
             int Pid = (int)PlayerID.Value;
 
-            // Make sure there is no empty fields!
-            if (AccountNick.Text.Trim().Length < 3)
+            using (GamespyDatabase Database = new GamespyDatabase())
             {
-                MessageBox.Show("Please enter a valid account name", "Error");
-                return;
-            }
-            else if (AccountPass.Text.Trim().Length < 3)
-            {
-                MessageBox.Show("Please enter a valid account password", "Error");
-                return;
-            }
-            else if (!Validator.IsValidEmail(AccountEmail.Text))
-            {
-                MessageBox.Show("Please enter a valid account email", "Error");
-                return;
-            }
-            else if(Pid != AccountId)
-            {
-                if (!Validator.IsValidPID(Pid.ToString()))
+                // Make sure there is no empty fields!
+                if (AccountNick.Text.Trim().Length < 3)
                 {
-                    MessageBox.Show("Invalid PID Format. A PID must be 8 or 9 digits in length", "Error");
+                    MessageBox.Show("Please enter a valid account name", "Error");
                     return;
                 }
-                // Make sure the PID doesnt exist!
-                else if (LoginServer.Database.UserExists(Pid))
+                else if (AccountPass.Text.Trim().Length < 3)
                 {
-                    MessageBox.Show("Battlefield 2 PID is already taken. Please try a different PID.", "Error");
+                    MessageBox.Show("Please enter a valid account password", "Error");
                     return;
                 }
-            }
+                else if (!Validator.IsValidEmail(AccountEmail.Text))
+                {
+                    MessageBox.Show("Please enter a valid account email", "Error");
+                    return;
+                }
+                else if (Pid != AccountId)
+                {
+                    if (!Validator.IsValidPID(Pid.ToString()))
+                    {
+                        MessageBox.Show("Invalid PID Format. A PID must be 8 or 9 digits in length", "Error");
+                        return;
+                    }
+                    // Make sure the PID doesnt exist!
+                    else if (Database.UserExists(Pid))
+                    {
+                        MessageBox.Show("Battlefield 2 PID is already taken. Please try a different PID.", "Error");
+                        return;
+                    }
+                }
 
-            LoginServer.Database.UpdateUser(AccountId, Pid, AccountNick.Text, AccountPass.Text, AccountEmail.Text);
+                Database.UpdateUser(AccountId, Pid, AccountNick.Text, AccountPass.Text, AccountEmail.Text);
+            }
             this.Close();
         }
 
@@ -147,10 +154,13 @@ namespace BF2Statistics
             if (MessageBox.Show("Are you sure you want to delete account?", "Confirm", 
                 MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
-                if (LoginServer.Database.DeleteUser(AccountId) == 1)
-                    Notify.Show("Account deleted successfully!", "Operation Successful", AlertType.Success);
-                else
-                    Notify.Show("Failed to remove account from database!", "Operation failed", AlertType.Warning);
+                using (GamespyDatabase Database = new GamespyDatabase())
+                {
+                    if (Database.DeleteUser(AccountId) == 1)
+                        Notify.Show("Account deleted successfully!", "Operation Successful", AlertType.Success);
+                    else
+                        Notify.Show("Failed to remove account from database!", "Operation failed", AlertType.Warning);
+                }
                 this.Close();
             }
         }

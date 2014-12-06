@@ -38,11 +38,6 @@ namespace BF2Statistics.Gamespy
         private static GpspServer SpServer;
 
         /// <summary>
-        /// The Gamespy Database Object
-        /// </summary>
-        public static GamespyDatabase Database;
-
-        /// <summary>
         /// The Login Server Log Writter
         /// </summary>
         private static LogWritter Logger;
@@ -78,7 +73,7 @@ namespace BF2Statistics.Gamespy
             if (isRunning) return;
 
             // Start the DB Connection
-            Database = new GamespyDatabase();
+            using (GamespyDatabase Database = new GamespyDatabase()) { }
 
             // Bind gpcm server on port 29900
             int port = 29900;
@@ -95,7 +90,6 @@ namespace BF2Statistics.Gamespy
                     "Error binding to port " + port + ": " + Environment.NewLine + E.Message, 
                     AlertType.Warning
                 );
-                Database.Dispose();
                 throw;
             }
 
@@ -122,9 +116,6 @@ namespace BF2Statistics.Gamespy
             // Shutdown Login Servers
             CmServer.Shutdown();
             SpServer.Shutdown();
-
-            // Close the database connection
-            Database.Dispose();
 
             // Trigger the OnShutdown Event
             OnShutdown();

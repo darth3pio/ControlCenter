@@ -116,5 +116,17 @@
     <Setting Name="TotalASPRequests" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
+    <Setting Name="BF2S_Title" Type="System.String" Scope="User">
+      <Value Profile="(Default)">BF2s Clone Leaderboard</Value>
+    </Setting>
+    <Setting Name="BF2S_CacheEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="BF2S_LeaderCount" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">25</Value>
+    </Setting>
+    <Setting Name="BF2S_Enabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

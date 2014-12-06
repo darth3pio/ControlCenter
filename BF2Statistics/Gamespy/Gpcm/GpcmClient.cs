@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Security.Cryptography;
 using BF2Statistics.Utilities;
+using BF2Statistics.Database;
 
 namespace BF2Statistics.Gamespy
 {
@@ -34,6 +35,11 @@ namespace BF2Statistics.Gamespy
         /// The connected clients Player Id
         /// </summary>
         public int ClientPID { get; protected set; }
+
+        /// <summary>
+        /// Defines whether we need to log a disconnect
+        /// </summary>
+        private bool ConnectionLogged = false;
 
         /// <summary>
         /// Clients table data from the gamespy database
@@ -198,11 +204,8 @@ namespace BF2Statistics.Gamespy
 
             // Create our Client Stream
             Stream = new TcpClientStream(Client);
-            Stream.DataReceived += new DataRecivedEvent(Stream_DataReceived);
             Stream.OnDisconnect += new ConnectionClosed(Stream_OnDisconnect);
-
-            // Log Incoming Connections
-            LoginServer.Log("[GPCM] Client Connected: {0}", ClientEP);
+            Stream.DataReceived += new DataRecivedEvent(Stream_DataReceived);
 
             // Start by sending the server challenge
             SendServerChallenge();
@@ -218,35 +221,40 @@ namespace BF2Statistics.Gamespy
         }
 
         /// <summary>
-        /// Closes the connection, and disposes of the client object
+        /// Disposes of the client object. The connection is no longer
+        /// closed here and the Disconnect even is NO LONGER fired
         /// </summary>
         public void Dispose()
         {
-            // If connection is still alive, disconnect user
-            if (Connection.Client.IsConnected())
-            {
-                Stream.IsClosing = true;
-                Connection.Close();
-            }
-
-            // Call disconnect event
-            if(OnDisconnect != null)
-                OnDisconnect(this);
-
             // Preapare to be unloaded from memory
             this.Disposed = true;
-
-            // Log
-            LoginServer.Log("[GPCM] Client Disconnected: {0}", ClientEP);
         }
 
         /// <summary>
         /// Logs the client out of the game client, and closes the stream
         /// </summary>
-        public void LogOut()
+        public void Disconnect(int where)
         {
-            LoginServer.Database.Execute("UPDATE accounts SET session=0 WHERE id=" + ClientPID);
-            Dispose();
+            // Console.WriteLine("Logout Called from: " + where);
+            // LoginServer.Database.Execute("UPDATE accounts SET session=0 WHERE id=" + ClientPID);
+            // If connection is still alive, disconnect user
+            try
+            {
+                if (Connection.Client.IsConnected())
+                {
+                    Stream.IsClosing = true;
+                    Connection.Close();
+                }
+            }
+            catch { }
+
+            // Log
+            if (ConnectionLogged)
+                LoginServer.Log("[GPCM] Client Disconnected: {0} {1} {2}", ClientNick, ClientPID, ClientEP);
+
+            // Call disconnect event
+            if (OnDisconnect != null)
+                OnDisconnect(this);
         }
 
         #region Stream Callbacks
@@ -269,7 +277,7 @@ namespace BF2Statistics.Gamespy
                     Step++;
                     break;
                 case "login":
-                    ProcessLogin(Recv);
+                    ProcessLogin(Recv, message);
                     Step++;
                     break;
                 case "getprofile":
@@ -286,7 +294,7 @@ namespace BF2Statistics.Gamespy
                     Step++;
                     break;
                 case "logout":
-                    LogOut();
+                    Disconnect(0);
                     break;
                 default:
                     LoginServer.Log("Unkown Message Passed: {0}", message);
@@ -299,7 +307,7 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         private void Stream_OnDisconnect()
         {
-            LogOut();
+            Disconnect(8);
         }
 
         #endregion Stream Callbacks
@@ -329,58 +337,79 @@ namespace BF2Statistics.Gamespy
         /// the client, and returns encrypted data for the client
         /// to verify as well
         /// </summary>
-        public void ProcessLogin(Dictionary<string, string> Recv)
+        public void ProcessLogin(Dictionary<string, string> Recv, string Message)
         {
             // Set instance variables now that we know who's connected
-            ClientNick = Recv["uniquenick"];
-            ClientChallengeKey = Recv["challenge"];
-            ClientResponseKey = Recv["response"];
-
-            // Get user data from database
-            try 
+            try
             {
-                User = LoginServer.Database.GetUser(ClientNick);
-                if (User == null)
-                {
-                    Stream.Send("\\error\\\\err\\265\\fatal\\\\errmsg\\The uniquenick provided is incorrect!\\id\\1\\final\\");
-                    Dispose();
-                    return;
-                }
+                ClientNick = Recv["uniquenick"];
+                ClientChallengeKey = Recv["challenge"];
+                ClientResponseKey = Recv["response"];
             }
-            catch 
+            catch (KeyNotFoundException)
             {
-                Dispose();
+                Program.ErrorLog.Write("A KeyNotFoundException occured during the login process! Query was: " + Message);
+                Stream.Send("\\error\\\\err\\265\\fatal\\\\errmsg\\The uniquenick provided is incorrect!\\id\\1\\final\\");
+                Disconnect(2);
                 return;
             }
 
-            // Set client PID var
-            ClientPID = Int32.Parse(User["id"].ToString());
-
-            // Use the GenerateProof method to compare with the "response" value. This validates the given password
-            if (ClientResponseKey == GenerateProof(ClientChallengeKey, ServerChallengeKey))
+            // Dispose connection after use
+            try
             {
-                // Create session key
-                SessionKey = Crc.ComputeChecksum(ClientNick);
+                using (GamespyDatabase Conn = new GamespyDatabase())
+                {
+                    // Get user data from database
+                    User = Conn.GetUser(ClientNick);
+                    if (User == null)
+                    {
+                        Stream.Send("\\error\\\\err\\265\\fatal\\\\errmsg\\The uniquenick provided is incorrect!\\id\\1\\final\\");
+                        Disconnect(2);
+                        return;
+                    }
 
-                // Password is correct
-                Stream.Send(
-                    "\\lc\\2\\sesskey\\{0}\\proof\\{1}\\userid\\{2}\\profileid\\{2}\\uniquenick\\{3}\\lt\\{4}__\\id\\1\\final\\",
-                    SessionKey, 
-                    GenerateProof(ServerChallengeKey, ClientChallengeKey),
-                    ClientPID, 
-                    ClientNick, 
-                    GenerateRandomString(22) // Generate LT whatever that is (some sort of random string, 22 chars long)
-                );
+                    // Set client PID var
+                    ClientPID = Int32.Parse(User["id"].ToString());
 
-                // Call successful login event
-                OnSuccessfulLogin(this);
-                LoginServer.Database.Execute("UPDATE accounts SET session=@P0, lastip=@P1 WHERE id=@P2", SessionKey, IpAddress, ClientPID);
+                    // Use the GenerateProof method to compare with the "response" value. This validates the given password
+                    if (ClientResponseKey == GenerateProof(ClientChallengeKey, ServerChallengeKey))
+                    {
+                        // Create session key
+                        SessionKey = Crc.ComputeChecksum(ClientNick);
+
+                        // Password is correct
+                        Stream.Send(
+                            "\\lc\\2\\sesskey\\{0}\\proof\\{1}\\userid\\{2}\\profileid\\{2}\\uniquenick\\{3}\\lt\\{4}__\\id\\1\\final\\",
+                            SessionKey,
+                            GenerateProof(ServerChallengeKey, ClientChallengeKey), // Do this again, Params are reversed!
+                            ClientPID,
+                            ClientNick,
+                            GenerateRandomString(22) // Generate LT whatever that is (some sort of random string, 22 chars long)
+                        );
+
+                        // Log Incoming Connections
+                        LoginServer.Log("[GPCM] Client Login: {0} {1} {2}", ClientNick, ClientPID, ClientEP);
+                        ConnectionLogged = true;
+
+                        // Call successful login event
+                        OnSuccessfulLogin(this);
+                        Conn.Execute("UPDATE accounts SET lastip=@P0 WHERE id=@P1", IpAddress, ClientPID);
+                    }
+                    else
+                    {
+                        // Log Incoming Connections
+                        LoginServer.Log("[GPCM] Failed Login Attempt: {0} {1} {2}", ClientNick, ClientPID, ClientEP);
+
+                        // Password is incorrect with database value
+                        Stream.Send("\\error\\\\err\\260\\fatal\\\\errmsg\\The password provided is incorrect.\\id\\1\\final\\");
+                        Disconnect(3);
+                    }
+                }
             }
-            else
+            catch
             {
-                // Password is incorrect with database value
-                Stream.Send("\\error\\\\err\\260\\fatal\\\\errmsg\\The password provided is incorrect.\\id\\1\\final\\");
-                Dispose();
+                Disconnect(4);
+                return;
             }
         }
 
@@ -414,33 +443,36 @@ namespace BF2Statistics.Gamespy
             // Make sure the user doesnt exist already
             try
             {
-                if (LoginServer.Database.UserExists(Nick))
+                using (GamespyDatabase Conn = new GamespyDatabase())
                 {
-                    Stream.Send("\\error\\\\err\\516\\fatal\\\\errmsg\\This account name is already in use!\\id\\1\\final\\");
-                    Dispose();
-                    return;
+                    if (Conn.UserExists(Nick))
+                    {
+                        Stream.Send("\\error\\\\err\\516\\fatal\\\\errmsg\\This account name is already in use!\\id\\1\\final\\");
+                        Disconnect(5);
+                        return;
+                    }
+
+                    // We need to decode the Gamespy specific encoding for the password
+                    string Password = GamespyUtils.DecodePassword(Recv["passwordenc"]);
+                    bool result = Conn.CreateUser(Nick, Password, Email, "US");
+                    User = Conn.GetUser(Nick);
+
+                    // Fetch the user to make sure we are good
+                    if (!result || User == null)
+                    {
+                        Stream.Send("\\error\\\\err\\516\\fatal\\\\errmsg\\Error creating account!\\id\\1\\final\\");
+                        Disconnect(6);
+                        return;
+                    }
+
+                    Stream.Send("\\nur\\\\userid\\{0}\\profileid\\{0}\\id\\1\\final\\", User["id"]);
                 }
             }
-            catch 
+            catch
             {
-                Dispose();
+                Disconnect(7);
                 return;
             }
-
-            // We need to decode the Gamespy specific encoding for the password
-            string Password = GamespyUtils.DecodePassword(Recv["passwordenc"]);
-            bool result = LoginServer.Database.CreateUser(Nick, Password, Email, "US");
-            User = LoginServer.Database.GetUser(Nick);
-
-            // Fetch the user to make sure we are good
-            if (!result || User == null)
-            {
-                Stream.Send("\\error\\\\err\\516\\fatal\\\\errmsg\\Error creating account!\\id\\1\\final\\");
-                Dispose();
-                return;
-            }
-
-            Stream.Send("\\nur\\\\userid\\{0}\\profileid\\{0}\\id\\1\\final\\", User["id"]);
         }
 
 
@@ -451,11 +483,14 @@ namespace BF2Statistics.Gamespy
         private void UpdateUser(Dictionary<string, string> Recv)
         {
             // Set clients country code
-            try {
-                LoginServer.Database.UpdateUser(ClientNick, Recv["countrycode"]);
+            try
+            {
+                using (GamespyDatabase Conn = new GamespyDatabase())
+                    Conn.UpdateUser(ClientNick, Recv["countrycode"]);
             }
-            catch {
-                Dispose();
+            catch
+            {
+                //Dispose();
             }
         }
 
@@ -472,7 +507,10 @@ namespace BF2Statistics.Gamespy
         {
             Dictionary<string, string> Dic = new Dictionary<string, string>();
             for (int i = 2; i < parts.Length; i += 2)
-                Dic.Add(parts[i], parts[i + 1]);
+            {
+                if (!Dic.ContainsKey(parts[i]))
+                    Dic.Add(parts[i], parts[i + 1]);
+            }
 
             return Dic;
         }
@@ -517,7 +555,7 @@ namespace BF2Statistics.Gamespy
         private string GenerateRandomString(int length)
         {
             StringBuilder Response = new StringBuilder();
-            for(int i = 0; i < length; i++)
+            for (int i = 0; i < length; i++)
                 Response.Append(AlphaNumChars[RandInstance.Next(62)]);
 
             return Response.ToString();

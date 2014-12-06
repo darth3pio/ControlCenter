@@ -1,0 +1,96 @@
+﻿<#@ template language="C#" #>
+<#@ import namespace="System.Collections.Generic" #>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="inner">
+<head>
+	<title>Rankings, <#= this.Title #></title>
+
+	<link rel="icon" href="<#= this.Root #>/favicon.ico" type="image/x-icon">
+	<link rel="shortcut icon" href="<#= this.Root #>/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" type="text/css" media="screen" href="<#= this.Root #>/scripts/two-tiers.css">
+	<link rel="stylesheet" type="text/css" media="screen" href="<#= this.Root #>/scripts/nt.css">
+	<link rel="stylesheet" type="text/css" media="print" href="<#= this.Root #>/scripts/print.css">
+	<link rel="stylesheet" type="text/css" media="screen" href="<#= this.Root #>/scripts/default.css">
+
+	<script type="text/javascript">/* no frames */ if(top.location != self.location) top.location.replace(self.location);</script>
+	<script type="text/javascript" src="<#= this.Root #>/scripts/nt2.js"></script>
+	<script type="text/javascript" src="<#= this.Root #>/scripts/show.js"></script>
+
+</head>
+
+<body class="inner">
+
+<div id="page-1">
+	<div id="page-2">
+		<h1 id="page-title">Current Rankings <small>"nuh uh! I'm better!"</small></h1>
+		<div id="page-3">
+			<div id="content"><div id="content-id"><!-- template header end == begin content below -->
+				<table id="rankslist-home" class="stat" border="0" cellpadding="0" cellspacing="0">
+				<tbody>
+					<tr>
+						<th>Stat</th>
+						<th>#1</th>
+						<th>#2</th>
+						<th>#3</th>
+						<th>#4</th>
+						<th>#5</th>
+					</tr>
+				    <#
+					foreach(RankingStats Stat in this.Stats)
+					{ #>
+						<tr>
+							<td><#        
+                        this.Write(Stat.Name + "</td>");
+						foreach(Player Player in Stat.TopPlayers)
+						{ 
+                            if(!String.IsNullOrEmpty(Player.Name))
+                            { #>
+							<td>
+								<img src="<#= this.Root #>/images/ranks/icon/rank_<#= Player.Rank #>.gif" alt="<#= StatsData.GetRankName(Player.Rank) #>">
+								<a href="<#= this.Root #>/player?pid=<#= Player.Pid #>"><#= Player.Name #></a>
+								<br/><#= Player.Value #>
+							</td>
+            
+						<# }
+                           else
+                             this.Write("<td>&nbsp;</td>");
+                        } #>
+						</tr>		
+						<tr class="separator">
+							<td colspan="6"><#= Stat.Desc #></td>
+						</tr>
+					<# } #>
+				</tbody>
+				</table>
+
+				<p><!-- end content == footer below --></p>
+				<hr class="clear">
+	
+			</div></div> <!-- content-id --><!-- content -->
+
+		</div><!-- page 3 -->	
+	</div><!-- page 2 -->
+	<div id="footer"><#
+        if(MainForm.Config.BF2S_CacheEnabled) 
+           this.Write("This page was last updated " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") 
+            + ". Next update will be " + DateTime.Now.AddMinutes(30).ToString("yyyy-MM-dd HH:mm:ss") + "<br>");
+        #>
+        Generated using the <a href='http://bf2statistics.com'>BF2Statistics Control Center</a>
+    </div>
+	<ul id="navitems">
+		<li><a href="<#= this.Root #>">Home</a></li>
+		<li><a href="<#= this.Root #>/myleaderboard">My Leader Board</a></li>
+		<li><a href="<#= this.Root #>/rankings">Rankings</a></li>
+        <!--
+		<li><a href="<#= this.Root #>/ubar">UBAR</a></li>
+		<li><a href="http://wiki.bf2s.com/">Wiki</a></li>
+        -->
+	</ul>
+	<form action="<#= this.Root #>/search" method="post" id="getstats">
+		<label for="pid">Get Stats</label>
+		<input type="text" name="searchvalue" id="pid" value="" />
+		<input type="submit" class="btn" value="Go" />
+	</form>
+</div><!-- page 1 -->
+</body>
+</html>

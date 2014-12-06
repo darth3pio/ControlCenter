@@ -14,15 +14,19 @@ namespace BF2Statistics
         public static string RootPath { get; protected set; }
 
         /// <summary>
-        /// Contains a list of all the found mod folders located in the "mods" directory
+        /// The bf2 server python folder path
         /// </summary>
-        public static List<string> Mods { get; protected set; }
+        public static string PythonPath { get; protected set; }
 
         /// <summary>
-        /// Once a mod is loaded into an object, it is stored here to prevent additional
-        /// loading to be done later
+        /// Contains a list of all the found mod folders located in the "mods" directory
         /// </summary>
-        protected static Dictionary<string, BF2Mod> LoadedMods;
+        public static List<BF2Mod> Mods { get; protected set; }
+
+        /// <summary>
+        /// An event thats fired if the Bf2 server path is changed
+        /// </summary>
+        public static event ServerChangedEvent ServerPathChanged;
 
         /// <summary>
         /// Loads a battlefield 2 server into this object for use.
@@ -34,41 +38,69 @@ namespace BF2Statistics
             if (!File.Exists(Path.Combine(ServerPath, "bf2_w32ded.exe")))
                 throw new ArgumentException("Invalid server path");
 
-            // Define var values
-            RootPath = ServerPath;
-            string path = Path.Combine(ServerPath, "mods");
+            // Defines if our path really did change
+            bool Changed = false;
 
-            // Make sure the levels folder exists!
-            if (!Directory.Exists(path))
+            // Do we need to fire a change event?
+            if (!String.IsNullOrEmpty(RootPath))
+            {
+                // Same path is selected, just return
+                if ((new Uri(ServerPath)) == (new Uri(RootPath)))
+                    return;
+                else
+                    Changed = true;
+            }
+
+            // Temporary variables
+            string Modpath = Path.Combine(ServerPath, "mods");
+            string PyPath = Path.Combine(ServerPath, "python", "bf2");
+            List<BF2Mod> TempMods = new List<BF2Mod>();
+
+            // Make sure the server has the required folders
+            if (!Directory.Exists(Modpath))
             {
                 throw new Exception("Unable to locate the 'mods' folder. Please make sure you have selected a valid "
                     + "battlefield 2 installation path before proceeding.");
 
             }
+            else if (!Directory.Exists(PyPath))
+            {
+                throw new Exception("Unable to locate the 'python/bf2' folder. Please make sure you have selected a valid "
+                    + "battlefield 2 installation path before proceeding.");
+            }
 
-            // Get our mod directories
-            Mods = new List<string>(from dir in Directory.GetDirectories(path) select dir.Substring(path.Length + 1));
-            LoadedMods = new Dictionary<string, BF2Mod>();
-        }
+            // Load all found mods, discarding invalid mods
+            IEnumerable<string> ModList = from dir in Directory.GetDirectories(Modpath) select dir.Substring(Modpath.Length + 1);
+            foreach (string Name in ModList)
+            {
+                try
+                {
+                    // Create a new instance of the mod, and store it for later
+                    BF2Mod Mod = new BF2Mod(Modpath, Name);
+                    TempMods.Add(Mod);
+                }
+                catch (InvalidModException)
+                {
+                    continue;
+                }
+                catch (Exception e)
+                {
+                    Program.ErrorLog.Write(e.Message);
+                }
+            }
 
-        /// <summary>
-        /// Fetches the BF2 Mod into an object. If the Mod has already been loaded
-        /// into an object previously, that object will be returned instead.
-        /// </summary>
-        /// <param name="Name">The mod's FOLDER name</param>
-        /// <returns></returns>
-        public static BF2Mod LoadMod(string Name)
-        {
-            // Check 2 things, 1, does the mod exist, and 2, if we have loaded it already
-            if (!Mods.Contains(Name))
-                throw new ArgumentException("Bf2 Mod " + Name + " does not exist!");
-            else if (LoadedMods.ContainsKey(Name))
-                return LoadedMods[Name];
+            // We need mods bro...
+            if (TempMods.Count == 0)
+                throw new Exception("No valid battlefield 2 mods could be found in the Bf2 Server mods folder!");
 
-            // Create a new instance of the mod, and store it for later
-            BF2Mod Mod = new BF2Mod(Path.Combine(RootPath, "mods"), Name);
-            LoadedMods.Add(Name, Mod);
-            return Mod;
+            // Define var values after we now know this server apears valid
+            RootPath = ServerPath;
+            PythonPath = PyPath;
+            Mods = TempMods;
+
+            // Fire change event
+            if (Changed && ServerPathChanged != null)
+                ServerPathChanged();
         }
     }
 }

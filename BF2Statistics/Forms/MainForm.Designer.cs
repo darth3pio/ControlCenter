@@ -105,6 +105,7 @@
             this.tabPage7 = new System.Windows.Forms.TabPage();
             this.groupBox25 = new System.Windows.Forms.GroupBox();
             this.groupBox30 = new System.Windows.Forms.GroupBox();
+            this.ViewBf2sCloneBtn = new System.Windows.Forms.Button();
             this.ClearStatsBtn = new System.Windows.Forms.Button();
             this.EditPlayerBtn = new System.Windows.Forms.Button();
             this.groupBox26 = new System.Windows.Forms.GroupBox();
@@ -116,6 +117,7 @@
             this.shapeContainer2 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
             this.lineShape2 = new Microsoft.VisualBasic.PowerPacks.LineShape();
             this.groupBox27 = new System.Windows.Forms.GroupBox();
+            this.EditBf2sCloneBtn = new System.Windows.Forms.Button();
             this.EditASPDatabaseBtn = new System.Windows.Forms.Button();
             this.EditASPSettingsBtn = new System.Windows.Forms.Button();
             this.groupBox28 = new System.Windows.Forms.GroupBox();
@@ -166,6 +168,7 @@
             this.Bf2webAddress = new System.Windows.Forms.TextBox();
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.ReportBugBtn = new System.Windows.Forms.Button();
             this.ChkUpdateBtn = new System.Windows.Forms.Button();
             this.OpenRootBtn = new System.Windows.Forms.Button();
             this.SetupBtn = new System.Windows.Forms.Button();
@@ -176,6 +179,7 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.NotificationIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.label19 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -474,9 +478,9 @@
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(178, 21);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(90, 13);
+            this.label4.Size = new System.Drawing.Size(102, 13);
             this.label4.TabIndex = 4;
-            this.label4.Text = "Extra Parameters:";
+            this.label4.Text = "Launch Parameters:";
             // 
             // ParamBox
             // 
@@ -620,7 +624,7 @@
             this.groupBox18.Size = new System.Drawing.Size(270, 258);
             this.groupBox18.TabIndex = 8;
             this.groupBox18.TabStop = false;
-            this.groupBox18.Text = "BF2Statistics Python";
+            this.groupBox18.Text = "BF2Statistics Stats Enabled Python";
             // 
             // BF2sEditMedalDataBtn
             // 
@@ -1036,6 +1040,7 @@
             // 
             // groupBox30
             // 
+            this.groupBox30.Controls.Add(this.ViewBf2sCloneBtn);
             this.groupBox30.Controls.Add(this.ClearStatsBtn);
             this.groupBox30.Controls.Add(this.EditPlayerBtn);
             this.groupBox30.Location = new System.Drawing.Point(382, 178);
@@ -1044,6 +1049,17 @@
             this.groupBox30.TabIndex = 24;
             this.groupBox30.TabStop = false;
             this.groupBox30.Text = "Operations";
+            // 
+            // ViewBf2sCloneBtn
+            // 
+            this.ViewBf2sCloneBtn.Enabled = false;
+            this.ViewBf2sCloneBtn.Location = new System.Drawing.Point(14, 28);
+            this.ViewBf2sCloneBtn.Name = "ViewBf2sCloneBtn";
+            this.ViewBf2sCloneBtn.Size = new System.Drawing.Size(150, 28);
+            this.ViewBf2sCloneBtn.TabIndex = 29;
+            this.ViewBf2sCloneBtn.Text = "View Leaderboard";
+            this.ViewBf2sCloneBtn.UseVisualStyleBackColor = true;
+            this.ViewBf2sCloneBtn.Click += new System.EventHandler(this.ViewBf2sCloneBtn_Click);
             // 
             // ClearStatsBtn
             // 
@@ -1060,7 +1076,7 @@
             // EditPlayerBtn
             // 
             this.EditPlayerBtn.Enabled = false;
-            this.EditPlayerBtn.Location = new System.Drawing.Point(14, 28);
+            this.EditPlayerBtn.Location = new System.Drawing.Point(14, 62);
             this.EditPlayerBtn.Name = "EditPlayerBtn";
             this.EditPlayerBtn.Size = new System.Drawing.Size(150, 28);
             this.EditPlayerBtn.TabIndex = 27;
@@ -1128,7 +1144,7 @@
             this.ViewSnapshotBtn.Name = "ViewSnapshotBtn";
             this.ViewSnapshotBtn.Size = new System.Drawing.Size(190, 28);
             this.ViewSnapshotBtn.TabIndex = 26;
-            this.ViewSnapshotBtn.Text = "View Unprocessed Snapshots";
+            this.ViewSnapshotBtn.Text = "View Snapshots";
             this.ViewSnapshotBtn.UseVisualStyleBackColor = true;
             this.ViewSnapshotBtn.Click += new System.EventHandler(this.ViewSnapshotBtn_Click);
             // 
@@ -1154,6 +1170,7 @@
             // 
             // groupBox27
             // 
+            this.groupBox27.Controls.Add(this.EditBf2sCloneBtn);
             this.groupBox27.Controls.Add(this.EditASPDatabaseBtn);
             this.groupBox27.Controls.Add(this.EditASPSettingsBtn);
             this.groupBox27.Location = new System.Drawing.Point(10, 178);
@@ -1162,6 +1179,16 @@
             this.groupBox27.TabIndex = 22;
             this.groupBox27.TabStop = false;
             this.groupBox27.Text = "Settings";
+            // 
+            // EditBf2sCloneBtn
+            // 
+            this.EditBf2sCloneBtn.Location = new System.Drawing.Point(14, 62);
+            this.EditBf2sCloneBtn.Name = "EditBf2sCloneBtn";
+            this.EditBf2sCloneBtn.Size = new System.Drawing.Size(150, 28);
+            this.EditBf2sCloneBtn.TabIndex = 27;
+            this.EditBf2sCloneBtn.Text = "Edit Leaderboard Settings";
+            this.EditBf2sCloneBtn.UseVisualStyleBackColor = true;
+            this.EditBf2sCloneBtn.Click += new System.EventHandler(this.EditBf2sCloneBtn_Click);
             // 
             // EditASPDatabaseBtn
             // 
@@ -1201,7 +1228,7 @@
             this.button9.Name = "button9";
             this.button9.Size = new System.Drawing.Size(150, 28);
             this.button9.TabIndex = 27;
-            this.button9.Text = "View ASP Error Log";
+            this.button9.Text = "View Error Log";
             this.button9.UseVisualStyleBackColor = true;
             this.button9.Click += new System.EventHandler(this.ViewErrorLogBtn_Click);
             // 
@@ -1221,7 +1248,7 @@
             this.button11.Name = "button11";
             this.button11.Size = new System.Drawing.Size(150, 28);
             this.button11.TabIndex = 25;
-            this.button11.Text = "View ASP Access Log";
+            this.button11.Text = "View Access Log";
             this.button11.UseVisualStyleBackColor = true;
             this.button11.Click += new System.EventHandler(this.ViewAccessLogBtn_Click);
             // 
@@ -1534,17 +1561,19 @@
             this.Bf2AaGroupBox.Size = new System.Drawing.Size(260, 50);
             this.Bf2AaGroupBox.TabIndex = 14;
             this.Bf2AaGroupBox.TabStop = false;
-            this.Bf2AaGroupBox.Text = "BF2 Avaiable";
+            this.Bf2AaGroupBox.Text = "BF2 Gamepsy Available";
             // 
             // Bf2aCheckbox
             // 
             this.Bf2aCheckbox.AutoSize = true;
+            this.Bf2aCheckbox.Checked = true;
+            this.Bf2aCheckbox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.Bf2aCheckbox.Enabled = false;
             this.Bf2aCheckbox.Location = new System.Drawing.Point(10, 19);
             this.Bf2aCheckbox.Name = "Bf2aCheckbox";
-            this.Bf2aCheckbox.Size = new System.Drawing.Size(131, 17);
+            this.Bf2aCheckbox.Size = new System.Drawing.Size(234, 17);
             this.Bf2aCheckbox.TabIndex = 0;
-            this.Bf2aCheckbox.Text = "Redirect Bf2 Available";
+            this.Bf2aCheckbox.Text = "Enable Local Bf2 Gamepsy Available Server";
             this.Bf2aCheckbox.UseVisualStyleBackColor = true;
             // 
             // LogWindow
@@ -1672,6 +1701,8 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.label19);
+            this.groupBox5.Controls.Add(this.ReportBugBtn);
             this.groupBox5.Controls.Add(this.ChkUpdateBtn);
             this.groupBox5.Controls.Add(this.OpenRootBtn);
             this.groupBox5.Controls.Add(this.SetupBtn);
@@ -1686,9 +1717,19 @@
             this.groupBox5.TabIndex = 9;
             this.groupBox5.TabStop = false;
             // 
+            // ReportBugBtn
+            // 
+            this.ReportBugBtn.Location = new System.Drawing.Point(135, 262);
+            this.ReportBugBtn.Name = "ReportBugBtn";
+            this.ReportBugBtn.Size = new System.Drawing.Size(300, 30);
+            this.ReportBugBtn.TabIndex = 13;
+            this.ReportBugBtn.Text = "Report an Issue or Bug";
+            this.ReportBugBtn.UseVisualStyleBackColor = true;
+            this.ReportBugBtn.Click += new System.EventHandler(this.ReportBugBtn_Click);
+            // 
             // ChkUpdateBtn
             // 
-            this.ChkUpdateBtn.Location = new System.Drawing.Point(414, 200);
+            this.ChkUpdateBtn.Location = new System.Drawing.Point(419, 200);
             this.ChkUpdateBtn.Name = "ChkUpdateBtn";
             this.ChkUpdateBtn.Size = new System.Drawing.Size(125, 25);
             this.ChkUpdateBtn.TabIndex = 12;
@@ -1698,7 +1739,7 @@
             // 
             // OpenRootBtn
             // 
-            this.OpenRootBtn.Location = new System.Drawing.Point(283, 200);
+            this.OpenRootBtn.Location = new System.Drawing.Point(288, 200);
             this.OpenRootBtn.Name = "OpenRootBtn";
             this.OpenRootBtn.Size = new System.Drawing.Size(125, 25);
             this.OpenRootBtn.TabIndex = 11;
@@ -1708,11 +1749,11 @@
             // 
             // SetupBtn
             // 
-            this.SetupBtn.Location = new System.Drawing.Point(152, 200);
+            this.SetupBtn.Location = new System.Drawing.Point(157, 200);
             this.SetupBtn.Name = "SetupBtn";
             this.SetupBtn.Size = new System.Drawing.Size(125, 25);
             this.SetupBtn.TabIndex = 10;
-            this.SetupBtn.Text = "Re-Launch Setup";
+            this.SetupBtn.Text = "Edit Program Settings";
             this.SetupBtn.UseVisualStyleBackColor = true;
             this.SetupBtn.Click += new System.EventHandler(this.SetupBtn_Click);
             // 
@@ -1732,13 +1773,13 @@
             this.textBox3.Location = new System.Drawing.Point(22, 146);
             this.textBox3.Name = "textBox3";
             this.textBox3.ReadOnly = true;
-            this.textBox3.Size = new System.Drawing.Size(450, 13);
+            this.textBox3.Size = new System.Drawing.Size(300, 13);
             this.textBox3.TabIndex = 8;
             this.textBox3.Text = "Created By: Steven Wilson  (Wilson212)";
             // 
             // Bf2StatisticsLink
             // 
-            this.Bf2StatisticsLink.Location = new System.Drawing.Point(21, 200);
+            this.Bf2StatisticsLink.Location = new System.Drawing.Point(26, 200);
             this.Bf2StatisticsLink.Name = "Bf2StatisticsLink";
             this.Bf2StatisticsLink.Size = new System.Drawing.Size(125, 25);
             this.Bf2StatisticsLink.TabIndex = 7;
@@ -1753,7 +1794,7 @@
             this.textBox2.Location = new System.Drawing.Point(22, 162);
             this.textBox2.Name = "textBox2";
             this.textBox2.ReadOnly = true;
-            this.textBox2.Size = new System.Drawing.Size(450, 13);
+            this.textBox2.Size = new System.Drawing.Size(300, 13);
             this.textBox2.TabIndex = 6;
             this.textBox2.Text = "Copyright 2006-2014 BF2Statistics.com. All Rights Reserved";
             // 
@@ -1765,9 +1806,9 @@
             this.textBox1.Location = new System.Drawing.Point(22, 129);
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(451, 13);
+            this.textBox1.Size = new System.Drawing.Size(300, 13);
             this.textBox1.TabIndex = 5;
-            this.textBox1.Text = "Battlefield 2 Statistics Control Center v" + Program.Version.ToString();
+            this.textBox1.Text = "Battlefield 2 Statistics Control Center v1.9.0";
             // 
             // NotificationIcon
             // 
@@ -1784,6 +1825,15 @@
             this.pictureBox1.Size = new System.Drawing.Size(586, 80);
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(171, 298);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(228, 13);
+            this.label19.TabIndex = 14;
+            this.label19.Text = "A Gihub account is required to post new issues";
             // 
             // MainForm
             // 
@@ -2014,6 +2064,10 @@
         private System.Windows.Forms.NotifyIcon NotificationIcon;
         private System.Windows.Forms.Button ChkUpdateBtn;
         private System.Windows.Forms.Button ExtraParamBtn;
+        private System.Windows.Forms.Button ViewBf2sCloneBtn;
+        private System.Windows.Forms.Button EditBf2sCloneBtn;
+        private System.Windows.Forms.Button ReportBugBtn;
+        private System.Windows.Forms.Label label19;
     }
 }
 

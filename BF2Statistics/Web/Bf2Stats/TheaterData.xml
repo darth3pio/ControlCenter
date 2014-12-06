@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TheaterData>
+  <theaters>
+    <theater name="USMC" maps="1,2,3,4,5,6,12,100,101,102,103,104,105,200,201,202,601" />
+    <theater name="MEC" maps="1,2,3,4,5,6,10,11,12,202" />
+    <theater name="PLA" maps="100,101,102,103,104,105,110,200,601" />
+    <theater name="SEALs" maps="300,301,304" />
+    <theater name="SAS" maps="302,303,307" />
+    <theater name="SPETZ" maps="305,306,307" />
+    <theater name="MECSF" maps="300,301,304" />
+    <theater name="Rebels" maps="305,306" />
+    <theater name="Insurgents" maps="302,303" />
+    <theater name="European Union" maps="10,11,110" />
+  </theaters>
+</TheaterData>

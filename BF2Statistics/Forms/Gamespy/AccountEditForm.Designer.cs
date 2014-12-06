@@ -73,6 +73,7 @@
             // 
             resources.ApplyResources(this.AccountPass, "AccountPass");
             this.AccountPass.Name = "AccountPass";
+            this.AccountPass.UseSystemPasswordChar = true;
             // 
             // label2
             // 

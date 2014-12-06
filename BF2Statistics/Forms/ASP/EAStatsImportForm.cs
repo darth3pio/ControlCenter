@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using BF2Statistics.ASP;
+using BF2Statistics.Web;
 using BF2Statistics.Database;
 
 namespace BF2Statistics
@@ -25,13 +25,6 @@ namespace BF2Statistics
         {
             InitializeComponent();
             bWorker = new BackgroundWorker();
-
-            // Hide alert form if redirects are disabled
-            if (!MainForm.RedirectsEnabled)
-            {
-                PanelAlert.Hide();
-                ImportBtn.Enabled = true;
-            }
         }
 
         /// <summary>
@@ -57,7 +50,7 @@ namespace BF2Statistics
             catch (DbConnectException Ex)
             {
                 ExceptionForm.ShowDbConnectError(Ex);
-                ASPServer.Stop();
+                HttpServer.Stop();
                 this.Load += new EventHandler(CloseOnStart);
                 return;
             }
@@ -72,7 +65,7 @@ namespace BF2Statistics
             }
 
             // Show Task Form
-            TaskForm.Show(this, "Import EA Stats", "Importing EA Stats...", ProgressBarStyle.Blocks, 13);
+            TaskForm.Show(this, "Import ASP Stats", "Importing ASP Stats...", ProgressBarStyle.Blocks, 13);
 
             // Setup the worker
             bWorker.WorkerSupportsCancellation = false;

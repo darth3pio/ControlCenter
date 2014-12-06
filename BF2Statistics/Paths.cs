@@ -6,22 +6,20 @@ using System.IO;
 
 namespace BF2Statistics
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class Paths
     {
-        /// <summary>
-        /// The bf2 server python folder path
-        /// </summary>
-        public static readonly string ServerPythonPath;
-
         /// <summary>
         /// Full path to the stats enabled python files
         /// </summary>
         public static readonly string RankedPythonPath;
 
         /// <summary>
-        /// Full path to the Non-Ranked (default) python files
+        /// Full path to the default python files
         /// </summary>
-        public static readonly string NonRankedPythonPath;
+        public static readonly string DefaultPythonPath;
 
         /// <summary>
         /// The Bf2Statistics folder path in "My documents"
@@ -47,9 +45,8 @@ namespace BF2Statistics
             );
 
             // Define python paths
-            ServerPythonPath = Path.Combine(MainForm.Config.ServerPath, "python", "bf2");
-            NonRankedPythonPath = Path.Combine(Program.RootPath, "Python", "NonRanked");
-            RankedPythonPath = Path.Combine(Program.RootPath, "Python", "Ranked", "Backup");
+            RankedPythonPath = Path.Combine(Program.RootPath, "Python", "Ranked");
+            DefaultPythonPath = Path.Combine(Program.RootPath, "Python", "NonRanked");
 
             // Define Snapshot Paths
             SnapshotTempPath = Path.Combine(Program.RootPath, "Snapshots", "Temp");

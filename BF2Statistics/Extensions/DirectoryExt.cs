@@ -59,7 +59,7 @@ namespace BF2Statistics
         public static void Delete(FileSystemInfo fileSystemInfo)
         {
             DirectoryInfo Dir = fileSystemInfo as DirectoryInfo;
-            if (Dir != null)
+            if (Dir != null && Dir.Exists)
             {
                 foreach (FileSystemInfo Child in Dir.GetFileSystemInfos())
                 {

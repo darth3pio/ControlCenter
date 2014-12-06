@@ -25,4 +25,6 @@ namespace BF2Statistics
     public delegate void GpspConnectionClosed(GpspClient client);
 
     public delegate void GpcmConnectionClosed(GpcmClient client);
+
+    public delegate void ServerChangedEvent();
 }

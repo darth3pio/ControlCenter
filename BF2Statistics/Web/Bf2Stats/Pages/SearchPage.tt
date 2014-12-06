@@ -1,0 +1,105 @@
+﻿<#@ template language="C#" #>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="inner">
+<head>
+	<title>Search Players, <#= this.Title #></title>
+
+	<link rel="icon" href="<#= this.Root #>/favicon.ico" type="image/x-icon">
+	<link rel="shortcut icon" href="<#= this.Root #>/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" type="text/css" media="screen" href="<#= this.Root #>/scripts/two-tiers.css">
+	<link rel="stylesheet" type="text/css" media="screen" href="<#= this.Root #>/scripts/nt.css">
+	<link rel="stylesheet" type="text/css" media="print" href="<#= this.Root #>/scripts/print.css">
+	<link rel="stylesheet" type="text/css" media="screen" href="<#= this.Root #>/scripts/default.css">
+
+	<script type="text/javascript">/* no frames */ if(top.location != self.location) top.location.replace(self.location);</script>
+	<script type="text/javascript" src="<#= this.Root #>/scripts/nt2.js"></script>
+	<script type="text/javascript" src="<#= this.Root #>/scripts/show.js"></script>
+	
+</head>
+
+<body class="inner">
+<div id="page-1">
+	<div id="page-2">
+	
+	<h1 id="page-title">Search Stats </h1>
+	<div id="page-3">
+		<div id="content"><div id="content-id">
+			<div id="mlb-instructions">
+				<p>
+					Here you can search for Player Stats using their Player ID [PID] or their Name. If you are not sure about the full Name of a player, 
+					just use % and _ as wildcards.<br /><br />% stands for none, one or any number of characters.<br />_ stands for exactly one character
+					<br /><br />E.g.: %Elvis% would return TheKingIsElvis, ElvisHasLeftTheBuilding, IsElvisAlive, ElvisNo1 etc...
+					<br />Number_Rules would return Number1Rules, NumberZRules etc...
+				</p>
+				<form action="" method="post">
+					<label>Search Player by ID's or Nick: <br>
+						<input name="searchvalue" size="80" value="<#= this.SearchValue #>" type="text">
+					</label> 
+					<input name="search" value="Search" type="submit">
+				</form>
+			</div>
+
+            <#    if(!String.IsNullOrWhiteSpace(this.SearchValue)) { #>
+		    <!-- RESULTS START HERE -->
+			<table id="searchresults" class="stat sortable" border="0" cellpadding="0" cellspacing="0">
+				<tbody>
+					<tr>
+						<th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">Search Results <span class="sortarrow"></span></a></th> 
+						<th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">Score<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th>
+						<th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">SPM<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th>
+						<th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">K:D<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th>
+						<th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">Time Played<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th>
+						<th class="nosort">Last Online</th>
+						<th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">PID<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th>
+					</tr>
+					<tr><br/>
+                    <#
+			        foreach (PlayerResult Player in this.SearchResults)
+			        { #>
+						<td>
+							<img src="<#= this.Root #>/images/ranks/icon/rank_<#= Player.Rank #>.gif" alt="" style="border: 0pt none ;"> 
+							<a href="<#= this.Root #>/player?pid=<#= Player.Pid #>"> <#= Player.Name #></a>&nbsp;
+							<img src="<#= this.Root #>/images/flags/<#= Player.Country #>.png" height="12" width = "16">
+						</td>
+						<td><#= Player.Score #></td>
+						<td><#= Player.Spm #></td>
+						<td><#= Player.Kdr #></td>
+						<td title="<#= Player.TimePlayed #>"><#= Player.TimePlayed #></td>
+						<td><#= Player.LastOnline #></td>
+						<td><#= Player.Pid #></td>
+					</tr>
+				    <# } #>
+				</tbody>
+			</table>
+		    <!-- END OF RESULT TABLE -->
+            <#    } #>
+
+			<div style="margin: 20px auto 0pt; text-align: center;"></div>
+			<!-- end content == footer below -->
+		
+			<hr class="clear">
+		
+		</div></div> <!-- content-id --><!-- content -->
+		
+		<a id="secondhome" href="<#= this.Root #>"> </a>
+	</div><!-- page 3 -->
+	</div><!-- page 2 -->
+	<div id="footer">Generated using the <a href='http://bf2statistics.com'>BF2Statistics Control Center</a></div>
+
+	<ul id="navitems">
+		<li><a href="<#= this.Root #>">Home</a></li>
+		<li><a href="<#= this.Root #>/myleaderboard">My Leader Board</a></li>
+		<li><a href="<#= this.Root #>/rankings">Rankings</a></li>
+		<!--
+		<li><a href="<#= this.Root #>/ubar">UBAR</a></li>
+		<li><a href="http://wiki.bf2s.com/">Wiki</a></li>
+        -->
+	</ul>
+	<form action="<#= this.Root #>/search" method="post" id="getstats">
+		<label for="pid">Get Stats</label>
+		<input type="text" name="searchvalue" id="pid" value="" />
+		<input type="submit" class="btn" value="Go" />
+	</form>
+</div><!-- page 1 -->
+</body>
+</html>

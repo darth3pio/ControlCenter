@@ -149,7 +149,7 @@
             this.importPlayerToolStripMenuItem,
             this.exportPlayerToolStripMenuItem});
             this.contextMenu.Name = "contextMenu";
-            this.contextMenu.Size = new System.Drawing.Size(146, 76);
+            this.contextMenu.Size = new System.Drawing.Size(153, 98);
             this.contextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenu_Opening);
             // 
             // deletePlayerToolStripMenuItem
@@ -170,21 +170,21 @@
             this.fromEAStatsServerToolStripMenuItem,
             this.fromPlayerExportSheetToolStripMenuItem});
             this.importPlayerToolStripMenuItem.Name = "importPlayerToolStripMenuItem";
-            this.importPlayerToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.importPlayerToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.importPlayerToolStripMenuItem.Text = "Import Player";
             this.importPlayerToolStripMenuItem.TextDirection = System.Windows.Forms.ToolStripTextDirection.Horizontal;
             // 
             // fromEAStatsServerToolStripMenuItem
             // 
             this.fromEAStatsServerToolStripMenuItem.Name = "fromEAStatsServerToolStripMenuItem";
-            this.fromEAStatsServerToolStripMenuItem.Size = new System.Drawing.Size(223, 22);
-            this.fromEAStatsServerToolStripMenuItem.Text = "From Official EA Stats Server";
+            this.fromEAStatsServerToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
+            this.fromEAStatsServerToolStripMenuItem.Text = "From A Different ASP Server";
             this.fromEAStatsServerToolStripMenuItem.Click += new System.EventHandler(this.fromEAStatsServerMenuItem_Click);
             // 
             // fromPlayerExportSheetToolStripMenuItem
             // 
             this.fromPlayerExportSheetToolStripMenuItem.Name = "fromPlayerExportSheetToolStripMenuItem";
-            this.fromPlayerExportSheetToolStripMenuItem.Size = new System.Drawing.Size(223, 22);
+            this.fromPlayerExportSheetToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
             this.fromPlayerExportSheetToolStripMenuItem.Text = "From Player Export Sheet";
             this.fromPlayerExportSheetToolStripMenuItem.Click += new System.EventHandler(this.fromPlayerExportSheetMenuItem_Click);
             // 

@@ -21,6 +21,11 @@ namespace BF2Statistics.Gamespy
         private static List<GpcmClient> Clients = new List<GpcmClient>();
 
         /// <summary>
+        /// Signifies whether we are shutting down or not
+        /// </summary>
+        private bool isShutingDown = false;
+
+        /// <summary>
         /// An event called everytime a client connects, or disconnects from the server
         /// </summary>
         public static event EventHandler OnClientsUpdate;
@@ -28,6 +33,7 @@ namespace BF2Statistics.Gamespy
         public GpcmServer()
         {
             // Attempt to bind to port 29900
+            isShutingDown = false;
             Listener = new TcpListener(IPAddress.Any, 29900);
             Listener.Start();
 
@@ -45,6 +51,7 @@ namespace BF2Statistics.Gamespy
         public void Shutdown()
         {
             // Stop updating client checks
+            isShutingDown = true;
             Listener.Stop();
 
             // Unregister events so we dont get a shit ton of calls
@@ -52,10 +59,12 @@ namespace BF2Statistics.Gamespy
 
             // Disconnected all connected clients
             foreach (GpcmClient C in Clients)
-                C.Dispose(); // Donot call logout here!
+            {
+                C.Disconnect(9);
+                C.Dispose();
+            }
 
             // Update Connected Clients in the Database
-            LoginServer.Database.Execute("UPDATE accounts SET session=0");
             Clients.Clear();
         }
 
@@ -79,7 +88,7 @@ namespace BF2Statistics.Gamespy
             {
                 if (C.ClientPID == Pid)
                 {
-                    C.LogOut();
+                    C.Disconnect(1);
                     return true;
                 }
             }
@@ -92,6 +101,8 @@ namespace BF2Statistics.Gamespy
         /// <param name="ar"></param>
         private void AcceptClient(IAsyncResult ar)
         {
+            bool Accepting = false;
+
             // End the operation and display the received data on  
             // the console.
             try
@@ -99,20 +110,24 @@ namespace BF2Statistics.Gamespy
                 // Hurry up and get ready to accept another client
                 TcpClient Client = Listener.EndAcceptTcpClient(ar);
                 Listener.BeginAcceptTcpClient(new AsyncCallback(AcceptClient), null);
+                Accepting = true;
 
                 // Convert the TcpClient to a GpcmClient, which will handle the client login info
+                // Process last so there is no delay in accepting connections
                 Clients.Add(new GpcmClient(Client));
             }
-            catch { }
-        }
-
-        /// <summary>
-        /// Callback for a successful login
-        /// </summary>
-        /// <param name="sender"></param>
-        private void GpcmClient_OnSuccessfulLogin(object sender)
-        {
-            OnClientsUpdate(this, new ClientList(Clients));
+            catch (ObjectDisposedException) { } // Ignore
+            catch (Exception e)
+            {
+                Program.ErrorLog.Write("An Error occured at [GpcmServer.AcceptClient] : Generating Exception Log");
+                ExceptionHandler.GenerateExceptionLog(e);
+            }
+            finally
+            {
+                // If we encountered an error before we started accepting again, and we arent shutting down
+                if (!Accepting && !isShutingDown)
+                    Listener.BeginAcceptTcpClient(new AsyncCallback(AcceptClient), null);
+            }
         }
 
         /// <summary>
@@ -122,7 +137,28 @@ namespace BF2Statistics.Gamespy
         private void GpcmClient_OnDisconnect(GpcmClient client)
         {
             // Remove client, and call OnUpdate Event
-            Clients.Remove(client);
+            try
+            {
+                client.Dispose();
+                Clients.Remove(client);
+            }
+            catch (Exception e)
+            {
+                Program.ErrorLog.Write("An Error occured at [GpcmServer.GpcmClient_OnDisconnect] : Generating Exception Log");
+                ExceptionHandler.GenerateExceptionLog(e);
+            }
+            finally
+            {
+                OnClientsUpdate(this, new ClientList(Clients));
+            }
+        }
+
+        /// <summary>
+        /// Callback for a successful login
+        /// </summary>
+        /// <param name="sender"></param>
+        private void GpcmClient_OnSuccessfulLogin(object sender)
+        {
             OnClientsUpdate(this, new ClientList(Clients));
         }
     }

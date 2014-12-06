@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<RankData>
+  <!--
+    The Data listed here is used for the "Time To Advancement" section of the BF2sClone player page.
+    
+    The Rank Calculator uses the <tags> listed under each <rank> to determine the score values, as well as
+    the required awards needed for advancement, and the estimated amount of play time that it will take
+    a player to get that promotion. All adjustments made should directly reflect the Medal Data changes.
+    
+    * The <rank> tag attributes (id & name) are only used as a reference, changing them has no effect!
+    
+    the <reqRank> tag can list multiple required ranks. Just seperate them by a comma Ex:" <reqRank>7,8</reqRank>
+    
+    ** Both the <reqPoints> and <reqRank> tags are REQUIRED. Only the <reqAwards> tag is optional!
+  -->
+  <ranks>
+    <rank id="0" name="Private">
+      <reqPoints>0</reqPoints>
+      <reqRank>0</reqRank>
+    </rank>
+    <rank id="1" name="Private First Class">
+      <reqPoints>150</reqPoints>
+      <reqRank>0</reqRank>
+    </rank>
+    <rank id="2" name="Lance Corporal">
+      <reqPoints>500</reqPoints>
+      <reqRank>1</reqRank>
+    </rank>
+    <rank id="3" name="Corporal">
+      <reqPoints>800</reqPoints>
+      <reqRank>2</reqRank>
+    </rank>
+    <rank id="4" name="Sergeant">
+      <reqPoints>2500</reqPoints>
+      <reqRank>3</reqRank>
+    </rank>
+    <rank id="5" name="Staff Sergeant">
+      <reqPoints>5000</reqPoints>
+      <reqRank>4</reqRank>
+    </rank>
+    <rank id="6" name="Gunnery Sergeant">
+      <reqPoints>8000</reqPoints>
+      <reqRank>5</reqRank>
+    </rank>
+    <rank id="7" name="Master Sergeant">
+      <reqPoints>20000</reqPoints>
+      <reqRank>6</reqRank>
+    </rank>
+    <rank id="8" name="First Sergeant">
+      <reqPoints>20000</reqPoints>
+      <reqRank>6</reqRank>
+      <reqAwards>
+        <award id="1031105" level="1" /> 
+        <award id="1031109" level="1" /> 
+        <award id="1031113" level="1" /> 
+        <award id="1031115" level="1" /> 
+        <award id="1031119" level="1" />  
+        <award id="1031120" level="1" />  
+        <award id="1031121" level="1" />  
+        <award id="1031406" level="1" />  
+        <award id="1031619" level="1" /> 
+      </reqAwards>
+    </rank>
+    <rank id="9" name="Master Gunnery Sergeant">
+      <reqPoints>50000</reqPoints>
+      <reqRank>7,8</reqRank>
+    </rank>
+    <rank id="10" name="Sergeant Major">
+      <reqPoints>50000</reqPoints>
+      <reqRank>7,8</reqRank>
+      <reqAwards>
+        <award id="1031923" level="1" />  
+        <award id="1220104" level="1" />
+        <award id="1220118" level="1" />  
+        <award id="1220122" level="1" /> 
+        <award id="1220803" level="1" /> 
+        <award id="1222016" level="1" /> 
+      </reqAwards>
+    </rank>
+    <rank id="11" name="Sergeant Major of the Corps">
+      <reqPoints>50000</reqPoints>
+      <reqRank>10</reqRank>
+      <reqAwards>
+        <award id="6666666" level="1" />
+      </reqAwards>
+    </rank>
+    <rank id="12" name="2nd Lieutenant">
+      <reqPoints>60000</reqPoints>
+      <reqRank>9,10,11</reqRank>
+    </rank>
+    <rank id="13" name="1st Lieutenant">
+      <reqPoints>75000</reqPoints>
+      <reqRank>12</reqRank>
+    </rank>
+    <rank id="14" name="Captain">
+      <reqPoints>90000</reqPoints>
+      <reqRank>13</reqRank>
+    </rank>
+    <rank id="15" name="Major">
+      <reqPoints>110000</reqPoints>
+      <reqRank>14</reqRank>
+    </rank>
+    <rank id="16" name="Lieutenant Colonel">
+      <reqPoints>125000</reqPoints>
+      <reqRank>15</reqRank>
+    </rank>
+    <rank id="17" name="Colonel">
+      <reqPoints>150000</reqPoints>
+      <reqRank>16</reqRank>
+    </rank>
+    <rank id="18" name="Brigadier General">
+      <reqPoints>180000</reqPoints>
+      <reqRank>17</reqRank>
+      <reqAwards>
+        <award id="1031923" level="2" />
+        <award id="1220104" level="2" />
+        <award id="1220118" level="2" />
+        <award id="1220122" level="2" />
+        <award id="1220803" level="2" />
+        <award id="1222016" level="2" />
+      </reqAwards>
+    </rank>
+    <rank id="19" name="Major General">
+      <reqPoints>180000</reqPoints>
+      <reqRank>18</reqRank>
+      <reqAwards>
+        <award id="1031105" level="2" />
+        <award id="1031109" level="2" />
+        <award id="1031113" level="2" />
+        <award id="1031115" level="2" />
+        <award id="1031119" level="2" />
+        <award id="1031120" level="2" />
+        <award id="1031121" level="2" />
+        <award id="1031406" level="2" />
+        <award id="1031619" level="2" />
+      </reqAwards>
+    </rank>
+    <rank id="20" name="Lieutenant General">
+      <reqPoints>200000</reqPoints>
+      <reqRank>19</reqRank>
+    </rank>
+    <rank id="21" name="General">
+      <reqPoints>200000</reqPoints>
+      <reqRank>20</reqRank>
+    </rank>
+  </ranks>
+</RankData>

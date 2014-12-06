@@ -14,10 +14,11 @@ using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 using BF2Statistics.Properties;
-using BF2Statistics.ASP;
+using BF2Statistics.ASP.StatsProcessor;
 using BF2Statistics.Gamespy;
 using BF2Statistics.Logging;
 using BF2Statistics.Utilities;
+using BF2Statistics.Web;
 
 namespace BF2Statistics
 {
@@ -37,11 +38,6 @@ namespace BF2Statistics
         /// The current selected mod foldername
         /// </summary>
         public static BF2Mod SelectedMod { get; protected set; }
-
-        /// <summary>
-        /// Returns a bool stating whether the stats enabled python files are installed
-        /// </summary>
-        public static bool StatsEnabled { get; protected set; }
 
         /// <summary>
         /// Returns the NotifyIcon for on the main form
@@ -74,6 +70,11 @@ namespace BF2Statistics
         private BackgroundWorker ServerWorker = new BackgroundWorker();
 
         /// <summary>
+        /// Our Gamespy Available Server
+        /// </summary>
+        private Bf2Available AvailServer;
+
+        /// <summary>
         /// Constructor. Initializes and Displays the Applications main GUI
         /// </summary>
         public MainForm()
@@ -83,37 +84,16 @@ namespace BF2Statistics
             // Set instance
             Instance = this;
 
-            // Check for needed settings upgrade
-            if (!Config.SettingsUpdated)
+            // Make sure the basic configuration settings are setup by the user,
+            // and load the installed mods
+            if (!SetupManager.Run())
             {
-                Config.Upgrade();
-                Config.SettingsUpdated = true;
-                Config.Save();
-            }
-
-            // If this is the first run, Get client and server install paths
-            if (String.IsNullOrWhiteSpace(Config.ServerPath) || !File.Exists(Path.Combine(Config.ServerPath, "bf2_w32ded.exe")))
-            {
-                InstallForm IS = new InstallForm();
-                if (IS.ShowDialog() != DialogResult.OK)
-                {
-                    this.Load += new EventHandler(CloseOnStart);
-                    return;
-                }
-            }
-
-            // Make sure documents folder exists
-            if (!Directory.Exists(Paths.DocumentsFolder))
-                Directory.CreateDirectory(Paths.DocumentsFolder);
-
-            // Backups folder
-            if (!Directory.Exists(Path.Combine(Paths.DocumentsFolder, "Backups")))
-                Directory.CreateDirectory(Path.Combine(Paths.DocumentsFolder, "Backups"));
-
-            // Load installed Mods. If there is an error, a messagebox will be displayed, 
-            // and the form closed automatically
-            if (!LoadModList())
+                this.Load += (s, e) => this.Close();
                 return;
+            }
+
+            // Load Mods, and fill the Mod Select Dropdown
+            LoadModList();
 
             // Set BF2Statistics Install Status
             SetInstallStatus();
@@ -141,17 +121,23 @@ namespace BF2Statistics
             // If we dont have a client path, disable the Launch Client button
             LaunchClientBtn.Enabled = (!String.IsNullOrWhiteSpace(Config.ClientPath) && File.Exists(Path.Combine(Config.ClientPath, "bf2.exe")));
 
+            // Start Gamespy Available Server
+            AvailServer = new Bf2Available();
+
             // Register for ASP events
-            ASPServer.Started += new EventHandler(ASPServer_OnStart);
-            ASPServer.Stopped += new EventHandler(ASPServer_OnShutdown);
-            ASPServer.RequestRecieved += new AspRequest(ASPServer_ClientConnected);
+            HttpServer.Started += new EventHandler(ASPServer_OnStart);
+            HttpServer.Stopped += new EventHandler(ASPServer_OnShutdown);
+            HttpServer.RequestRecieved += new AspRequest(ASPServer_ClientConnected);
             Snapshot.SnapshotProcessed += new SnapshotProccessed(Snapshot_SnapshotProccessed);
-            ASP.Requests.SnapshotPost.SnapshotReceived += new SnapshotRecieved(SnapshotPost_SnapshotReceived);
+            Web.ASP.SnapshotPost.SnapshotReceived += new SnapshotRecieved(SnapshotPost_SnapshotReceived);
 
             // Register for Login server events
             LoginServer.OnStart += new StartupEventHandler(LoginServer_OnStart);
             LoginServer.OnShutdown += new ShutdownEventHandler(LoginServer_OnShutdown);
             LoginServer.OnUpdate += new EventHandler(LoginServer_OnUpdate);
+
+            // Register for Server changes
+            BF2Server.ServerPathChanged += new ServerChangedEvent(BF2Server_ServerPathChanged);
 
             // Add administrator title to program title bar
             if (Program.IsAdministrator)
@@ -171,9 +157,8 @@ namespace BF2Statistics
         /// </summary>
         private void SetInstallStatus()
         {
-            if (File.Exists(Path.Combine(Config.ServerPath, "python", "bf2", "BF2StatisticsConfig.py")))
+            if (StatsPython.StatsEnabled)
             {
-                StatsEnabled = true;
                 InstallBox.ForeColor = Color.Green;
                 InstallBox.Text = "BF2 Statistics server files are currently installed.";
                 BF2sInstallBtn.Text = "Uninstall BF2 Statistics Python";
@@ -184,7 +169,6 @@ namespace BF2Statistics
             }
             else
             {
-                StatsEnabled = false;
                 InstallBox.ForeColor = Color.Red;
                 InstallBox.Text = "BF2 Statistics server files are currently NOT installed";
                 BF2sInstallBtn.Text = "Install BF2 Statistics Python";
@@ -198,51 +182,22 @@ namespace BF2Statistics
         /// <summary>
         /// Loads up all the supported mods, and adds them to the Mod select list
         /// </summary>
-        private bool LoadModList()
+        private void LoadModList()
         {
-            // Load the BF2 Server
-            try
-            {
-                BF2Server.Load(Config.ServerPath);
-            }
-            catch(Exception E)
-            {
-                MessageBox.Show(E.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
+            // Clear the list
+            ModSelectList.Items.Clear();
 
             // Add each valid mod to the mod selection list
-            foreach (string Module in BF2Server.Mods)
+            foreach (BF2Mod Mod in BF2Server.Mods)
             {
-                try
-                {
-                    BF2Mod Mod = BF2Server.LoadMod(Module);
-                    ModSelectList.Items.Add(Mod);
-                    if (Mod.Name == "bf2")
-                        ModSelectList.SelectedIndex = ModSelectList.Items.Count - 1;
-                }
-                catch (InvalidModException)
-                {
-                    continue;
-                }
-                catch (Exception e)
-                {
-                    Log(e.Message);
-                }
+                ModSelectList.Items.Add(Mod);
+                if (Mod.Name == "bf2")
+                    ModSelectList.SelectedIndex = ModSelectList.Items.Count - 1;
             }
 
-            // If we have no mods, we cant continue :(
-            if (ModSelectList.Items.Count == 0)
-            {
-                MessageBox.Show("No battlefield 2 mods could be found! The application can no longer continue.",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.Load += new EventHandler(CloseOnStart);
-                return false;
-            }
-            else if (ModSelectList.SelectedIndex == -1)
+            // Make sure we have a mod selected. This can fail to happen in the bf2 mod folder is changed
+            if (ModSelectList.SelectedIndex == -1)
                 ModSelectList.SelectedIndex = 0;
-
-            return true;
         }
 
         /// <summary>
@@ -480,6 +435,19 @@ namespace BF2Statistics
         {
             if (ServerProcess == null)
             {
+                // Lets check if the ASP is running
+                if (StatsPython.StatsEnabled && !HttpServer.IsRunning)
+                {
+                    DialogResult Res = MessageBox.Show("It has been detected that the Stats python is enabled, "
+                        + "but the ASP stats server is offline! Are you sure you want to continue?", 
+                        "ASP Stats Server Offline",  MessageBoxButtons.YesNo, MessageBoxIcon.Warning
+                    );
+
+                    // Quit
+                    if (Res == DialogResult.No)
+                        return;
+                }
+
                 // Start new BF2 proccess
                 ProcessStartInfo Info = new ProcessStartInfo();
                 Info.Arguments = String.Format(" +modPath mods/{0}", SelectedMod.Name.ToLower());
@@ -722,8 +690,7 @@ namespace BF2Statistics
 
         private void EditGamespyConfigBtn_Click(object sender, EventArgs e)
         {
-            GamespyConfig Form = new GamespyConfig();
-            Form.ShowDialog();
+            SetupManager.ShowDatabaseSetupForm(DatabaseMode.Gamespy);
         }
 
         private void EditAcctBtn_Click(object sender, EventArgs e)
@@ -749,31 +716,10 @@ namespace BF2Statistics
 
             try
             {
-                // Install
-                if (!StatsEnabled)
-                {
-                    // Remove current Python
-                    Directory.Delete(Paths.ServerPythonPath, true);
-                    System.Threading.Thread.Sleep(750);
-
-                    // Make sure we dont have an empty backup folder
-                    if (Directory.GetFiles(Paths.RankedPythonPath).Length == 0)
-                        DirectoryExt.Copy(Path.Combine(Program.RootPath, "Python", "Ranked", "Original"), Paths.ServerPythonPath, true);
-                    else
-                        DirectoryExt.Copy(Paths.RankedPythonPath, Paths.ServerPythonPath, true);
-                }
-                else // Uninstall
-                {
-                    // Backup the users bf2s python files
-                    Directory.Delete(Paths.RankedPythonPath, true);
-                    System.Threading.Thread.Sleep(750);
-                    DirectoryExt.Copy(Paths.ServerPythonPath, Paths.RankedPythonPath, true);
-
-                    // Install default python files
-                    Directory.Delete(Paths.ServerPythonPath, true);
-                    System.Threading.Thread.Sleep(750);
-                    DirectoryExt.Copy(Paths.NonRankedPythonPath, Paths.ServerPythonPath, true);
-                }
+                if (!StatsPython.StatsEnabled)
+                    StatsPython.BackupAndInstall();
+                else
+                    StatsPython.RemoveAndRestore();
             }
             catch (Exception E)
             {
@@ -831,18 +777,7 @@ namespace BF2Statistics
                 // Replace files with the originals
                 try
                 {
-                    if (StatsEnabled)
-                    {
-                        Directory.Delete(Paths.ServerPythonPath, true);
-                        System.Threading.Thread.Sleep(750);
-                        DirectoryExt.Copy(Path.Combine(Program.RootPath, "Python", "Ranked", "Original"), Paths.ServerPythonPath, true);
-                    }
-                    else
-                    {
-                        Directory.Delete(Paths.RankedPythonPath, true);
-                        System.Threading.Thread.Sleep(750);
-                        DirectoryExt.Copy(Path.Combine(Program.RootPath, "Python", "Ranked", "Original"), Paths.RankedPythonPath, true);
-                    }
+                    StatsPython.RestoreRankedPyFiles();
 
                     // Show Success Message
                     Notify.Show("Stats Python Files Have Been Restored!", "Operation Successful", AlertType.Success);
@@ -1067,6 +1002,11 @@ namespace BF2Statistics
                 try
                 {
                     // Save lines to hosts file
+                    string localAddr = IPAddress.Loopback.ToString();
+                    HostsFile.Set("motd.gamespy.com", localAddr);
+                    HostsFile.Set("battlefield2.ms14.gamespy.com", localAddr);
+                    HostsFile.Set("battlefield2.master.gamespy.com", localAddr);
+                    HostsFile.Set("battlefield2.available.gamespy.com", localAddr);
                     HostsFile.Save();
                     UpdateHostFileStatus("Success!");
 
@@ -1140,6 +1080,10 @@ namespace BF2Statistics
                 HostsFile.Remove("bf2web.gamespy.com");
                 HostsFile.Remove("gpcm.gamespy.com");
                 HostsFile.Remove("gpsp.gamespy.com");
+                HostsFile.Remove("motd.gamespy.com");
+                HostsFile.Remove("battlefield2.ms14.gamespy.com");
+                HostsFile.Remove("battlefield2.master.gamespy.com");
+                HostsFile.Remove("battlefield2.available.gamespy.com");
                 HostsFile.Save();
                 UpdateHostFileStatus("Success!");
             }
@@ -1307,7 +1251,7 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void StartAspServerBtn_Click(object sender, EventArgs e)
         {
-            if (!ASPServer.IsRunning)
+            if (!HttpServer.IsRunning)
             {
                 AspStatusPic.Image = Resources.loading;
                 StartAspServerBtn.Enabled = false;
@@ -1320,7 +1264,7 @@ namespace BF2Statistics
             else
             {
                 try {
-                    ASPServer.Stop();
+                    HttpServer.Stop();
                     Tipsy.SetToolTip(AspStatusPic, "Asp server is currently offline");  
                 }
                 catch(Exception E) {
@@ -1342,7 +1286,7 @@ namespace BF2Statistics
             try
             {
                 // Start server
-                ASPServer.Start();
+                HttpServer.Start();
             }
             catch (HttpListenerException E)
             {
@@ -1403,6 +1347,7 @@ namespace BF2Statistics
                 StartAspServerBtn.Enabled = true;
                 StartAspServerBtn.Text = "Shutdown ASP Server";
                 ViewSnapshotBtn.Enabled = true;
+                ViewBf2sCloneBtn.Enabled = true;
                 EditPlayerBtn.Enabled = true;
                 EditASPDatabaseBtn.Enabled = false;
                 ClearStatsBtn.Enabled = true;
@@ -1424,6 +1369,7 @@ namespace BF2Statistics
                 AspStatusPic.Image = Resources.error;
                 StartAspServerBtn.Text = "Start ASP Server";
                 ViewSnapshotBtn.Enabled = false;
+                ViewBf2sCloneBtn.Enabled = false;
                 EditPlayerBtn.Enabled = false;
                 EditASPDatabaseBtn.Enabled = true;
                 ClearStatsBtn.Enabled = false;
@@ -1442,11 +1388,10 @@ namespace BF2Statistics
         {
             BeginInvoke((Action)delegate
             {
-                Config.TotalASPRequests++;
-                labelTotalWebRequests.Text = Config.TotalASPRequests.ToString();
+                labelTotalWebRequests.Text = (++Config.TotalASPRequests).ToString();
                 int Sr = Int32.Parse(labelSessionWebRequests.Text);
-                if (Sr < ASPServer.SessionRequests)
-                    labelSessionWebRequests.Text = ASPServer.SessionRequests.ToString();
+                if (Sr < HttpServer.SessionRequests)
+                    labelSessionWebRequests.Text = HttpServer.SessionRequests.ToString();
             });
         }
 
@@ -1541,8 +1486,7 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void EditASPDatabaseBtn_Click(object sender, EventArgs e)
         {
-            StatsDbConfigForm Form = new StatsDbConfigForm();
-            Form.ShowDialog();
+            SetupManager.ShowDatabaseSetupForm(DatabaseMode.Stats);
         }
 
         /// <summary>
@@ -1554,6 +1498,38 @@ namespace BF2Statistics
         {
             ASPConfigForm Form = new ASPConfigForm();
             Form.ShowDialog();
+        }
+
+        private void EditBf2sCloneBtn_Click(object sender, EventArgs e)
+        {
+            LeaderboardConfigForm F = new LeaderboardConfigForm();
+            F.ShowDialog();
+        }
+
+        /// <summary>
+        /// View Leaderboard Button Click Event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ViewBf2sCloneBtn_Click(object sender, EventArgs e)
+        {
+            if (!MainForm.Config.BF2S_Enabled)
+            {
+                DialogResult Res = MessageBox.Show("The Battlefield 2 Leaderboard is currently disabled! Would you like to enable it now?.", 
+                    "Disabled Leaderboard", MessageBoxButtons.YesNo, MessageBoxIcon.Question
+                );
+
+                if (Res == DialogResult.Yes)
+                {
+                    MainForm.Config.BF2S_Enabled = true;
+                    MainForm.Config.Save();
+                    Process.Start("http://localhost/bf2stats");
+                }
+
+                return;
+            }
+
+            Process.Start("http://localhost/bf2stats");
         }
 
         /// <summary>
@@ -1623,12 +1599,11 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void SetupBtn_Click(object sender, EventArgs e)
         {
-            InstallForm IS = new InstallForm();
-            IS.ShowDialog();
-
-            // Re-Init server if we need to
-            if (Config.ServerPath != BF2Server.RootPath)
-                BF2Server.Load(Config.ServerPath);
+            Config.ServerPath = "";
+            if (!SetupManager.Run())
+            {
+                Config.Reload();
+            }
         }
 
         /// <summary>
@@ -1649,6 +1624,16 @@ namespace BF2Statistics
         private void ChkUpdateBtn_Click(object sender, EventArgs e)
         {
             Process.Start("https://github.com/BF2Statistics/ControlCenter/releases/latest");
+        }
+
+        /// <summary>
+        /// Report Issue or Bug Button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ReportBugBtn_Click(object sender, EventArgs e)
+        {
+            Process.Start("https://github.com/BF2Statistics/ControlCenter/issues");
         }
 
         #endregion About Tab
@@ -1710,14 +1695,22 @@ namespace BF2Statistics
                 LoginServer.Shutdown();
 
             // Shutdown ASP Server
-            if (ASPServer.IsRunning)
-                ASPServer.Stop();
+            if (HttpServer.IsRunning)
+                HttpServer.Stop();
 
             // Unlock the hosts file
             HostsFile.UnLock();
         }
 
         #endregion Closer Methods
+
+        /// <summary>
+        /// Fired when the server changes paths
+        /// </summary>
+        private void BF2Server_ServerPathChanged()
+        {
+            LoadModList();
+        }
 
         /// <summary>
         /// This method is used to store a message in the console.log file

@@ -11,7 +11,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Windows.Forms;
 using BF2Statistics.ASP;
-using BF2Statistics.ASP.Requests;
+using BF2Statistics.ASP.StatsProcessor;
 using BF2Statistics.Database;
 
 namespace BF2Statistics
@@ -25,7 +25,7 @@ namespace BF2Statistics
             InitializeComponent();
 
             // Fill the list of unprocessed snapshots
-            BuildList();
+            ViewSelect.SelectedIndex = 0;
         }
 
         private void ImportBtn_Click(object sender, EventArgs e)
@@ -87,7 +87,7 @@ namespace BF2Statistics
                          select _File;
 
             // Do Work
-            foreach (string Snapshot in Sorted)
+            foreach (string SnapshotFile in Sorted)
             {
                 // If we have a cancelation request
                 if (bWorker.CancellationPending)
@@ -103,19 +103,19 @@ namespace BF2Statistics
                 try
                 {
                     // Parse date of snapshot
-                    string[] Parts = Snapshot.Split('_');
+                    string[] Parts = SnapshotFile.Split('_');
                     string D = Parts[Parts.Length - 2] + "_" + Parts[Parts.Length - 1].Replace(".txt", "");
                     DateTime Date = DateTime.ParseExact(D, "yyyyMMdd_HHmm", CultureInfo.InvariantCulture).ToUniversalTime();
 
                     // Update status and run snapshot
-                    TaskForm.UpdateStatus(String.Format("Processing: \"{0}\"", Snapshot));
-                    Snapshot Snap = new Snapshot(File.ReadAllText(Path.Combine(Paths.SnapshotTempPath, Snapshot)), Date, Database);
+                    TaskForm.UpdateStatus(String.Format("Processing: \"{0}\"", SnapshotFile));
+                    Snapshot Snapshot = new Snapshot(File.ReadAllText(Path.Combine(Paths.SnapshotTempPath, SnapshotFile)), Date, Database);
 
                     // Do snapshot
-                    Snap.Process();
+                    Snapshot.ProcessData();
 
                     // Move the Temp snapshot to the Processed folder
-                    File.Move(Path.Combine(Paths.SnapshotTempPath, Snapshot), Path.Combine(Paths.SnapshotProcPath, Snapshot));
+                    File.Move(Path.Combine(Paths.SnapshotTempPath, SnapshotFile), Path.Combine(Paths.SnapshotProcPath, SnapshotFile));
 
                     // Update progress
                     TaskForm.ProgressBarStep();
@@ -138,15 +138,20 @@ namespace BF2Statistics
 
             // Let progress bar update to 100%
             TaskForm.UpdateStatus("Done! Cleaning up...");
+            Database.Dispose();
             Thread.Sleep(500);
         }
 
         private void BuildList()
         {
+            SnapshotView.Items.Clear();
+
             // Add each found snapshot to the snapshot view
-            foreach (string File in Directory.EnumerateFiles(Paths.SnapshotTempPath, "*.txt"))
+            string path = (ViewSelect.SelectedIndex == 0) ? Paths.SnapshotTempPath : Paths.SnapshotProcPath;
+            foreach (string File in Directory.EnumerateFiles(path, "*.txt"))
             {
                 ListViewItem Row = new ListViewItem();
+                Row.Tag = Path.GetFileName(File);
                 Row.SubItems.Add(Path.GetFileName(File));
                 SnapshotView.Items.Add(Row);
             }
@@ -158,9 +163,12 @@ namespace BF2Statistics
                 SnapshotView.CheckBoxes = false;
 
                 ListViewItem Row = new ListViewItem();
-                Row.SubItems.Add("There are no unprocessed snapshots!");
+                Row.Tag = String.Empty;
+                Row.SubItems.Add(String.Format("There are no {0}processed snapshots!", (ViewSelect.SelectedIndex == 1) ? "un" : ""));
                 SnapshotView.Items.Add(Row);
             }
+
+            SnapshotView.Update();
         }
 
         private void SelectAllBtn_Click(object sender, EventArgs e)
@@ -177,6 +185,110 @@ namespace BF2Statistics
                 I.Checked = false;
 
             SnapshotView.Update();
+        }
+
+        /// <summary>
+        /// Event fired when the user right clicks, to open the context menu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SnapshotView_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right && SnapshotView.FocusedItem.Bounds.Contains(e.Location))
+            {
+                MenuStrip.Show(Cursor.Position);
+            }
+        }
+
+        /// <summary>
+        /// Event fire when the Details item menu is selected from the
+        /// context menu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Details_MenuItem_Click(object sender, EventArgs e)
+        {
+            // Get our snapshot file name
+            string Name = SnapshotView.SelectedItems[0].Tag.ToString();
+            if (String.IsNullOrEmpty(Name))
+                return;
+
+            // Parse date of snapshot, and build the file file location
+            string[] Parts = Name.Split('_');
+            string D = Parts[Parts.Length - 2] + "_" + Parts[Parts.Length - 1].Replace(".txt", "");
+            DateTime Date = DateTime.ParseExact(D, "yyyyMMdd_HHmm", CultureInfo.InvariantCulture).ToUniversalTime();
+            string _File = (ViewSelect.SelectedIndex == 0) 
+                ? Path.Combine(Paths.SnapshotTempPath, Name) 
+                : Path.Combine(Paths.SnapshotProcPath, Name);
+
+            // Load up the snapshot, and display the Game Result Window
+            GameResultForm F;
+            using (StatsDatabase Database = new StatsDatabase())
+            {
+                Snapshot Snapshot = new Snapshot(File.ReadAllText(_File), Date, Database);
+                F = new GameResultForm(Snapshot as GameResult);
+            }
+
+            F.ShowDialog();
+        }
+
+        /// <summary>
+        /// Event fired when the snapshot view type is changed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ViewSelect_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Enable/Disable features based in mode
+            bool Enable = (ViewSelect.SelectedIndex == 0);
+            SnapshotView.CheckBoxes = Enable;
+            ImportBtn.Enabled = Enable;
+            SelectAllBtn.Enabled = Enable;
+            SelectNoneBtn.Enabled = Enable;
+            BuildList();
+
+            // Set menu item text
+            if (Enable)
+                MoveSnapshotMenuItem.Text = "Move to Processed";
+            else
+                MoveSnapshotMenuItem.Text = "Move to UnProcessed";
+
+            // Set textbox text
+            if (ViewSelect.SelectedIndex == 0)
+            {
+                textBox1.Text = "Below is a list of  snapshots that have not been imported into the database. "
+                    + "You can select which snapshots you wish to try and import below";
+            }
+            else
+            {
+                textBox1.Text = "Below is a list of  snapshots that have been successfully imported into the database. ";
+            }
+        }
+
+        private void MoveSnapshotMenuItem_Click(object sender, EventArgs e)
+        {
+            // Get our snapshot file name
+            string FileName = SnapshotView.SelectedItems[0].Tag.ToString();
+            if (String.IsNullOrEmpty(FileName))
+                return;
+
+            // Move the selected snapshot to the opposite folder
+            if (ViewSelect.SelectedIndex == 0)
+            {
+                File.Move(
+                    Path.Combine(Paths.SnapshotTempPath, FileName), 
+                    Path.Combine(Paths.SnapshotProcPath, FileName)
+                );
+            }
+            else
+            {
+                File.Move(
+                    Path.Combine(Paths.SnapshotProcPath, FileName), 
+                    Path.Combine(Paths.SnapshotTempPath, FileName)
+                );
+            }
+
+            BuildList();
         }
     }
 }

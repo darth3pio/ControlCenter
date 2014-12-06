@@ -29,19 +29,19 @@
         private void InitializeComponent()
         {
             this.PanelAlert = new System.Windows.Forms.Panel();
+            this.label3 = new System.Windows.Forms.Label();
+            this.InstructionText = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.PanelMain = new System.Windows.Forms.Panel();
             this.PidTextBox = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.InstructionText = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
             this.PanelButtons = new System.Windows.Forms.Panel();
             this.ImportBtn = new System.Windows.Forms.Button();
             this.CancelBtn = new System.Windows.Forms.Button();
             this.PanelAlert.SuspendLayout();
-            this.PanelMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.PanelMain.SuspendLayout();
             this.PanelButtons.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -56,6 +56,36 @@
             this.PanelAlert.Name = "PanelAlert";
             this.PanelAlert.Size = new System.Drawing.Size(414, 50);
             this.PanelAlert.TabIndex = 6;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(53, 30);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(348, 13);
+            this.label3.TabIndex = 3;
+            this.label3.Text = "Make sure you are redirecting bf2web.gamespy.com using the Hosts File";
+            // 
+            // InstructionText
+            // 
+            this.InstructionText.AutoSize = true;
+            this.InstructionText.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.InstructionText.ForeColor = System.Drawing.Color.MidnightBlue;
+            this.InstructionText.Location = new System.Drawing.Point(50, 8);
+            this.InstructionText.Name = "InstructionText";
+            this.InstructionText.Size = new System.Drawing.Size(222, 19);
+            this.InstructionText.TabIndex = 2;
+            this.InstructionText.Text = "Gamespy Services Are Offline!";
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = global::BF2Statistics.Properties.Resources.vistaWarning;
+            this.pictureBox1.Location = new System.Drawing.Point(11, 9);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(32, 32);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 0;
+            this.pictureBox1.TabStop = false;
             // 
             // PanelMain
             // 
@@ -94,39 +124,9 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(400, 26);
             this.label1.TabIndex = 3;
-            this.label1.Text = "This area will allow you to Import player data from the Official EA ranked server" +
-                " database. You cannot import a player if the player ID exists already on your se" +
-                "rver.";
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = global::BF2Statistics.Properties.Resources.vistaWarning;
-            this.pictureBox1.Location = new System.Drawing.Point(11, 9);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(32, 32);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
-            // 
-            // InstructionText
-            // 
-            this.InstructionText.AutoSize = true;
-            this.InstructionText.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.InstructionText.ForeColor = System.Drawing.Color.MidnightBlue;
-            this.InstructionText.Location = new System.Drawing.Point(50, 8);
-            this.InstructionText.Name = "InstructionText";
-            this.InstructionText.Size = new System.Drawing.Size(225, 19);
-            this.InstructionText.TabIndex = 2;
-            this.InstructionText.Text = "Gamespy Redirects Are Active!";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(53, 30);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(255, 13);
-            this.label3.TabIndex = 3;
-            this.label3.Text = "Import has been disabled until redirects are removed.";
+            this.label1.Text = "This area will allow you to Import player data from a different ASP server\'s data" +
+                "base. You cannot import a player if the player ID exists already on your server." +
+                "";
             // 
             // PanelButtons
             // 
@@ -140,7 +140,6 @@
             // 
             // ImportBtn
             // 
-            this.ImportBtn.Enabled = false;
             this.ImportBtn.Location = new System.Drawing.Point(299, 11);
             this.ImportBtn.Name = "ImportBtn";
             this.ImportBtn.Size = new System.Drawing.Size(100, 28);
@@ -176,12 +175,12 @@
             this.MinimumSize = new System.Drawing.Size(420, 180);
             this.Name = "EAStatsImportForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "EA Stats Import";
+            this.Text = "ASP Stats Import";
             this.PanelAlert.ResumeLayout(false);
             this.PanelAlert.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.PanelMain.ResumeLayout(false);
             this.PanelMain.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.PanelButtons.ResumeLayout(false);
             this.ResumeLayout(false);
 

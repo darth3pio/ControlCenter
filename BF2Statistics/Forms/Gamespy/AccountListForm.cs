@@ -15,11 +15,6 @@ namespace BF2Statistics
     public partial class AccountListForm : Form
     {
         /// <summary>
-        /// The Gamespy database driver
-        /// </summary>
-        private GamespyDatabase Driver = LoginServer.Database;
-
-        /// <summary>
         /// Current list page number
         /// </summary>
         private int ListPage = 1;
@@ -44,6 +39,18 @@ namespace BF2Statistics
             InitializeComponent();
             SortedCol = DataTable.Columns[0];
 
+            // Try to connect to the database 
+            try
+            {
+                using (GamespyDatabase Driver = new GamespyDatabase()) { }
+            }
+            catch (DbConnectException Ex)
+            {
+                ExceptionForm.ShowDbConnectError(Ex);
+                Load += (s, e) => Close(); // Close form
+                return;
+            }
+
             // Setting the limit will build the inital list
             LimitSelect.SelectedIndex = 2;
         }
@@ -63,33 +70,35 @@ namespace BF2Statistics
             int Start = (ListPage == 1) ? 0 : (ListPage - 1) * Limit;
 
             // Build Query
-            SelectQueryBuilder Query = new SelectQueryBuilder(Driver);
-            Query.SelectColumns("id", "name", "email", "country", "lastip", "session");
-            Query.SelectFromTable("accounts");
-            Query.AddOrderBy(SortedCol.Name, ((SortDir == ListSortDirection.Ascending) ? Sorting.Ascending : Sorting.Descending));
-            Query.Limit(Limit, Start);
-
-            // User entered search
-            if (!String.IsNullOrWhiteSpace(Like))
-                Where = Query.AddWhere("name", Comparison.Like, "%" + Like + "%");
-
-            // Online Accounts
-            if (OnlineAccountsCheckBox.Checked)
+            using (GamespyDatabase Driver = new GamespyDatabase())
             {
-                if (Where == null)
-                    Where = Query.AddWhere("session", Comparison.NotEqualTo, 0);
-                else
-                    Where.AddClause(LogicOperator.And, "session", Comparison.NotEqualTo, 0);
-            }
+                SelectQueryBuilder Query = new SelectQueryBuilder(Driver);
+                Query.SelectColumns("id", "name", "email", "country", "lastip", "session");
+                Query.SelectFromTable("accounts");
+                Query.AddOrderBy(SortedCol.Name, ((SortDir == ListSortDirection.Ascending) ? Sorting.Ascending : Sorting.Descending));
+                Query.Limit(Limit, Start);
 
-            // Clear out old junk
-            DataTable.Rows.Clear();
+                // User entered search
+                if (!String.IsNullOrWhiteSpace(Like))
+                    Where = Query.AddWhere("name", Comparison.Like, "%" + Like + "%");
 
-            // Add players to data grid
-            int RowCount = 0;
-            foreach (Dictionary<string, object> Row in Driver.QueryReader(Query.BuildCommand()))
-            {
-                DataTable.Rows.Add(new string[] {
+                // Online Accounts
+                if (OnlineAccountsCheckBox.Checked)
+                {
+                    if (Where == null)
+                        Where = Query.AddWhere("session", Comparison.NotEqualTo, 0);
+                    else
+                        Where.AddClause(LogicOperator.And, "session", Comparison.NotEqualTo, 0);
+                }
+
+                // Clear out old junk
+                DataTable.Rows.Clear();
+
+                // Add players to data grid
+                int RowCount = 0;
+                foreach (Dictionary<string, object> Row in Driver.QueryReader(Query.BuildCommand()))
+                {
+                    DataTable.Rows.Add(new string[] {
                     Row["id"].ToString(),
                     Row["name"].ToString(),
                     Row["email"].ToString(),
@@ -97,75 +106,76 @@ namespace BF2Statistics
                     ((Row["session"].ToString() == "1") ? "Yes" : "No"),
                     Row["lastip"].ToString(),
                 });
-                RowCount++;
+                    RowCount++;
+                }
+
+                // Get Filtered Rows
+                Query = new SelectQueryBuilder(Driver);
+                Query.SelectCount();
+                Query.SelectFromTable("accounts");
+                if (Where != null)
+                    Query.AddWhere(Where);
+                Rows = Driver.ExecuteReader(Query.BuildCommand());
+                int TotalFilteredRows = Int32.Parse(Rows[0]["count"].ToString());
+
+                // Get Total Player Count
+                Query = new SelectQueryBuilder(Driver);
+                Query.SelectCount();
+                Query.SelectFromTable("accounts");
+                Rows = Driver.ExecuteReader(Query.BuildCommand());
+                int TotalRows = Int32.Parse(Rows[0]["count"].ToString());
+
+                // Stop Count
+                int Stop = (ListPage == 1) ? RowCount : ((ListPage - 1) * Limit) + RowCount;
+
+                // First / Previous button
+                if (ListPage == 1)
+                {
+                    FirstBtn.Enabled = false;
+                    PreviousBtn.Enabled = false;
+                }
+                else
+                {
+                    FirstBtn.Enabled = true;
+                    PreviousBtn.Enabled = true;
+                }
+
+                // Next / Last Button
+                LastBtn.Enabled = false;
+                NextBtn.Enabled = false;
+
+                // Get total number of pages
+                if (TotalFilteredRows / (ListPage * Limit) > 0)
+                {
+                    float total = float.Parse(TotalFilteredRows.ToString()) / float.Parse(Limit.ToString());
+                    TotalPages = Int32.Parse(Math.Floor(total).ToString());
+                    if (TotalFilteredRows % Limit != 0)
+                        TotalPages++;
+
+                    LastBtn.Enabled = true;
+                    NextBtn.Enabled = true;
+                }
+
+                // Set page number
+                PageNumber.Maximum = TotalPages;
+                PageNumber.Value = ListPage;
+
+                // Update Row Count Information
+                RowCountDesc.Text = String.Format(
+                    "Showing {0} to {1} of {2} account{3}",
+                    ++Start,
+                    Stop,
+                    TotalFilteredRows,
+                    ((TotalFilteredRows > 1) ? "s " : " ")
+                );
+
+                // Add Total row count
+                if (!String.IsNullOrWhiteSpace(Like))
+                    RowCountDesc.Text += String.Format("(filtered from " + TotalRows + " total account{0})", ((TotalRows > 1) ? "s" : ""));
+
+                // Update
+                DataTable.Update();
             }
-
-            // Get Filtered Rows
-            Query = new SelectQueryBuilder(Driver);
-            Query.SelectCount();
-            Query.SelectFromTable("accounts");
-            if (Where != null)
-                Query.AddWhere(Where);
-            Rows = Driver.ExecuteReader(Query.BuildCommand());
-            int TotalFilteredRows = Int32.Parse(Rows[0]["count"].ToString());
-
-            // Get Total Player Count
-            Query = new SelectQueryBuilder(Driver);
-            Query.SelectCount();
-            Query.SelectFromTable("accounts");
-            Rows = Driver.ExecuteReader(Query.BuildCommand());
-            int TotalRows = Int32.Parse(Rows[0]["count"].ToString());
-
-            // Stop Count
-            int Stop = (ListPage == 1) ? RowCount : ((ListPage - 1) * Limit) + RowCount;
-
-            // First / Previous button
-            if (ListPage == 1)
-            {
-                FirstBtn.Enabled = false;
-                PreviousBtn.Enabled = false;
-            }
-            else
-            {
-                FirstBtn.Enabled = true;
-                PreviousBtn.Enabled = true;
-            }
-
-            // Next / Last Button
-            LastBtn.Enabled = false;
-            NextBtn.Enabled = false;
-
-            // Get total number of pages
-            if (TotalFilteredRows / (ListPage * Limit) > 0)
-            {
-                float total = float.Parse(TotalFilteredRows.ToString()) / float.Parse(Limit.ToString());
-                TotalPages = Int32.Parse(Math.Floor(total).ToString());
-                if (TotalFilteredRows % Limit != 0)
-                    TotalPages++;
-
-                LastBtn.Enabled = true;
-                NextBtn.Enabled = true;
-            }
-
-            // Set page number
-            PageNumber.Maximum = TotalPages;
-            PageNumber.Value = ListPage;
-
-            // Update Row Count Information
-            RowCountDesc.Text = String.Format(
-                "Showing {0} to {1} of {2} account{3}", 
-                ++Start, 
-                Stop, 
-                TotalFilteredRows,
-                ((TotalFilteredRows > 1) ? "s " : " ")
-            );
-
-            // Add Total row count
-            if (!String.IsNullOrWhiteSpace(Like))
-                RowCountDesc.Text += String.Format("(filtered from " + TotalRows + " total account{0})", ((TotalRows > 1) ? "s" : ""));
-
-            // Update
-            DataTable.Update();
         }
 
         /// <summary>
@@ -320,10 +330,13 @@ namespace BF2Statistics
             if (MessageBox.Show("Are you sure you want to delete account \"" + Name + "\"?", 
                 "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
-                if (LoginServer.Database.DeleteUser(Id) == 1)
-                    Notify.Show("Account deleted successfully!", "Operation Successful", AlertType.Success);
-                else
-                    Notify.Show("Failed to remove account from database!", "Operation Failed", AlertType.Warning);
+                using (GamespyDatabase Database = new GamespyDatabase())
+                {
+                    if (Database.DeleteUser(Id) == 1)
+                        Notify.Show("Account deleted successfully!", "Operation Successful", AlertType.Success);
+                    else
+                        Notify.Show("Failed to remove account from database!", "Operation Failed", AlertType.Warning);
+                }
 
                 BuildList();
             }

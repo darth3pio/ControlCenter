@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.IO;
 using System.Windows.Forms;
 using BF2Statistics.Utilities;
 
@@ -37,10 +38,57 @@ namespace BF2Statistics
             WidthText.Text = Screen.PrimaryScreen.Bounds.Width.ToString();
 
             // Parse params screen
+            LoadProfiles();
             ParseParamString();
 
             // Set tooltips
             SetToolTips();
+        }
+
+        /// <summary>
+        /// Loads all of the BF2 profiles
+        /// </summary>
+        private void LoadProfiles()
+        {
+            string DocumentsFolder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "Battlefield 2", "Profiles"
+            );
+
+            if(Directory.Exists(DocumentsFolder))
+            {
+                string[] dirs = Directory.GetDirectories(DocumentsFolder);
+                foreach (string dir in dirs)
+                {
+                    // Dont load the default profile!
+                    if (dir.ToLower() == "default")
+                        continue;
+
+                    // Load the profile.con
+                    string Pfile = Path.Combine(dir, "profile.con");
+                    if(File.Exists(Pfile))
+                    {
+                        try
+                        {
+                            string[] lines = File.ReadAllLines(Pfile);
+                            foreach (string line in lines)
+                            {
+                                // Look for match. setGamespyNick
+                                var Mtch = Regex.Match(line, @"LocalProfile.setGamespyNick[\s]+""(?<name>[a-z0-9.<>=_-]+)""*", RegexOptions.IgnoreCase);
+                                if (Mtch.Success)
+                                {
+                                    ProfileSelect.Items.Add(Mtch.Groups["name"].Value);
+                                    break;
+                                }
+                            }
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -51,7 +99,6 @@ namespace BF2Statistics
             Tipsy.SetToolTip(WindowedMode, "If checked, Battlfield 2 will be started in windowed mode");
             Tipsy.SetToolTip(CustomRes, "If checked, Battlefield 2 will be forced to use the custom resolution below");
             Tipsy.SetToolTip(AutoLogin, "If checked, the account name below will automatically login");
-            Tipsy.SetToolTip(AccountName, "Account name is Case-Sensitive!");
             Tipsy.SetToolTip(AccountPass, "Password is Case-Sensitive!");
             Tipsy.SetToolTip(JoinServerIp, "To auto join a server, make sure to enable Auto Login!");
             Tipsy.SetToolTip(PlayNow, "If checked, BF2 will automatically uses the 'Play Now' functionality");
@@ -96,7 +143,9 @@ namespace BF2Statistics
                         CustomRes.Checked = true;
                         break;
                     case "playername":
-                        AccountName.Text = Value;
+                        int index = ProfileSelect.Items.IndexOf(Value);
+                        if (index > -1)
+                            ProfileSelect.SelectedIndex = index;
                         AutoLogin.Checked = true;
                         break;
                     case "playerpassword":
@@ -164,8 +213,8 @@ namespace BF2Statistics
             if (AutoLogin.Checked)
             {
                 // Account name
-                if (!String.IsNullOrWhiteSpace(AccountName.Text))
-                    Params.AppendFormat("+playerName {0} ", AccountName.Text);
+                if (ProfileSelect.SelectedIndex > -1)
+                    Params.AppendFormat("+playerName {0} ", ProfileSelect.SelectedItem.ToString());
 
                 // Account Pass
                 if (!String.IsNullOrWhiteSpace(AccountPass.Text))
@@ -201,7 +250,7 @@ namespace BF2Statistics
 
         private void AutoLogin_CheckedChanged(object sender, EventArgs e)
         {
-            AccountName.Enabled = AutoLogin.Checked;
+            ProfileSelect.Enabled = AutoLogin.Checked;
             AccountPass.Enabled = AutoLogin.Checked;
         }
     }

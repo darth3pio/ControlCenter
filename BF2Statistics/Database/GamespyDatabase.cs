@@ -11,6 +11,11 @@ namespace BF2Statistics.Database
     public class GamespyDatabase : DatabaseDriver, IDisposable
     {
         /// <summary>
+        /// Indicates whether the SQL tables exist in this database
+        /// </summary>
+        public bool IsInstalled { get; protected set; }
+
+        /// <summary>
         /// Constructor
         /// </summary>
         public GamespyDatabase() : 
@@ -28,19 +33,15 @@ namespace BF2Statistics.Database
             {
                 Connect();
 
-                // Try to get the database version
+                // Try and get database version
                 try
                 {
-                    if (base.Query("SELECT dbver FROM _version LIMIT 1").Count == 0)
-                        throw new Exception();
+                    IsInstalled = (base.Query("SELECT dbver FROM _version LIMIT 1").Count > 0);
                 }
                 catch
                 {
-                    // If an exception is thrown, table doesnt exist... fresh install
-                    if (DatabaseEngine == DatabaseEngine.Sqlite)
-                        base.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.SQLite.Gamespy.sql"));
-                    else
-                        base.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.MySQL.Gamespy.sql"));
+                    // Table doesnt contain a _version table, then we arent installed
+                    IsInstalled = false;
                 }
             }
             catch (Exception)
@@ -293,6 +294,21 @@ namespace BF2Statistics.Database
         {
             var Row = base.Query("SELECT COUNT(id) AS count FROM accounts");
             return Int32.Parse(Row[0]["count"].ToString());
+        }
+
+        /// <summary>
+        /// Tells the Database to install the Stats tables into the database
+        /// </summary>
+        public void CreateSqlTables()
+        {
+            if (IsInstalled)
+                return;
+
+            // If an exception is thrown, table doesnt exist... fresh install
+            if (DatabaseEngine == DatabaseEngine.Sqlite)
+                base.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.SQLite.Gamespy.sql"));
+            else
+                base.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.MySQL.Gamespy.sql"));
         }
     }
 }

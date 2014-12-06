@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(InstallForm));
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.ClientPath = new System.Windows.Forms.TextBox();
@@ -36,14 +37,26 @@
             this.ServerBtn = new System.Windows.Forms.Button();
             this.CancelBtn = new System.Windows.Forms.Button();
             this.SaveBtn = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.DescLabel = new System.Windows.Forms.Label();
+            this.TitleLabel = new System.Windows.Forms.Label();
+            this.shapeContainer1 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
+            this.lineShape1 = new Microsoft.VisualBasic.PowerPacks.LineShape();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.lineShape2 = new Microsoft.VisualBasic.PowerPacks.LineShape();
+            this.shapeContainer2 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.label1.Location = new System.Drawing.Point(21, 59);
+            this.label1.Location = new System.Drawing.Point(21, 75);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(167, 13);
             this.label1.TabIndex = 0;
@@ -53,15 +66,15 @@
             // 
             this.label2.AutoSize = true;
             this.label2.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.label2.Location = new System.Drawing.Point(21, 119);
+            this.label2.Location = new System.Drawing.Point(21, 130);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(124, 13);
+            this.label2.Size = new System.Drawing.Size(176, 13);
             this.label2.TabIndex = 1;
-            this.label2.Text = "Battlefield 2 Server Path:";
+            this.label2.Text = "Battlefield 2 Dedicated Server Path:";
             // 
             // ClientPath
             // 
-            this.ClientPath.Location = new System.Drawing.Point(22, 80);
+            this.ClientPath.Location = new System.Drawing.Point(22, 96);
             this.ClientPath.Name = "ClientPath";
             this.ClientPath.ReadOnly = true;
             this.ClientPath.Size = new System.Drawing.Size(326, 20);
@@ -69,7 +82,7 @@
             // 
             // ServerPath
             // 
-            this.ServerPath.Location = new System.Drawing.Point(22, 145);
+            this.ServerPath.Location = new System.Drawing.Point(22, 156);
             this.ServerPath.Name = "ServerPath";
             this.ServerPath.ReadOnly = true;
             this.ServerPath.Size = new System.Drawing.Size(326, 20);
@@ -77,7 +90,7 @@
             // 
             // ClientBtn
             // 
-            this.ClientBtn.Location = new System.Drawing.Point(354, 77);
+            this.ClientBtn.Location = new System.Drawing.Point(354, 93);
             this.ClientBtn.Name = "ClientBtn";
             this.ClientBtn.Size = new System.Drawing.Size(90, 25);
             this.ClientBtn.TabIndex = 4;
@@ -87,7 +100,7 @@
             // 
             // ServerBtn
             // 
-            this.ServerBtn.Location = new System.Drawing.Point(354, 142);
+            this.ServerBtn.Location = new System.Drawing.Point(354, 153);
             this.ServerBtn.Name = "ServerBtn";
             this.ServerBtn.Size = new System.Drawing.Size(90, 25);
             this.ServerBtn.TabIndex = 5;
@@ -98,56 +111,154 @@
             // CancelBtn
             // 
             this.CancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.CancelBtn.Location = new System.Drawing.Point(134, 191);
+            this.CancelBtn.Location = new System.Drawing.Point(129, 280);
             this.CancelBtn.Name = "CancelBtn";
-            this.CancelBtn.Size = new System.Drawing.Size(100, 32);
+            this.CancelBtn.Size = new System.Drawing.Size(100, 29);
             this.CancelBtn.TabIndex = 6;
             this.CancelBtn.Text = "Cancel";
             this.CancelBtn.UseVisualStyleBackColor = true;
             // 
             // SaveBtn
             // 
-            this.SaveBtn.Location = new System.Drawing.Point(240, 191);
+            this.SaveBtn.Location = new System.Drawing.Point(235, 280);
             this.SaveBtn.Name = "SaveBtn";
-            this.SaveBtn.Size = new System.Drawing.Size(100, 32);
+            this.SaveBtn.Size = new System.Drawing.Size(100, 29);
             this.SaveBtn.TabIndex = 7;
             this.SaveBtn.Text = "Save";
             this.SaveBtn.UseVisualStyleBackColor = true;
             this.SaveBtn.Click += new System.EventHandler(this.SaveBtn_Click);
             // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.SystemColors.Window;
+            this.panel1.Controls.Add(this.DescLabel);
+            this.panel1.Controls.Add(this.TitleLabel);
+            this.panel1.Controls.Add(this.pictureBox1);
+            this.panel1.Controls.Add(this.shapeContainer1);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(464, 69);
+            this.panel1.TabIndex = 9;
+            // 
+            // DescLabel
+            // 
+            this.DescLabel.AutoSize = true;
+            this.DescLabel.Location = new System.Drawing.Point(34, 39);
+            this.DescLabel.Name = "DescLabel";
+            this.DescLabel.Size = new System.Drawing.Size(312, 13);
+            this.DescLabel.TabIndex = 2;
+            this.DescLabel.Text = "Installation path of your Battlefield 2 Dedicated server is required.";
+            // 
+            // TitleLabel
+            // 
+            this.TitleLabel.AutoSize = true;
+            this.TitleLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TitleLabel.Location = new System.Drawing.Point(24, 21);
+            this.TitleLabel.Name = "TitleLabel";
+            this.TitleLabel.Size = new System.Drawing.Size(160, 13);
+            this.TitleLabel.TabIndex = 1;
+            this.TitleLabel.Text = "BF2Statistics Configuration";
+            // 
+            // shapeContainer1
+            // 
+            this.shapeContainer1.Location = new System.Drawing.Point(0, 0);
+            this.shapeContainer1.Margin = new System.Windows.Forms.Padding(0);
+            this.shapeContainer1.Name = "shapeContainer1";
+            this.shapeContainer1.Shapes.AddRange(new Microsoft.VisualBasic.PowerPacks.Shape[] {
+            this.lineShape1});
+            this.shapeContainer1.Size = new System.Drawing.Size(464, 69);
+            this.shapeContainer1.TabIndex = 3;
+            this.shapeContainer1.TabStop = false;
+            // 
+            // lineShape1
+            // 
+            this.lineShape1.BorderColor = System.Drawing.SystemColors.InactiveCaption;
+            this.lineShape1.Name = "lineShape1";
+            this.lineShape1.X1 = 0;
+            this.lineShape1.X2 = 464;
+            this.lineShape1.Y1 = 66;
+            this.lineShape1.Y2 = 66;
+            // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.SystemColors.Window;
+            this.panel2.Controls.Add(this.label3);
+            this.panel2.Controls.Add(this.label1);
+            this.panel2.Controls.Add(this.label2);
+            this.panel2.Controls.Add(this.ClientPath);
+            this.panel2.Controls.Add(this.ServerPath);
+            this.panel2.Controls.Add(this.ServerBtn);
+            this.panel2.Controls.Add(this.ClientBtn);
+            this.panel2.Controls.Add(this.shapeContainer2);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel2.Location = new System.Drawing.Point(0, 69);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(464, 198);
+            this.panel2.TabIndex = 10;
+            // 
+            // lineShape2
+            // 
+            this.lineShape2.BorderColor = System.Drawing.SystemColors.InactiveCaption;
+            this.lineShape2.Name = "lineShape2";
+            this.lineShape2.X1 = 0;
+            this.lineShape2.X2 = 466;
+            this.lineShape2.Y1 = 196;
+            this.lineShape2.Y2 = 196;
+            // 
+            // shapeContainer2
+            // 
+            this.shapeContainer2.Location = new System.Drawing.Point(0, 0);
+            this.shapeContainer2.Margin = new System.Windows.Forms.Padding(0);
+            this.shapeContainer2.Name = "shapeContainer2";
+            this.shapeContainer2.Shapes.AddRange(new Microsoft.VisualBasic.PowerPacks.Shape[] {
+            this.lineShape2});
+            this.shapeContainer2.Size = new System.Drawing.Size(464, 198);
+            this.shapeContainer2.TabIndex = 6;
+            this.shapeContainer2.TabStop = false;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = global::BF2Statistics.Properties.Resources.Logo;
+            this.pictureBox1.Location = new System.Drawing.Point(398, 12);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(48, 48);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 0;
+            this.pictureBox1.TabStop = false;
+            // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(23, 18);
+            this.label3.Location = new System.Drawing.Point(21, 13);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(393, 13);
-            this.label3.TabIndex = 8;
-            this.label3.Text = "This program requires paths to your BF2 Client, and Dedicated server to be saved." +
-                "";
+            this.label3.Size = new System.Drawing.Size(408, 39);
+            this.label3.TabIndex = 7;
+            this.label3.Text = resources.GetString("label3.Text");
             // 
             // InstallForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.Window;
-            this.ClientSize = new System.Drawing.Size(464, 232);
-            this.Controls.Add(this.label3);
+            this.BackColor = System.Drawing.SystemColors.Control;
+            this.ClientSize = new System.Drawing.Size(464, 322);
+            this.Controls.Add(this.panel2);
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.SaveBtn);
             this.Controls.Add(this.CancelBtn);
-            this.Controls.Add(this.ServerBtn);
-            this.Controls.Add(this.ClientBtn);
-            this.Controls.Add(this.ServerPath);
-            this.Controls.Add(this.ClientPath);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "InstallForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Client and Server Path Setup";
+            this.Text = "BF2Statistics Setup";
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -161,6 +272,15 @@
         private System.Windows.Forms.Button ServerBtn;
         private System.Windows.Forms.Button CancelBtn;
         private System.Windows.Forms.Button SaveBtn;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Label DescLabel;
+        private System.Windows.Forms.Label TitleLabel;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private Microsoft.VisualBasic.PowerPacks.ShapeContainer shapeContainer1;
+        private Microsoft.VisualBasic.PowerPacks.LineShape lineShape1;
+        private System.Windows.Forms.Panel panel2;
+        private Microsoft.VisualBasic.PowerPacks.ShapeContainer shapeContainer2;
+        private Microsoft.VisualBasic.PowerPacks.LineShape lineShape2;
         private System.Windows.Forms.Label label3;
     }
 }

@@ -46,10 +46,10 @@
             this.country = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.session = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lastip = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.OnlineAccountsCheckBox = new System.Windows.Forms.CheckBox();
-            this.label3 = new System.Windows.Forms.Label();
             this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuItemDelete = new System.Windows.Forms.ToolStripMenuItem();
+            this.OnlineAccountsCheckBox = new System.Windows.Forms.CheckBox();
+            this.label3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.PageNumber)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DataTable)).BeginInit();
             this.contextMenu.SuspendLayout();
@@ -244,6 +244,21 @@
             this.lastip.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
             this.lastip.Width = 170;
             // 
+            // contextMenu
+            // 
+            this.contextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuItemDelete});
+            this.contextMenu.Name = "contextMenu";
+            this.contextMenu.Size = new System.Drawing.Size(156, 26);
+            this.contextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenu_Opening);
+            // 
+            // menuItemDelete
+            // 
+            this.menuItemDelete.Name = "menuItemDelete";
+            this.menuItemDelete.Size = new System.Drawing.Size(155, 22);
+            this.menuItemDelete.Text = "Delete Account";
+            this.menuItemDelete.Click += new System.EventHandler(this.menuItemDelete_Click);
+            // 
             // OnlineAccountsCheckBox
             // 
             this.OnlineAccountsCheckBox.AutoSize = true;
@@ -264,21 +279,6 @@
             this.label3.TabIndex = 23;
             this.label3.Text = "Below is a list of all the gamespy accounts in your database. Select an account t" +
                 "o edit or view by double clicking on a player below";
-            // 
-            // contextMenu
-            // 
-            this.contextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.menuItemDelete});
-            this.contextMenu.Name = "contextMenu";
-            this.contextMenu.Size = new System.Drawing.Size(156, 26);
-            this.contextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenu_Opening);
-            // 
-            // menuItemDelete
-            // 
-            this.menuItemDelete.Name = "menuItemDelete";
-            this.menuItemDelete.Size = new System.Drawing.Size(155, 22);
-            this.menuItemDelete.Text = "Delete Account";
-            this.menuItemDelete.Click += new System.EventHandler(this.menuItemDelete_Click);
             // 
             // AccountListForm
             // 

@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ArmyData>
+  <!--
+    This is the list of army's that will show under Army Data. To remove an 
+    army from being displayed on the player page, simply comment it out. 
+    The army ids that are commented out by default are from mods such as POE and AIX.
+    
+    ** All the army's listed here are the only ones supported in the database! **
+    ** Donot change the army ID attribute's unless you want shit to break! **
+    
+    Any changes made to this file will require the Http Server be restarted if running to take affect.
+  -->
+  <armies>
+    <army id="0">USMC</army>
+    <army id="1">MEC</army>
+    <army id="2">PLA</army>
+    <army id="3">SEALs</army>
+    <army id="4">SAS</army>
+    <army id="5">SPETZ</army>
+    <army id="6">MECSF</army>
+    <army id="7">Rebels</army>
+    <army id="8">Insurgents</army>
+    <army id="9">European Union</army>
+    <!--
+    <army id="10">Germany</army>
+    <army id="11">Ukraine</army>
+    <army id="12">United Nations</army> 
+    <army id="13">Canada</army>
+    -->
+  </armies>
+</ArmyData>

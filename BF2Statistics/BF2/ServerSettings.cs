@@ -38,7 +38,7 @@ namespace BF2Statistics
             // Try to open the settings file with READ/WRITE access
             try
             {
-                using (Stream Str = SettingsFile.Open(FileMode.Open, FileAccess.ReadWrite))
+                using (Stream Str = SettingsFile.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
                 using (StreamReader Rdr = new StreamReader(Str))
                     contents = Rdr.ReadToEnd();
             }

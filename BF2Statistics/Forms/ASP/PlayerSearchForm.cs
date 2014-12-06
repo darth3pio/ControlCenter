@@ -10,7 +10,7 @@ using System.Data.Common;
 using System.IO;
 using System.Xml;
 using System.Reflection;
-using BF2Statistics.ASP;
+using BF2Statistics.Web;
 using BF2Statistics.Database;
 using BF2Statistics.Database.QueryBuilder;
 
@@ -42,6 +42,7 @@ namespace BF2Statistics
         /// Sorted column sort direction
         /// </summary>
         private ListSortDirection SortDir = ListSortDirection.Ascending;
+
         /// <summary>
         /// Current executing Assembly
         /// </summary>
@@ -61,7 +62,7 @@ namespace BF2Statistics
             }
             catch (DbConnectException Ex)
             {
-                ASPServer.Stop();
+                HttpServer.Stop();
                 ExceptionForm.ShowDbConnectError(Ex);
                 Load += (s, e) => Close(); // Close form
                 return;

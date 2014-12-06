@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using System.Data.Common;
 using System.Reflection;
 using System.IO;
-using BF2Statistics.ASP;
+using BF2Statistics.Web;
 using BF2Statistics.Database;
 using BF2Statistics.Database.QueryBuilder;
 using BF2Statistics.Utilities;
@@ -61,7 +61,7 @@ namespace BF2Statistics
             catch (DbConnectException Ex)
             {
                 ExceptionForm.ShowDbConnectError(Ex);
-                ASPServer.Stop();
+                HttpServer.Stop();
                 Load += (s, e) => Close(); // Close form
                 return;
             }
@@ -156,7 +156,7 @@ namespace BF2Statistics
             }
             catch (DbConnectException Ex)
             {
-                ASPServer.Stop();
+                HttpServer.Stop();
                 ExceptionForm.ShowDbConnectError(Ex);
                 this.Close();
             }
@@ -187,7 +187,7 @@ namespace BF2Statistics
                 }
                 catch (DbConnectException Ex)
                 {
-                    ASPServer.Stop();
+                    HttpServer.Stop();
                     ExceptionForm.ShowDbConnectError(Ex);
                     this.Close();
                 }
@@ -219,7 +219,7 @@ namespace BF2Statistics
                 }
                 catch (DbConnectException Ex)
                 {
-                    ASPServer.Stop();
+                    HttpServer.Stop();
                     ExceptionForm.ShowDbConnectError(Ex);
                 }
                 catch (Exception E)
@@ -310,7 +310,7 @@ namespace BF2Statistics
             }
             catch (DbConnectException Ex)
             {
-                ASPServer.Stop();
+                HttpServer.Stop();
                 ExceptionForm.ShowDbConnectError(Ex);
                 return;
             }
@@ -371,7 +371,7 @@ namespace BF2Statistics
                 }
                 catch (DbConnectException Ex)
                 {
-                    ASPServer.Stop();
+                    HttpServer.Stop();
                     ExceptionForm.ShowDbConnectError(Ex);
                     TaskForm.CloseForm();
                     this.Close();

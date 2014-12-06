@@ -8,7 +8,7 @@ using System.Net;
 using System.Xml;
 using System.Xml.Linq;
 using System.ComponentModel;
-using BF2Statistics.ASP;
+using BF2Statistics.Web.ASP;
 using BF2Statistics.Database.QueryBuilder;
 using System.Data.SQLite;
 
@@ -57,6 +57,11 @@ namespace BF2Statistics.Database
         };
 
         /// <summary>
+        /// Indicates whether the SQL tables exist in this database
+        /// </summary>
+        public bool IsInstalled { get; protected set; }
+
+        /// <summary>
         /// Constructor
         /// </summary>
         public StatsDatabase():  
@@ -78,16 +83,12 @@ namespace BF2Statistics.Database
                 // Try and get database version
                 try
                 {
-                    if (base.Query("SELECT dbver FROM _version LIMIT 1").Count == 0)
-                        throw new Exception(); // Force insert of IP2Nation
+                    IsInstalled = (base.Query("SELECT dbver FROM _version LIMIT 1").Count > 0);
                 }
                 catch
                 {
-                    // Table doesnt contain a _version table, so run the createTables.sql
-                    if (DatabaseEngine == DatabaseEngine.Sqlite)
-                        CreateSqliteTables();
-                    else
-                        CreateMysqlTables();
+                    // Table doesnt contain a _version table, then we arent installed
+                    IsInstalled = false;
                 }
             }
             catch (Exception)
@@ -606,12 +607,25 @@ namespace BF2Statistics.Database
         }
 
         /// <summary>
+        /// Tells the Database to install the Stats tables into the database
+        /// </summary>
+        public void CreateSqlTables()
+        {
+            if (IsInstalled)
+                return;
+
+            if (base.DatabaseEngine == DatabaseEngine.Mysql)
+                CreateMysqlTables();
+            else
+                CreateSqliteTables();
+        }
+
+        /// <summary>
         /// On a new Sqlite database, this method will create the default tables
         /// </summary>
         private void CreateSqliteTables()
         {
             // Show Progress Form
-            MainForm.Disable();
             bool TaskFormWasOpen = TaskForm.IsOpen;
             if(!TaskFormWasOpen)
                 TaskForm.Show(MainForm.Instance, "Create Database", "Creating Bf2Stats SQLite Database...", false);
@@ -624,26 +638,28 @@ namespace BF2Statistics.Database
             // Insert Ip2Nation data
             TaskForm.UpdateStatus("Inserting Ip2Nation Data");
             SQL = Utils.GetResourceAsString("BF2Statistics.SQL.Ip2nation.sql");
-            DbTransaction Transaction = BeginTransaction();
-            base.Execute(SQL);
 
-            // Attempt to do the transaction
-            try
+            // Use a transaction to greatly speed this up
+            using (DbTransaction Transaction = BeginTransaction())
             {
-                Transaction.Commit();
-            }
-            catch
-            {
-                Transaction.Rollback();
-                throw;
-            }
-            finally
-            {
-                // Close update progress form
-                if (!TaskFormWasOpen) 
-                    TaskForm.CloseForm();
-                MainForm.Enable();
-                Transaction.Dispose();
+                base.Execute(SQL);
+
+                // Attempt to do the transaction
+                try
+                {
+                    Transaction.Commit();
+                }
+                catch
+                {
+                    Transaction.Rollback();
+                    throw;
+                }
+                finally
+                {
+                    // Close update progress form
+                    if (!TaskFormWasOpen)
+                        TaskForm.CloseForm();
+                }
             }
         }
 
@@ -653,70 +669,69 @@ namespace BF2Statistics.Database
         private void CreateMysqlTables()
         {
             // Show Progress Form
-            MainForm.Disable();
             bool TaskFormWasOpen = TaskForm.IsOpen;
             if (!TaskFormWasOpen)
                 TaskForm.Show(MainForm.Instance, "Create Database", "Creating Bf2Stats Mysql Tables...", false);
 
-            // To prevent packet size errors
-            base.Execute("SET GLOBAL max_allowed_packet=51200");
-
-            // Start Transaction
-            DbTransaction Transaction = BeginTransaction();
+            // Update status
             TaskForm.UpdateStatus("Creating Stats Tables");
 
             // Gets Table Queries
             string[] SQL = Utils.GetResourceFileLines("BF2Statistics.SQL.MySQL.Stats.sql");
             List<string> Queries = Utilities.Sql.ExtractQueries(SQL);
 
-            // Attempt to do the transaction
-            try
+            // Start Transaction
+            using (DbTransaction Transaction = BeginTransaction())
             {
-                // Create Tables
-                foreach (string Query in Queries)
-                    base.Execute(Query);
+                // Attempt to do the transaction
+                try
+                {
+                    // Create Tables
+                    foreach (string Query in Queries)
+                        base.Execute(Query);
 
-                // Commit
-                Transaction.Commit();
-            }
-            catch
-            {
-                Transaction.Rollback();
-                if (!TaskFormWasOpen)
-                    TaskForm.CloseForm();
-                MainForm.Enable();
-                Transaction.Dispose();
-                throw;
+                    // Commit
+                    Transaction.Commit();
+                }
+                catch
+                {
+                    Transaction.Rollback();
+                    if (!TaskFormWasOpen)
+                        TaskForm.CloseForm();
+
+                    throw;
+                }
             }
 
-            // Insert Ip2Nation data
-            Transaction = BeginTransaction();
+            // Update status
             TaskForm.UpdateStatus("Inserting Ip2Nation Data");
             SQL = Utils.GetResourceFileLines("BF2Statistics.SQL.Ip2nation.sql");
             Queries = Utilities.Sql.ExtractQueries(SQL);
 
-            // Attempt to do the transaction
-            try
+            // Insert Ip2Nation data
+            using (DbTransaction Transaction = BeginTransaction())
             {
-                // Insert rows
-                foreach (string Query in Queries)
-                    base.Execute(Query);
+                // Attempt to do the transaction
+                try
+                {
+                    // Insert rows
+                    foreach (string Query in Queries)
+                        base.Execute(Query);
 
-                // Commit
-                Transaction.Commit();
-            }
-            catch
-            {
-                Transaction.Rollback();
-                throw;
-            }
-            finally
-            {
-                // Close update progress form
-                if (!TaskFormWasOpen) 
-                    TaskForm.CloseForm();
-                MainForm.Enable();
-                Transaction.Dispose();
+                    // Commit
+                    Transaction.Commit();
+                }
+                catch
+                {
+                    Transaction.Rollback();
+                    throw;
+                }
+                finally
+                {
+                    // Close update progress form
+                    if (!TaskFormWasOpen)
+                        TaskForm.CloseForm();
+                }
             }
         }
     }

@@ -12,6 +12,16 @@ namespace BF2Statistics
     public static class Utils
     {
         /// <summary>
+        /// Returns an embedded resource's stream
+        /// </summary>
+        /// <param name="ResourceName"></param>
+        /// <returns></returns>
+        public static Stream GetResource(string ResourceName)
+        {
+            return Assembly.GetExecutingAssembly().GetManifestResourceStream(ResourceName);
+        }
+
+        /// <summary>
         /// Gets the string contents of an embedded resource
         /// </summary>
         /// <param name="ResourceName"></param>
