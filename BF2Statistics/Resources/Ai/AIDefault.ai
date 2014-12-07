@@ -1,0 +1,20 @@
+﻿rem BF2Statistics Formatted
+echo *****************************************************************************************
+echo AIDefault.ai ****************************************************************************
+echo *****************************************************************************************
+
+aiSettings.setNSides 2
+aiSettings.setAutoSpawnBots 1
+
+aiSettings.overrideMenuSettings 0
+aiSettings.setMaxNBots 32
+aiSettings.maxBotsIncludeHumans 0
+aiSettings.setBotSkill 0.70
+
+run BotNames.ai
+
+aiSettings.setInformationGridDimension 48
+
+run AIPathFinding.ai
+
+rem EOF

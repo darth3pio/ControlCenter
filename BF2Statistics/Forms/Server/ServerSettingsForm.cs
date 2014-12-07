@@ -33,6 +33,8 @@ namespace BF2Statistics
 
         private bool OrigForced;
 
+        private bool RemPresent = false;
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -168,6 +170,8 @@ namespace BF2Statistics
             try
             {
                 AiDefaultText = File.ReadAllText(Path.Combine(MainForm.SelectedMod.RootPath, "ai", "AiDefault.ai"));
+                if (!AiDefaultText.StartsWith("rem BF2Statistics Formatted"))
+                    AiDefaultText = Utils.GetResourceAsString("BF2Statistics.Resources.Ai.AIDefault.ai");
             }
             catch (Exception e)
             {

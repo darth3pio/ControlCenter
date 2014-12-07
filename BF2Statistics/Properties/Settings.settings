@@ -14,41 +14,8 @@
     <Setting Name="GamespyDBEngine" Type="System.String" Scope="User">
       <Value Profile="(Default)">Sqlite</Value>
     </Setting>
-    <Setting Name="GamespyDBHost" Type="System.String" Scope="User">
-      <Value Profile="(Default)">localhost</Value>
-    </Setting>
-    <Setting Name="GamespyDBPort" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">3306</Value>
-    </Setting>
-    <Setting Name="GamespyDBUser" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="GamespyDBPass" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="GamespyDBName" Type="System.String" Scope="User">
-      <Value Profile="(Default)">gamespy</Value>
-    </Setting>
-    <Setting Name="DebugStream" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="StatsDBEngine" Type="System.String" Scope="User">
       <Value Profile="(Default)">Sqlite</Value>
-    </Setting>
-    <Setting Name="StatsDBHost" Type="System.String" Scope="User">
-      <Value Profile="(Default)">localhost</Value>
-    </Setting>
-    <Setting Name="StatsDBPort" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">3306</Value>
-    </Setting>
-    <Setting Name="StatsDBUser" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="StatsDBPass" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="StatsDBName" Type="System.String" Scope="User">
-      <Value Profile="(Default)">bf2stats</Value>
     </Setting>
     <Setting Name="ASP_DefaultPID" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">29000000</Value>
@@ -127,6 +94,12 @@
     </Setting>
     <Setting Name="BF2S_Enabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="StatsDBConnectionString" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="GamespyDBConnectionString" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

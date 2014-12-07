@@ -168,6 +168,7 @@
             this.Bf2webAddress = new System.Windows.Forms.TextBox();
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.label19 = new System.Windows.Forms.Label();
             this.ReportBugBtn = new System.Windows.Forms.Button();
             this.ChkUpdateBtn = new System.Windows.Forms.Button();
             this.OpenRootBtn = new System.Windows.Forms.Button();
@@ -179,7 +180,6 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.NotificationIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.label19 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -1717,6 +1717,15 @@
             this.groupBox5.TabIndex = 9;
             this.groupBox5.TabStop = false;
             // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(171, 298);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(228, 13);
+            this.label19.TabIndex = 14;
+            this.label19.Text = "A Gihub account is required to post new issues";
+            // 
             // ReportBugBtn
             // 
             this.ReportBugBtn.Location = new System.Drawing.Point(135, 262);
@@ -1808,7 +1817,7 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(300, 13);
             this.textBox1.TabIndex = 5;
-            this.textBox1.Text = "Battlefield 2 Statistics Control Center v1.9.0";
+            this.textBox1.Text = "Battlefield 2 Statistics Control Center v1.9.1";
             // 
             // NotificationIcon
             // 
@@ -1825,15 +1834,6 @@
             this.pictureBox1.Size = new System.Drawing.Size(586, 80);
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
-            // 
-            // label19
-            // 
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(171, 298);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(228, 13);
-            this.label19.TabIndex = 14;
-            this.label19.Text = "A Gihub account is required to post new issues";
             // 
             // MainForm
             // 

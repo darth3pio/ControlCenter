@@ -73,8 +73,8 @@ namespace BF2Statistics.ASP.StatsProcessor
             this.IsCentralUpdate = (Data[Data.Length - 2] == "cdb_update" && Data[Data.Length - 1] == "1");
 
             // Setup our data dictionary's
-            Dictionary<string, string> StandardData = new Dictionary<string, string>();
-            Dictionary<string, string> PlayerData = new Dictionary<string, string>();
+            NiceDictionary<string, string> StandardData = new NiceDictionary<string, string>();
+            NiceDictionary<string, string> PlayerData = new NiceDictionary<string, string>();
             Dictionary<string, string> KillData = new Dictionary<string, string>();
 
             // Wrap parsing Key/Value snapshot data in a try block!
@@ -429,7 +429,7 @@ namespace BF2Statistics.ASP.StatsProcessor
                     Log(String.Format("Processing Army Data ({0})", Player.Pid), LogLevel.Notice);
 
                     // Update player army times
-                    Rows = Driver.Query("SELECT time0 FROM army WHERE id=" + Player.Pid);
+                    Rows = Driver.Query("SELECT * FROM army WHERE id=" + Player.Pid);
                     if (Rows.Count == 0)
                     {
                         // Build query

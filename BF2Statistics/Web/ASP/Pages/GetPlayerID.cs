@@ -2,33 +2,13 @@
 using System.Text;
 using System.Collections.Generic;
 using System.Data.Common;
+using BF2Statistics.ASP;
 using BF2Statistics.Database;
 
 namespace BF2Statistics.Web.ASP
 {
     class GetPlayerID
     {
-        /// <summary>
-        /// To prevent the chance of 2 peeps getting the same PID
-        /// we will just load this on startup
-        /// </summary>
-        public static int LowestPid;
-
-        /// <summary>
-        /// Grab lowest PID on startup
-        /// </summary>
-        static GetPlayerID()
-        {
-            // Get the lowest Offline PID from the database
-            using (StatsDatabase Driver = new StatsDatabase())
-            {
-                int DefaultPid = MainForm.Config.ASP_DefaultPID;
-                var Rows = Driver.Query(String.Format("SELECT COALESCE(MIN(id), {0}) AS min FROM player", DefaultPid));
-                int Lowest = Int32.Parse(Rows[0]["min"].ToString());
-                LowestPid = (Lowest > DefaultPid) ? DefaultPid : Lowest -1;
-            }
-        }
-
         /// <summary>
         /// This request provides details on a particular players rank, and
         /// whether or not to show the user a promotion/demotion announcement
@@ -52,7 +32,7 @@ namespace BF2Statistics.Web.ASP
 
             // Setup Params
             if (QueryString.ContainsKey("nick"))
-                PlayerNick = QueryString["nick"].Replace("%20", " ");
+                PlayerNick = Uri.UnescapeDataString(QueryString["nick"].Replace("%20", " "));
             if (QueryString.ContainsKey("ai"))
                 Int32.TryParse(QueryString["ai"], out IsAI);
             if (QueryString.ContainsKey("playerlist"))
@@ -67,8 +47,8 @@ namespace BF2Statistics.Web.ASP
                 Rows = Driver.Query("SELECT id FROM player WHERE name = @P0 LIMIT 1", PlayerNick);
                 if (Rows.Count == 0)
                 {
-                    // Grab new Player ID
-                    Pid = LowestPid--;
+                    // Grab new Player ID using thread safe methods
+                    Pid = (IsAI > 0) ? PidManager.GenerateNewAIPid() : PidManager.GenerateNewPlayerPid();
 
                     // Create New Player Unlock Data
                     StringBuilder Query = new StringBuilder("INSERT INTO unlocks VALUES ");

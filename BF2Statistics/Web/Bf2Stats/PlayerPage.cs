@@ -288,7 +288,7 @@ namespace BF2Statistics.Web.Bf2Stats
 
             // Fetch Player
             Int32.TryParse(Client.Request.QueryString["pid"], out Pid);
-            List<Dictionary<string, object>> Rows = Database.Query("SELECT * FROM player WHERE id=@P0 AND score > 50", Pid);
+            List<Dictionary<string, object>> Rows = Database.Query("SELECT * FROM player WHERE id=@P0", Pid);
 
             // Bad pid or player doesnt exist
             if (Pid == 0 || Rows.Count == 0)

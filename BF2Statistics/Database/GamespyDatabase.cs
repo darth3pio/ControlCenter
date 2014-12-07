@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BF2Statistics.ASP;
 
 namespace BF2Statistics.Database
 {
@@ -21,11 +22,7 @@ namespace BF2Statistics.Database
         public GamespyDatabase() : 
             base(
                 MainForm.Config.GamespyDBEngine,
-                MainForm.Config.GamespyDBHost,
-                MainForm.Config.GamespyDBPort,
-                MainForm.Config.GamespyDBName,
-                MainForm.Config.GamespyDBUser,
-                MainForm.Config.GamespyDBPass
+                MainForm.Config.GamespyDBConnectionString
             )
         {
             // Try and Reconnect
@@ -157,12 +154,12 @@ namespace BF2Statistics.Database
                 {
                     // NOTE: online account names in the stats DB start with a single space!
                     var Row = Db.Query("SELECT id FROM player WHERE upper(name) = upper(@P0)", " " + Nick);
-                    Pid = (Row.Count == 0) ? GenerateAccountId() : Int32.Parse(Row[0]["id"].ToString());
+                    Pid = (Row.Count == 0) ? PidManager.GenerateNewPlayerPid() : Int32.Parse(Row[0]["id"].ToString());
                 }
             }
             catch
             {
-                Pid = GenerateAccountId();
+                Pid = PidManager.GenerateNewPlayerPid();
             }
 
             // Create the user in the database
@@ -171,17 +168,6 @@ namespace BF2Statistics.Database
             );
 
             return (Rows != 0);
-        }
-
-        /// <summary>
-        /// Generates a new Account Id
-        /// </summary>
-        /// <returns></returns>
-        private int GenerateAccountId()
-        {
-            var Row = base.Query("SELECT COALESCE(MAX(id), 500000000) AS max FROM accounts");
-            int max = Int32.Parse(Row[0]["max"].ToString()) + 1;
-            return (max < 500000000) ? 500000000 : max;
         }
 
         /// <summary>

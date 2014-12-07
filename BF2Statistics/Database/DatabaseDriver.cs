@@ -65,31 +65,19 @@ namespace BF2Statistics.Database
         /// <param name="DatabaseName">The name of the database</param>
         /// <param name="User">A username, with database privliages</param>
         /// <param name="Pass">The password to the User</param>
-        public DatabaseDriver(string Engine, string Host, int Port, string DatabaseName, string User, string Pass)
+        public DatabaseDriver(string Engine, string ConnectionString)
         {
             // Set class variables, and create a new connection builder
             this.DatabaseEngine = GetDatabaseEngine(Engine);
-            DbConnectionStringBuilder Builder;
 
             // Establish the connection
             if (this.DatabaseEngine == DatabaseEngine.Sqlite)
             {
-                // Create the connection
-                Builder = new SQLiteConnectionStringBuilder();
-                Builder.Add("Data Source", Path.Combine(Program.RootPath, DatabaseName + ".sqlite3"));
-                Connection = new SQLiteConnection(Builder.ConnectionString);
+                Connection = new SQLiteConnection(ConnectionString);
             }
             else if (this.DatabaseEngine == DatabaseEngine.Mysql)
             {
-                // Create the connection
-                Builder = new MySqlConnectionStringBuilder();
-                Builder.Add("Server", Host);
-                Builder.Add("Port", Port);
-                Builder.Add("User ID", User);
-                Builder.Add("Password", Pass);
-                Builder.Add("Database", DatabaseName);
-                Builder.Add("Convert Zero Datetime", "true");
-                Connection = new MySqlConnection(Builder.ConnectionString);
+                Connection = new MySqlConnection(ConnectionString);
             }
             else
             {
@@ -239,7 +227,7 @@ namespace BF2Statistics.Database
                         // Add each row to the rows list
                         while (Reader.Read())
                         {
-                            Dictionary<string, object> Row = new Dictionary<string, object>(Reader.FieldCount);
+                            NiceDictionary<string, object> Row = new NiceDictionary<string, object>(Reader.FieldCount);
                             for (int i = 0; i < Reader.FieldCount; ++i)
                                 Row.Add(Reader.GetName(i), Reader.GetValue(i));
 

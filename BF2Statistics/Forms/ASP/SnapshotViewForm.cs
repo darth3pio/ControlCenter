@@ -167,6 +167,8 @@ namespace BF2Statistics
                 Row.SubItems.Add(String.Format("There are no {0}processed snapshots!", (ViewSelect.SelectedIndex == 1) ? "un" : ""));
                 SnapshotView.Items.Add(Row);
             }
+            else
+                SnapshotView.CheckBoxes = true;
 
             SnapshotView.Update();
         }
@@ -289,6 +291,44 @@ namespace BF2Statistics
             }
 
             BuildList();
+        }
+
+        private void DeleteBtn_Click(object sender, EventArgs e)
+        {
+            // List of files to process
+            List<string> Files = new List<string>();
+            foreach (ListViewItem I in SnapshotView.Items)
+            {
+                if (I.Checked)
+                    Files.Add(I.SubItems[1].Text);
+            }
+
+            // Make sure we have a snapshot selected
+            if (Files.Count == 0)
+            {
+                MessageBox.Show("You must select at least 1 snapshot to process.", "Error");
+                return;
+            }
+            else
+            {
+                DialogResult Res = MessageBox.Show("Are you sure you want to delete these snapshots? This process cannot be reversed!", 
+                    "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question
+                );
+
+                if (Res == DialogResult.No)
+                    return;
+
+                foreach (string Name in Files)
+                {
+                    string fName = (ViewSelect.SelectedIndex == 0)
+                        ? Path.Combine(Paths.SnapshotTempPath, Name)
+                        : Path.Combine(Paths.SnapshotProcPath, Name);
+
+                    File.Delete(fName);
+                }
+
+                BuildList();
+            }
         }
     }
 }

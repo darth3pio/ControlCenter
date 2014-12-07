@@ -73,78 +73,6 @@ namespace BF2Statistics.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("localhost")]
-        public string GamespyDBHost {
-            get {
-                return ((string)(this["GamespyDBHost"]));
-            }
-            set {
-                this["GamespyDBHost"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3306")]
-        public int GamespyDBPort {
-            get {
-                return ((int)(this["GamespyDBPort"]));
-            }
-            set {
-                this["GamespyDBPort"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string GamespyDBUser {
-            get {
-                return ((string)(this["GamespyDBUser"]));
-            }
-            set {
-                this["GamespyDBUser"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string GamespyDBPass {
-            get {
-                return ((string)(this["GamespyDBPass"]));
-            }
-            set {
-                this["GamespyDBPass"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("gamespy")]
-        public string GamespyDBName {
-            get {
-                return ((string)(this["GamespyDBName"]));
-            }
-            set {
-                this["GamespyDBName"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool DebugStream {
-            get {
-                return ((bool)(this["DebugStream"]));
-            }
-            set {
-                this["DebugStream"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Sqlite")]
         public string StatsDBEngine {
             get {
@@ -152,66 +80,6 @@ namespace BF2Statistics.Properties {
             }
             set {
                 this["StatsDBEngine"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("localhost")]
-        public string StatsDBHost {
-            get {
-                return ((string)(this["StatsDBHost"]));
-            }
-            set {
-                this["StatsDBHost"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3306")]
-        public int StatsDBPort {
-            get {
-                return ((int)(this["StatsDBPort"]));
-            }
-            set {
-                this["StatsDBPort"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string StatsDBUser {
-            get {
-                return ((string)(this["StatsDBUser"]));
-            }
-            set {
-                this["StatsDBUser"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string StatsDBPass {
-            get {
-                return ((string)(this["StatsDBPass"]));
-            }
-            set {
-                this["StatsDBPass"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("bf2stats")]
-        public string StatsDBName {
-            get {
-                return ((string)(this["StatsDBName"]));
-            }
-            set {
-                this["StatsDBName"] = value;
             }
         }
         
@@ -524,6 +392,30 @@ namespace BF2Statistics.Properties {
             }
             set {
                 this["BF2S_Enabled"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string StatsDBConnectionString {
+            get {
+                return ((string)(this["StatsDBConnectionString"]));
+            }
+            set {
+                this["StatsDBConnectionString"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string GamespyDBConnectionString {
+            get {
+                return ((string)(this["GamespyDBConnectionString"]));
+            }
+            set {
+                this["GamespyDBConnectionString"] = value;
             }
         }
     }

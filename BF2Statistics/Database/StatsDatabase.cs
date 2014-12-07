@@ -67,11 +67,7 @@ namespace BF2Statistics.Database
         public StatsDatabase():  
             base(
                 MainForm.Config.StatsDBEngine, 
-                MainForm.Config.StatsDBHost, 
-                MainForm.Config.StatsDBPort, 
-                MainForm.Config.StatsDBName, 
-                MainForm.Config.StatsDBUser,
-                MainForm.Config.StatsDBPass
+                MainForm.Config.StatsDBConnectionString
             )
         {
 

@@ -38,10 +38,11 @@
             this.SelectNoneBtn = new System.Windows.Forms.Button();
             this.MenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.Details_MenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.MoveSnapshotMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ViewSelect = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.MoveSnapshotMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.DeleteBtn = new System.Windows.Forms.Button();
             this.MenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -78,7 +79,7 @@
             this.ImportBtn.Name = "ImportBtn";
             this.ImportBtn.Size = new System.Drawing.Size(111, 30);
             this.ImportBtn.TabIndex = 1;
-            this.ImportBtn.Text = "Import";
+            this.ImportBtn.Text = "Process Selected";
             this.ImportBtn.UseVisualStyleBackColor = true;
             this.ImportBtn.Click += new System.EventHandler(this.ImportBtn_Click);
             // 
@@ -120,7 +121,7 @@
             this.Details_MenuItem,
             this.MoveSnapshotMenuItem});
             this.MenuStrip.Name = "MenuStrip";
-            this.MenuStrip.Size = new System.Drawing.Size(257, 70);
+            this.MenuStrip.Size = new System.Drawing.Size(257, 48);
             // 
             // Details_MenuItem
             // 
@@ -128,6 +129,13 @@
             this.Details_MenuItem.Size = new System.Drawing.Size(256, 22);
             this.Details_MenuItem.Text = "View Game Details";
             this.Details_MenuItem.Click += new System.EventHandler(this.Details_MenuItem_Click);
+            // 
+            // MoveSnapshotMenuItem
+            // 
+            this.MoveSnapshotMenuItem.Name = "MoveSnapshotMenuItem";
+            this.MoveSnapshotMenuItem.Size = new System.Drawing.Size(256, 22);
+            this.MoveSnapshotMenuItem.Text = "Move To Processed / UnProcessed";
+            this.MoveSnapshotMenuItem.Click += new System.EventHandler(this.MoveSnapshotMenuItem_Click);
             // 
             // ViewSelect
             // 
@@ -160,12 +168,15 @@
             this.label2.TabIndex = 9;
             this.label2.Text = "* Right click on a snaphot to view the Snapshot Game Data";
             // 
-            // MoveSnapshotMenuItem
+            // DeleteBtn
             // 
-            this.MoveSnapshotMenuItem.Name = "MoveSnapshotMenuItem";
-            this.MoveSnapshotMenuItem.Size = new System.Drawing.Size(256, 22);
-            this.MoveSnapshotMenuItem.Text = "Move To Processed / UnProcessed";
-            this.MoveSnapshotMenuItem.Click += new System.EventHandler(this.MoveSnapshotMenuItem_Click);
+            this.DeleteBtn.Location = new System.Drawing.Point(335, 372);
+            this.DeleteBtn.Name = "DeleteBtn";
+            this.DeleteBtn.Size = new System.Drawing.Size(111, 30);
+            this.DeleteBtn.TabIndex = 10;
+            this.DeleteBtn.Text = "Delete Selected";
+            this.DeleteBtn.UseVisualStyleBackColor = true;
+            this.DeleteBtn.Click += new System.EventHandler(this.DeleteBtn_Click);
             // 
             // SnapshotViewForm
             // 
@@ -173,6 +184,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(594, 422);
+            this.Controls.Add(this.DeleteBtn);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ViewSelect);
@@ -208,6 +220,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ToolStripMenuItem MoveSnapshotMenuItem;
+        private System.Windows.Forms.Button DeleteBtn;
 
     }
 }

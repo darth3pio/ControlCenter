@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Diagnostics;
 using System.Threading;
+using BF2Statistics.ASP;
 using BF2Statistics.Database;
 using BF2Statistics.Logging;
 using BF2Statistics.Web;
@@ -129,7 +130,11 @@ namespace BF2Statistics.Web
             if (!IsRunning)
             {
                 // Try to connect to the database
-                using (StatsDatabase Database = new StatsDatabase())  { }
+                using (StatsDatabase Database = new StatsDatabase())  
+                {
+                    // Initialize the player id manager
+                    PidManager.Load(Database);
+                }
 
                 // Load XML stat files
                 Bf2Stats.StatsData.Load();

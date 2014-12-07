@@ -6,7 +6,9 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.IO;
 using System.Data.Common;
+using System.Data.SQLite;
 using MySql.Data;
 using MySql.Data.Common;
 using MySql.Data.MySqlClient;
@@ -33,29 +35,47 @@ namespace BF2Statistics
             {
                 // Fill values for config boxes
                 if (MainForm.Config.StatsDBEngine == "Sqlite")
+                {
                     TypeSelect.SelectedIndex = 0;
+                    SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder(MainForm.Config.StatsDBConnectionString);
+                    if (!String.IsNullOrWhiteSpace(Builder.DataSource))
+                        DBName.Text = Path.GetFileNameWithoutExtension(Builder.DataSource);
+                    else
+                        DBName.Text = "bf2stats";
+                }
                 else
+                {
                     TypeSelect.SelectedIndex = 1;
-
-                Hostname.Text = MainForm.Config.StatsDBHost;
-                Port.Value = MainForm.Config.StatsDBPort;
-                Username.Text = MainForm.Config.StatsDBUser;
-                Password.Text = MainForm.Config.StatsDBPass;
-                DBName.Text = MainForm.Config.StatsDBName;
+                    MySqlConnectionStringBuilder Builder = new MySqlConnectionStringBuilder(MainForm.Config.StatsDBConnectionString);
+                    Hostname.Text = Builder.Server;
+                    Port.Value = Builder.Port;
+                    Username.Text = Builder.UserID;
+                    Password.Text = Builder.Password;
+                    DBName.Text = Builder.Database;
+                }
             }
             else
             {
                 // Fill values for config boxes
-                if (MainForm.Config.GamespyDBEngine == "Sqlite")
+                if (MainForm.Config.StatsDBEngine == "Sqlite")
+                {
                     TypeSelect.SelectedIndex = 0;
+                    SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder(MainForm.Config.GamespyDBConnectionString);
+                    if (!String.IsNullOrWhiteSpace(Builder.DataSource))
+                        DBName.Text = Path.GetFileNameWithoutExtension(Builder.DataSource);
+                    else
+                        DBName.Text = "gamespy";
+                }
                 else
+                {
                     TypeSelect.SelectedIndex = 1;
-
-                Hostname.Text = MainForm.Config.GamespyDBHost;
-                Port.Value = MainForm.Config.GamespyDBPort;
-                Username.Text = MainForm.Config.GamespyDBUser;
-                Password.Text = MainForm.Config.GamespyDBPass;
-                DBName.Text = MainForm.Config.GamespyDBName;
+                    MySqlConnectionStringBuilder Builder = new MySqlConnectionStringBuilder(MainForm.Config.GamespyDBConnectionString);
+                    Hostname.Text = Builder.Server;
+                    Port.Value = Builder.Port;
+                    Username.Text = Builder.UserID;
+                    Password.Text = Builder.Password;
+                    DBName.Text = Builder.Database;
+                }
 
                 // Set header texts
                 TitleLabel.Text = "Gamespy Database Configuration";
@@ -71,22 +91,50 @@ namespace BF2Statistics
             if (DbMode == DatabaseMode.Stats)
             {
                 MainForm.Config.StatsDBEngine = (TypeSelect.SelectedIndex == 0) ? "Sqlite" : "Mysql";
-                MainForm.Config.StatsDBHost = Hostname.Text;
-                MainForm.Config.StatsDBPort = (int)Port.Value;
-                MainForm.Config.StatsDBUser = Username.Text;
-                MainForm.Config.StatsDBPass = Password.Text;
-                MainForm.Config.StatsDBName = DBName.Text;
-
+                if (TypeSelect.SelectedIndex == 0)
+                {
+                    SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder();
+                    Builder.DataSource = Path.Combine(Program.RootPath, DBName.Text + ".sqlite3");
+                    Builder.Version = 3;
+                    Builder.JournalMode = SQLiteJournalModeEnum.Wal;
+                    Builder.PageSize = 4096; // Set page size to NTFS cluster size = 4096 bytes
+                    MainForm.Config.StatsDBConnectionString = Builder.ConnectionString;
+                }
+                else
+                {
+                    MySqlConnectionStringBuilder Builder = new MySqlConnectionStringBuilder();
+                    Builder.Server = Hostname.Text;
+                    Builder.Port = (uint)Port.Value;
+                    Builder.UserID = Username.Text;
+                    Builder.Password = Password.Text;
+                    Builder.Database = DBName.Text;
+                    Builder.ConvertZeroDateTime = true;
+                    MainForm.Config.StatsDBConnectionString = Builder.ConnectionString;
+                }
             }
             else
             {
                 MainForm.Config.GamespyDBEngine = (TypeSelect.SelectedIndex == 0) ? "Sqlite" : "Mysql";
-                MainForm.Config.GamespyDBHost = Hostname.Text;
-                MainForm.Config.GamespyDBPort = (int)Port.Value;
-                MainForm.Config.GamespyDBUser = Username.Text;
-                MainForm.Config.GamespyDBPass = Password.Text;
-                MainForm.Config.GamespyDBName = DBName.Text;
-                MainForm.Config.DebugStream = false;
+                if (TypeSelect.SelectedIndex == 0)
+                {
+                    SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder();
+                    Builder.DataSource = Path.Combine(Program.RootPath, DBName.Text + ".sqlite3");
+                    Builder.Version = 3;
+                    Builder.JournalMode = SQLiteJournalModeEnum.Wal;
+                    Builder.PageSize = 4096; // Set page size to NTFS cluster size = 4096 bytes
+                    MainForm.Config.GamespyDBConnectionString = Builder.ConnectionString;
+                }
+                else
+                {
+                    MySqlConnectionStringBuilder Builder = new MySqlConnectionStringBuilder();
+                    Builder.Server = Hostname.Text;
+                    Builder.Port = (uint)Port.Value;
+                    Builder.UserID = Username.Text;
+                    Builder.Password = Password.Text;
+                    Builder.Database = DBName.Text;
+                    Builder.ConvertZeroDateTime = true;
+                    MainForm.Config.GamespyDBConnectionString = Builder.ConnectionString;
+                }
             }
         }
 
