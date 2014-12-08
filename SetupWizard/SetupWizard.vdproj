@@ -2907,6 +2907,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_69A93F4630354F2A84307AFA607BF6BB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_69ADEFE23FA34128915757697CAA7D13"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -6724,13 +6730,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_B0ECF8691B326D69A9DB469218DC10CD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_32541D8346B6E93A6B4F96059ED1697F"
+        "OwnerKey" = "8:_A63D17CF5EB3C952E6F74DA906FCE35A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -6742,7 +6742,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A63D17CF5EB3C952E6F74DA906FCE35A"
+        "OwnerKey" = "8:_32541D8346B6E93A6B4F96059ED1697F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_B0ECF8691B326D69A9DB469218DC10CD"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -11657,6 +11663,11 @@
             "AssemblyAsmDisplayName" = "8:Microsoft.VisualBasic.PowerPacks.Vs, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_32541D8346B6E93A6B4F96059ED1697F"
+                    {
+                    "Name" = "8:Microsoft.VisualBasic.PowerPacks.Vs.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:Microsoft.VisualBasic.PowerPacks.Vs.dll"
             "TargetName" = "8:"
@@ -16476,6 +16487,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_69A93F4630354F2A84307AFA607BF6BB"
+            {
+            "SourcePath" = "8:..\\BF2Statistics\\Ip2nation.db"
+            "TargetName" = "8:Ip2nation.db"
+            "Tag" = "8:"
+            "Folder" = "8:_1C5681D20B8C4DEDB2774728B254999B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_69ADEFE23FA34128915757697CAA7D13"
             {
             "SourcePath" = "8:..\\BF2Statistics\\Web\\Bf2Stats\\Resources\\images\\flags\\gm.png"
@@ -18023,6 +18054,11 @@
             "AssemblyAsmDisplayName" = "8:FreeImageNET, Version=3.15.1.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_7A5E58E024602DB4B03EEBEEEB71F72F"
+                    {
+                    "Name" = "8:FreeImageNET.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:FreeImageNET.dll"
             "TargetName" = "8:"
@@ -21809,6 +21845,11 @@
             "AssemblyAsmDisplayName" = "8:System.Data.SQLite, Version=1.0.94.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_A63D17CF5EB3C952E6F74DA906FCE35A"
+                    {
+                    "Name" = "8:System.Data.SQLite.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:System.Data.SQLite.dll"
             "TargetName" = "8:"
@@ -22735,6 +22776,11 @@
             "AssemblyAsmDisplayName" = "8:MySql.Data, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_B0ECF8691B326D69A9DB469218DC10CD"
+                    {
+                    "Name" = "8:MySql.Data.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:MySql.Data.dll"
             "TargetName" = "8:"
@@ -29767,15 +29813,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:BF2Statistics Control Center"
-        "ProductCode" = "8:{B23ADDA6-6824-4A62-B322-769900991C27}"
-        "PackageCode" = "8:{5B62EA80-4A38-476D-8C0C-EE153C30F606}"
+        "ProductCode" = "8:{B9F0AD15-ABD4-400F-AE2F-4FCD0691955E}"
+        "PackageCode" = "8:{E776E9BC-FDE7-4E3A-87C4-919DC49FB8E9}"
         "UpgradeCode" = "8:{2BC7A7AA-61E6-4E3E-9CC7-E199CC638CEB}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.9.1"
+        "ProductVersion" = "8:1.9.2"
         "Manufacturer" = "8:BF2Statistics"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.bf2statistics.com"

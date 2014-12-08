@@ -642,7 +642,9 @@ namespace BF2Statistics
                 LoginStatusPic.Image = Resources.error;
                 ClientCountLabel.Text = "0";
                 LaunchEmuBtn.Text = "Start Login Server";
+                LaunchEmuBtn.Enabled = true;
                 StartLoginserverBtn.Text = "Start Login Server";
+                StartLoginserverBtn.Enabled = true;
                 CreateAcctBtn.Enabled = false;
                 EditAcctBtn.Enabled = false;
                 LoginStatusLabel.Text = "Stopped";
@@ -1368,6 +1370,7 @@ namespace BF2Statistics
             {
                 AspStatusPic.Image = Resources.error;
                 StartAspServerBtn.Text = "Start ASP Server";
+                StartAspServerBtn.Enabled = true;
                 ViewSnapshotBtn.Enabled = false;
                 ViewBf2sCloneBtn.Enabled = false;
                 EditPlayerBtn.Enabled = false;
@@ -1376,6 +1379,7 @@ namespace BF2Statistics
                 AspStatusLabel.Text = "Stopped";
                 AspStatusLabel.ForeColor = SystemColors.ControlDark;
                 StartWebserverBtn.Text = "Start Webserver";
+                StartWebserverBtn.Enabled = true;
                 labelSessionWebRequests.Text = "0";
                 Tipsy.SetToolTip(AspStatusPic, "ASP Server is currently offline");
             });

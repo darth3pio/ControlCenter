@@ -87,6 +87,10 @@ namespace BF2Statistics
 
                 return _settings; 
             }
+            set
+            {
+                _settings = value;
+            }
         }
 
         /// <summary>

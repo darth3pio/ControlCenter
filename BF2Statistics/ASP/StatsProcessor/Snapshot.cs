@@ -255,7 +255,7 @@ namespace BF2Statistics.ASP.StatsProcessor
 
                     // Parse some player data
                     bool OnWinningTeam = (Player.Team == WinningTeam);
-                    string CountryCode = GetCountryCode(Player.IpAddress);
+                    string CountryCode = Ip2nation.GetCountryCode(Player.IpAddress);
                     int Best, Worst;
 
                     // Log
@@ -918,28 +918,6 @@ namespace BF2Statistics.ASP.StatsProcessor
                 if (Player.CompletedRound) // Completed round?
                     this.Team2PlayersEnd++;
             }
-        }
-
-        /// <summary>
-        /// Gets the country code for a string IP address
-        /// </summary>
-        /// <param name="IP"></param>
-        /// <returns></returns>
-        private string GetCountryCode(IPAddress IP)
-        {
-            // Return default config Country Code
-            if (IPAddress.IsLoopback(IP) || HttpServer.LocalIPs.Contains(IP))
-                return MainForm.Config.ASP_LocalIpCountryCode;
-
-            // Fetch country code from Ip2Nation
-            List<Dictionary<string, object>> Rows = Driver.Query(
-                "SELECT country FROM ip2nation WHERE ip < @P0 ORDER BY ip DESC LIMIT 1", 
-                Networking.IP2Long(IP.ToString())
-            );
-            string CC = (Rows.Count == 0) ? "xx" : Rows[0]["country"].ToString();
-
-            // Fix country!
-            return (CC == "xx" || CC == "01") ? MainForm.Config.ASP_LocalIpCountryCode : CC;
         }
 
         /// <summary>

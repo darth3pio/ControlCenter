@@ -110,23 +110,6 @@ CREATE TABLE "main"."awards"(
   PRIMARY KEY ("id","awd","level")
 );
 
-CREATE TABLE "main"."ip2nation"(
-  "rowid" INT PRIMARY KEY,
-  "ip" INT NOT NULL DEFAULT 0,
-  "country" TEXT NOT NULL DEFAULT ''
-);
-
-CREATE TABLE "main"."ip2nationcountries"(
-  "code" TEXT NOT NULL DEFAULT '',
-  "iso_code_2" TEXT NOT NULL DEFAULT '',
-  "iso_code_3" TEXT DEFAULT '',
-  "iso_country" TEXT NOT NULL DEFAULT '',
-  "country" TEXT NOT NULL DEFAULT '',
-  "lat" REAL NOT NULL DEFAULT 0,
-  "lon" REAL NOT NULL DEFAULT 0,
-  PRIMARY KEY ("code")
-);
-
 CREATE TABLE "main"."kills"(
   "attacker" INT  NOT NULL DEFAULT 0,
   "victim" INT  NOT NULL DEFAULT 0,
@@ -417,32 +400,7 @@ CREATE TABLE "main"."_version"(
   PRIMARY KEY ("dbver")
 );
 
-/* Temp 
-INSERT INTO player VALUES (101249154, ' wilson212', 'us', 19118, 16, '174.49.21.221', 2489, 0, 1819, 670, 808, 103, 67, 0, 45, 0, 24, 66, 34, 87, 0, 2, 0, 41, 0, 0, 17, 16, 4, 3, 32, 4, 3, 0, 0, 0, 5873, 11779, 1464, 15, 1, 0, 2, 1361127107, 309, 1361682993, 0, 0, 0, 0, 16, 0, 'w212', 0);
-INSERT INTO army ("id", "time0", "win0", "loss0", "score0", "best0", "worst0", "brnd0", "time1", "win1", "loss1", "score1", "best1", "worst1", "brnd1", "time2", "win2", "loss2", "score2", "best2", "worst2", "brnd2", "time3", "win3", "loss3", "score3", "best3", "worst3", "brnd3", "time4", "win4", "loss4", "score4", "best4", "worst4", "brnd4", "time5", "win5", "loss5", "score5", "best5", "worst5", "brnd5", "time6", "win6", "loss6", "score6", "best6", "worst6", "brnd6", "time7", "win7", "loss7", "score7", "best7", "worst7", "brnd7", "time8", "win8", "loss8", "score8", "best8", "worst8", "brnd8", "time9", "win9", "loss9", "score9", "best9", "worst9", "brnd9", "time10", "win10", "loss10", "score10", "best10", "worst10", "brnd10", "time11", "win11", "loss11", "score11", "best11", "worst11", "brnd11", "time12", "win12", "loss12", "score12", "best12", "worst12", "brnd12", "time13", "win13", "loss13", "score13", "best13", "worst13", "brnd13") VALUES
-(101249154, 16951, 13, 1, 2240, 309, 111, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 767, 1, 0, 96, 96, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1400, 1, 0, 153, 153, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-INSERT INTO awards ("id", "awd", "level", "earned", "first") VALUES
-(101249154, 1031105, 1, 1361127107, 0),
-(101249154, 1031109, 1, 1361680338, 0),
-(101249154, 1031113, 1, 1361133601, 0),
-(101249154, 1031115, 1, 1361129274, 0),
-(101249154, 1031119, 1, 1361680338, 0),
-(101249154, 1032415, 1, 1361598276, 0),
-(101249154, 1190601, 1, 1361133601, 0),
-(101249154, 1220118, 1, 1361144883, 0),
-(101249154, 1220803, 1, 1361127107, 0),
-(101249154, 1261115, 1, 1361508116, 0),
-(101249154, 2051902, 2, 1361508116, 1361156848),
-(101249154, 2051907, 8, 1361682994, 1361127107),
-(101249154, 2051919, 5, 1361680338, 1361144883),
-(101249154, 3150914, 1, 1361505724, 0),
-(101249154, 3190803, 1, 1361127107, 0),
-(101249154, 3211305, 1, 1361127107, 0),
-(101249154, 3240301, 1, 1361129274, 0);
-INSERT INTO kits ("id", "time0", "kills0", "deaths0", "time1", "kills1", "deaths1", "time2", "kills2", "deaths2", "time3", "kills3", "deaths3", "time4", "kills4", "deaths4", "time5", "kills5", "deaths5", "time6", "kills6", "deaths6") VALUES
-(101249154, 8, 0, 0, 800, 22, 7, 6532, 260, 25, 8489, 377, 51, 1897, 122, 14, 9, 1, 1, 745, 26, 5);
-INSERT INTO weapons ("id", "time0", "time1", "time2", "time3", "time4", "time5", "time6", "time7", "time8", "knifetime", "c4time", "handgrenadetime", "claymoretime", "shockpadtime", "atminetime", "tacticaltime", "grapplinghooktime", "ziplinetime", "kills0", "kills1", "kills2", "kills3", "kills4", "kills5", "kills6", "kills7", "kills8", "knifekills", "c4kills", "handgrenadekills", "claymorekills", "shockpadkills", "atminekills", "deaths0", "deaths1", "deaths2", "deaths3", "deaths4", "deaths5", "deaths6", "deaths7", "deaths8", "knifedeaths", "c4deaths", "handgrenadedeaths", "claymoredeaths", "shockpaddeaths", "atminedeaths", "ziplinedeaths", "grapplinghookdeaths", "tacticaldeployed", "grapplinghookdeployed", "ziplinedeployed", "fired0", "fired1", "fired2", "fired3", "fired4", "fired5", "fired6", "fired7", "fired8", "knifefired", "c4fired", "claymorefired", "handgrenadefired", "shockpadfired", "atminefired", "hit0", "hit1", "hit2", "hit3", "hit4", "hit5", "hit6", "hit7", "hit8", "knifehit", "c4hit", "claymorehit", "handgrenadehit", "shockpadhit", "atminehit") VALUES
-(101249154, 2334, 15, 774, 9, 648, 523, 2, 145, 677, 42, 258, 130, 0, 966, 81, 0, 0, 1, 53, 0, 18, 1, 25, 2, 0, 3, 8, 2, 4, 0, 0, 0, 13, 24, 0, 11, 1, 4, 2, 0, 2, 4, 1, 0, 2, 0, 8, 0, 0, 0, 0, 0, 0, 897, 3, 394, 31, 58, 108, 0, 138, 12, 13, 13, 0, 27, 102, 18, 224, 1, 98, 6, 34, 27, 0, 20, 4, 2, 7, 0, 12, 87, 6);
-INSERT INTO vehicles ("id", "time0", "time1", "time2", "time3", "time4", "time5", "time6", "timepara", "kills0", "kills1", "kills2", "kills3", "kills4", "kills5", "kills6", "deaths0", "deaths1", "deaths2", "deaths3", "deaths4", "deaths5", "deaths6", "rk0", "rk1", "rk2", "rk3", "rk4", "rk5", "rk6") VALUES
-(101249154, 5367, 0, 134, 3933, 1835, 0, 56, 2, 415, 0, 24, 152, 83, 0, 7, 18, 0, 1, 12, 11, 0, 0, 24, 0, 1, 6, 15, 0, 0);
-*/
+--
+-- Dumping data for table `_version`
+--
+INSERT INTO _version VALUES ('2.2.0', 1363280938);

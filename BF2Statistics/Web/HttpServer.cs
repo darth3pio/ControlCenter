@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Diagnostics;
 using System.Threading;
+using System.Windows.Forms;
 using BF2Statistics.ASP;
 using BF2Statistics.Database;
 using BF2Statistics.Logging;
@@ -132,8 +133,31 @@ namespace BF2Statistics.Web
                 // Try to connect to the database
                 using (StatsDatabase Database = new StatsDatabase())  
                 {
+                    if (!Database.IsInstalled)
+                    {
+                        string message = "In order to use the Private Stats feature of this program, we need to setup a database. "
+                            + "You may choose to do this later by clicking \"Cancel\". Would you like to setup the database now?";
+                        DialogResult R = MessageBox.Show(message, "Stats Database Setup", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        if (R == DialogResult.Yes)
+                            SetupManager.ShowDatabaseSetupForm(DatabaseMode.Stats);
+
+                        // Call the stopped event to Re-enable the main forms buttons
+                        Stopped(null, null);
+                        return;
+                    }
+
                     // Initialize the player id manager
                     PidManager.Load(Database);
+
+                    // Drop the SQLite ip2nation country tables
+                    var Rows = Database.Query("SELECT COUNT(1) AS count FROM sqlite_master WHERE type='table' AND (name='ip2nation' OR name='ip2nationcountries');");
+                    if (Rows.Count > 0 && Int32.Parse(Rows[0]["count"].ToString()) > 0)
+                    {
+                        Database.Execute("DROP TABLE IF EXISTS 'ip2nation';");
+                        Database.Execute("DROP TABLE IF EXISTS 'ip2nationcountries';");
+                        Database.Execute("VACUUM;");
+                    }
+                    
                 }
 
                 // Load XML stat files

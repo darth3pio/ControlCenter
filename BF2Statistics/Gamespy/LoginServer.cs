@@ -73,7 +73,21 @@ namespace BF2Statistics.Gamespy
             if (isRunning) return;
 
             // Start the DB Connection
-            using (GamespyDatabase Database = new GamespyDatabase()) { }
+            using (GamespyDatabase Database = new GamespyDatabase()) 
+            {
+                if (!Database.IsInstalled)
+                {
+                    string message = "In order to use the Gamespy Login Emulation feature of this program, we need to setup a database. "
+                    + "You may choose to do this later by clicking \"Cancel\". Would you like to setup the database now?";
+                    DialogResult R = MessageBox.Show(message, "Gamespy Database Setup", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (R == DialogResult.Yes)
+                        SetupManager.ShowDatabaseSetupForm(DatabaseMode.Gamespy);
+
+                    // Call the stoOnShutdown event to Re-enable the main forms buttons
+                    OnShutdown();
+                    return;
+                }
+            }
 
             // Bind gpcm server on port 29900
             int port = 29900;

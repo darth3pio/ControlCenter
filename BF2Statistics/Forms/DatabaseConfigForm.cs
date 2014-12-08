@@ -96,8 +96,11 @@ namespace BF2Statistics
                     SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder();
                     Builder.DataSource = Path.Combine(Program.RootPath, DBName.Text + ".sqlite3");
                     Builder.Version = 3;
-                    Builder.JournalMode = SQLiteJournalModeEnum.Wal;
                     Builder.PageSize = 4096; // Set page size to NTFS cluster size = 4096 bytes
+                    Builder.CacheSize = 10000;
+                    Builder.JournalMode = SQLiteJournalModeEnum.Wal;
+                    Builder.LegacyFormat = false;
+                    Builder.DefaultTimeout = 500;
                     MainForm.Config.StatsDBConnectionString = Builder.ConnectionString;
                 }
                 else
@@ -120,8 +123,11 @@ namespace BF2Statistics
                     SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder();
                     Builder.DataSource = Path.Combine(Program.RootPath, DBName.Text + ".sqlite3");
                     Builder.Version = 3;
-                    Builder.JournalMode = SQLiteJournalModeEnum.Wal;
                     Builder.PageSize = 4096; // Set page size to NTFS cluster size = 4096 bytes
+                    Builder.CacheSize = 10000;
+                    Builder.JournalMode = SQLiteJournalModeEnum.Wal;
+                    Builder.LegacyFormat = false;
+                    Builder.DefaultTimeout = 500;
                     MainForm.Config.GamespyDBConnectionString = Builder.ConnectionString;
                 }
                 else
@@ -151,6 +157,7 @@ namespace BF2Statistics
         private void CancelBtn_Click(object sender, EventArgs e)
         {
             MainForm.Config.Reload();
+            this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
 
@@ -189,6 +196,7 @@ namespace BF2Statistics
         {
             SetConfigSettings();
             MainForm.Config.Save();
+            this.DialogResult = DialogResult.OK;
             this.Close();
         }
 
@@ -233,7 +241,9 @@ namespace BF2Statistics
 
                             // Verify that the user wants to install DB tables
                             TaskForm.CloseForm();
-                            DialogResult Res = MessageBox.Show(Message1, "Verify Installation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                            DialogResult Res = MessageBox.Show(Message1, "Verify Installation", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                                MessageBoxDefaultButton.Button1, (MessageBoxOptions)0x40000 // Force window on top
+                            );
 
                             // If we dont want to install tables, back out!
                             if (Res == DialogResult.No)
@@ -254,7 +264,9 @@ namespace BF2Statistics
 
                             // Verify that the user wants to install DB tables
                             TaskForm.CloseForm();
-                            DialogResult Res = MessageBox.Show(Message1, "Verify Installation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                            DialogResult Res = MessageBox.Show(Message1, "Verify Installation", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                                MessageBoxDefaultButton.Button1, (MessageBoxOptions)0x40000 // Force window on top
+                            );
 
                             // If we dont want to install tables, back out!
                             if (Res == DialogResult.No)
@@ -274,12 +286,15 @@ namespace BF2Statistics
 
                 // Show Success Form
                 if (!PreviousInstall)
-                    MessageBox.Show("Successfully installed the database tables!", "Success", MessageBoxButtons.OK);
+                    MessageBox.Show("Successfully installed the database tables!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information,
+                        MessageBoxDefaultButton.Button1, (MessageBoxOptions)0x40000 // Force window on top
+                    );
                 else
                     MessageBox.Show(
                         "We've detected that the database was already installed here. Your database settings have been saved and no further setup is required.",
-                        "Existing Installation Found", MessageBoxButtons.OK, MessageBoxIcon.Information
-                    );
+                        "Existing Installation Found", MessageBoxButtons.OK, MessageBoxIcon.Information,
+                            MessageBoxDefaultButton.Button1, (MessageBoxOptions)0x40000 // Force window on top
+                        );
 
                 // Close this form, as we are done now
                 this.Close();
@@ -292,7 +307,9 @@ namespace BF2Statistics
 
                 // Revert the temporary config settings and show the error to the user
                 MainForm.Config.Reload();
-                MessageBox.Show(Ex.Message, "Database Installation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Ex.Message, "Database Installation Error", MessageBoxButtons.OK, MessageBoxIcon.Error,
+                    MessageBoxDefaultButton.Button1, (MessageBoxOptions)0x40000 // Force window on top
+                );
                 return;
             }
             finally

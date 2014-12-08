@@ -626,36 +626,22 @@ namespace BF2Statistics.Database
             if(!TaskFormWasOpen)
                 TaskForm.Show(MainForm.Instance, "Create Database", "Creating Bf2Stats SQLite Database...", false);
 
-            // Create Tables
-            TaskForm.UpdateStatus("Creating Stats Tables");
-            string SQL = Utils.GetResourceAsString("BF2Statistics.SQL.SQLite.Stats.sql");
-            base.Execute(SQL);
-
-            // Insert Ip2Nation data
-            TaskForm.UpdateStatus("Inserting Ip2Nation Data");
-            SQL = Utils.GetResourceAsString("BF2Statistics.SQL.Ip2nation.sql");
-
-            // Use a transaction to greatly speed this up
-            using (DbTransaction Transaction = BeginTransaction())
+            try
             {
+                // Create Tables
+                TaskForm.UpdateStatus("Creating Stats Tables");
+                string SQL = Utils.GetResourceAsString("BF2Statistics.SQL.SQLite.Stats.sql");
                 base.Execute(SQL);
-
-                // Attempt to do the transaction
-                try
-                {
-                    Transaction.Commit();
-                }
-                catch
-                {
-                    Transaction.Rollback();
-                    throw;
-                }
-                finally
-                {
-                    // Close update progress form
-                    if (!TaskFormWasOpen)
-                        TaskForm.CloseForm();
-                }
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                // Close update progress form
+                if (!TaskFormWasOpen)
+                    TaskForm.CloseForm();
             }
         }
 
@@ -700,6 +686,7 @@ namespace BF2Statistics.Database
             }
 
             // Update status
+            // WE STILL INSTALL ip2Nation DATA to stay compatible with the web ASP
             TaskForm.UpdateStatus("Inserting Ip2Nation Data");
             SQL = Utils.GetResourceFileLines("BF2Statistics.SQL.Ip2nation.sql");
             Queries = Utilities.Sql.ExtractQueries(SQL);

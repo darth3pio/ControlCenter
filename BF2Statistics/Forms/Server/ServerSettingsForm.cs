@@ -33,8 +33,6 @@ namespace BF2Statistics
 
         private bool OrigForced;
 
-        private bool RemPresent = false;
-
         /// <summary>
         /// Constructor
         /// </summary>
@@ -48,7 +46,7 @@ namespace BF2Statistics
             this.UseGlobalSettings = UseGlobalSettings;
 
             // Parse settings file, and fill in form values
-            try 
+            try
             {
                 // Load Settings, and set for title
                 if (UseGlobalSettings)
@@ -63,64 +61,64 @@ namespace BF2Statistics
                 }
 
                 // General
-                ServerNameBox.Text = Settings.GetValue("serverName");
-                ServerPasswordBox.Text = Settings.GetValue("password");
-                ServerIpBox.Text = Settings.GetValue("serverIP");
-                ServerPortBox.Value = Int32.Parse(Settings.GetValue("serverPort"));
-                GamespyPortBox.Value = Int32.Parse(Settings.GetValue("gameSpyPort"));
-                ServerWelcomeBox.Text = Settings.GetValue("welcomeMessage");
-                AutoBalanceBox.Checked = (Int32.Parse(Settings.GetValue("autoBalanceTeam")) == 1);
-                EnablePublicServerBox.Checked = (Int32.Parse(Settings.GetValue("internet")) == 1);
-                EnablePunkBuster.Checked = (Int32.Parse(Settings.GetValue("punkBuster")) == 1);
-                RoundsPerMapBox.Value = Int32.Parse(Settings.GetValue("roundsPerMap"));
-                PlayersToStartSlider.Value = Int32.Parse(Settings.GetValue("numPlayersNeededToStart"));
-                MaxPlayersBar.Value = Int32.Parse(Settings.GetValue("maxPlayers"));
-                TicketRatioBar.Value = Int32.Parse(Settings.GetValue("ticketRatio"));
-                ScoreLimitBar.Value = Int32.Parse(Settings.GetValue("scoreLimit"));
-                TeamRatioBar.Value = Int32.Parse(Settings.GetValue("teamRatioPercent"));
+                ServerNameBox.Text = Settings.GetValue("serverName", "Default Server Name");
+                ServerPasswordBox.Text = Settings.GetValue("password", "");
+                ServerIpBox.Text = Settings.GetValue("serverIP", "");
+                ServerPortBox.Value = Int32.Parse(Settings.GetValue("serverPort", "16567"));
+                GamespyPortBox.Value = Int32.Parse(Settings.GetValue("gameSpyPort", "29900"));
+                ServerWelcomeBox.Text = Settings.GetValue("welcomeMessage", "");
+                AutoBalanceBox.Checked = (Int32.Parse(Settings.GetValue("autoBalanceTeam", "0")) == 1);
+                EnablePublicServerBox.Checked = (Int32.Parse(Settings.GetValue("internet", "0")) == 1);
+                EnablePunkBuster.Checked = (Int32.Parse(Settings.GetValue("punkBuster", "0")) == 1);
+                RoundsPerMapBox.Value = Int32.Parse(Settings.GetValue("roundsPerMap", "3"));
+                PlayersToStartSlider.Value = Int32.Parse(Settings.GetValue("numPlayersNeededToStart", "2"));
+                MaxPlayersBar.Value = Int32.Parse(Settings.GetValue("maxPlayers", "16"));
+                TicketRatioBar.Value = Int32.Parse(Settings.GetValue("ticketRatio", "200"));
+                ScoreLimitBar.Value = Int32.Parse(Settings.GetValue("scoreLimit", "0"));
+                TeamRatioBar.Value = Int32.Parse(Settings.GetValue("teamRatioPercent", "50"));
 
                 // Time settings
-                TimeLimitBar.Value = Int32.Parse(Settings.GetValue("timeLimit"));
-                SpawnTimeBar.Value = Int32.Parse(Settings.GetValue("spawnTime"));
-                ManDownBar.Value = Int32.Parse(Settings.GetValue("manDownTime"));
-                StartDelayBar.Value = Int32.Parse(Settings.GetValue("startDelay"));
-                EndDelayBar.Value = Int32.Parse(Settings.GetValue("endDelay"));
-                EORBar.Value = Int32.Parse(Settings.GetValue("endOfRoundDelay"));
-                NotEnoughPlayersBar.Value = Int32.Parse(Settings.GetValue("notEnoughPlayersRestartDelay"));
-                TimeB4RestartMapBar.Value = Int32.Parse(Settings.GetValue("timeBeforeRestartMap"));
+                TimeLimitBar.Value = Int32.Parse(Settings.GetValue("timeLimit", "0"));
+                SpawnTimeBar.Value = Int32.Parse(Settings.GetValue("spawnTime", "15"));
+                ManDownBar.Value = Int32.Parse(Settings.GetValue("manDownTime", "15"));
+                StartDelayBar.Value = Int32.Parse(Settings.GetValue("startDelay", "15"));
+                EndDelayBar.Value = Int32.Parse(Settings.GetValue("endDelay", "15"));
+                EORBar.Value = Int32.Parse(Settings.GetValue("endOfRoundDelay", "15"));
+                NotEnoughPlayersBar.Value = Int32.Parse(Settings.GetValue("notEnoughPlayersRestartDelay", "15"));
+                TimeB4RestartMapBar.Value = Int32.Parse(Settings.GetValue("timeBeforeRestartMap", "45"));
 
                 // Friendly Fire Settings
-                PunishTeamKillsBox.Checked = (Int32.Parse(Settings.GetValue("tkPunishEnabled")) == 1);
-                FriendlyFireBox.Checked = (Int32.Parse(Settings.GetValue("friendlyFireWithMines")) == 1);
-                PunishDefaultBox.Checked = (Int32.Parse(Settings.GetValue("tkPunishByDefault")) == 1);
-                TksBeforeKickBox.Value = Int32.Parse(Settings.GetValue("tkNumPunishToKick"));
-                SoldierFFBar.Value = Int32.Parse(Settings.GetValue("soldierFriendlyFire"));
-                VehicleFFBar.Value = Int32.Parse(Settings.GetValue("vehicleFriendlyFire"));
-                SoldierSplashFFBar.Value = Int32.Parse(Settings.GetValue("soldierSplashFriendlyFire"));
-                VehicleSplashFFBar.Value = Int32.Parse(Settings.GetValue("vehicleSplashFriendlyFire"));
+                PunishTeamKillsBox.Checked = (Int32.Parse(Settings.GetValue("tkPunishEnabled", "1")) == 1);
+                FriendlyFireBox.Checked = (Int32.Parse(Settings.GetValue("friendlyFireWithMines", "0")) == 1);
+                PunishDefaultBox.Checked = (Int32.Parse(Settings.GetValue("tkPunishByDefault", "0")) == 1);
+                TksBeforeKickBox.Value = Int32.Parse(Settings.GetValue("tkNumPunishToKick", "3"));
+                SoldierFFBar.Value = Int32.Parse(Settings.GetValue("soldierFriendlyFire", "100"));
+                VehicleFFBar.Value = Int32.Parse(Settings.GetValue("vehicleFriendlyFire", "100"));
+                SoldierSplashFFBar.Value = Int32.Parse(Settings.GetValue("soldierSplashFriendlyFire", "100"));
+                VehicleSplashFFBar.Value = Int32.Parse(Settings.GetValue("vehicleSplashFriendlyFire", "100"));
 
                 // Voip
-                EnableVoip.Checked = (Int32.Parse(Settings.GetValue("voipEnabled")) == 1);
-                EnableRemoteVoip.Checked = (Int32.Parse(Settings.GetValue("voipServerRemote")) == 1);
-                VoipBF2ClientPort.Value = Int32.Parse(Settings.GetValue("voipBFClientPort"));
-                VoipBF2ServerPort.Value = Int32.Parse(Settings.GetValue("voipBFServerPort"));
-                VoipServerPort.Value = Int32.Parse(Settings.GetValue("voipServerPort"));
-                RemoteVoipIpBox.Text = Settings.GetValue("voipServerRemoteIP");
-                VoipPasswordBox.Text = Settings.GetValue("voipSharedPassword");
-                VoipQualityBar.Value = Int32.Parse(Settings.GetValue("voipQuality"));
+                EnableVoip.Checked = (Int32.Parse(Settings.GetValue("voipEnabled", "1")) == 1);
+                EnableRemoteVoip.Checked = (Int32.Parse(Settings.GetValue("voipServerRemote", "0")) == 1);
+                VoipBF2ClientPort.Value = Int32.Parse(Settings.GetValue("voipBFClientPort", "55123"));
+                VoipBF2ServerPort.Value = Int32.Parse(Settings.GetValue("voipBFServerPort", "55124"));
+                VoipServerPort.Value = Int32.Parse(Settings.GetValue("voipServerPort", "55125"));
+                RemoteVoipIpBox.Text = Settings.GetValue("voipServerRemoteIP", "");
+                VoipPasswordBox.Text = Settings.GetValue("voipSharedPassword", "");
+                VoipQualityBar.Value = Int32.Parse(Settings.GetValue("voipQuality", "3"));
 
                 // Voting Settings
-                EnableVotingBox.Checked = (Int32.Parse(Settings.GetValue("votingEnabled")) == 1);
-                EnableTeamVotingBox.Checked = (Int32.Parse(Settings.GetValue("teamVoteOnly")) == 1);
-                VoteTimeBar.Value = Int32.Parse(Settings.GetValue("voteTime"));
-                PlayersVotingBar.Value = Int32.Parse(Settings.GetValue("minPlayersForVoting"));
+                EnableVotingBox.Checked = (Int32.Parse(Settings.GetValue("votingEnabled", "1")) == 1);
+                EnableTeamVotingBox.Checked = (Int32.Parse(Settings.GetValue("teamVoteOnly", "1")) == 1);
+                VoteTimeBar.Value = Int32.Parse(Settings.GetValue("voteTime", "90"));
+                PlayersVotingBar.Value = Int32.Parse(Settings.GetValue("minPlayersForVoting", "2"));
 
                 // Demo & Urls
                 EnableAutoRecord.Checked = (Int32.Parse(Settings.GetValue("autoRecord", "0")) == 1);
                 DemoQualityBar.Value = Int32.Parse(Settings.GetValue("demoQuality", "5"));
                 DemoIndexUrlBox.Text = Settings.GetValue("demoIndexURL", "http://");
                 DemoDownloadBox.Text = Settings.GetValue("demoDownloadURL", "http://");
-                DemoHookBox.Text = Settings.GetValue("autoDemoHook", "");
+                DemoHookBox.Text = Settings.GetValue("autoDemoHook", "adminutils/demo/rotate_demo.exe");
                 CLogoUrlBox.Text = Settings.GetValue("communityLogoURL", "");
                 SLogoUrlBox.Text = Settings.GetValue("sponsorLogoURL", "");
 
@@ -137,7 +135,7 @@ namespace BF2Statistics
                 // Bot Settings
                 GetBotSettings();
             }
-            catch(Exception e) 
+            catch (Exception e)
             {
                 this.Load += new EventHandler(CloseOnStart);
                 MessageBox.Show(e.Message, "Server Settings File Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -150,14 +148,14 @@ namespace BF2Statistics
         protected void GetBotSettings()
         {
             // Get the Bot Count
-            int BotCount = Int32.Parse(Settings.GetValue("coopBotCount"));
+            int BotCount = Int32.Parse(Settings.GetValue("coopBotCount", "16"));
             if (BotCount > 48)
                 BotCount = 48;
 
             // Set form values
             BotCountBar.Value = BotCount;
-            BotRatioBar.Value = Int32.Parse(Settings.GetValue("coopBotRatio"));
-            BotDifficultyBar.Value = Int32.Parse(Settings.GetValue("coopBotDifficulty"));
+            BotRatioBar.Value = Int32.Parse(Settings.GetValue("coopBotRatio", "50"));
+            BotDifficultyBar.Value = Int32.Parse(Settings.GetValue("coopBotDifficulty", "70"));
 
             // Global settings does not have a aidefault.ai file
             if (UseGlobalSettings)

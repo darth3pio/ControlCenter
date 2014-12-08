@@ -79,6 +79,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ASP\Ip2nation.cs" />
     <Compile Include="ASP\PidManager.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Forms\DatabaseConfigForm.cs">
@@ -93,7 +94,7 @@
     <Compile Include="Forms\ASP\LeaderboardConfigForm.Designer.cs">
       <DependentUpon>LeaderboardConfigForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="NiceDictionary.cs" />
+    <Compile Include="Utilities\NiceDictionary.cs" />
     <Compile Include="SetupManager.cs" />
     <Compile Include="Utilities\StatsPython.cs" />
     <Compile Include="Web\Bf2Stats\MyLeaderboardPage.cs" />
@@ -393,6 +394,9 @@
       <DependentUpon>SaveForm.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Resources\Ai\AIDefault.ai" />
+    <None Include="Ip2nation.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Updater.cs" />
     <Compile Include="Utilities\Networking.cs" />
     <Compile Include="Paths.cs" />

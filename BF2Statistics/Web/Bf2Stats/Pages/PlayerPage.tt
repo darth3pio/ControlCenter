@@ -1,5 +1,6 @@
 ﻿<#@ template language="C#" #>
 <#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="BF2Statistics.ASP" #>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" class="inner">
 <head>
@@ -37,7 +38,7 @@
 					<img class="vehicle" src="<#= this.Root #>/images/vehicles/vehicles_<#= this.Favorites["vehicle"] #>.jpg" alt="<#= StatsData.GetVehicleName(this.Favorites["vehicle"]) #>" />
 					<img class="kit" src="<#= this.Root #>/images/kits/kit_<#= this.Favorites["kit"] #>.jpg" alt="<#= StatsData.GetKitName(this.Favorites["kit"]) #>" />
 					<img class="map" src="<#= this.Root #>/images/maps/map_<#= this.FavoriteMapId #>.jpg" alt="<#= StatsData.GetMapName(this.FavoriteMapId) #>" />
-					<img id="flag" src="<#= this.Root #>/images/flags/<#= this.Player["country"] #>.png" alt="<#= this.Player["country"] #>" width="32" height="24" />
+					<img id="flag" src="<#= this.Root #>/images/flags/<#= this.Player["country"] #>.png" alt="<#= Ip2nation.GetCountyNameFromCode(this.Player["country"].ToString()) #>" width="32" height="24" />
 				</div>
 				<a id="add-to-mlb" href="<#= this.Root #>/myleaderboard?add=<#= this.Player["id"] #>"><img src="<#= this.Root #>/images/user_add.png" alt="Add to My Leader Board" /></a>
 			</div>

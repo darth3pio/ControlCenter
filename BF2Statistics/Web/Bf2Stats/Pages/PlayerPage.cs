@@ -10,6 +10,7 @@
 namespace BF2Statistics.Web.Bf2Stats
 {
     using System.Collections.Generic;
+    using BF2Statistics.ASP;
     using System;
     
     
@@ -80,21 +81,21 @@ namespace BF2Statistics.Web.Bf2Stats
                     "/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xh" +
                     "tml\" class=\"inner\">\r\n<head>\r\n\t<title>");
             
-            #line 6 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 7 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Title));
             
             #line default
             #line hidden
             this.Write("</title>\r\n\r\n\t<link rel=\"icon\" href=\"");
             
-            #line 8 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 9 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/favicon.ico\" type=\"image/x-icon\">\r\n\t<link rel=\"shortcut icon\" href=\"");
             
-            #line 9 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 10 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
@@ -102,7 +103,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("/favicon.ico\" type=\"image/x-icon\">\r\n\t<link rel=\"stylesheet\" type=\"text/css\" media" +
                     "=\"screen\" href=\"");
             
-            #line 10 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 11 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
@@ -110,14 +111,14 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("/scripts/two-tiers.css\">\r\n\t<link rel=\"stylesheet\" type=\"text/css\" media=\"screen\" " +
                     "href=\"");
             
-            #line 11 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 12 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/scripts/nt.css\">\r\n\t<link rel=\"stylesheet\" type=\"text/css\" media=\"print\" href=\"");
             
-            #line 12 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 13 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
@@ -125,7 +126,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("/scripts/print.css\">\r\n\t<link rel=\"stylesheet\" type=\"text/css\" media=\"screen\" href" +
                     "=\"");
             
-            #line 13 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 14 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
@@ -134,14 +135,14 @@ namespace BF2Statistics.Web.Bf2Stats
                     "location != self.location) top.location.replace(self.location);</script>\r\n\t<scri" +
                     "pt type=\"text/javascript\" src=\"");
             
-            #line 16 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 17 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/scripts/nt2.js\"></script>\r\n\t<script type=\"text/javascript\" src=\"");
             
-            #line 17 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 18 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
@@ -149,28 +150,28 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("/scripts/show.js\"></script>\r\n</head>\r\n<body class=\"inner\">\r\n\r\n<div id=\"page-1\">\r\n" +
                     "\t<div id=\"page-2\">\r\n\t\r\n\t\t<h1 id=\"page-title\">\r\n\t\t\t<img src=\"");
             
-            #line 25 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 26 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/ranks/header/rank_");
             
-            #line 25 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 26 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Player["rank"]));
             
             #line default
             #line hidden
             this.Write(".png\" alt=\"\" />\r\n            ");
             
-            #line 26 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 27 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Player["name"]));
             
             #line default
             #line hidden
             this.Write("<small> ");
             
-            #line 26 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 27 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetRankName(Int32.Parse(this.Player["rank"].ToString()))));
             
             #line default
@@ -179,147 +180,147 @@ namespace BF2Statistics.Web.Bf2Stats
                     "content-id\"><!-- template header end == begin content below -->\r\n\t\t\t<div id=\"pre" +
                     "fCol\">\r\n\t\t\t\t<div id=\"prefers\">\r\n\t\t\t\t\t<img class=\"solider\" src=\"");
             
-            #line 35 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 36 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.PlayerImage));
             
             #line default
             #line hidden
             this.Write("\" alt=\"");
             
-            #line 35 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 36 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Player["name"]));
             
             #line default
             #line hidden
             this.Write(" - ");
             
-            #line 35 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 36 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetArmyName(this.Favorites["army"])));
             
             #line default
             #line hidden
             this.Write("\" />\r\n\t\t\t\t\t<img class=\"weapon\" src=\"");
             
-            #line 36 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 37 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/weapons/weapon_");
             
-            #line 36 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 37 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Favorites["weapon"]));
             
             #line default
             #line hidden
             this.Write(".jpg\" alt=\"");
             
-            #line 36 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 37 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetWeaponName(this.Favorites["weapon"])));
             
             #line default
             #line hidden
             this.Write("\" />\r\n\t\t\t\t\t<img class=\"vehicle\" src=\"");
             
-            #line 37 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 38 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/vehicles/vehicles_");
             
-            #line 37 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 38 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Favorites["vehicle"]));
             
             #line default
             #line hidden
             this.Write(".jpg\" alt=\"");
             
-            #line 37 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 38 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetVehicleName(this.Favorites["vehicle"])));
             
             #line default
             #line hidden
             this.Write("\" />\r\n\t\t\t\t\t<img class=\"kit\" src=\"");
             
-            #line 38 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 39 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/kits/kit_");
             
-            #line 38 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 39 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Favorites["kit"]));
             
             #line default
             #line hidden
             this.Write(".jpg\" alt=\"");
             
-            #line 38 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 39 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetKitName(this.Favorites["kit"])));
             
             #line default
             #line hidden
             this.Write("\" />\r\n\t\t\t\t\t<img class=\"map\" src=\"");
             
-            #line 39 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 40 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/maps/map_");
             
-            #line 39 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 40 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FavoriteMapId));
             
             #line default
             #line hidden
             this.Write(".jpg\" alt=\"");
             
-            #line 39 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 40 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetMapName(this.FavoriteMapId)));
             
             #line default
             #line hidden
             this.Write("\" />\r\n\t\t\t\t\t<img id=\"flag\" src=\"");
             
-            #line 40 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 41 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/flags/");
             
-            #line 40 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 41 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Player["country"]));
             
             #line default
             #line hidden
             this.Write(".png\" alt=\"");
             
-            #line 40 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(this.Player["country"]));
+            #line 41 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Ip2nation.GetCountyNameFromCode(this.Player["country"].ToString())));
             
             #line default
             #line hidden
             this.Write("\" width=\"32\" height=\"24\" />\r\n\t\t\t\t</div>\r\n\t\t\t\t<a id=\"add-to-mlb\" href=\"");
             
-            #line 42 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 43 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/myleaderboard?add=");
             
-            #line 42 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 43 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Player["id"]));
             
             #line default
             #line hidden
             this.Write("\"><img src=\"");
             
-            #line 42 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 43 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
@@ -343,28 +344,28 @@ namespace BF2Statistics.Web.Bf2Stats
 								<td>Global</td>
 								<td>");
             
-            #line 59 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 60 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["score"])));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td>Team</td>\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 63 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 64 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["teamscore"])));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td>Combat</td>\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 67 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 68 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["skillscore"])));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td>Commander</td>\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 71 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 72 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["cmdscore"])));
             
             #line default
@@ -373,7 +374,7 @@ namespace BF2Statistics.Web.Bf2Stats
                     "\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td nowrap=\"nowrap\">Parachute</td>\r\n\t\t\t\t\t\t\t\t<td nowrap=\"n" +
                     "owrap\">");
             
-            #line 78 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 79 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.VehicleData[7].Time)));
             
             #line default
@@ -381,7 +382,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td nowrap=\"nowrap\">Commander</td>\r\n\t\t\t" +
                     "\t\t\t\t\t<td nowrap=\"nowrap\">");
             
-            #line 82 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 83 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.Player["cmdtime"])));
             
             #line default
@@ -389,7 +390,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td nowrap=\"nowrap\">Squad Leader </td>\r" +
                     "\n\t\t\t\t\t\t\t\t<td nowrap=\"nowrap\">");
             
-            #line 86 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 87 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.Player["sqltime"])));
             
             #line default
@@ -397,7 +398,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td nowrap=\"nowrap\">Squad Member </td>\r" +
                     "\n\t\t\t\t\t\t\t\t<td nowrap=\"nowrap\">");
             
-            #line 90 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 91 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.Player["sqmtime"])));
             
             #line default
@@ -405,7 +406,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td nowrap=\"nowrap\">Lone Wolf </td>\r\n\t\t" +
                     "\t\t\t\t\t\t<td nowrap=\"nowrap\">");
             
-            #line 94 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 95 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.Player["lwtime"])));
             
             #line default
@@ -413,7 +414,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td>Total</td>\r\n\t\t\t\t\t\t\t\t<td nowrap=\"now" +
                     "rap\">");
             
-            #line 98 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 99 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.Player["time"])));
             
             #line default
@@ -429,21 +430,21 @@ namespace BF2Statistics.Web.Bf2Stats
 								<td nowrap=""nowrap"">
                                     ");
             
-            #line 107 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 108 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["wins"])));
             
             #line default
             #line hidden
             this.Write("&nbsp;/&nbsp;");
             
-            #line 107 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 108 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["losses"])));
             
             #line default
             #line hidden
             this.Write("\r\n                                    &nbsp;(");
             
-            #line 108 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 109 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.WinLossRatio));
             
             #line default
@@ -452,7 +453,7 @@ namespace BF2Statistics.Web.Bf2Stats
                     "ts</th>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td nowrap=\"nowrap\">Captured CP </td" +
                     ">\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 116 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 117 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["captures"])));
             
             #line default
@@ -460,7 +461,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td nowrap=\"nowrap\">Capture Assist </td" +
                     ">\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 120 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 121 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["captureassists"])));
             
             #line default
@@ -468,7 +469,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td nowrap=\"nowrap\">Defended CP </td>\r\n" +
                     "\t\t\t\t\t\t\t\t<td>");
             
-            #line 124 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 125 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["defends"])));
             
             #line default
@@ -476,42 +477,42 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<th colspan=\"2\">Teamwork</th>\r\n\t\t\t\t\t\t\t<" +
                     "/tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td nowrap=\"nowrap\">Kill Assist </td>\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 131 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 132 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.KillAssists)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td>Heal</td>\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 135 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 136 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["heals"])));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td>Revive</td>\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 139 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 140 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["revives"])));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td>Support</td>\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 143 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 144 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["ammos"])));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td>Repair</td>\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 147 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 148 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["repairs"])));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td>Driver</td>\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 151 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 152 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["driverspecials"])));
             
             #line default
@@ -520,7 +521,7 @@ namespace BF2Statistics.Web.Bf2Stats
                     "0\" cellpadding=\"0\" cellspacing=\"0\" id=\"combat\">\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td>Accura" +
                     "cy</td>\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 159 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 160 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.WeaponSummary.AverageAccuracy, 2)));
             
             #line default
@@ -528,14 +529,14 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("%</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td><acronym title=\"Score per minute\">" +
                     "SPM</acronym></td>\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 163 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 164 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.ScorePerMin, 4)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td>Suicides </td>\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 167 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 168 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["suicides"])));
             
             #line default
@@ -543,7 +544,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td nowrap=\"nowrap\">K/D Ratio</td>\r\n\t\t\t" +
                     "\t\t\t\t\t<td>");
             
-            #line 171 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 172 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.KillDeathRatio, 3)));
             
             #line default
@@ -552,14 +553,14 @@ namespace BF2Statistics.Web.Bf2Stats
                     ">\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td nowrap=\"nowrap\">Total &amp; Streak</td>\r\n\t\t\t\t\t\t\t\t<td" +
                     ">");
             
-            #line 178 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 179 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["kills"])));
             
             #line default
             #line hidden
             this.Write(" / ");
             
-            #line 178 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 179 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["killstreak"])));
             
             #line default
@@ -567,7 +568,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td nowrap=\"nowrap\">Per Minute </td>\r\n\t" +
                     "\t\t\t\t\t\t\t<td>");
             
-            #line 182 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 183 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.KillsPerMin, 3)));
             
             #line default
@@ -575,7 +576,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td nowrap=\"nowrap\">Per Round </td>\r\n\t\t" +
                     "\t\t\t\t\t\t<td>");
             
-            #line 186 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 187 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.KillsPerRound, 3)));
             
             #line default
@@ -583,28 +584,28 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<th colspan=\"2\">Deaths</th>\r\n\t\t\t\t\t\t\t</t" +
                     "r>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td>Total &amp; Streak</td>\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 193 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 194 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["deaths"])));
             
             #line default
             #line hidden
             this.Write(" / ");
             
-            #line 193 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 194 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["deathstreak"])));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td>Per Minute </td>\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 197 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 198 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.DeathsPerMin, 3)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td>Per Round </td>\r\n\t\t\t\t\t\t\t\t<td>");
             
-            #line 201 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 202 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.DeathsPerRound, 3)));
             
             #line default
@@ -630,7 +631,7 @@ namespace BF2Statistics.Web.Bf2Stats
 						</tr>
                         ");
             
-            #line 220 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 221 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
 						for (int i = 0; i < this.ArmyData.Count; i++)
 						{
@@ -640,63 +641,63 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\t\t\t\t\t\t\t<td id=\"army-");
             
-            #line 224 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 225 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(i));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 224 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 225 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetArmyName(this.ArmyData[i].Id)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\" title=\"");
             
-            #line 225 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 226 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.ArmyData[i].Time));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 225 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 226 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.ArmyData[i].Time)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 226 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 227 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.ArmyData[i].Wins)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 227 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 228 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.ArmyData[i].Losses)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 228 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 229 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.ArmyData[i].Ratio, 2)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 229 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 230 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.ArmyData[i].Best)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t");
             
-            #line 231 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 232 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
@@ -704,21 +705,21 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\r\n\t\t\t\t\t\t<tr class=\"totals sortbottom\">\r\n                            <td>Total</t" +
                     "d>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\">");
             
-            #line 234 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 235 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.ArmySummary.TotalTime)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 235 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 236 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.ArmySummary.TotalWins)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 236 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 237 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.ArmySummary.TotalLosses)));
             
             #line default
@@ -727,35 +728,35 @@ namespace BF2Statistics.Web.Bf2Stats
                     "tr class=\"averages sortbottom\">\r\n\t\t\t\t\t\t\t<td>Averages</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"no" +
                     "wrap\">");
             
-            #line 242 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 243 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.ArmySummary.AverageTime)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 243 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 244 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.ArmySummary.AverageWins)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 244 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 245 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.ArmySummary.AverageLosses)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 245 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 246 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.ArmySummary.Ratio, 2)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 246 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 247 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.ArmySummary.AverageBest)));
             
             #line default
@@ -774,7 +775,7 @@ namespace BF2Statistics.Web.Bf2Stats
 						</tr>
                         ");
             
-            #line 258 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 259 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
 						for (int i = 0; i < this.MapData.Count; i++)
 						{
@@ -784,63 +785,63 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\t\t\t\t\t\t\t<td id=\"map-");
             
-            #line 262 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 263 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(i));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 262 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 263 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetMapName(this.MapData[i].Id)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\" title=\"");
             
-            #line 263 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 264 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.MapData[i].Time));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 263 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 264 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.MapData[i].Time)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 264 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 265 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.MapData[i].Wins)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 265 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 266 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.MapData[i].Losses)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 266 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 267 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.MapData[i].Ratio, 2)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 267 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 268 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.MapData[i].Best)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t");
             
-            #line 269 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 270 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
@@ -848,21 +849,21 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("                        <tr class=\"totals sortbottom\">\r\n                         " +
                     "   <td>Total</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\">");
             
-            #line 272 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 273 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.MapSummary.TotalTime)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 273 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 274 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.MapSummary.TotalWins)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 274 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 275 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.MapSummary.TotalLosses)));
             
             #line default
@@ -871,35 +872,35 @@ namespace BF2Statistics.Web.Bf2Stats
                     "tr class=\"averages sortbottom\">\r\n\t\t\t\t\t\t\t<td>Averages</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"no" +
                     "wrap\">");
             
-            #line 280 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 281 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.MapSummary.AverageTime)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 281 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 282 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.MapSummary.AverageWins)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 282 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 283 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.MapSummary.AverageLosses)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 283 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 284 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.MapSummary.Ratio, 2)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 284 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 285 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.MapSummary.AverageBest)));
             
             #line default
@@ -919,7 +920,7 @@ namespace BF2Statistics.Web.Bf2Stats
 							</tr>
 							");
             
-            #line 297 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 298 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
 						    for (int i = 0; i < this.TheaterData.Count; i++)
 						    {
@@ -929,63 +930,63 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\t\t\t\t\t\t\t    <td id=\"map-");
             
-            #line 301 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 302 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(i));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 301 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 302 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TheaterData[i].Name));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t    <td nowrap=\"nowrap\" title=\"");
             
-            #line 302 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 303 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TheaterData[i].Time));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 302 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 303 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.TheaterData[i].Time)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t    <td>");
             
-            #line 303 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 304 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.TheaterData[i].Wins)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t    <td>");
             
-            #line 304 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 305 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.TheaterData[i].Losses)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t    <td>");
             
-            #line 305 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 306 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.TheaterData[i].Ratio, 2)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t    <td>");
             
-            #line 306 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 307 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.TheaterData[i].Best)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t    </tr>\r\n\t\t\t\t\t\t    ");
             
-            #line 308 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 309 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
@@ -1004,7 +1005,7 @@ namespace BF2Statistics.Web.Bf2Stats
 						</tr>
                         ");
             
-            #line 321 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 322 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
                         for (int i = 0; i < 7; i++)
 						{   
@@ -1014,28 +1015,28 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\t\t\t\t\t\t\t<td id=\"vehicle-");
             
-            #line 325 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 326 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(i));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 325 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 326 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetVehicleName(i)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\" title=\"");
             
-            #line 326 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 327 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.VehicleData[i].Time));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 326 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 327 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.VehicleData[i].Time)));
             
             #line default
@@ -1043,14 +1044,14 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>\r\n                                <span class=\"abbr\" alt=\"Accou" +
                     "nts for ");
             
-            #line 328 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 329 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.VehicleData[i].KillsAcctFor, 2)));
             
             #line default
             #line hidden
             this.Write("% of all kills\">\r\n                                    ");
             
-            #line 329 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 330 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.VehicleData[i].Kills)));
             
             #line default
@@ -1058,28 +1059,28 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\r\n                                </span>\r\n                            </td>\r\n\t\t\t" +
                     "\t\t\t\t<td>");
             
-            #line 332 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 333 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.VehicleData[i].Deaths)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 333 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 334 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.VehicleData[i].Ratio, 4)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 334 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 335 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.VehicleData[i].RoadKills)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t");
             
-            #line 336 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 337 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
@@ -1087,35 +1088,35 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t<tr class=\"averages sortbottom\">\r\n                            <td>Total</td" +
                     ">\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\">");
             
-            #line 339 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 340 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.VehicleSummary.TotalTime)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>\r\n\t\t\t\t\t\t\t\t<span class=\"abbr\" alt=\"Accounts for ");
             
-            #line 341 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 342 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.VehicleSummary.KillsAcctFor, 2)));
             
             #line default
             #line hidden
             this.Write("% of all kills\">\r\n                                    ");
             
-            #line 342 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 343 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.VehicleSummary.TotalKills)));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t\t\t\t\t\t\t</span>\r\n\t\t\t\t\t\t\t</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 345 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 346 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.VehicleSummary.TotalDeaths)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td> &ndash; </td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 347 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 348 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.VehicleSummary.TotalRoadKills)));
             
             #line default
@@ -1123,35 +1124,35 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t<tr class=\"totals sortbottom\">\t\t\t\r\n\t\t\t\t\t\t\t<td>Averages<" +
                     "/td>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\">");
             
-            #line 351 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 352 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.VehicleSummary.AverageTime)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 352 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 353 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.VehicleSummary.AverageKills)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 353 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 354 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.VehicleSummary.AverageDeaths)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 354 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 355 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.VehicleSummary.AverageRatio, 2)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 355 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 356 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.VehicleSummary.AverageRoadKills)));
             
             #line default
@@ -1175,56 +1176,56 @@ namespace BF2Statistics.Web.Bf2Stats
 							<td>Time</td>
 							<td nowrap=""nowrap"" title=""");
             
-            #line 372 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 373 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.ExpackTime["bf"]));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 372 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 373 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.ExpackTime["bf"])));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\" title=\"");
             
-            #line 373 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 374 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.ExpackTime["sf"]));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 373 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 374 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.ExpackTime["sf"])));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\" title=\"");
             
-            #line 374 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 375 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.ExpackTime["ef"]));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 374 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 375 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.ExpackTime["ef"])));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\" title=\"");
             
-            #line 375 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 376 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.ExpackTime["af"]));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 375 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 376 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.ExpackTime["af"])));
             
             #line default
@@ -1243,7 +1244,7 @@ namespace BF2Statistics.Web.Bf2Stats
 						</tr>
 						");
             
-            #line 387 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 388 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
                         for (int i = 0; i < 7; i++)
 						{
@@ -1253,28 +1254,28 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\t\t\t\t\t\t\t<td id=\"kit-");
             
-            #line 391 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 392 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(i));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 391 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 392 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetKitName(i)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\" title=\"");
             
-            #line 392 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 393 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.KitData[i].Time));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 392 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 393 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.KitData[i].Time)));
             
             #line default
@@ -1282,14 +1283,14 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>\r\n                                <span class=\"abbr\" alt=\"Accou" +
                     "nts for ");
             
-            #line 394 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 395 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.KitData[i].KillsAcctFor, 2)));
             
             #line default
             #line hidden
             this.Write("% of all kills\">\r\n                                    ");
             
-            #line 395 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 396 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.KitData[i].Kills)));
             
             #line default
@@ -1297,21 +1298,21 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\r\n                                </span>\r\n                            </td>\r\n\t\t\t" +
                     "\t\t\t\t<td>");
             
-            #line 398 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 399 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.KitData[i].Deaths)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 399 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 400 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.KitData[i].Ratio, 4)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t");
             
-            #line 401 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 402 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
@@ -1319,28 +1320,28 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t<tr class=\"averages sortbottom\">\r\n                            <td>Total</td" +
                     ">\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\">");
             
-            #line 404 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 405 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.KitSummary.TotalTime)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>\r\n\t\t\t\t\t\t\t\t<span class=\"abbr\" alt=\"Accounts for ");
             
-            #line 406 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 407 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.KitSummary.KillsAcctFor, 2)));
             
             #line default
             #line hidden
             this.Write("% of all kills\">\r\n                                    ");
             
-            #line 407 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 408 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.KitSummary.TotalKills)));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t\t\t\t\t\t\t</span>\r\n\t\t\t\t\t\t\t</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 410 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 411 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.KitSummary.TotalDeaths)));
             
             #line default
@@ -1348,28 +1349,28 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td> &ndash; </td>\r\n\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t<tr class=\"totals sortbottom" +
                     "\">\t\t\t\r\n\t\t\t\t\t\t\t<td>Averages</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\">");
             
-            #line 415 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 416 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.KitSummary.AverageTime)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 416 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 417 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.KitSummary.AverageKills)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 417 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 418 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.KitSummary.AverageDeaths)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 418 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 419 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.KitSummary.AverageRatio, 2)));
             
             #line default
@@ -1389,7 +1390,7 @@ namespace BF2Statistics.Web.Bf2Stats
 						</tr>
 						");
             
-            #line 431 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 432 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
                         for (int i = 0; i < 10; i++)
                         {
@@ -1399,28 +1400,28 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\t\t\t\t\t\t\t<td id=\"weapon-");
             
-            #line 435 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 436 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(i));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 435 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 436 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetWeaponName(i)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\" title=\"");
             
-            #line 436 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 437 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.WeaponData[i].Time));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 436 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 437 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.WeaponData[i].Time)));
             
             #line default
@@ -1428,14 +1429,14 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>\r\n                                <span class=\"abbr\" alt=\"Accou" +
                     "nts for ");
             
-            #line 438 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 439 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.WeaponData[i].KillsAcctFor, 2)));
             
             #line default
             #line hidden
             this.Write("% of all kills\">\r\n                                    ");
             
-            #line 439 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 440 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponData[i].Kills)));
             
             #line default
@@ -1443,42 +1444,42 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\r\n                                </span>\r\n                            </td>\r\n\t\t\t" +
                     "\t\t\t\t<td>");
             
-            #line 442 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 443 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponData[i].Deaths)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 443 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 444 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.WeaponData[i].Ratio, 4)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td title=\"");
             
-            #line 444 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 445 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.WeaponData[i].Accuracy, 2)));
             
             #line default
             #line hidden
             this.Write("\">\r\n                                <span class=\"abbr\" alt=\"Shots: ");
             
-            #line 445 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 446 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponData[i].Fired)));
             
             #line default
             #line hidden
             this.Write(", Hits: ");
             
-            #line 445 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 446 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponData[i].Hits)));
             
             #line default
             #line hidden
             this.Write("\">\r\n                                    ");
             
-            #line 446 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 447 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.WeaponData[i].Accuracy, 2)));
             
             #line default
@@ -1486,7 +1487,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("%\r\n                                </span>\r\n                            </td>\r\n\t\t" +
                     "\t\t\t\t</tr>\r\n\t\t\t\t\t\t");
             
-            #line 450 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 451 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  }
                         for (int i = 0; i < 3; i++)
                         {
@@ -1496,28 +1497,28 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\t\t\t\t\t\t\t<td id=\"weapon-");
             
-            #line 454 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 455 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(i));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 454 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 455 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetWeaponName2(i)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\" title=\"");
             
-            #line 455 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 456 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.WeaponData2[i].Time));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 455 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 456 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.WeaponData2[i].Time)));
             
             #line default
@@ -1525,14 +1526,14 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>\r\n                                <span class=\"abbr\" alt=\"Accou" +
                     "nts for ");
             
-            #line 457 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 458 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.WeaponData2[i].KillsAcctFor, 2)));
             
             #line default
             #line hidden
             this.Write("% of all kills\">\r\n                                    ");
             
-            #line 458 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 459 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponData2[i].Kills)));
             
             #line default
@@ -1540,42 +1541,42 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\r\n                                </span>\r\n                            </td>\r\n\t\t\t" +
                     "\t\t\t\t<td>");
             
-            #line 461 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 462 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponData2[i].Deaths)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 462 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 463 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.WeaponData2[i].Ratio, 4)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td title=\"");
             
-            #line 463 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 464 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.WeaponData2[i].Accuracy, 2)));
             
             #line default
             #line hidden
             this.Write("\">\r\n                                <span class=\"abbr\" alt=\"Shots: ");
             
-            #line 464 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 465 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponData2[i].Fired)));
             
             #line default
             #line hidden
             this.Write(", Hits: ");
             
-            #line 464 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 465 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponData2[i].Hits)));
             
             #line default
             #line hidden
             this.Write("\">\r\n                                    ");
             
-            #line 465 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 466 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.WeaponData2[i].Accuracy, 2)));
             
             #line default
@@ -1583,7 +1584,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("%\r\n                                </span>\r\n                            </td>\r\n\t\t" +
                     "\t\t\t\t</tr>\r\n\t\t\t\t\t\t");
             
-            #line 469 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 470 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
@@ -1591,28 +1592,28 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("                        <tr class=\"averages sortbottom\">\r\n                       " +
                     "     <td>Total</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\">");
             
-            #line 472 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 473 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.WeaponSummary.TotalTime)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>\r\n\t\t\t\t\t\t\t\t<span class=\"abbr\" alt=\"Accounts for ");
             
-            #line 474 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 475 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.WeaponSummary.KillsAcctFor, 2)));
             
             #line default
             #line hidden
             this.Write("% of all kills\">\r\n                                    ");
             
-            #line 475 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 476 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponSummary.TotalKills)));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t\t\t\t\t\t\t</span>\r\n\t\t\t\t\t\t\t</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 478 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 479 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponSummary.TotalDeaths)));
             
             #line default
@@ -1621,28 +1622,28 @@ namespace BF2Statistics.Web.Bf2Stats
                     "\n\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t<tr class=\"totals sortbottom\">\t\t\t\r\n\t\t\t\t\t\t\t<td>Averages</td>\r" +
                     "\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\">");
             
-            #line 484 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 485 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.WeaponSummary.AverageTime(15))));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 485 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 486 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponSummary.AverageKills(15))));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 486 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 487 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponSummary.AverageDeaths(15))));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 487 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 488 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.WeaponSummary.AverageRatio, 2)));
             
             #line default
@@ -1650,21 +1651,21 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n                            <td>\r\n                                <span cl" +
                     "ass=\"abbr\" alt=\"Shots: ");
             
-            #line 489 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 490 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponSummary.TotalFired)));
             
             #line default
             #line hidden
             this.Write(", Hits: ");
             
-            #line 489 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 490 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponSummary.TotalHits)));
             
             #line default
             #line hidden
             this.Write("\">\r\n                                    ");
             
-            #line 490 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 491 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.WeaponSummary.AverageAccuracy, 2)));
             
             #line default
@@ -1686,7 +1687,7 @@ namespace BF2Statistics.Web.Bf2Stats
 						</tr>
 						");
             
-            #line 505 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 506 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
                         for (int i = 9; i < 18; i++)
                         {
@@ -1696,28 +1697,28 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\t\t\t\t\t\t\t<td id=\"weapon-");
             
-            #line 509 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 510 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(i));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 509 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 510 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetWeaponName(i)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\" title=\"");
             
-            #line 510 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 511 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.WeaponData[i].Time));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 510 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 511 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.WeaponData[i].Time)));
             
             #line default
@@ -1725,14 +1726,14 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>\r\n                                <span class=\"abbr\" alt=\"Accou" +
                     "nts for ");
             
-            #line 512 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 513 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.WeaponData[i].KillsAcctFor, 2)));
             
             #line default
             #line hidden
             this.Write("% of all kills\">\r\n                                    ");
             
-            #line 513 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 514 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponData[i].Kills)));
             
             #line default
@@ -1740,28 +1741,28 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\r\n                                </span>\r\n                            </td>\r\n\t\t\t" +
                     "\t\t\t\t<td>");
             
-            #line 516 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 517 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponData[i].Deaths)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 517 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 518 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.WeaponData[i].Ratio, 4)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 518 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 519 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.WeaponData[i].Fired)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t");
             
-            #line 520 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 521 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
@@ -1769,28 +1770,28 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t    <tr class=\"averages sortbottom\">\r\n                            <td>Total<" +
                     "/td>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\">");
             
-            #line 523 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 524 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.EquipmentSummary.TotalTime)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>\r\n\t\t\t\t\t\t\t\t<span class=\"abbr\" alt=\"Accounts for ");
             
-            #line 525 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 526 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.EquipmentSummary.KillsAcctFor, 2)));
             
             #line default
             #line hidden
             this.Write("% of all kills\">\r\n                                    ");
             
-            #line 526 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 527 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.EquipmentSummary.TotalKills)));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t\t\t\t\t\t\t</span>\r\n\t\t\t\t\t\t\t</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 529 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 530 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.EquipmentSummary.TotalDeaths)));
             
             #line default
@@ -1799,35 +1800,35 @@ namespace BF2Statistics.Web.Bf2Stats
                     "\n\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t<tr class=\"totals sortbottom\">\t\t\t\r\n\t\t\t\t\t\t\t<td>Averages</td>\r" +
                     "\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\">");
             
-            #line 535 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 536 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(this.EquipmentSummary.AverageTime(9))));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 536 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 537 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.EquipmentSummary.AverageKills(9))));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 537 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 538 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.EquipmentSummary.AverageDeaths(9))));
             
             #line default
             #line hidden
             this.Write("</td>\r\n\t\t\t\t\t\t\t<td>");
             
-            #line 538 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 539 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.EquipmentSummary.AverageRatio, 2)));
             
             #line default
             #line hidden
             this.Write("</td>\r\n                            <td>");
             
-            #line 539 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 540 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.EquipmentSummary.AverageFired(9))));
             
             #line default
@@ -1843,7 +1844,7 @@ namespace BF2Statistics.Web.Bf2Stats
 							<td>Favorite Victim<br />(Kills to) </td>
 								");
             
-            #line 548 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 549 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  if (this.TopVictims.Count > 0) { 
             
             #line default
@@ -1851,56 +1852,56 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t\t\t    <td nowrap=\"nowrap\">\r\n                                    <acronym ti" +
                     "tle=\"his rank is ");
             
-            #line 550 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 551 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetRankName(this.TopVictims[0].Rank)));
             
             #line default
             #line hidden
             this.Write("\">\r\n                                        <img src=\"");
             
-            #line 551 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 552 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/ranks/icon/rank_");
             
-            #line 551 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 552 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TopVictims[0].Rank));
             
             #line default
             #line hidden
             this.Write(".gif\"> \r\n                                        <a rel=\"nofollow\" href=\"?pid=");
             
-            #line 552 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 553 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TopVictims[0].Pid));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 552 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 553 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TopVictims[0].Name));
             
             #line default
             #line hidden
             this.Write("</a>\r\n                                    </acronym> (");
             
-            #line 553 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 554 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TopVictims[0].Count));
             
             #line default
             #line hidden
             this.Write(")\r\n                            </td>\r\n\t\t\t\t\t\t\t\t");
             
-            #line 555 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 556 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } else { 
             
             #line default
             #line hidden
             this.Write("\t\t\t\t\t\t\t<td>You are no one\\\'s worst enemy. Go bully someone.</td>\r\n\t\t\t\t\t\t\t    ");
             
-            #line 557 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 558 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
@@ -1908,7 +1909,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\">More Victims<br />(Top 10)</t" +
                     "d>\r\n\t\t\t\t\t\t\t<td>\r\n\t\t\t\t\t\t\t\t");
             
-            #line 562 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 563 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  
                                 if(this.TopVictims.Count > 1)
                                 {
@@ -1919,21 +1920,21 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\t\t\t\t\t\t\t\t\t\t<acronym title=\"his rank is ");
             
-            #line 567 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 568 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetRankName(this.TopVictims[i].Rank)));
             
             #line default
             #line hidden
             this.Write("\">\r\n                                            <img src=\"");
             
-            #line 568 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 569 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/ranks/icon/rank_");
             
-            #line 568 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 569 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TopVictims[i].Rank));
             
             #line default
@@ -1941,35 +1942,35 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write(".gif\"> \r\n                                            <a rel=\"nofollow\" href=\"?pid" +
                     "=");
             
-            #line 569 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 570 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TopVictims[i].Pid));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 569 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 570 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TopVictims[i].Name));
             
             #line default
             #line hidden
             this.Write("</a>\r\n                                        </acronym> (");
             
-            #line 570 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 571 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TopVictims[i].Count));
             
             #line default
             #line hidden
             this.Write("), \r\n\t\t\t\t\t\t\t\t    ");
             
-            #line 571 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 572 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
             #line hidden
             this.Write("                                ");
             
-            #line 572 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 573 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
@@ -1977,7 +1978,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t\t</td>\t\r\n\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\">Worst Enemy<br" +
                     " />(Deaths by)</td>\r\n                            ");
             
-            #line 577 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 578 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  if (this.TopEnemies.Count > 0) { 
             
             #line default
@@ -1985,56 +1986,56 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t\t\t    <td nowrap=\"nowrap\">\r\n                                    <acronym ti" +
                     "tle=\"his rank is ");
             
-            #line 579 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 580 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetRankName(this.TopEnemies[0].Rank)));
             
             #line default
             #line hidden
             this.Write("\">\r\n                                        <img src=\"");
             
-            #line 580 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 581 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/ranks/icon/rank_");
             
-            #line 580 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 581 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TopEnemies[0].Rank));
             
             #line default
             #line hidden
             this.Write(".gif\"> \r\n                                        <a rel=\"nofollow\" href=\"?pid=");
             
-            #line 581 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 582 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TopEnemies[0].Pid));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 581 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 582 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TopEnemies[0].Name));
             
             #line default
             #line hidden
             this.Write("</a>\r\n                                    </acronym> (");
             
-            #line 582 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 583 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TopEnemies[0].Count));
             
             #line default
             #line hidden
             this.Write(")\r\n                            </td>\r\n\t\t\t\t\t\t\t\t");
             
-            #line 584 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 585 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } else { 
             
             #line default
             #line hidden
             this.Write("\t\t\t\t\t\t\t<td>It seems you are invincible!</td>\r\n\t\t\t\t\t\t\t    ");
             
-            #line 586 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 587 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
@@ -2042,7 +2043,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\">More Enemies<br />(Top 10)</t" +
                     "d>\r\n\t\t\t\t\t\t\t<td>\r\n\t\t\t\t\t\t\t\t");
             
-            #line 591 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 592 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  
                                 if(this.TopEnemies.Count > 1)
                                 {
@@ -2053,21 +2054,21 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\t\t\t\t\t\t\t\t\t\t<acronym title=\"his rank is ");
             
-            #line 596 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 597 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetRankName(this.TopEnemies[i].Rank)));
             
             #line default
             #line hidden
             this.Write("\">\r\n                                            <img src=\"");
             
-            #line 597 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 598 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/ranks/icon/rank_");
             
-            #line 597 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 598 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TopEnemies[i].Rank));
             
             #line default
@@ -2075,35 +2076,35 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write(".gif\"> \r\n                                            <a rel=\"nofollow\" href=\"?pid" +
                     "=");
             
-            #line 598 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 599 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TopEnemies[i].Pid));
             
             #line default
             #line hidden
             this.Write("\">");
             
-            #line 598 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 599 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TopEnemies[i].Name));
             
             #line default
             #line hidden
             this.Write("</a>\r\n                                        </acronym> (");
             
-            #line 599 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 600 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.TopEnemies[i].Count));
             
             #line default
             #line hidden
             this.Write("), \r\n\t\t\t\t\t\t\t\t    ");
             
-            #line 600 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 601 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
             #line hidden
             this.Write("                                ");
             
-            #line 601 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 602 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
     } else { 
             
             #line default
@@ -2111,7 +2112,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("                                    No one has picked on you much.\r\n             " +
                     "                   ");
             
-            #line 603 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 604 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
     } 
             
             #line default
@@ -2129,7 +2130,7 @@ namespace BF2Statistics.Web.Bf2Stats
 							<td>PID (Player ID Number)</td>
 							<td nowrap=""nowrap"">");
             
-            #line 615 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 616 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Player["id"]));
             
             #line default
@@ -2137,7 +2138,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write(" </td>\r\n\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t<td>Enrollment Date </td>\r\n\t\t\t\t\t\t\t<td now" +
                     "rap=\"nowrap\">");
             
-            #line 619 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 620 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatDate(this.Player["joined"])));
             
             #line default
@@ -2145,7 +2146,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t<td>Last Battle On </td>\r\n\t\t\t\t\t\t\t<td nowra" +
                     "p=\"nowrap\">");
             
-            #line 623 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 624 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatDate(this.Player["lastonline"])));
             
             #line default
@@ -2153,7 +2154,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t<td>Last Update </td>\r\n\t\t\t\t\t\t\t<td nowrap=\"" +
                     "nowrap\">");
             
-            #line 627 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 628 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")));
             
             #line default
@@ -2161,7 +2162,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t<td>Next Update</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"n" +
                     "owrap\">");
             
-            #line 631 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 632 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  
                                 if(MainForm.Config.BF2S_CacheEnabled) 
                                     this.Write(DateTime.Now.AddMinutes(30).ToString("yyyy-MM-dd HH:mm:ss"));
@@ -2174,7 +2175,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t</tr>\t\r\n\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t<td>Kicked &amp; Banned</td>\r\n\t\t\t\t\t\t\t<td " +
                     "nowrap=\"nowrap\">");
             
-            #line 640 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 641 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  Write(this.Player["kicked"].ToString() + " / " + this.Player["banned"].ToString()); 
             
             #line default
@@ -2182,21 +2183,21 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</td>\r\n\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t<td>Team: Kills, Damage, &amp; Vehicle Dam" +
                     "age </td>\r\n\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\">\r\n                                ");
             
-            #line 646 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 647 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["teamkills"])));
             
             #line default
             #line hidden
             this.Write(" / \r\n                                ");
             
-            #line 647 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 648 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["teamdamage"])));
             
             #line default
             #line hidden
             this.Write(" / \r\n                                ");
             
-            #line 648 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 649 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["teamvehicledamage"])));
             
             #line default
@@ -2204,7 +2205,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\r\n                            </td>\r\n\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t<td>Cost ($5" +
                     "0 base)</td>\r\n\t\t\t\t\t\t\t<td nowrap=\"nowrap\">");
             
-            #line 653 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 654 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatFloat(this.CostPerHour, 4)));
             
             #line default
@@ -2227,7 +2228,7 @@ namespace BF2Statistics.Web.Bf2Stats
 						<td>
 							");
             
-            #line 669 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 670 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
                             foreach(WeaponUnlock Weapon in PlayerUnlocks)
 							{ 
@@ -2237,35 +2238,35 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t\t\t<div class=\"unlock-inline\" onmouseover=\"show_mine(this);\" onmouseout=\"hid" +
                     "e_mine(this);\">\r\n\t\t\t\t\t\t\t\t\t<a href=\"http://wiki.bf2s.com/weapons/unlocks/");
             
-            #line 673 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 674 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Weapon.Name.ToLower()));
             
             #line default
             #line hidden
             this.Write("\">\r\n                                        <img src=\"");
             
-            #line 674 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 675 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/spacer.gif\" style=\"background: url(\'");
             
-            #line 674 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 675 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/unlocks/");
             
-            #line 674 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 675 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Weapon.State));
             
             #line default
             #line hidden
             this.Write("/");
             
-            #line 674 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 675 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Weapon.Id));
             
             #line default
@@ -2273,21 +2274,21 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write(".png\');\" width=\"115\" height=\"33\" alt=\"\" />\r\n                                    <" +
                     "/a>\r\n\t\t\t\t\t\t\t\t\t<div class=\"unlock-pop dir-left\">\r\n\t\t\t\t\t\t\t\t\t\t<img src=\"");
             
-            #line 677 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 678 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/spacer.gif\" style=\"background: url(\'");
             
-            #line 677 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 678 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/unlocks/full/");
             
-            #line 677 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 678 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Weapon.Id));
             
             #line default
@@ -2295,14 +2296,14 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write(".jpg\');\" width=\"128\" height=\"128\" alt=\"\" />\r\n\t\t\t\t\t\t\t\t\t\t<strong>Click for more abo" +
                     "ut the ");
             
-            #line 678 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 679 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Weapon.Name));
             
             #line default
             #line hidden
             this.Write("</strong>\r\n\t\t\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t\t");
             
-            #line 681 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 682 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
@@ -2320,7 +2321,7 @@ namespace BF2Statistics.Web.Bf2Stats
 						<td class=""awards-row"">
                         ");
             
-            #line 693 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 694 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
                             int j = 0;
 							foreach(KeyValuePair<string, List<Award>> Award in this.PlayerBadges)
@@ -2334,21 +2335,21 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t\t\t<div class=\"award-inline\" onMouseOver=\"show_mine(this);\" onMouseOut=\"hide" +
                     "_mine(this);\">\r\n\t\t\t\t\t\t\t\t\t<img src=\"");
             
-            #line 701 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 702 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/spacer.gif\" style=\"background: url(\'");
             
-            #line 701 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 702 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/awards/");
             
-            #line 701 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 702 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
 									if (level > 0)
 										this.Write("front/" + Id + "_" + level);
@@ -2360,7 +2361,7 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write(".png\');\" width=\"42\" height=\"42\" alt=\"\" />\r\n\t\t\t\t\t\t\t\t\t<div class=\"award-pop dir-");
             
-            #line 707 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 708 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
 										if (j < StatsData.Badges.Count / 2)
                                             this.Write("left");
@@ -2374,56 +2375,56 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\">\r\n\t\t\t\t\t\t\t\t\t\t<p>\r\n\t\t\t\t\t\t\t\t\t\t\t<img src=\"");
             
-            #line 716 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 717 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/spacer.gif\" style=\"background: url(\'");
             
-            #line 716 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 717 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/awards/perspective/");
             
-            #line 716 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 717 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  this.Write(Id + "_" + level); 
             
             #line default
             #line hidden
             this.Write(".jpg\');\" width=\"128\" height=\"128\" alt=\"\" />\r\n\t\t\t\t\t\t\t\t\t\t\t<strong>");
             
-            #line 717 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 718 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.Badges[Award.Key]));
             
             #line default
             #line hidden
             this.Write("</strong>\r\n\t\t\t\t\t\t\t\t\t\t</p>\r\n\t\t\t\t\t\t\t\t\t\t<ul>\r\n\t\t\t\t\t\t\t\t\t\t\t<li><strong>Basic</strong>");
             
-            #line 720 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 721 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatAwardDate(Award.Value[1].Earned)));
             
             #line default
             #line hidden
             this.Write("</li>\r\n\t\t\t\t\t\t\t\t\t\t\t<li><strong>Veteran</strong>");
             
-            #line 721 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 722 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatAwardDate(Award.Value[2].Earned)));
             
             #line default
             #line hidden
             this.Write("</li>\r\n\t\t\t\t\t\t\t\t\t\t\t<li><strong>Expert</strong>");
             
-            #line 722 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 723 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatAwardDate(Award.Value[3].Earned)));
             
             #line default
             #line hidden
             this.Write("</li>\r\n\t\t\t\t\t\t\t\t\t\t</ul>\r\n\t\t\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t\t");
             
-            #line 726 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 727 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
@@ -2431,7 +2432,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td>Medals</td>\r\n\t\t\t\t\t\t\t\t<td class=\"awards-row" +
                     " extra-space\">\r\n\t\t\t\t\t\t\t\t");
             
-            #line 731 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 732 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
                                     j = 0;
 							        foreach(KeyValuePair<string, Award> Award in this.PlayerMedals)
@@ -2445,21 +2446,21 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t\t\t\t\t<div class=\"award-inline\" onMouseOver=\"show_mine(this);\" onMouseOut=\"hi" +
                     "de_mine(this);\">\r\n\t\t\t\t\t\t\t\t\t\t\t<img src=\"");
             
-            #line 739 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 740 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/spacer.gif\" style=\"background: url(\'");
             
-            #line 739 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 740 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/awards/");
             
-            #line 739 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 740 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
 									        if (level > 0)
 										        this.Write("front/" + Id);
@@ -2471,7 +2472,7 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write(".png\');\" width=\"42\" height=\"42\" alt=\"\" />\r\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"award-pop dir-");
             
-            #line 745 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 746 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
 										        if (j < StatsData.Medals.Count / 2)
                                                     this.Write("left");
@@ -2485,56 +2486,56 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\">\r\n\t\t\t\t\t\t\t\t\t\t\t\t<p>\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t<img src=\"");
             
-            #line 754 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 755 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/spacer.gif\" style=\"background: url(\'");
             
-            #line 754 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 755 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/awards/perspective/");
             
-            #line 754 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 755 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Id));
             
             #line default
             #line hidden
             this.Write(".jpg\');\" width=\"128\" height=\"128\" alt=\"\" />\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t<strong>");
             
-            #line 755 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 756 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.Medals[Award.Key]));
             
             #line default
             #line hidden
             this.Write("</strong>\r\n\t\t\t\t\t\t\t\t\t\t\t\t</p>\r\n\t\t\t\t\t\t\t\t\t\t\t\t<ul>\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t<li>First received: ");
             
-            #line 758 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 759 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatAwardDate(Award.Value.First)));
             
             #line default
             #line hidden
             this.Write("</li>\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t<li>Last awarded: ");
             
-            #line 759 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 760 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatAwardDate(Award.Value.Earned)));
             
             #line default
             #line hidden
             this.Write("</li>\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t<li>Total awards: ");
             
-            #line 760 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 761 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(Award.Value.Level)));
             
             #line default
             #line hidden
             this.Write("</li>\r\n\t\t\t\t\t\t\t\t\t\t\t\t</ul>\r\n\t\t\t\t\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t\t\t\t");
             
-            #line 764 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 765 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
@@ -2542,7 +2543,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t\t\t</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t<td>Ribbons</td>\r\n\t\t\t\t\t\t\t\t<td c" +
                     "lass=\"awards-row extra-space\">\r\n\t\t\t\t\t\t\t\t");
             
-            #line 770 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 771 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
                                     j = 0;
 							        foreach(KeyValuePair<string, Award> Award in this.PlayerRibbons)
@@ -2556,21 +2557,21 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t\t\t\t\t<div class=\"award-inline\" onMouseOver=\"show_mine(this);\" onMouseOut=\"hi" +
                     "de_mine(this);\">\r\n\t\t\t\t\t\t\t\t\t\t\t<img src=\"");
             
-            #line 778 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 779 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/spacer.gif\" style=\"background: url(\'");
             
-            #line 778 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 779 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/awards/");
             
-            #line 778 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 779 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
 									        if (level > 0)
 										        this.Write("front/" + Id);
@@ -2582,7 +2583,7 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write(".png\');\" width=\"42\" height=\"42\" alt=\"\" />\r\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"award-pop dir-");
             
-            #line 784 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 785 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
 										        if (j < StatsData.Ribbons.Count / 2)
                                                     this.Write("left");
@@ -2596,42 +2597,42 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\">\r\n\t\t\t\t\t\t\t\t\t\t\t\t<p>\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t<img src=\"");
             
-            #line 793 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 794 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/spacer.gif\" style=\"background: url(\'");
             
-            #line 793 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 794 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/awards/perspective/");
             
-            #line 793 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 794 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Id));
             
             #line default
             #line hidden
             this.Write(".jpg\');\" width=\"128\" height=\"128\" alt=\"\" />\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t<strong>");
             
-            #line 794 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 795 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.Ribbons[Award.Key]));
             
             #line default
             #line hidden
             this.Write("</strong>\r\n\t\t\t\t\t\t\t\t\t\t\t\t</p>\r\n\t\t\t\t\t\t\t\t\t\t\t\t<ul>\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t<li>First received: ");
             
-            #line 797 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 798 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatAwardDate(Award.Value.Earned)));
             
             #line default
             #line hidden
             this.Write("</li>\r\n\t\t\t\t\t\t\t\t\t\t\t\t</ul>\r\n\t\t\t\t\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t\t\t\t");
             
-            #line 801 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 802 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
@@ -2639,7 +2640,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t\t\t</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\r\n\t\t\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t\t\t<td>SF Badges<br />&amp; " +
                     "Medals</td>\r\n\t\t\t\t\t\t\t\t\t\t<td class=\"awards-row\">\r\n\t\t\t\t\t\t\t\t\t\t ");
             
-            #line 808 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 809 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
                                             j = 0;
 							                foreach(KeyValuePair<string, List<Award>> Award in this.PlayerSFBadges)
@@ -2653,21 +2654,21 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t\t\t                <div class=\"award-inline\" onMouseOver=\"show_mine(this);\" " +
                     "onMouseOut=\"hide_mine(this);\">\r\n\t\t\t\t\t\t\t\t\t                <img src=\"");
             
-            #line 816 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 817 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/spacer.gif\" style=\"background: url(\'");
             
-            #line 816 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 817 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/awards/");
             
-            #line 816 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 817 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
 									                if (level > 0)
 										                this.Write("front/" + Id + "_" + level);
@@ -2680,7 +2681,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write(".png\');\" width=\"42\" height=\"42\" alt=\"\" />\r\n\t\t\t\t\t\t\t\t\t                <div class=\"a" +
                     "ward-pop dir-");
             
-            #line 822 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 823 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
 										                if (j < ((StatsData.SfBadges.Count + StatsData.SfMedals.Count ) / 2))
                                                             this.Write("left");
@@ -2694,28 +2695,28 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\">\r\n\t\t\t\t\t\t\t\t\t\t                <p>\r\n\t\t\t\t\t\t\t\t\t\t\t                <img src=\"");
             
-            #line 831 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 832 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/spacer.gif\" style=\"background: url(\'");
             
-            #line 831 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 832 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/awards/perspective/");
             
-            #line 831 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 832 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  this.Write(Id + "_" + level); 
             
             #line default
             #line hidden
             this.Write(".jpg\');\" width=\"128\" height=\"128\" alt=\"\" />\r\n\t\t\t\t\t\t\t\t\t\t\t                <strong>");
             
-            #line 832 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 833 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.SfBadges[Award.Key]));
             
             #line default
@@ -2723,21 +2724,21 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</strong>\r\n\t\t\t\t\t\t\t\t\t\t                </p>\r\n\t\t\t\t\t\t\t\t\t\t                <ul>\r\n\t\t\t\t\t\t" +
                     "\t\t\t\t\t                <li><strong>Basic</strong>");
             
-            #line 835 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 836 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatAwardDate(Award.Value[1].Earned)));
             
             #line default
             #line hidden
             this.Write("</li>\r\n\t\t\t\t\t\t\t\t\t\t\t                <li><strong>Veteran</strong>");
             
-            #line 836 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 837 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatAwardDate(Award.Value[2].Earned)));
             
             #line default
             #line hidden
             this.Write("</li>\r\n\t\t\t\t\t\t\t\t\t\t\t                <li><strong>Expert</strong>");
             
-            #line 837 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 838 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatAwardDate(Award.Value[3].Earned)));
             
             #line default
@@ -2745,7 +2746,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</li>\r\n\t\t\t\t\t\t\t\t\t\t                </ul>\r\n\t\t\t\t\t\t\t\t\t                </div>\r\n\t\t\t\t\t\t\t\t" +
                     "                </div>\r\n\t\t\t\t\t\t\t                ");
             
-            #line 841 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 842 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
                                             j = 0;
                                             foreach(KeyValuePair<string, Award> Award in this.PlayerSFMedals)
@@ -2759,21 +2760,21 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t\t\t\t\t        <div class=\"award-inline\" onMouseOver=\"show_mine(this);\" onMous" +
                     "eOut=\"hide_mine(this);\">\r\n\t\t\t\t\t\t\t\t\t\t\t        <img src=\"");
             
-            #line 849 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 850 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/spacer.gif\" style=\"background: url(\'");
             
-            #line 849 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 850 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/awards/");
             
-            #line 849 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 850 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
 									                if (level > 0)
 										                this.Write("front/" + Id);
@@ -2786,7 +2787,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write(".png\');\" width=\"42\" height=\"42\" alt=\"\" />\r\n\t\t\t\t\t\t\t\t\t\t\t        <div class=\"award-p" +
                     "op dir-");
             
-            #line 855 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 856 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
 										                if (j < ((StatsData.SfBadges.Count + StatsData.SfMedals.Count ) / 2))
                                                             this.Write("left");
@@ -2800,28 +2801,28 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\">\r\n\t\t\t\t\t\t\t\t\t\t\t\t        <p>\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t        <img src=\"");
             
-            #line 864 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 865 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/spacer.gif\" style=\"background: url(\'");
             
-            #line 864 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 865 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/awards/perspective/");
             
-            #line 864 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 865 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Id));
             
             #line default
             #line hidden
             this.Write(".jpg\');\" width=\"128\" height=\"128\" alt=\"\" />\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t        <strong>");
             
-            #line 865 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 866 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.SfMedals[Award.Key]));
             
             #line default
@@ -2829,21 +2830,21 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</strong>\r\n\t\t\t\t\t\t\t\t\t\t\t\t        </p>\r\n\t\t\t\t\t\t\t\t\t\t\t\t        <ul>\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t     " +
                     "   <li>First received: ");
             
-            #line 868 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 869 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatAwardDate(Award.Value.First)));
             
             #line default
             #line hidden
             this.Write("</li>\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t        <li>Last awarded: ");
             
-            #line 869 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 870 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatAwardDate(Award.Value.Earned)));
             
             #line default
             #line hidden
             this.Write("</li>\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t        <li>Total awards: ");
             
-            #line 870 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 871 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(Award.Value.Level)));
             
             #line default
@@ -2851,7 +2852,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</li>\r\n\t\t\t\t\t\t\t\t\t\t\t\t        </ul>\r\n\t\t\t\t\t\t\t\t\t\t\t        </div>\r\n\t\t\t\t\t\t\t\t\t\t        </" +
                     "div>\r\n\t\t\t\t\t\t\t\t\t        ");
             
-            #line 874 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 875 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
@@ -2859,7 +2860,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write(" \r\n\t\t\t\t\t\t\t\t\t\t</td>\r\n\t\t\t\t\t\t\t\t\t</tr>\r\n\r\n\t\t\t\t\t\t\t\t\t<tr>\r\n\t\t\t\t\t\t\t\t\t\t<td>SF Ribbons</td" +
                     ">\r\n\t\t\t\t\t\t\t\t\t\t<td class=\"awards-row extra-space\">\r\n\t\t\t\t\t\t\t\t\t\t");
             
-            #line 881 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 882 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
                                         j = 0;
 							            foreach(KeyValuePair<string, Award> Award in this.PlayerSFRibbons)
@@ -2873,21 +2874,21 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t\t\t\t\t    <div class=\"award-inline\" onMouseOver=\"show_mine(this);\" onMouseOut" +
                     "=\"hide_mine(this);\">\r\n\t\t\t\t\t\t\t\t\t\t\t    <img src=\"");
             
-            #line 889 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 890 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/spacer.gif\" style=\"background: url(\'");
             
-            #line 889 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 890 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/awards/");
             
-            #line 889 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 890 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
 									            if (level > 0)
 										            this.Write("front/" + Id);
@@ -2900,7 +2901,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write(".png\');\" width=\"42\" height=\"42\" alt=\"\" />\r\n\t\t\t\t\t\t\t\t\t\t\t    <div class=\"award-pop d" +
                     "ir-");
             
-            #line 895 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 896 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
 										            if (j < StatsData.Ribbons.Count / 2)
                                                         this.Write("left");
@@ -2914,28 +2915,28 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\">\r\n\t\t\t\t\t\t\t\t\t\t\t\t    <p>\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t    <img src=\"");
             
-            #line 904 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 905 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/spacer.gif\" style=\"background: url(\'");
             
-            #line 904 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 905 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/awards/perspective/");
             
-            #line 904 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 905 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Id));
             
             #line default
             #line hidden
             this.Write(".jpg\');\" width=\"128\" height=\"128\" alt=\"\" />\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t    <strong>");
             
-            #line 905 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 906 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.SfRibbons[Award.Key]));
             
             #line default
@@ -2943,7 +2944,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</strong>\r\n\t\t\t\t\t\t\t\t\t\t\t\t    </p>\r\n\t\t\t\t\t\t\t\t\t\t\t\t    <ul>\r\n\t\t\t\t\t\t\t\t\t\t\t\t\t    <li>First" +
                     " received: ");
             
-            #line 908 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 909 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatAwardDate(Award.Value.Earned)));
             
             #line default
@@ -2951,7 +2952,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("</li>\r\n\t\t\t\t\t\t\t\t\t\t\t\t    </ul>\r\n\t\t\t\t\t\t\t\t\t\t\t    </div>\r\n\t\t\t\t\t\t\t\t\t\t    </div>\r\n\t\t\t\t\t\t" +
                     "\t\t\t    ");
             
-            #line 912 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 913 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
@@ -2970,7 +2971,7 @@ namespace BF2Statistics.Web.Bf2Stats
 								<td>
                                 ");
             
-            #line 925 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 926 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
 								foreach(Rank Rnk in this.NextPlayerRanks)
 								{ 
@@ -2979,14 +2980,14 @@ namespace BF2Statistics.Web.Bf2Stats
             #line hidden
             this.Write("\t\t\t\t\t\t\t\t\t<img src=\"");
             
-            #line 928 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 929 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/images/ranks/progress/rank_");
             
-            #line 928 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 929 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Rnk.Id));
             
             #line default
@@ -2994,14 +2995,14 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write(".png\" alt=\"\" style=\"float: left; margin: 0 5px 5px 0\" height=\"83\" width=\"83\" />\t\t" +
                     "\t\r\n\t\t\t\t\t\t\t\t\t<p>\r\n\t\t\t\t\t\t\t\t\t\t<strong>Next Rank: ");
             
-            #line 930 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 931 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StatsData.GetRankName(Rnk.Id)));
             
             #line default
             #line hidden
             this.Write("</strong>\r\n                                        ");
             
-            #line 931 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 932 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
 
                                         if(Rnk.MissingDesc != String.Empty)
                                         {
@@ -3013,28 +3014,28 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("\t\t\t\t\t\t\t\t\t</p>\r\n\t\t\t\t\t\t\t\t\t<div class=\"progressbar\">\r\n\t\t\t\t\t\t\t\t\t\t<div class=\"progress" +
                     "\" style=\"width: ");
             
-            #line 938 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 939 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Rnk.PercentComplete));
             
             #line default
             #line hidden
             this.Write("%\"><span>");
             
-            #line 938 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 939 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Rnk.PercentComplete));
             
             #line default
             #line hidden
             this.Write("%</span></div>\r\n\t\t\t\t\t\t\t\t\t</div>\r\n\t\t\t\t\t\t\t\t\t<small>Score: ");
             
-            #line 940 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 941 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(this.Player["score"])));
             
             #line default
             #line hidden
             this.Write(" of ");
             
-            #line 940 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 941 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(Rnk.MinPoints)));
             
             #line default
@@ -3042,21 +3043,21 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write(". \r\n                                        At your historical rate, you should e" +
                     "arn ");
             
-            #line 941 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 942 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(Rnk.PointsNeeded)));
             
             #line default
             #line hidden
             this.Write(" in ");
             
-            #line 941 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 942 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatNumber(Rnk.DaysToComplete)));
             
             #line default
             #line hidden
             this.Write(" days \r\n                                        (or ");
             
-            #line 942 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 943 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.FormatTime(Rnk.TimeToComplete)));
             
             #line default
@@ -3064,14 +3065,14 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write(" straight).\r\n                                    </small>\r\n\t\t\t\t\t\t\t\t\t<div class=\"c" +
                     "lear\"> </div>\r\n\t\t\t\t\t\t\t\t");
             
-            #line 945 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 946 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\t\t\t\t\t\t\t\t</td>\r\n\t\t\t\t\t\t\t</tr>\r\n\t\t\t\t\t\t</table>\r\n\r\n\t\t\t\t\t\t<a id=\"secondhome\" href=\"");
             
-            #line 950 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 951 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
@@ -3089,28 +3090,28 @@ namespace BF2Statistics.Web.Bf2Stats
 		<ul id=""navitems"">
 			<li><a href=""");
             
-            #line 961 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 962 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("\">Home</a></li>\r\n\t\t\t<li><a href=\"");
             
-            #line 962 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 963 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/myleaderboard\">My Leader Board</a></li>\r\n\t\t\t<li><a href=\"");
             
-            #line 963 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 964 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
             #line hidden
             this.Write("/rankings\">Rankings</a></li>\r\n\t\t\t<!--\r\n\t\t    <li><a href=\"");
             
-            #line 965 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 966 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
@@ -3118,7 +3119,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("/ubar\">UBAR</a></li>\r\n\t\t    <li><a href=\"http://wiki.bf2s.com/\">Wiki</a></li>\r\n  " +
                     "          -->\r\n\t\t</ul>\r\n\t\t<form action=\"");
             
-            #line 969 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 970 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Root));
             
             #line default
@@ -3126,7 +3127,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Write("/search\" method=\"post\" id=\"getstats\">\r\n\t\t\t<label for=\"pid\">Get Stats</label>\r\n\t\t\t" +
                     "<input type=\"text\" name=\"searchvalue\" id=\"pid\" value=\"");
             
-            #line 971 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
+            #line 972 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(this.Player["id"]));
             
             #line default
