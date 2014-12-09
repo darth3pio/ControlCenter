@@ -150,14 +150,16 @@ namespace BF2Statistics.Web
                     PidManager.Load(Database);
 
                     // Drop the SQLite ip2nation country tables
-                    var Rows = Database.Query("SELECT COUNT(1) AS count FROM sqlite_master WHERE type='table' AND (name='ip2nation' OR name='ip2nationcountries');");
-                    if (Rows.Count > 0 && Int32.Parse(Rows[0]["count"].ToString()) > 0)
+                    if (Database.DatabaseEngine == DatabaseEngine.Sqlite)
                     {
-                        Database.Execute("DROP TABLE IF EXISTS 'ip2nation';");
-                        Database.Execute("DROP TABLE IF EXISTS 'ip2nationcountries';");
-                        Database.Execute("VACUUM;");
+                        var Rows = Database.Query("SELECT COUNT(1) AS count FROM sqlite_master WHERE type='table' AND (name='ip2nation' OR name='ip2nationcountries');");
+                        if (Rows.Count > 0 && Int32.Parse(Rows[0]["count"].ToString()) > 0)
+                        {
+                            Database.Execute("DROP TABLE IF EXISTS 'ip2nation';");
+                            Database.Execute("DROP TABLE IF EXISTS 'ip2nationcountries';");
+                            Database.Execute("VACUUM;");
+                        }
                     }
-                    
                 }
 
                 // Load XML stat files

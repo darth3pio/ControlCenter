@@ -22,7 +22,7 @@ namespace BF2Statistics
         /// <summary>
         /// Specifies the Program Version
         /// </summary>
-        public static readonly Version Version = new Version(1, 9, 2);
+        public static readonly Version Version = new Version(1, 9, 3);
 
         /// <summary>
         /// Specifies the installation directory of this program
