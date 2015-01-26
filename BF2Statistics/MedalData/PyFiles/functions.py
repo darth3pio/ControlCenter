@@ -13,6 +13,20 @@ globalKeysNeeded = {}
 
 # criteria functions
 
+def player_score (player_attr, value=None):
+	if value == None:
+		def _player_score (player):
+			return getattr (player.score, player_attr)
+	else:
+		def _player_score (player):
+			return getattr (player.score, player_attr) >= value
+	return _player_score
+
+def player_stat (player_attr, value):
+	def _player_stat (player):
+		return getattr (player.stats, player_attr) >= value
+	return _player_stat
+
 def global_stat (stat_key, value=None):
 	globalKeysNeeded[stat_key] = 1
 	if value == None:
@@ -23,15 +37,6 @@ def global_stat (stat_key, value=None):
 		def _global_stat (player):
 			return stat_key in player.medals.globalKeys and player.medals.globalKeys[stat_key] >= value
 	return _global_stat
-
-def player_stat (player_attr, value=None):
-	if value == None:
-		def _player_stat (player):
-			return getattr (player.score, player_attr)
-	else:
-		def _player_stat (player):
-			return getattr (player.score, player_attr) >= value
-	return _player_stat
 
 def object_stat (object_type, item_attr, item_type, value=None):
 	if value == None:

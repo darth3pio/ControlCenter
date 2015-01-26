@@ -158,7 +158,7 @@ namespace BF2Statistics.MedalData
         {
             // Badges always have an underscore
             if (!BadgeId.Contains('_'))
-                throw new Exception("");
+                throw new Exception("Award is not a badge");
 
             string[] parts = BadgeId.Split('_');
             switch (parts[1])
@@ -187,7 +187,7 @@ namespace BF2Statistics.MedalData
                 // Make sure the award exists!
                 string[] parts = AwardId.Split('_');
                 if (!Awards.ContainsKey(parts[0]))
-                    throw new Exception();
+                    throw new Exception("Not a valid badge ID");
 
                 switch (parts[1])
                 {
@@ -204,7 +204,7 @@ namespace BF2Statistics.MedalData
 
             // Make sure the award exists
             if (!Awards.ContainsKey(AwardId))
-                throw new Exception();
+                throw new Exception("Invalid Award ID");
 
             return Awards[AwardId];
         }

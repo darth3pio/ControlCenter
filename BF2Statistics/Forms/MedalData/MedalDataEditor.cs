@@ -16,19 +16,24 @@ namespace BF2Statistics.MedalData
     public partial class MedalDataEditor : Form
     {
         /// <summary>
-        /// The current Medal Data file location
-        /// </summary>
-        public static string ConfigFile = Path.Combine(MainForm.Config.ServerPath, "python", "bf2", "BF2StatisticsConfig.py");
-
-        /// <summary>
         /// The full path to the "stats" python folder
         /// </summary>
-        public static string PythonPath = Path.Combine(MainForm.Config.ServerPath, "python", "bf2", "stats");
+        public static string PythonPath = Path.Combine(BF2Server.RootPath, "python", "bf2", "stats");
 
         /// <summary>
         /// The current selected award
         /// </summary>
         public static IAward SelectedAward;
+
+        /// <summary>
+        /// The current selected award node
+        /// </summary>
+        protected TreeNode SelectedAwardNode;
+
+        /// <summary>
+        /// The highlighted Award condition node (if any)
+        /// </summary>
+        protected TreeNode ConditionNode;
 
         /// <summary>
         /// Current executing Assembly
@@ -41,19 +46,14 @@ namespace BF2Statistics.MedalData
         protected ConditionForm Child;
 
         /// <summary>
-        /// TreeNode holding variable
+        /// A list of all found medal data profiles, lowercased to prevent duplicates.
         /// </summary>
-        protected TreeNode Node;
+        public static List<string> Profiles { get; protected set; }
 
         /// <summary>
         /// The current active profile in the BF2sConfig.py
         /// </summary>
         protected string ActiveProfile;
-
-        /// <summary>
-        /// A list of all found medal data profiles, lowercased to prevent duplicates.
-        /// </summary>
-        public static List<string> Profiles { get; protected set; }
 
         /// <summary>
         /// Indicates the last selected profile
@@ -65,7 +65,6 @@ namespace BF2Statistics.MedalData
         /// </summary>
         public static bool ChangesMade = false;
 
-
         /// <summary>
         /// Constructor
         /// </summary>
@@ -74,25 +73,15 @@ namespace BF2Statistics.MedalData
             InitializeComponent();
 
             // Make sure the bf2s config is present
-            if (!File.Exists(ConfigFile))
+            if (!StatsPython.StatsEnabled)
             {
-                this.Load += new EventHandler(CloseOnStart);
-                MessageBox.Show("Bf2Statistics Config python file is missing! Please re-install the stats python", "Error");
-                return;
-            }
-
-            // Get current active profile
-            string Contents = File.ReadAllText(ConfigFile, Encoding.UTF8);
-            Match M = Regex.Match(Contents, @"medals_custom_data = '(?<value>[A-Za-z0-9_]*)'");
-            if (!M.Success)
-            {
-                this.Load += new EventHandler(CloseOnStart);
-                MessageBox.Show("The Bf2Statistics Config python file is corrupt. Please restore your python files.", "Config Parse Error");
+                this.Load += (s, e) => this.Close();
+                MessageBox.Show("Stats need to be enabled before using the medal data editor.", "Error");
                 return;
             }
 
             // Set active profile and load the rest
-            ActiveProfile = M.Groups["value"].Value;
+            ActiveProfile = StatsPython.Config.MedalDataProfile;
             ChangesMade = false;
             LoadProfiles();
         }
@@ -132,10 +121,16 @@ namespace BF2Statistics.MedalData
         /// <param name="name">The Award ID</param>
         public void SetAwardImage(string name)
         {
-            try {
+            try 
+            {
+                // Dispose old image
+                if(AwardPictureBox.Image != null)
+                    AwardPictureBox.Image.Dispose();
+
                 AwardPictureBox.Image = Image.FromStream(Me.GetManifestResourceStream("BF2Statistics.Resources." + name + ".jpg"));
             }
-            catch {
+            catch 
+            {
                 AwardPictureBox.Image = null;
             }
         }
@@ -145,35 +140,28 @@ namespace BF2Statistics.MedalData
         /// </summary>
         public void EditCriteria()
         {
-            TreeNode Node = AwardConditionsTree.SelectedNode;
-
             // Make sure we have a node selected
-            if (Node == null)
+            if (ConditionNode == null)
             {
                 MessageBox.Show("Please select a criteria to edit.");
                 return;
             }
 
             // Make sure its a child node
-            if (Node.Parent == null && Node.Nodes.Count != 0)
+            if (ConditionNode.Parent == null && ConditionNode.Nodes.Count != 0)
                 return;
 
-            // Get our selected award, and set our criteria Node
-            TreeNode N = AwardTree.SelectedNode;
-            IAward A = AwardCache.GetAward(N.Name);
-            this.Node = Node;
-
             // Open correct condition editor form
-            if (Node.Tag is ObjectStat)
-                Child = new ObjectStatForm(Node);
-            else if (Node.Tag is PlayerStat)
-                Child = new ScoreStatForm(Node);
-            else if (Node.Tag is MedalOrRankCondition)
-                Child = new MedalConditionForm(Node);
-            else if (Node.Tag is GlobalStatMultTimes)
-                Child = new GlobalStatMultTimesForm(Node);
-            else if (Node.Tag is ConditionList)
-                Child = new ConditionListForm(Node);
+            if (ConditionNode.Tag is ObjectStat)
+                Child = new ObjectStatForm(ConditionNode);
+            else if (ConditionNode.Tag is PlayerStat)
+                Child = new ScoreStatForm(ConditionNode);
+            else if (ConditionNode.Tag is MedalOrRankCondition)
+                Child = new MedalConditionForm(ConditionNode);
+            else if (ConditionNode.Tag is GlobalStatMultTimes)
+                Child = new GlobalStatMultTimesForm(ConditionNode);
+            else if (ConditionNode.Tag is ConditionList)
+                Child = new ConditionListForm(ConditionNode);
             else
                 return;
 
@@ -183,13 +171,16 @@ namespace BF2Statistics.MedalData
                 AwardConditionsTree.BeginUpdate();
 
                 // Set awards new conditions from the tree node tagged conditions
-                A.SetCondition(MedalDataParser.ParseNodeConditions(AwardConditionsTree.Nodes[0]));
+                SelectedAward.SetCondition(MedalDataParser.ParseNodeConditions(AwardConditionsTree.Nodes[0]));
 
                 // Clear all current Nodes
                 AwardConditionsTree.Nodes.Clear();
 
                 // Reparse conditions
-                AwardConditionsTree.Nodes.Add(A.ToTree());
+                AwardConditionsTree.Nodes.Add(SelectedAward.ToTree());
+
+                // Validation highlighting
+                ValidateConditions(SelectedAwardNode, SelectedAward.GetCondition());
 
                 // Conditions tree's are to be expanded at all times
                 AwardConditionsTree.ExpandAll();
@@ -202,43 +193,45 @@ namespace BF2Statistics.MedalData
         /// </summary>
         public void DeleteCriteria()
         {
-            TreeNode Node = AwardConditionsTree.SelectedNode;
-
             // Make sure we have a node selected
-            if (Node == null)
+            if (ConditionNode == null)
             {
                 MessageBox.Show("Please select a criteria to remove.");
                 return;
             }
 
-            // Dont update tree
+            // Dont update tree till we are finished adding/removing
             AwardConditionsTree.BeginUpdate();
 
-            if (Node.Parent == null)
+            if (ConditionNode.Parent == null)
             {
-                AwardConditionsTree.Nodes.Remove(Node);
+                AwardConditionsTree.Nodes.Remove(ConditionNode);
+                ValidateConditions(SelectedAwardNode, SelectedAward.GetCondition());
             }
 
             // Dont delete on Plus / Div Trees
-            else if (!(Node.Tag is ConditionList))
+            else if (!(ConditionNode.Tag is ConditionList))
             {
-                TreeNode Parent = Node.Parent;
+                TreeNode Parent = ConditionNode.Parent;
                 ConditionList C = (ConditionList)Parent.Tag;
 
                 // Remove Not Conditions, as they only hold 1 criteria anyways
                 if (C.Type == ConditionType.Not)
+                {
                     AwardConditionsTree.Nodes.Remove(Parent);
+                }
 
                 // Dont remove Plus or Div elements as they need 2 or 3 to work!
                 else if (C.Type == ConditionType.Plus || C.Type == ConditionType.Div)
                 {
+                    ConditionNode = Parent;
                     AwardConditionsTree.SelectedNode = Parent;
                     EditCriteria();
                 }
                 else
                 {
                     // Remove Node
-                    AwardConditionsTree.Nodes.Remove(Node);
+                    AwardConditionsTree.Nodes.Remove(ConditionNode);
 
                     // remove empty parent nodes
                     if (Parent.Nodes.Count == 0)
@@ -246,35 +239,80 @@ namespace BF2Statistics.MedalData
                 }
             }
             else
-                AwardConditionsTree.Nodes.Remove(Node);
+                AwardConditionsTree.Nodes.Remove(ConditionNode);
 
-            // Get our selected medal
-            TreeNode N = AwardTree.SelectedNode;
-            IAward A = AwardCache.GetAward(N.Name);
+            // Get our selected medal condition
+            Condition Cond = null;
 
             // Set awards new conditions
             if (AwardConditionsTree.Nodes.Count > 0)
-                A.SetCondition(MedalDataParser.ParseNodeConditions(AwardConditionsTree.Nodes[0]));
+            {
+                Cond = MedalDataParser.ParseNodeConditions(AwardConditionsTree.Nodes[0]);
+                SelectedAward.SetCondition(Cond);
+            }
             else
-                A.SetCondition(null);
+                SelectedAward.SetCondition(null);
 
             // Reparse conditions
             AwardConditionsTree.Nodes.Clear();
-            TreeNode NN = A.ToTree();
+            TreeNode NN = SelectedAward.ToTree();
             if (NN != null)
                 AwardConditionsTree.Nodes.Add(NN);
+
+            ValidateConditions(SelectedAwardNode, Cond);
             AwardConditionsTree.EndUpdate();
             AwardConditionsTree.ExpandAll();
         }
 
         /// <summary>
-        /// Returns the selected award Object
+        /// This method is used to highlight the invalid condition nodes
+        /// in the conditions treeview, as to let the user know that the
+        /// conditions selected wont work properly when loaded by the server
         /// </summary>
-        /// <returns></returns>
-        public IAward GetSelectedAward()
+        protected void ValidateConditions(TreeNode AwardNode, Condition Con)
         {
-            TreeNode N = AwardTree.SelectedNode;
-            return AwardCache.GetAward(N.Name);
+            // Color the Conditions texts to show invalid condition returns
+            if (Con != null)
+            {
+                // Condition lists
+                if (Con is ConditionList)
+                {
+                    if ((Con as ConditionList).HasConditionErrors)
+                        AwardNode.ForeColor = Color.Red;
+                    else
+                        AwardNode.ForeColor = Color.Black;
+
+                    // Double check that our condition list returns a bool
+                    if (Con.Returns() != ReturnType.Bool)
+                    {
+                        // The root must always return a bool
+                        AwardNode.ForeColor = Color.Red;
+                        if (AwardConditionsTree.Nodes.Count > 0)
+                            AwardConditionsTree.Nodes[0].ForeColor = Color.Red;
+                    }
+                }
+
+                // Any kind of condition, Root must always 
+                else if (Con.Returns() != ReturnType.Bool)
+                {
+                    // The root must always return a bool
+                    AwardNode.ForeColor = Color.Red;
+                    if (AwardConditionsTree.Nodes.Count > 0)
+                        AwardConditionsTree.Nodes[0].ForeColor = Color.Red;
+                }
+                else
+                {
+                    // All is well
+                    AwardNode.ForeColor = Color.Black;
+                    if(AwardConditionsTree.Nodes.Count > 0)
+                        AwardConditionsTree.Nodes[0].ForeColor = Color.Black;
+                }
+            }
+            else
+            {
+                // A null award is bad
+                AwardNode.ForeColor = Color.Red;
+            }
         }
 
         #endregion Class Methods
@@ -307,23 +345,19 @@ namespace BF2Statistics.MedalData
         /// <param name="e"></param>
         private void AddNewCriteria(object sender, FormClosingEventArgs e)
         {
-            TreeNode Node = AwardConditionsTree.SelectedNode;
-            TreeNode AwardNode = AwardTree.SelectedNode;
-            IAward Award = AwardCache.GetAward(AwardNode.Name);
-
             // If there is a node referenced.
-            if (Node != null && Node.Tag is ConditionList)
+            if (ConditionNode != null && ConditionNode.Tag is ConditionList)
             {
                 //Condition C = (Condition)Node.Tag;
                 Condition Add = Child.GetCondition();
-                ConditionList List = (ConditionList)Node.Tag;
+                ConditionList List = (ConditionList)ConditionNode.Tag;
                 List.Add(Add);
             }
             else
             {
                 // No Node referenced... Use top most
                 ConditionList A = new ConditionList(ConditionType.And);
-                Condition B = Award.GetCondition();
+                Condition B = SelectedAward.GetCondition();
                 if (B is ConditionList)
                 {
                     ConditionList C = (ConditionList)B;
@@ -342,13 +376,14 @@ namespace BF2Statistics.MedalData
                 A.Add(Child.GetCondition());
 
                 // Parse award conditions into tree view
-                Award.SetCondition(A);
+                SelectedAward.SetCondition(A);
             }
 
             // Update the tree view
             AwardConditionsTree.BeginUpdate();
             AwardConditionsTree.Nodes.Clear();
-            AwardConditionsTree.Nodes.Add(Award.ToTree());
+            AwardConditionsTree.Nodes.Add(SelectedAward.ToTree());
+            ValidateConditions(SelectedAwardNode, SelectedAward.GetCondition());
             AwardConditionsTree.ExpandAll();
             AwardConditionsTree.EndUpdate();
         }
@@ -391,10 +426,12 @@ namespace BF2Statistics.MedalData
                 AwardTree.Nodes[i].Nodes.Clear();
 
             // Get Medal Data
-            try {
+            try 
+            {
                 MedalDataParser.LoadMedalDataFile(Path.Combine(PythonPath, "medal_data_" + Profile + "_xpack.py"));
             }
-            catch (Exception ex) {
+            catch (Exception ex) 
+            {
                 AwardTree.EndUpdate();
                 MessageBox.Show(ex.Message, "Medal Data Parse Error");
                 ProfileSelector.SelectedIndex = -1;
@@ -425,6 +462,16 @@ namespace BF2Statistics.MedalData
             AwardTypeBox.Text = null;
             AwardPictureBox.Image = null;
             AwardTree.SelectedNode = AwardTree.Nodes[0];
+
+            // Apply highlighting of award text
+            for (int i = 0; i < 3; i++)
+            {
+                foreach (TreeNode N in AwardTree.Nodes[i].Nodes)
+                {
+                    IAward t = AwardCache.GetAward(N.Name);
+                    ValidateConditions(N, t.GetCondition());
+                }
+            }
 
             // Process Active profile button
             if (Profile == ActiveProfile)
@@ -492,9 +539,8 @@ namespace BF2Statistics.MedalData
                     ActiveProfile = null;
 
                     // Set current selected profile to null in the Bf2sConfig
-                    string FileContents = File.ReadAllText(ConfigFile);
-                    FileContents = Regex.Replace(FileContents, @"medals_custom_data = '([A-Za-z0-9_]*)'", "medals_custom_data = ''");
-                    File.WriteAllText(ConfigFile, FileContents);
+                    StatsPython.Config.MedalDataProfile = "";
+                    StatsPython.Config.Save();
 
                     // Update form
                     ActivateProfileBtn.Text = "Set as Server Profile";
@@ -548,15 +594,9 @@ namespace BF2Statistics.MedalData
             {
                 ActiveProfile = null;
 
-                // Load file contents
-                string FileContents = File.ReadAllText(ConfigFile);
-                FileContents = Regex.Replace(FileContents,
-                    @"medals_custom_data = '([A-Za-z0-9_]*)'",
-                    String.Format("medals_custom_data = '{0}'", ActiveProfile)
-                );
-
-                // Save
-                File.WriteAllText(ConfigFile, FileContents);
+                // save medal data profile
+                StatsPython.Config.MedalDataProfile = "";
+                StatsPython.Config.Save();
 
                 // Update form
                 ActivateProfileBtn.Text = "Set as Server Profile";
@@ -566,15 +606,9 @@ namespace BF2Statistics.MedalData
             {
                 ActiveProfile = ProfileSelector.SelectedItem.ToString();
 
-                // Load file contents
-                string FileContents = File.ReadAllText(ConfigFile);
-                FileContents = Regex.Replace(FileContents,
-                    @"medals_custom_data = '([A-Za-z0-9_]*)'",
-                    String.Format("medals_custom_data = '{0}'", ActiveProfile)
-                );
-
-                // Save
-                File.WriteAllText(ConfigFile, FileContents);
+                // save medal data profile
+                StatsPython.Config.MedalDataProfile = ActiveProfile;
+                StatsPython.Config.Save();
 
                 // Update form
                 ActivateProfileBtn.Text = "Current Server Profile";
@@ -590,6 +624,37 @@ namespace BF2Statistics.MedalData
         private void SaveButton_Click(object sender, EventArgs e)
         {
             string Profile = ProfileSelector.SelectedItem.ToString();
+            int CondErrors = 0;
+
+            // Check for condition errors
+            for (int i = 0; i < 3; i++)
+            {
+                foreach (TreeNode N in AwardTree.Nodes[i].Nodes)
+                {
+                    IAward t = AwardCache.GetAward(N.Name);
+                    Condition Cond = t.GetCondition();
+                    if (Cond is ConditionList)
+                    {
+                        ConditionList Clist = Cond as ConditionList;
+                        if (Clist.HasConditionErrors)
+                            CondErrors++;
+                    }
+                }
+            }
+
+            // Warn the user
+            if (CondErrors > 0)
+            {
+                DialogResult Res = MessageBox.Show(
+                    "A total of " + CondErrors + " award condition errors were found."
+                    + Environment.NewLine + Environment.NewLine
+                    + "Are you sure you want to save these changes without fixing these issues?",
+                    "Condition Errors Found", MessageBoxButtons.YesNo, MessageBoxIcon.Warning
+                );
+
+                if (Res != DialogResult.Yes)
+                    return;
+            }
 
             // Show save dialog
             SaveForm Form = new SaveForm();
@@ -676,17 +741,18 @@ namespace BF2Statistics.MedalData
         /// <param name="e"></param>
         private void AwardTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            TreeNode N = e.Node;
+            // Set our award globally
+            SelectedAwardNode = e.Node;
 
             // Only proccess child Nodes
-            if (N.Nodes.Count == 0)
+            if (SelectedAwardNode.Nodes.Count == 0)
             {
                 // Set Award Image
-                SetAwardImage(N.Name);
+                SetAwardImage(SelectedAwardNode.Name);
 
                 // Set award name and type
-                AwardNameBox.Text = N.Text;
-                switch (Award.GetType(N.Name))
+                AwardNameBox.Text = SelectedAwardNode.Text;
+                switch (Award.GetType(SelectedAwardNode.Name))
                 {
                     case AwardType.Badge:
                         AwardTypeBox.Text = "Badge";
@@ -709,8 +775,10 @@ namespace BF2Statistics.MedalData
                 AwardConditionsTree.Nodes.Clear();
 
                 // Parse award conditions into tree view
-                SelectedAward = AwardCache.GetAward(N.Name);
-                AwardConditionsTree.Nodes.Add(SelectedAward.ToTree());
+                SelectedAward = AwardCache.GetAward(SelectedAwardNode.Name);
+                TreeNode Conds = SelectedAward.ToTree();
+                if(Conds != null)
+                    AwardConditionsTree.Nodes.Add(Conds);
 
                 // Conditions tree's are to be expanded at all times
                 AwardConditionsTree.ExpandAll();
@@ -741,14 +809,13 @@ namespace BF2Statistics.MedalData
         /// <param name="e"></param>
         private void AwardConditionsTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            TreeNode CNode = AwardConditionsTree.SelectedNode;
-            if (CNode == null)
+            ConditionNode = AwardConditionsTree.SelectedNode;
+            if (ConditionNode == null)
                 return;
 
-            CNode.ContextMenuStrip = (CNode.Tag is ConditionList && ((ConditionList)CNode.Tag).Type == ConditionType.And)
+            ConditionNode.ContextMenuStrip = (ConditionNode.Tag is ConditionList && ((ConditionList)ConditionNode.Tag).Type == ConditionType.And)
                 ? CriteriaRootMenu
                 : CriteriaItemMenu;
-            //CNode.ContextMenuStrip.Show(MousePosition.X + 15, MousePosition.Y);
         }
 
         /// <summary>
@@ -794,8 +861,7 @@ namespace BF2Statistics.MedalData
             TreeNode Node = AwardConditionsTree.SelectedNode;
 
             // Make sure an award is selected!!!!
-            TreeNode AwardNode = AwardTree.SelectedNode;
-            if (AwardNode == null || AwardNode.Parent == null)
+            if (SelectedAwardNode == null || SelectedAwardNode.Parent == null)
             {
                 MessageBox.Show("Please select an award!");
                 return;
@@ -836,8 +902,7 @@ namespace BF2Statistics.MedalData
         private void EditCriteria_Click(object sender, EventArgs e)
         {
             // Make sure an award is selected!!!!
-            TreeNode AwardNode = AwardTree.SelectedNode;
-            if (AwardNode == null || AwardNode.Parent == null)
+            if (SelectedAwardNode == null || SelectedAwardNode.Parent == null)
             {
                 MessageBox.Show("Please select an award!");
                 return;
@@ -854,8 +919,7 @@ namespace BF2Statistics.MedalData
         private void DeleteCriteria_Click(object sender, EventArgs e)
         {
             // Make sure an award is selected!!!!
-            TreeNode AwardNode = AwardTree.SelectedNode;
-            if (AwardNode == null || AwardNode.Parent == null)
+            if (SelectedAwardNode == null || SelectedAwardNode.Parent == null)
             {
                 MessageBox.Show("Please select an award!");
                 return;
@@ -872,8 +936,8 @@ namespace BF2Statistics.MedalData
         /// <param name="e"></param>
         private void UndoAllChangesMenuItem_Click(object sender, EventArgs e)
         {
-            TreeNode AwardNode = AwardTree.SelectedNode;
-            if (AwardNode == null || AwardNode.Parent == null)
+            // Make sure we have an award selected
+            if (SelectedAwardNode == null || SelectedAwardNode.Parent == null)
             {
                 MessageBox.Show("Please select an award!");
                 return;
@@ -886,9 +950,12 @@ namespace BF2Statistics.MedalData
             AwardConditionsTree.Nodes.Clear();
 
             // Parse award conditions into tree view
-            IAward SAward = AwardCache.GetAward(AwardNode.Name);
+            IAward SAward = AwardCache.GetAward(SelectedAwardNode.Name);
             SAward.UndoConditionChanges();
             AwardConditionsTree.Nodes.Add(SAward.ToTree());
+
+            // Revalidate
+            ValidateConditions(SelectedAwardNode, SAward.GetCondition());
 
             // Conditions tree's are to be expanded at all times
             AwardConditionsTree.ExpandAll();
@@ -905,8 +972,8 @@ namespace BF2Statistics.MedalData
         /// <param name="e"></param>
         private void RestoreToDefaultMenuItem_Click(object sender, EventArgs e)
         {
-            TreeNode AwardNode = AwardTree.SelectedNode;
-            if (AwardNode == null || AwardNode.Parent == null)
+            // Make sure we have an award selected
+            if (SelectedAwardNode == null || SelectedAwardNode.Parent == null)
             {
                 MessageBox.Show("Please select an award!");
                 return;
@@ -919,9 +986,12 @@ namespace BF2Statistics.MedalData
             AwardConditionsTree.Nodes.Clear();
 
             // Parse award conditions into tree view
-            IAward SAward = AwardCache.GetAward(AwardNode.Name);
+            IAward SAward = AwardCache.GetAward(SelectedAwardNode.Name);
             SAward.RestoreDefaultConditions();
             AwardConditionsTree.Nodes.Add(SAward.ToTree());
+
+            // Revalidate
+            ValidateConditions(SelectedAwardNode, SAward.GetCondition());
 
             // Conditions tree's are to be expanded at all times
             AwardConditionsTree.ExpandAll();
@@ -931,10 +1001,5 @@ namespace BF2Statistics.MedalData
         }
 
         #endregion Context Menu
-
-        private void CloseOnStart(object sender, EventArgs e)
-        {
-            this.Close();
-        }
     }
 }

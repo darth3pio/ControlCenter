@@ -14,6 +14,11 @@ namespace BF2Statistics.MedalData
     public enum BadgeLevel { Bronze, Silver, Gold }
 
     /// <summary>
+    /// Return types for python methods
+    /// </summary>
+    public enum ReturnType { Number, Bool }
+
+    /// <summary>
     /// The data class holds all the different MedalData varaibles and constant ID's
     /// </summary>
     public static class Data
@@ -183,17 +188,13 @@ namespace BF2Statistics.MedalData
         /// <returns></returns>
         public static bool IsTimeStat(string Name)
         {
-            return (Name.Contains("tm-")
+            return Name.StartsWith("time") 
+                || Name.Contains("tm-")
                 || Name == "time"
+                || Name == "rtime"
                 || Name == "tsqm"
                 || Name == "tsql"
-                || Name == "tcdr"
-                || Name == "rtime"
-                || Name == "timePlayed"
-                || Name == "timeAsCmd"
-                || Name == "timeInSquad"
-                || Name == "timeAsSql"
-            );
+                || Name == "tcdr";
         }
     }
 }

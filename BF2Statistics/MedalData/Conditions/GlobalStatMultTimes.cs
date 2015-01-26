@@ -37,6 +37,14 @@ namespace BF2Statistics.MedalData
         }
 
         /// <summary>
+        /// Returns the return value of this condition
+        /// </summary>
+        public override ReturnType Returns()
+        {
+            return ReturnType.Bool;
+        }
+
+        /// <summary>
         /// Returns a copy (clone) of this object
         /// </summary>
         /// <returns></returns>

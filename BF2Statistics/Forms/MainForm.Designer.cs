@@ -1139,7 +1139,6 @@
             // 
             // ViewSnapshotBtn
             // 
-            this.ViewSnapshotBtn.Enabled = false;
             this.ViewSnapshotBtn.Location = new System.Drawing.Point(38, 116);
             this.ViewSnapshotBtn.Name = "ViewSnapshotBtn";
             this.ViewSnapshotBtn.Size = new System.Drawing.Size(190, 28);
@@ -1805,7 +1804,7 @@
             this.textBox2.ReadOnly = true;
             this.textBox2.Size = new System.Drawing.Size(300, 13);
             this.textBox2.TabIndex = 6;
-            this.textBox2.Text = "Copyright 2006-2014 BF2Statistics.com. All Rights Reserved";
+            this.textBox2.Text = "Copyright 2006-2015 BF2Statistics.com. All Rights Reserved";
             // 
             // textBox1
             // 
@@ -1817,7 +1816,7 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(300, 13);
             this.textBox1.TabIndex = 5;
-            this.textBox1.Text = "Battlefield 2 Statistics Control Center v1.9.3";
+            this.textBox1.Text = "Battlefield 2 Statistics Control Center v1.10.0";
             // 
             // NotificationIcon
             // 

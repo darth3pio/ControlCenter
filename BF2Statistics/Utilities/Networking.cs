@@ -43,6 +43,27 @@ namespace BF2Statistics.Utilities
         }
 
         /// <summary>
+        /// Takes a domain name, or IP address, and returns the Correct IP address.
+        /// If multiple IP addresses are found, the first one is returned
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="Ip"></param>
+        /// <returns>Returns whether the IP or Hostname was valid</returns>
+        public static bool TryGetIpAddress(string text, out IPAddress Ip)
+        {
+            try
+            {
+                Ip = GetIpAddress(text);
+                return true;
+            }
+            catch
+            {
+                Ip = null;
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Returns whether the IP address specified is a Local Ip Address
         /// </summary>
         /// <param name="host">The ip address to check</param>

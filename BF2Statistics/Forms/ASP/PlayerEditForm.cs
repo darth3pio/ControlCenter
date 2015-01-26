@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Data.Common;
 using System.Reflection;
 using System.IO;
+using BF2Statistics.ASP;
 using BF2Statistics.Web;
 using BF2Statistics.Database;
 using BF2Statistics.Database.QueryBuilder;
@@ -180,9 +181,7 @@ namespace BF2Statistics
             {
                 try
                 {
-                    using (StatsDatabase Driver = new StatsDatabase())
-                        Driver.ExportPlayerXml(sPath, Pid, Player["name"].ToString());
-
+                    StatsManager.ExportPlayerXml(sPath, Pid, Player["name"].ToString());
                     Notify.Show("Player Exported Successfully", String.Format("{0} ({1})", Player["name"].ToString(), Pid), AlertType.Success);
                 }
                 catch (DbConnectException Ex)

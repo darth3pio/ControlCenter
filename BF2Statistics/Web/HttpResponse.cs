@@ -68,6 +68,11 @@ namespace BF2Statistics.Web
         }
 
         /// <summary>
+        /// Indicates whether the response object is finished
+        /// </summary>
+        public bool ResponseSent { get; protected set; }
+
+        /// <summary>
         /// Event that is called when the response is being prepared to be sent
         /// </summary>
         public event EventHandler SendingResponse;
@@ -83,19 +88,31 @@ namespace BF2Statistics.Web
         /// </summary>
         public HttpResponse(HttpListenerResponse Response, HttpClient Client)
         {
+            // Set internals
             this.Client = Client;
             this.Response = Response;
+            this.ResponseBody = new StringBuilder();
+            this.ResponseSent = false;
+
+            // Start the stopwatch for response benchmarking
             this.Clock = new Stopwatch();
             this.Clock.Start();
-            ResponseBody = new StringBuilder();
         }
 
         /// <summary>
         /// Redirects the client to the new URL and closes the connection
         /// </summary>
-        /// <param name="url"></param>
+        /// <param name="url">The full url to redirect the client to.</param>
+        /// <exception cref="System.Exception">
+        ///     An exception will be thrown if the response has already been sent. Use the 
+        ///     <see cref="ResponseSent" /> parameter before attempting to redirect someone.
+        /// </exception>
         public void Redirect(string url)
         {
+            // Cant send a redirect if the response has been sent!
+            if (ResponseSent)
+                throw new Exception("Unable to redirect client, response has already been sent!");
+
             // Send redirect data
             Response.KeepAlive = false;
             Response.ContentLength64 = 0;
@@ -106,17 +123,28 @@ namespace BF2Statistics.Web
             // Log Request
             LogAccess();
 
+            // Response is finished
+            ResponseSent = true;
+
             // Fire Event
             if (SentResponse != null)
                 SentResponse(this, null);
         }
 
         /// <summary>
-        /// Sets a cookie
+        /// Sets a cookie to be sent to the client
         /// </summary>
-        /// <param name="C"></param>
+        /// <param name="C">The cookie data to be set</param>
+        /// <exception cref="System.Exception">
+        ///     An exception will be thrown if the response has already been sent. Use the 
+        ///     <see cref="ResponseSent" /> parameter before attempting to set a cookie.
+        /// </exception>
         public void SetCookie(Cookie C)
         {
+            // Cant send a cookie if the response has been sent!
+            if (ResponseSent)
+                throw new Exception("Unable to set cookie, response has already been sent!");
+
             Response.SetCookie(C);
         }
 
@@ -124,11 +152,15 @@ namespace BF2Statistics.Web
         /// Sends the specified bytes to the web browser
         /// </summary>
         /// <param name="Body"></param>
+        /// <exception cref="System.Exception">
+        ///     An exception will be thrown if the response has already been sent. Use the 
+        ///     <see cref="ResponseSent" /> parameter before sending.
+        /// </exception>
         public void Send(byte[] Body)
         {
-            // Make sure our client didnt send a response already
-            if (Client.ResponseSent)
-                return;
+            // Cant send a second response!
+            if (ResponseSent)
+                throw new Exception("Unable to send a response to the client, A response has already been sent!");
 
             // Fire Event
             if (SendingResponse != null)
@@ -145,6 +177,9 @@ namespace BF2Statistics.Web
 
             // Log Request
             LogAccess();
+
+            // Response is finished
+            ResponseSent = true;
 
             // Fire Event
             if (SentResponse != null)

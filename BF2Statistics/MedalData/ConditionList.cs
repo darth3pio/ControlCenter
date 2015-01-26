@@ -43,12 +43,19 @@ namespace BF2Statistics.MedalData
         };
 
         /// <summary>
+        /// Returns whether the condition list has any condition errors (recursive). 
+        /// Must use the <see cref="ToTree()"/> method to refresh this value
+        /// </summary>
+        public bool HasConditionErrors { get; protected set; }
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="Type">The list ConditionType</param>
         public ConditionList(ConditionType Type) 
         {
             this.Type = Type;
+            this.HasConditionErrors = false;
         }
 
         /// <summary>
@@ -91,6 +98,23 @@ namespace BF2Statistics.MedalData
         /// </summary>
         /// <param name="Params"></param>
         public override void SetParams(List<string> Params) { }
+
+        /// <summary>
+        /// Returns the return value of this condition
+        /// </summary>
+        public override ReturnType Returns()
+        {
+            switch (Type)
+            {
+                case ConditionType.And:
+                    return (SubConditions.Count == 1) ? SubConditions[0].Returns() : ReturnType.Bool;
+                case ConditionType.Plus:
+                case ConditionType.Div:
+                    return (SubConditions.Count == 3) ? ReturnType.Bool : ReturnType.Number;
+                default:
+                    return ReturnType.Bool;
+            }
+        }
 
         /// <summary>
         /// Returns a copy (clone) of this object
@@ -157,6 +181,7 @@ namespace BF2Statistics.MedalData
             string Name = "Meets All Requirements:";
             bool Trim = false;
             int i = 0;
+            HasConditionErrors = false;
 
             // Build the name which will be displayed in the criteria view
             switch (this.Type)
@@ -211,6 +236,27 @@ namespace BF2Statistics.MedalData
                 if (N == null)
                     continue;
 
+                // Nested errors
+                if (!HasConditionErrors && C is ConditionList)
+                    HasConditionErrors = (C as ConditionList).HasConditionErrors;
+
+                // Validation
+                if (!ValidateParam(i, C.Returns()))
+                {
+                    N.ForeColor = System.Drawing.Color.Red;
+                    HasConditionErrors = true;
+                    N.ToolTipText = "Invalid Return Type. ";
+                    N.ToolTipText += (C.Returns() == ReturnType.Bool) 
+                        ? "A criteria value is required" 
+                        : "Criteria value must be disabled";
+                }
+                else
+                {
+                    // Always reset this
+                    N.ToolTipText = "";
+                }
+
+                // Add the node
                 Me.Nodes.Add(N);
                 i++;
             }
@@ -229,6 +275,29 @@ namespace BF2Statistics.MedalData
                 //return SubConditions[0].ToTree();
 
             return ToTreeNoCollapse();
+        }
+
+        /// <summary>
+        /// Validates that the given parameter is a valid return type to make this
+        /// condition list work properly
+        /// </summary>
+        /// <param name="ParamId">The current parameter index</param>
+        /// <param name="RType">The return type if the current parameter</param>
+        /// <returns></returns>
+        protected bool ValidateParam(int ParamId, ReturnType RType)
+        {
+            switch (Type)
+            {
+                case ConditionType.And:
+                case ConditionType.Or:
+                case ConditionType.Not:
+                    return (RType == ReturnType.Bool);
+                case ConditionType.Plus:
+                case ConditionType.Div:
+                    return (RType == ReturnType.Number);
+            }
+
+            return true;
         }
     }
 }

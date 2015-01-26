@@ -9,6 +9,11 @@ namespace BF2Statistics.MedalData
     public abstract class Condition : ICloneable
     {
         /// <summary>
+        /// Returns the return value of this condition
+        /// </summary>
+        public abstract ReturnType Returns();
+
+        /// <summary>
         /// Returns the parameters that make up the python parts of the function
         /// </summary>
         /// <returns></returns>

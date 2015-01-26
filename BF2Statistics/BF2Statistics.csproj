@@ -81,6 +81,7 @@
   <ItemGroup>
     <Compile Include="ASP\Ip2nation.cs" />
     <Compile Include="ASP\PidManager.cs" />
+    <Compile Include="ASP\StatsManager.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Forms\DatabaseConfigForm.cs">
       <SubType>Form</SubType>
@@ -94,9 +95,10 @@
     <Compile Include="Forms\ASP\LeaderboardConfigForm.Designer.cs">
       <DependentUpon>LeaderboardConfigForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Python\StatsPythonConfig.cs" />
     <Compile Include="Utilities\NiceDictionary.cs" />
     <Compile Include="SetupManager.cs" />
-    <Compile Include="Utilities\StatsPython.cs" />
+    <Compile Include="Python\StatsPython.cs" />
     <Compile Include="Web\Bf2Stats\MyLeaderboardPage.cs" />
     <Compile Include="Web\Bf2Stats\Pages\MyLeaderboardPage.cs">
       <AutoGen>True</AutoGen>
@@ -368,7 +370,6 @@
     <Compile Include="MedalData\Conditions\PlayerStat.cs" />
     <Compile Include="MedalData\Data.cs" />
     <Compile Include="MedalData\IAward.cs" />
-    <Compile Include="MedalData\Item.cs" />
     <Compile Include="MedalData\Parser\ISourcePart.cs" />
     <Compile Include="MedalData\Parser\ParseException.cs" />
     <Compile Include="MedalData\Parser\MedalDataParser.cs" />

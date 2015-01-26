@@ -43,6 +43,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.DeleteBtn = new System.Windows.Forms.Button();
+            this.ServerOfflineWarning = new System.Windows.Forms.Label();
             this.MenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -64,7 +65,7 @@
             this.columnHeader2});
             this.SnapshotView.FullRowSelect = true;
             this.SnapshotView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.SnapshotView.Location = new System.Drawing.Point(6, 106);
+            this.SnapshotView.Location = new System.Drawing.Point(6, 127);
             this.SnapshotView.MultiSelect = false;
             this.SnapshotView.Name = "SnapshotView";
             this.SnapshotView.Size = new System.Drawing.Size(580, 250);
@@ -75,7 +76,7 @@
             // 
             // ImportBtn
             // 
-            this.ImportBtn.Location = new System.Drawing.Point(453, 372);
+            this.ImportBtn.Location = new System.Drawing.Point(453, 393);
             this.ImportBtn.Name = "ImportBtn";
             this.ImportBtn.Size = new System.Drawing.Size(111, 30);
             this.ImportBtn.TabIndex = 1;
@@ -97,7 +98,7 @@
             // 
             // SelectAllBtn
             // 
-            this.SelectAllBtn.Location = new System.Drawing.Point(30, 372);
+            this.SelectAllBtn.Location = new System.Drawing.Point(30, 393);
             this.SelectAllBtn.Name = "SelectAllBtn";
             this.SelectAllBtn.Size = new System.Drawing.Size(111, 30);
             this.SelectAllBtn.TabIndex = 3;
@@ -107,7 +108,7 @@
             // 
             // SelectNoneBtn
             // 
-            this.SelectNoneBtn.Location = new System.Drawing.Point(147, 372);
+            this.SelectNoneBtn.Location = new System.Drawing.Point(147, 393);
             this.SelectNoneBtn.Name = "SelectNoneBtn";
             this.SelectNoneBtn.Size = new System.Drawing.Size(111, 30);
             this.SelectNoneBtn.TabIndex = 4;
@@ -162,7 +163,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 85);
+            this.label2.Location = new System.Drawing.Point(12, 106);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(289, 13);
             this.label2.TabIndex = 9;
@@ -170,7 +171,7 @@
             // 
             // DeleteBtn
             // 
-            this.DeleteBtn.Location = new System.Drawing.Point(335, 372);
+            this.DeleteBtn.Location = new System.Drawing.Point(335, 393);
             this.DeleteBtn.Name = "DeleteBtn";
             this.DeleteBtn.Size = new System.Drawing.Size(111, 30);
             this.DeleteBtn.TabIndex = 10;
@@ -178,12 +179,24 @@
             this.DeleteBtn.UseVisualStyleBackColor = true;
             this.DeleteBtn.Click += new System.EventHandler(this.DeleteBtn_Click);
             // 
+            // ServerOfflineWarning
+            // 
+            this.ServerOfflineWarning.AutoSize = true;
+            this.ServerOfflineWarning.ForeColor = System.Drawing.Color.Red;
+            this.ServerOfflineWarning.Location = new System.Drawing.Point(57, 83);
+            this.ServerOfflineWarning.Name = "ServerOfflineWarning";
+            this.ServerOfflineWarning.Size = new System.Drawing.Size(481, 13);
+            this.ServerOfflineWarning.TabIndex = 11;
+            this.ServerOfflineWarning.Text = "The ASP webserver is offline. You will be unable to import Snapshots until the AS" +
+                "P server is enabled.";
+            // 
             // SnapshotViewForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.ClientSize = new System.Drawing.Size(594, 422);
+            this.ClientSize = new System.Drawing.Size(594, 432);
+            this.Controls.Add(this.ServerOfflineWarning);
             this.Controls.Add(this.DeleteBtn);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -221,6 +234,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ToolStripMenuItem MoveSnapshotMenuItem;
         private System.Windows.Forms.Button DeleteBtn;
+        private System.Windows.Forms.Label ServerOfflineWarning;
 
     }
 }

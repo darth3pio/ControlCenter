@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using BF2Statistics.ASP;
 using BF2Statistics.ASP.StatsProcessor;
 using BF2Statistics.Database;
+using BF2Statistics.Web;
 
 namespace BF2Statistics
 {
@@ -23,6 +24,10 @@ namespace BF2Statistics
         public SnapshotViewForm()
         {
             InitializeComponent();
+
+            // Show / Hide warning
+            if (HttpServer.IsRunning)
+                ServerOfflineWarning.Hide();
 
             // Fill the list of unprocessed snapshots
             ViewSelect.SelectedIndex = 0;
@@ -242,7 +247,7 @@ namespace BF2Statistics
         private void ViewSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Enable/Disable features based in mode
-            bool Enable = (ViewSelect.SelectedIndex == 0);
+            bool Enable = (ViewSelect.SelectedIndex == 0 && HttpServer.IsRunning);
             SnapshotView.CheckBoxes = Enable;
             ImportBtn.Enabled = Enable;
             SelectAllBtn.Enabled = Enable;

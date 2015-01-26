@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Diagnostics;
 
 namespace BF2Statistics
 {
@@ -24,15 +25,38 @@ namespace BF2Statistics
         public static List<BF2Mod> Mods { get; protected set; }
 
         /// <summary>
+        /// Returns whether the server is currently running
+        /// </summary>
+        public static bool IsRunning
+        {
+            get { return ServerProcess != null; }
+        }
+
+        /// <summary>
         /// An event thats fired if the Bf2 server path is changed
         /// </summary>
         public static event ServerChangedEvent ServerPathChanged;
 
         /// <summary>
+        /// An event fired when the BF2 Server is started
+        /// </summary>
+        public static event ServerChangedEvent Started;
+
+        /// <summary>
+        /// An event fired when the BF2 server exits
+        /// </summary>
+        public static event ServerChangedEvent Exited;
+
+        /// <summary>
+        /// The active (or null) server process
+        /// </summary>
+        protected static Process ServerProcess;
+
+        /// <summary>
         /// Loads a battlefield 2 server into this object for use.
         /// </summary>
         /// <param name="ServerPath">The full root path to the server's executable file</param>
-        public static void Load(string ServerPath)
+        public static void SetServerPath(string ServerPath)
         {
             // Make sure we have a valid server path
             if (!File.Exists(Path.Combine(ServerPath, "bf2_w32ded.exe")))
@@ -101,6 +125,102 @@ namespace BF2Statistics
             // Fire change event
             if (Changed && ServerPathChanged != null)
                 ServerPathChanged();
+            
+            // Recheck server process
+            CheckServerProcess();
+        }
+
+        /// <summary>
+        /// Assigns the Server Process if the process is running
+        /// </summary>
+        protected static void CheckServerProcess()
+        {
+            try
+            {
+                Process[] processCollection = Process.GetProcessesByName("bf2_w32ded");
+                foreach (Process P in processCollection)
+                {
+                    if (Path.GetDirectoryName(P.MainModule.FileName) == RootPath)
+                    {
+                        // Hook into the proccess so we know when its running, and register a closing event
+                        ServerProcess = P;
+                        ServerProcess.EnableRaisingEvents = true;
+                        ServerProcess.Exited += new EventHandler(ServerProcess_Exited);
+
+                        // Fire Event
+                        if (Started != null)
+                            Started();
+                        break;
+                    }
+                }
+            }
+            catch { } // Who cares?
+        }
+
+        /// <summary>
+        /// Starts the Battlefield 2 Server application
+        /// </summary>
+        /// <param name="Mod">The battlefield 2 mod that the server is to use</param>
+        /// <param name="ExtraArgs">Any arguments to be past to the application on startup</param>
+        /// <param name="ShowConsole">If false, a console will not be created</param>
+        /// <param name="MinConsole">If <see cref="ShowConsole"/> is enabled, true will start the console minimized</param>
+        public static void Start(BF2Mod Mod, string ExtraArgs, bool ShowConsole, bool MinConsole)
+        {
+            // Make sure the server isnt running already
+            if (IsRunning)
+                throw new Exception("The Battlefield 2 server is already running!");
+
+            // Make sure the mod is supported!
+            if (!Mods.Contains(Mod))
+                throw new Exception("The battlefield 2 mod cannot be located in the mods folder");
+
+            // Start new BF2 proccess
+            ProcessStartInfo Info = new ProcessStartInfo();
+            Info.Arguments = String.Format(" +modPath mods/{0}", Mod.Name.ToLower());
+            if (!String.IsNullOrEmpty(ExtraArgs))
+                Info.Arguments += " " + ExtraArgs;
+
+            // Hide window if user specifies this...
+            if (!ShowConsole)
+                Info.WindowStyle = ProcessWindowStyle.Hidden;
+            else if (MinConsole)
+                Info.WindowStyle = ProcessWindowStyle.Minimized;
+
+            // Start process. Set working directory so we dont get errors!
+            Info.FileName = "bf2_w32ded.exe";
+            Info.WorkingDirectory = RootPath;
+            ServerProcess = Process.Start(Info);
+
+            // Hook into the proccess so we know when its running, and register a closing event
+            ServerProcess.EnableRaisingEvents = true;
+            ServerProcess.Exited += new EventHandler(ServerProcess_Exited);
+
+            // Call event
+            if (Started != null)
+                Started();
+        }
+
+        /// <summary>
+        /// Kills the Bf2 Server process
+        /// </summary>
+        public static void Stop()
+        {
+            if(IsRunning) 
+                ServerProcess.Kill();
+        }
+
+        /// <summary>
+        /// Event fired when the server closes down
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected static void ServerProcess_Exited(object sender, EventArgs e)
+        {
+            if (Exited != null)
+                Exited();
+
+            ServerProcess.Close();
+            ServerProcess = null;
         }
     }
 }

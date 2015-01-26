@@ -34,6 +34,31 @@ namespace BF2Statistics
         }
 
         /// <summary>
+        /// The BF2StatisticsConfig.py object
+        /// </summary>
+        protected static StatsPythonConfig ConfigFile = null;
+
+        /// <summary>
+        /// Returns the BF2StatisticsConfig.py file as a configuration object
+        /// </summary>
+        public static StatsPythonConfig Config
+        {
+            get
+            {
+                // Make sure stats are enabled
+                if (!StatsEnabled)
+                    throw new Exception("Cannot load Bf2StatisticsConfig.py, Stats are not enabled!");
+
+                // Make sure config has been Initiated
+                if (ConfigFile == null)
+                    ConfigFile = new StatsPythonConfig();
+
+                // Return the private singleton object
+                return ConfigFile;
+            }
+        }
+
+        /// <summary>
         /// Backsup the current python files, and installs the ranked enabled ones
         /// </summary>
         public static void BackupAndInstall()
@@ -41,19 +66,19 @@ namespace BF2Statistics
             if (StatsEnabled)
                 return;
 
-            // Make sure we arent Amibiguous. If the backup folder exists, just leave it!!!
+            // Make sure we arent Ambiguous. If the backup folder exists, just leave it!!!
             // If we have both backup folders, start fresh install
             if (Directory.Exists(BackupPath) && Directory.Exists(StatsBackupPath))
             {
-                DirectoryExt.Delete(StatsBackupPath);
-                DirectoryExt.Delete(BF2Server.PythonPath);
-                System.Threading.Thread.Sleep(750);
+                Directory.Delete(StatsBackupPath, true);
+                Directory.Delete(BF2Server.PythonPath, true);
+                //System.Threading.Thread.Sleep(750);
             }
             else
             {
                 // move the current "normal" files over to the backup path
                 Directory.Move(BF2Server.PythonPath, BackupPath);
-                System.Threading.Thread.Sleep(750);
+                //System.Threading.Thread.Sleep(750);
             }
 
             // Make sure we dont have an empty backup folder
@@ -63,7 +88,7 @@ namespace BF2Statistics
                 Directory.Move(StatsBackupPath, BF2Server.PythonPath);
 
             // Sleep
-            System.Threading.Thread.Sleep(750);
+            System.Threading.Thread.Sleep(500);
         }
 
         /// <summary>
@@ -77,13 +102,13 @@ namespace BF2Statistics
             // Make sure we dont have a pending error here
             if (Directory.Exists(StatsBackupPath))
             {
-                DirectoryExt.Delete(StatsBackupPath);
-                System.Threading.Thread.Sleep(750);
+                Directory.Delete(StatsBackupPath, true);
+                //System.Threading.Thread.Sleep(750);
             }
 
             // Backup the users new bf2s python files
             Directory.Move(BF2Server.PythonPath, StatsBackupPath);
-            System.Threading.Thread.Sleep(750);
+            //System.Threading.Thread.Sleep(750);
 
             // Make sure we have a backup folder!!
             if (!Directory.Exists(BackupPath))
@@ -98,7 +123,7 @@ namespace BF2Statistics
             }
 
             // Stop for a breather
-            System.Threading.Thread.Sleep(750);
+            System.Threading.Thread.Sleep(500);
         }
 
         /// <summary>
@@ -108,14 +133,14 @@ namespace BF2Statistics
         {
             if (StatsEnabled)
             {
-                DirectoryExt.Delete(BF2Server.PythonPath);
-                System.Threading.Thread.Sleep(750);
+                Directory.Delete(BF2Server.PythonPath, true);
+                //System.Threading.Thread.Sleep(750);
                 DirectoryExt.Copy(Paths.RankedPythonPath, BF2Server.PythonPath, true);
             }
             else
             {
-                DirectoryExt.Delete(StatsBackupPath);
-                System.Threading.Thread.Sleep(750);
+                Directory.Delete(StatsBackupPath, true);
+                //System.Threading.Thread.Sleep(750);
                 DirectoryExt.Copy(Paths.RankedPythonPath, StatsBackupPath, true);
             }
         }

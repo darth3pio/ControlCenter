@@ -55,10 +55,15 @@ namespace BF2Statistics
                 if (BakFiles.Length > 0)
                 {
                     // Open the database connection
-                    StatsDatabase Database;
+                    StatsDatabase Database = null;
                     try
                     {
                         Database = new StatsDatabase();
+                    }
+                    catch (DbConnectException Ex)
+                    {
+                        ExceptionForm.ShowDbConnectError(Ex);
+                        return;
                     }
                     catch (Exception Ex)
                     {
@@ -67,11 +72,16 @@ namespace BF2Statistics
                             "Database Connection Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error
                         );
-
-                        // Stop the ASP server, and close this form
-                        HttpServer.Stop();
-                        this.Close();
                         return;
+                    }
+                    finally
+                    {
+                        if (Database == null)
+                        {
+                            // Stop the ASP server, and close this form
+                            HttpServer.Stop();
+                            this.Close();
+                        }
                     }
 
                     // Show task dialog

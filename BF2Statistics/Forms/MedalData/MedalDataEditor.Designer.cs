@@ -34,6 +34,8 @@
             System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Ribbons");
             System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Ranks");
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.AwardTypeBox = new System.Windows.Forms.Label();
+            this.AwardNameBox = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
@@ -59,8 +61,6 @@
             this.CriteriaItemMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.EditCritertiaMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.DeleteCriteriaMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.AwardNameBox = new System.Windows.Forms.Label();
-            this.AwardTypeBox = new System.Windows.Forms.Label();
             this.groupBox2.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.CriteriaRootMenu.SuspendLayout();
@@ -84,6 +84,26 @@
             this.groupBox2.TabIndex = 3;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Award Information";
+            // 
+            // AwardTypeBox
+            // 
+            this.AwardTypeBox.AutoEllipsis = true;
+            this.AwardTypeBox.Location = new System.Drawing.Point(16, 270);
+            this.AwardTypeBox.MaximumSize = new System.Drawing.Size(180, 13);
+            this.AwardTypeBox.MinimumSize = new System.Drawing.Size(180, 13);
+            this.AwardTypeBox.Name = "AwardTypeBox";
+            this.AwardTypeBox.Size = new System.Drawing.Size(180, 13);
+            this.AwardTypeBox.TabIndex = 8;
+            // 
+            // AwardNameBox
+            // 
+            this.AwardNameBox.AutoEllipsis = true;
+            this.AwardNameBox.Location = new System.Drawing.Point(16, 225);
+            this.AwardNameBox.MaximumSize = new System.Drawing.Size(180, 13);
+            this.AwardNameBox.MinimumSize = new System.Drawing.Size(180, 13);
+            this.AwardNameBox.Name = "AwardNameBox";
+            this.AwardNameBox.Size = new System.Drawing.Size(180, 13);
+            this.AwardNameBox.TabIndex = 7;
             // 
             // groupBox4
             // 
@@ -122,6 +142,7 @@
             this.AwardConditionsTree.Enabled = false;
             this.AwardConditionsTree.Location = new System.Drawing.Point(2, 19);
             this.AwardConditionsTree.Name = "AwardConditionsTree";
+            this.AwardConditionsTree.ShowNodeToolTips = true;
             this.AwardConditionsTree.ShowPlusMinus = false;
             this.AwardConditionsTree.Size = new System.Drawing.Size(267, 200);
             this.AwardConditionsTree.TabIndex = 8;
@@ -248,7 +269,7 @@
             this.ActivateProfileBtn.BackgroundImage = global::BF2Statistics.Properties.Resources.power;
             this.ActivateProfileBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.ActivateProfileBtn.Enabled = false;
-            this.ActivateProfileBtn.Location = new System.Drawing.Point(501, 20);
+            this.ActivateProfileBtn.Location = new System.Drawing.Point(501, 21);
             this.ActivateProfileBtn.Name = "ActivateProfileBtn";
             this.ActivateProfileBtn.Padding = new System.Windows.Forms.Padding(7, 0, 0, 0);
             this.ActivateProfileBtn.Size = new System.Drawing.Size(150, 24);
@@ -264,7 +285,7 @@
             this.SaveBtn.BackgroundImage = global::BF2Statistics.Properties.Resources.Save;
             this.SaveBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.SaveBtn.Enabled = false;
-            this.SaveBtn.Location = new System.Drawing.Point(657, 19);
+            this.SaveBtn.Location = new System.Drawing.Point(657, 21);
             this.SaveBtn.Name = "SaveBtn";
             this.SaveBtn.Padding = new System.Windows.Forms.Padding(7, 0, 0, 0);
             this.SaveBtn.Size = new System.Drawing.Size(75, 24);
@@ -316,7 +337,7 @@
             this.ProfileSelector.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ProfileSelector.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ProfileSelector.FormattingEnabled = true;
-            this.ProfileSelector.Location = new System.Drawing.Point(120, 22);
+            this.ProfileSelector.Location = new System.Drawing.Point(120, 21);
             this.ProfileSelector.Name = "ProfileSelector";
             this.ProfileSelector.Size = new System.Drawing.Size(162, 24);
             this.ProfileSelector.TabIndex = 0;
@@ -349,26 +370,6 @@
             this.DeleteCriteriaMenuItem.Size = new System.Drawing.Size(148, 22);
             this.DeleteCriteriaMenuItem.Text = "Delete Criteria";
             this.DeleteCriteriaMenuItem.Click += new System.EventHandler(this.DeleteCriteria_Click);
-            // 
-            // AwardNameBox
-            // 
-            this.AwardNameBox.AutoEllipsis = true;
-            this.AwardNameBox.Location = new System.Drawing.Point(16, 225);
-            this.AwardNameBox.MaximumSize = new System.Drawing.Size(180, 13);
-            this.AwardNameBox.MinimumSize = new System.Drawing.Size(180, 13);
-            this.AwardNameBox.Name = "AwardNameBox";
-            this.AwardNameBox.Size = new System.Drawing.Size(180, 13);
-            this.AwardNameBox.TabIndex = 7;
-            // 
-            // AwardTypeBox
-            // 
-            this.AwardTypeBox.AutoEllipsis = true;
-            this.AwardTypeBox.Location = new System.Drawing.Point(16, 270);
-            this.AwardTypeBox.MaximumSize = new System.Drawing.Size(180, 13);
-            this.AwardTypeBox.MinimumSize = new System.Drawing.Size(180, 13);
-            this.AwardTypeBox.Name = "AwardTypeBox";
-            this.AwardTypeBox.Size = new System.Drawing.Size(180, 13);
-            this.AwardTypeBox.TabIndex = 8;
             // 
             // MedalDataEditor
             // 

@@ -11,7 +11,7 @@ using System.Resources;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Battlefield 2 Statistics")]
 [assembly: AssemblyProduct("Battlefield 2 Statistics Control Center")]
-[assembly: AssemblyCopyright("Copyright © BF2Statistics.com 2006 - 2014")]
+[assembly: AssemblyCopyright("Copyright © BF2Statistics.com 2006 - 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,6 +33,6 @@ using System.Resources;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.9.3.0")]
-[assembly: AssemblyFileVersion("1.9.3.0")]
+[assembly: AssemblyVersion("1.10.0.0")]
+[assembly: AssemblyFileVersion("1.10.0.0")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]

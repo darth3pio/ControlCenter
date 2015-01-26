@@ -62,7 +62,7 @@ namespace BF2Statistics
                 // Load the BF2 Server
                 try
                 {
-                    BF2Server.Load(Config.ServerPath);
+                    BF2Server.SetServerPath(Config.ServerPath);
                 }
                 catch (Exception E)
                 {

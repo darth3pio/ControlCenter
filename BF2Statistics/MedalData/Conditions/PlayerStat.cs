@@ -16,6 +16,8 @@ namespace BF2Statistics.MedalData
         public PlayerStat(List<string> Params)
         {
             this.Params = Params;
+            if (Params[0] == "player_stat" && !Data.IsTimeStat(Params[1]))
+                Params[0] = "player_score";
         }
 
         /// <summary>
@@ -34,6 +36,16 @@ namespace BF2Statistics.MedalData
         public override void SetParams(List<string> Params)
         {
             this.Params = Params;
+            if (Params[0] == "player_stat" && !Data.IsTimeStat(Params[1]))
+                Params[0] = "player_score";
+        }
+
+        /// <summary>
+        /// Returns the return value of this condition
+        /// </summary>
+        public override ReturnType Returns()
+        {
+            return (Params.Count == 2) ? ReturnType.Number : ReturnType.Bool;
         }
 
         /// <summary>

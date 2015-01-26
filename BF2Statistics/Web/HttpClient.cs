@@ -36,7 +36,10 @@ namespace BF2Statistics.Web
         /// <summary>
         /// Indicates whether the response object has written to the output stream
         /// </summary>
-        public bool ResponseSent { get; protected set; }
+        public bool ResponseSent 
+        {
+            get { return this.Response.ResponseSent; }
+        }
 
         /// <summary>
         /// Creates a new instance of HttpClinet
@@ -62,9 +65,6 @@ namespace BF2Statistics.Web
                 Response = new HttpResponse(Client.Response, this);
             }
 
-            // Register for events
-            Response.SentResponse += new EventHandler(Response_SentResponse);
-
             // Add BF2Statistics Header
             Client.Response.AddHeader("X-Powered-By", "BF2Statistics Control Center v" + Program.Version);
         }
@@ -72,14 +72,6 @@ namespace BF2Statistics.Web
         public void Dispose()
         {
 
-        }
-
-        /// <summary>
-        /// Callback method for when the Response is sent to the client
-        /// </summary>
-        private void Response_SentResponse(object sender, EventArgs e)
-        {
-            ResponseSent = true;
         }
     }
 }

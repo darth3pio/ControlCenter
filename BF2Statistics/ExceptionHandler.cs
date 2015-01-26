@@ -25,7 +25,7 @@ namespace BF2Statistics
         public static void OnThreadException(object sender, ThreadExceptionEventArgs t)
         {
             // Create Trace Log
-            string FileName = Path.Combine(Paths.DocumentsFolder, "ExceptionLog_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt");
+            string FileName = Path.Combine(Paths.DocumentsFolder, "ExceptionLog_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt");
             try
             {
                 // Try to generate a trace log
@@ -54,7 +54,7 @@ namespace BF2Statistics
         public static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             // Create Trace Log
-            string FileName = Path.Combine(Paths.DocumentsFolder, "ExceptionLog_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt");
+            string FileName = Path.Combine(Paths.DocumentsFolder, "ExceptionLog_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt");
             Exception Ex = e.ExceptionObject as Exception;
             ExceptionForm EForm = new ExceptionForm(Ex, false);
 
@@ -88,7 +88,7 @@ namespace BF2Statistics
         /// </summary>
         public static void GenerateExceptionLog(Exception E)
         {
-            string FileName = Path.Combine(Paths.DocumentsFolder, "ExceptionLog_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".txt");
+            string FileName = Path.Combine(Paths.DocumentsFolder, "ExceptionLog_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt");
             GenerateExceptionLog(FileName, E);
         }
 

@@ -10,6 +10,7 @@ using System.Data.Common;
 using System.IO;
 using System.Xml;
 using System.Reflection;
+using BF2Statistics.ASP;
 using BF2Statistics.Web;
 using BF2Statistics.Database;
 using BF2Statistics.Database.QueryBuilder;
@@ -407,7 +408,7 @@ namespace BF2Statistics
             {
                 try
                 {
-                    Driver.ExportPlayerXml(sPath, Pid, Name);
+                    StatsManager.ExportPlayerXml(sPath, Pid, Name);
                     Notify.Show("Player Exported Successfully", String.Format("{0} ({1})", Name, Pid), AlertType.Success);
                 }
                 catch (Exception E)
@@ -439,7 +440,7 @@ namespace BF2Statistics
             {
                 try
                 {
-                    Driver.ImportPlayerXml(Dialog.FileName);
+                    StatsManager.ImportPlayerXml(Dialog.FileName);
                     Notify.Show("Player Imported Successfully", "Operation Successful", AlertType.Success);
                     BuildList();
                 }

@@ -68,7 +68,7 @@ namespace BF2Statistics.MedalData
             Data = Data.Replace(" ", "").Replace("\t", "").Replace("\r", "").Replace("\n", "");
 
             // Make sure this is a formated medal data file
-            if(Data.Contains("player_score") || !Data.Contains("#stop"))
+            if(!Data.Contains("#stop"))
                 throw new Exception("Improper Medal data file. Only medal data files generated with this program can be editied."
                     + " Click the \"New\" button to generate a new medal data file, compatible with this editor.");
 
@@ -349,6 +349,7 @@ namespace BF2Statistics.MedalData
                             return new ObjectStat(Params);
                         case "global_stat":
                         case "player_stat":
+                        case "player_score":
                             return new PlayerStat(Params);
                         case "has_medal":
                         case "has_rank":

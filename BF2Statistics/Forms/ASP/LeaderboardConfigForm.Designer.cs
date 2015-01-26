@@ -43,11 +43,11 @@
             this.shapeContainer1 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
             this.lineShape1 = new Microsoft.VisualBasic.PowerPacks.LineShape();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.label3 = new System.Windows.Forms.Label();
             this.CacheChkBox = new System.Windows.Forms.CheckBox();
             this.shapeContainer2 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
             this.lineShape2 = new Microsoft.VisualBasic.PowerPacks.LineShape();
             this.ClearBtn = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.PlayerCount)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -212,6 +212,15 @@
             this.panel2.Size = new System.Drawing.Size(467, 208);
             this.panel2.TabIndex = 8;
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(31, 153);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(404, 39);
+            this.label3.TabIndex = 7;
+            this.label3.Text = resources.GetString("label3.Text");
+            // 
             // CacheChkBox
             // 
             this.CacheChkBox.AutoSize = true;
@@ -252,15 +261,6 @@
             this.ClearBtn.UseVisualStyleBackColor = true;
             this.ClearBtn.Click += new System.EventHandler(this.ClearBtn_Click);
             // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(31, 153);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(404, 39);
-            this.label3.TabIndex = 7;
-            this.label3.Text = resources.GetString("label3.Text");
-            // 
             // LeaderboardConfigForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -276,6 +276,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "LeaderboardConfigForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Leaderboard Config";
             ((System.ComponentModel.ISupportInitialize)(this.PlayerCount)).EndInit();
             this.panel1.ResumeLayout(false);

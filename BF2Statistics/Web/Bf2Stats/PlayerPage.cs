@@ -638,15 +638,45 @@ namespace BF2Statistics.Web.Bf2Stats
             #region Unlocks
             j = 0;
             Rows = Database.Query("SELECT kit, state FROM unlocks WHERE id=@P0 ORDER BY kit ASC", Pid);
-            foreach (Dictionary<string, object> Row in Rows)
+            if (Rows.Count > 0)
             {
-                PlayerUnlocks[j] = new WeaponUnlock
+                foreach (Dictionary<string, object> Row in Rows)
                 {
-                    Id = Int32.Parse(Row["kit"].ToString()),
-                    Name = StatsData.Unlocks[Row["kit"].ToString()],
-                    State = Row["state"].ToString()
-                };
-                j++;
+                    PlayerUnlocks[j] = new WeaponUnlock
+                    {
+                        Id = Int32.Parse(Row["kit"].ToString()),
+                        Name = StatsData.Unlocks[Row["kit"].ToString()],
+                        State = Row["state"].ToString()
+                    };
+                    j++;
+                }
+            }
+            else
+            {
+                // Normal unlocks
+                for (int i = 11; i < 100; i += 11)
+                {
+                    // 88 and above are Special Forces unlocks, and wont display at all if the base unlocks are not earned
+                    PlayerUnlocks[i] = new WeaponUnlock
+                    {
+                        Id = i,
+                        Name = StatsData.Unlocks[i.ToString()],
+                        State = "n"
+                    };
+                    j++;
+                }
+
+                // Sf Unlocks, Dont display these because thats how Gamespy does it
+                for (int i = 111; i < 556; i += 111)
+                {
+                    PlayerUnlocks[i] = new WeaponUnlock
+                    {
+                        Id = i,
+                        Name = StatsData.Unlocks[i.ToString()],
+                        State = "n"
+                    };
+                    j++;
+                }
             }
             #endregion Unlocks
 
