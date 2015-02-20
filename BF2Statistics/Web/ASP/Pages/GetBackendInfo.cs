@@ -2,6 +2,9 @@
 
 namespace BF2Statistics.Web.ASP
 {
+    /// <summary>
+    /// /ASP/getbackendinfo.aspx
+    /// </summary>
     class GetBackendInfo
     {
         /// <summary>

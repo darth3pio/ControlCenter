@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using System.Windows.Forms;
 using BF2Statistics.Properties;
@@ -44,15 +41,27 @@ namespace BF2Statistics
                 if (!Directory.Exists(Paths.DocumentsFolder))
                     Directory.CreateDirectory(Paths.DocumentsFolder);
 
-                // Backups folder
-                if (!Directory.Exists(Path.Combine(Paths.DocumentsFolder, "Backups")))
-                    Directory.CreateDirectory(Path.Combine(Paths.DocumentsFolder, "Backups"));
+                // Create the database backups folder
+                string bFolder = Path.Combine(Paths.DocumentsFolder, "Database Backups");
+                if (!Directory.Exists(bFolder))
+                {
+                    // In 1.x.x versions, this folder was called Backups rather then Database Backups
+                    string OldB = Path.Combine(Paths.DocumentsFolder, "Backups");
+                    if(Directory.Exists(OldB))
+                        Directory.Move(OldB, bFolder);
+                    else
+                        Directory.CreateDirectory(bFolder);
+                }
             }
             catch (Exception E)
             {
-                string message = "Bf2Statistics encountered an error trying to create the required \"My Documents/BF2Statistics\" folder!";
-                message += Environment.NewLine + Environment.NewLine + E.Message;
-                MessageBox.Show(message, "Setup Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Alert the user that there was an error
+                MessageBox.Show("Bf2Statistics encountered an error trying to create the required \"My Documents/BF2Statistics\" folder!"
+                    + Environment.NewLine.Repeat(1) + E.Message,
+                    "Setup Error", 
+                    MessageBoxButtons.OK, 
+                    MessageBoxIcon.Error
+                );
                 return false;
             }
 

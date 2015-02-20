@@ -86,18 +86,17 @@
             this.label1 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.AiDefendFlag = new System.Windows.Forms.NumericUpDown();
-            this.AiFlagNeutralizeAsst = new System.Windows.Forms.NumericUpDown();
-            this.AiFlagNeutralize = new System.Windows.Forms.NumericUpDown();
-            this.AiFlagCaptureAsst = new System.Windows.Forms.NumericUpDown();
-            this.AiFlagCapture = new System.Windows.Forms.NumericUpDown();
+            this.AiCoopDefendFlag = new System.Windows.Forms.NumericUpDown();
+            this.AiCoopFlagNeutralizeAsst = new System.Windows.Forms.NumericUpDown();
+            this.AiCoopFlagNeutralize = new System.Windows.Forms.NumericUpDown();
+            this.AiCoopFlagCaptureAsst = new System.Windows.Forms.NumericUpDown();
+            this.AiCoopFlagCapture = new System.Windows.Forms.NumericUpDown();
             this.label25 = new System.Windows.Forms.Label();
             this.label26 = new System.Windows.Forms.Label();
             this.label27 = new System.Windows.Forms.Label();
             this.label28 = new System.Windows.Forms.Label();
             this.label29 = new System.Windows.Forms.Label();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
-            this.label31 = new System.Windows.Forms.Label();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
             this.AiSuicideScore = new System.Windows.Forms.NumericUpDown();
             this.AiTeamVehicleDamage = new System.Windows.Forms.NumericUpDown();
@@ -153,6 +152,16 @@
             this.Cancel = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
             this.ResetButton = new System.Windows.Forms.Button();
+            this.AiCqDefendFlag = new System.Windows.Forms.NumericUpDown();
+            this.AiCqFlagNeutralizeAsst = new System.Windows.Forms.NumericUpDown();
+            this.AiCqFlagNeutralize = new System.Windows.Forms.NumericUpDown();
+            this.AiCqFlagCaptureAsst = new System.Windows.Forms.NumericUpDown();
+            this.AiCqFlagCapture = new System.Windows.Forms.NumericUpDown();
+            this.label31 = new System.Windows.Forms.Label();
+            this.label57 = new System.Windows.Forms.Label();
+            this.label58 = new System.Windows.Forms.Label();
+            this.label59 = new System.Windows.Forms.Label();
+            this.label60 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox6.SuspendLayout();
@@ -187,11 +196,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.KillScore)).BeginInit();
             this.tabPage2.SuspendLayout();
             this.groupBox7.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.AiDefendFlag)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiFlagNeutralizeAsst)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiFlagNeutralize)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiFlagCaptureAsst)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiFlagCapture)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCoopDefendFlag)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCoopFlagNeutralizeAsst)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCoopFlagNeutralize)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCoopFlagCaptureAsst)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCoopFlagCapture)).BeginInit();
             this.groupBox8.SuspendLayout();
             this.groupBox9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.AiSuicideScore)).BeginInit();
@@ -219,6 +228,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.AmmoPointLimit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.HealPointLimit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RepairPointLimit)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqDefendFlag)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagNeutralizeAsst)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagNeutralize)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagCaptureAsst)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagCapture)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -892,11 +906,11 @@
             // 
             // groupBox7
             // 
-            this.groupBox7.Controls.Add(this.AiDefendFlag);
-            this.groupBox7.Controls.Add(this.AiFlagNeutralizeAsst);
-            this.groupBox7.Controls.Add(this.AiFlagNeutralize);
-            this.groupBox7.Controls.Add(this.AiFlagCaptureAsst);
-            this.groupBox7.Controls.Add(this.AiFlagCapture);
+            this.groupBox7.Controls.Add(this.AiCoopDefendFlag);
+            this.groupBox7.Controls.Add(this.AiCoopFlagNeutralizeAsst);
+            this.groupBox7.Controls.Add(this.AiCoopFlagNeutralize);
+            this.groupBox7.Controls.Add(this.AiCoopFlagCaptureAsst);
+            this.groupBox7.Controls.Add(this.AiCoopFlagCapture);
             this.groupBox7.Controls.Add(this.label25);
             this.groupBox7.Controls.Add(this.label26);
             this.groupBox7.Controls.Add(this.label27);
@@ -909,65 +923,65 @@
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Coop Scoring";
             // 
-            // AiDefendFlag
+            // AiCoopDefendFlag
             // 
-            this.AiDefendFlag.Location = new System.Drawing.Point(198, 77);
-            this.AiDefendFlag.Maximum = new decimal(new int[] {
+            this.AiCoopDefendFlag.Location = new System.Drawing.Point(198, 77);
+            this.AiCoopDefendFlag.Maximum = new decimal(new int[] {
             999,
             0,
             0,
             0});
-            this.AiDefendFlag.Name = "AiDefendFlag";
-            this.AiDefendFlag.Size = new System.Drawing.Size(40, 20);
-            this.AiDefendFlag.TabIndex = 33;
+            this.AiCoopDefendFlag.Name = "AiCoopDefendFlag";
+            this.AiCoopDefendFlag.Size = new System.Drawing.Size(40, 20);
+            this.AiCoopDefendFlag.TabIndex = 33;
             // 
-            // AiFlagNeutralizeAsst
+            // AiCoopFlagNeutralizeAsst
             // 
-            this.AiFlagNeutralizeAsst.Location = new System.Drawing.Point(300, 46);
-            this.AiFlagNeutralizeAsst.Maximum = new decimal(new int[] {
+            this.AiCoopFlagNeutralizeAsst.Location = new System.Drawing.Point(300, 46);
+            this.AiCoopFlagNeutralizeAsst.Maximum = new decimal(new int[] {
             999,
             0,
             0,
             0});
-            this.AiFlagNeutralizeAsst.Name = "AiFlagNeutralizeAsst";
-            this.AiFlagNeutralizeAsst.Size = new System.Drawing.Size(40, 20);
-            this.AiFlagNeutralizeAsst.TabIndex = 32;
+            this.AiCoopFlagNeutralizeAsst.Name = "AiCoopFlagNeutralizeAsst";
+            this.AiCoopFlagNeutralizeAsst.Size = new System.Drawing.Size(40, 20);
+            this.AiCoopFlagNeutralizeAsst.TabIndex = 32;
             // 
-            // AiFlagNeutralize
+            // AiCoopFlagNeutralize
             // 
-            this.AiFlagNeutralize.Location = new System.Drawing.Point(300, 20);
-            this.AiFlagNeutralize.Maximum = new decimal(new int[] {
+            this.AiCoopFlagNeutralize.Location = new System.Drawing.Point(300, 20);
+            this.AiCoopFlagNeutralize.Maximum = new decimal(new int[] {
             999,
             0,
             0,
             0});
-            this.AiFlagNeutralize.Name = "AiFlagNeutralize";
-            this.AiFlagNeutralize.Size = new System.Drawing.Size(40, 20);
-            this.AiFlagNeutralize.TabIndex = 31;
+            this.AiCoopFlagNeutralize.Name = "AiCoopFlagNeutralize";
+            this.AiCoopFlagNeutralize.Size = new System.Drawing.Size(40, 20);
+            this.AiCoopFlagNeutralize.TabIndex = 31;
             // 
-            // AiFlagCaptureAsst
+            // AiCoopFlagCaptureAsst
             // 
-            this.AiFlagCaptureAsst.Location = new System.Drawing.Point(123, 46);
-            this.AiFlagCaptureAsst.Maximum = new decimal(new int[] {
+            this.AiCoopFlagCaptureAsst.Location = new System.Drawing.Point(123, 46);
+            this.AiCoopFlagCaptureAsst.Maximum = new decimal(new int[] {
             999,
             0,
             0,
             0});
-            this.AiFlagCaptureAsst.Name = "AiFlagCaptureAsst";
-            this.AiFlagCaptureAsst.Size = new System.Drawing.Size(40, 20);
-            this.AiFlagCaptureAsst.TabIndex = 30;
+            this.AiCoopFlagCaptureAsst.Name = "AiCoopFlagCaptureAsst";
+            this.AiCoopFlagCaptureAsst.Size = new System.Drawing.Size(40, 20);
+            this.AiCoopFlagCaptureAsst.TabIndex = 30;
             // 
-            // AiFlagCapture
+            // AiCoopFlagCapture
             // 
-            this.AiFlagCapture.Location = new System.Drawing.Point(123, 20);
-            this.AiFlagCapture.Maximum = new decimal(new int[] {
+            this.AiCoopFlagCapture.Location = new System.Drawing.Point(123, 20);
+            this.AiCoopFlagCapture.Maximum = new decimal(new int[] {
             999,
             0,
             0,
             0});
-            this.AiFlagCapture.Name = "AiFlagCapture";
-            this.AiFlagCapture.Size = new System.Drawing.Size(40, 20);
-            this.AiFlagCapture.TabIndex = 29;
+            this.AiCoopFlagCapture.Name = "AiCoopFlagCapture";
+            this.AiCoopFlagCapture.Size = new System.Drawing.Size(40, 20);
+            this.AiCoopFlagCapture.TabIndex = 29;
             // 
             // label25
             // 
@@ -1016,22 +1030,22 @@
             // 
             // groupBox8
             // 
+            this.groupBox8.Controls.Add(this.AiCqDefendFlag);
+            this.groupBox8.Controls.Add(this.AiCqFlagNeutralizeAsst);
+            this.groupBox8.Controls.Add(this.AiCqFlagNeutralize);
+            this.groupBox8.Controls.Add(this.AiCqFlagCaptureAsst);
+            this.groupBox8.Controls.Add(this.AiCqFlagCapture);
             this.groupBox8.Controls.Add(this.label31);
+            this.groupBox8.Controls.Add(this.label57);
+            this.groupBox8.Controls.Add(this.label58);
+            this.groupBox8.Controls.Add(this.label59);
+            this.groupBox8.Controls.Add(this.label60);
             this.groupBox8.Location = new System.Drawing.Point(392, 26);
             this.groupBox8.Name = "groupBox8";
             this.groupBox8.Size = new System.Drawing.Size(364, 126);
             this.groupBox8.TabIndex = 10;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Conquest Scoring";
-            // 
-            // label31
-            // 
-            this.label31.AutoSize = true;
-            this.label31.Location = new System.Drawing.Point(91, 53);
-            this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(193, 13);
-            this.label31.TabIndex = 20;
-            this.label31.Text = "AI Bots Do Not Exist In Conquest Mode";
             // 
             // groupBox9
             // 
@@ -1465,7 +1479,7 @@
             this.label55.Size = new System.Drawing.Size(448, 13);
             this.label55.TabIndex = 37;
             this.label55.Text = "The number of damage that must be done to a team vehicle to recieve a Team Damage" +
-                " Point";
+    " Point";
             // 
             // label54
             // 
@@ -1475,7 +1489,7 @@
             this.label54.Size = new System.Drawing.Size(448, 13);
             this.label54.TabIndex = 36;
             this.label54.Text = "The number of health points that must be done to a teamate to recieve a Team Dama" +
-                "ge Point";
+    "ge Point";
             // 
             // label53
             // 
@@ -1695,6 +1709,111 @@
             this.ResetButton.UseVisualStyleBackColor = true;
             this.ResetButton.Click += new System.EventHandler(this.ResetButton_Click);
             // 
+            // AiCqDefendFlag
+            // 
+            this.AiCqDefendFlag.Location = new System.Drawing.Point(202, 73);
+            this.AiCqDefendFlag.Maximum = new decimal(new int[] {
+            999,
+            0,
+            0,
+            0});
+            this.AiCqDefendFlag.Name = "AiCqDefendFlag";
+            this.AiCqDefendFlag.Size = new System.Drawing.Size(40, 20);
+            this.AiCqDefendFlag.TabIndex = 38;
+            // 
+            // AiCqFlagNeutralizeAsst
+            // 
+            this.AiCqFlagNeutralizeAsst.Location = new System.Drawing.Point(300, 47);
+            this.AiCqFlagNeutralizeAsst.Maximum = new decimal(new int[] {
+            999,
+            0,
+            0,
+            0});
+            this.AiCqFlagNeutralizeAsst.Name = "AiCqFlagNeutralizeAsst";
+            this.AiCqFlagNeutralizeAsst.Size = new System.Drawing.Size(40, 20);
+            this.AiCqFlagNeutralizeAsst.TabIndex = 37;
+            // 
+            // AiCqFlagNeutralize
+            // 
+            this.AiCqFlagNeutralize.Location = new System.Drawing.Point(300, 21);
+            this.AiCqFlagNeutralize.Maximum = new decimal(new int[] {
+            999,
+            0,
+            0,
+            0});
+            this.AiCqFlagNeutralize.Name = "AiCqFlagNeutralize";
+            this.AiCqFlagNeutralize.Size = new System.Drawing.Size(40, 20);
+            this.AiCqFlagNeutralize.TabIndex = 36;
+            // 
+            // AiCqFlagCaptureAsst
+            // 
+            this.AiCqFlagCaptureAsst.Location = new System.Drawing.Point(123, 47);
+            this.AiCqFlagCaptureAsst.Maximum = new decimal(new int[] {
+            999,
+            0,
+            0,
+            0});
+            this.AiCqFlagCaptureAsst.Name = "AiCqFlagCaptureAsst";
+            this.AiCqFlagCaptureAsst.Size = new System.Drawing.Size(40, 20);
+            this.AiCqFlagCaptureAsst.TabIndex = 35;
+            // 
+            // AiCqFlagCapture
+            // 
+            this.AiCqFlagCapture.Location = new System.Drawing.Point(123, 21);
+            this.AiCqFlagCapture.Maximum = new decimal(new int[] {
+            999,
+            0,
+            0,
+            0});
+            this.AiCqFlagCapture.Name = "AiCqFlagCapture";
+            this.AiCqFlagCapture.Size = new System.Drawing.Size(40, 20);
+            this.AiCqFlagCapture.TabIndex = 34;
+            // 
+            // label31
+            // 
+            this.label31.AutoSize = true;
+            this.label31.Location = new System.Drawing.Point(131, 75);
+            this.label31.Name = "label31";
+            this.label31.Size = new System.Drawing.Size(68, 13);
+            this.label31.TabIndex = 33;
+            this.label31.Text = "Defend Flag:";
+            // 
+            // label57
+            // 
+            this.label57.AutoSize = true;
+            this.label57.Location = new System.Drawing.Point(186, 49);
+            this.label57.Name = "label57";
+            this.label57.Size = new System.Drawing.Size(110, 13);
+            this.label57.TabIndex = 32;
+            this.label57.Text = "Flag Neutralize Assist:";
+            // 
+            // label58
+            // 
+            this.label58.AutoSize = true;
+            this.label58.Location = new System.Drawing.Point(217, 23);
+            this.label58.Name = "label58";
+            this.label58.Size = new System.Drawing.Size(80, 13);
+            this.label58.TabIndex = 31;
+            this.label58.Text = "Flag Neutralize:";
+            // 
+            // label59
+            // 
+            this.label59.AutoSize = true;
+            this.label59.Location = new System.Drawing.Point(17, 49);
+            this.label59.Name = "label59";
+            this.label59.Size = new System.Drawing.Size(100, 13);
+            this.label59.TabIndex = 30;
+            this.label59.Text = "Flag Capture Assist:";
+            // 
+            // label60
+            // 
+            this.label60.AutoSize = true;
+            this.label60.Location = new System.Drawing.Point(47, 23);
+            this.label60.Name = "label60";
+            this.label60.Size = new System.Drawing.Size(70, 13);
+            this.label60.TabIndex = 29;
+            this.label60.Text = "Flag Capture:";
+            // 
             // ScoreSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1751,11 +1870,11 @@
             this.tabPage2.ResumeLayout(false);
             this.groupBox7.ResumeLayout(false);
             this.groupBox7.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.AiDefendFlag)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiFlagNeutralizeAsst)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiFlagNeutralize)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiFlagCaptureAsst)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiFlagCapture)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCoopDefendFlag)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCoopFlagNeutralizeAsst)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCoopFlagNeutralize)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCoopFlagCaptureAsst)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCoopFlagCapture)).EndInit();
             this.groupBox8.ResumeLayout(false);
             this.groupBox8.PerformLayout();
             this.groupBox9.ResumeLayout(false);
@@ -1789,6 +1908,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.AmmoPointLimit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.HealPointLimit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.RepairPointLimit)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqDefendFlag)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagNeutralizeAsst)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagNeutralize)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagCaptureAsst)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagCapture)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -1857,18 +1981,17 @@
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.GroupBox groupBox7;
-        private System.Windows.Forms.NumericUpDown AiDefendFlag;
-        private System.Windows.Forms.NumericUpDown AiFlagNeutralizeAsst;
-        private System.Windows.Forms.NumericUpDown AiFlagNeutralize;
-        private System.Windows.Forms.NumericUpDown AiFlagCaptureAsst;
-        private System.Windows.Forms.NumericUpDown AiFlagCapture;
+        private System.Windows.Forms.NumericUpDown AiCoopDefendFlag;
+        private System.Windows.Forms.NumericUpDown AiCoopFlagNeutralizeAsst;
+        private System.Windows.Forms.NumericUpDown AiCoopFlagNeutralize;
+        private System.Windows.Forms.NumericUpDown AiCoopFlagCaptureAsst;
+        private System.Windows.Forms.NumericUpDown AiCoopFlagCapture;
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.Label label26;
         private System.Windows.Forms.Label label27;
         private System.Windows.Forms.Label label28;
         private System.Windows.Forms.Label label29;
         private System.Windows.Forms.GroupBox groupBox8;
-        private System.Windows.Forms.Label label31;
         private System.Windows.Forms.GroupBox groupBox9;
         private System.Windows.Forms.NumericUpDown AiSuicideScore;
         private System.Windows.Forms.NumericUpDown AiTeamVehicleDamage;
@@ -1920,5 +2043,15 @@
         private System.Windows.Forms.Label label53;
         private System.Windows.Forms.Label label55;
         private System.Windows.Forms.Label label56;
+        private System.Windows.Forms.NumericUpDown AiCqDefendFlag;
+        private System.Windows.Forms.NumericUpDown AiCqFlagNeutralizeAsst;
+        private System.Windows.Forms.NumericUpDown AiCqFlagNeutralize;
+        private System.Windows.Forms.NumericUpDown AiCqFlagCaptureAsst;
+        private System.Windows.Forms.NumericUpDown AiCqFlagCapture;
+        private System.Windows.Forms.Label label31;
+        private System.Windows.Forms.Label label57;
+        private System.Windows.Forms.Label label58;
+        private System.Windows.Forms.Label label59;
+        private System.Windows.Forms.Label label60;
     }
 }

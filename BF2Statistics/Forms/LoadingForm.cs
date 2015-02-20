@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace BF2Statistics
 {
@@ -61,13 +57,17 @@ namespace BF2Statistics
             if (Instance != null && !Instance.IsDisposed)
                 return;
 
+            // Set window position to center parent
             Instance = new LoadingForm();
-            Instance.Location = new Point(Parent.Location.X + (Parent.Width / 2) - 150, Parent.Location.Y + (Parent.Height / 2) - 28);
-            Thread thread = new Thread(new ThreadStart(LoadingForm.ShowForm));
-            thread.IsBackground = true;
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-            Thread.Sleep(100); // Wait for Run to work
+            double H = Parent.Location.Y + (Parent.Height / 2) - (Instance.Height / 2);
+            double W = Parent.Location.X + (Parent.Width / 2) - (Instance.Width / 2);
+            Instance.Location = new Point((int)Math.Round(W, 0), (int)Math.Round(H, 0));
+
+            // Run this in a background thread
+            Task.Run(() => Instance.ShowDialog());
+
+            // Loop till handle create
+            while (!Instance.IsHandleCreated) Thread.Sleep(50);
         }
 
         /// <summary>
@@ -93,9 +93,10 @@ namespace BF2Statistics
         private static void CloseFormInternal()
         {
             Instance.Close();
+            Instance = null;
         }
 
-        public LoadingForm()
+        private LoadingForm()
         {
             InitializeComponent();
         }

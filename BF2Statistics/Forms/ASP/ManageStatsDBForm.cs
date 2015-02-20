@@ -46,7 +46,7 @@ namespace BF2Statistics
             // Open File Select Dialog
             FolderSelectDialog Dialog = new FolderSelectDialog();
             Dialog.Title = "Select ASP Database Backup Folder";
-            Dialog.InitialDirectory = Path.Combine(Paths.DocumentsFolder, "Backups");
+            Dialog.InitialDirectory = Path.Combine(Paths.DocumentsFolder, "Database Backups");
             if (Dialog.ShowDialog())
             {
                 // Get files list from path
@@ -166,7 +166,7 @@ namespace BF2Statistics
         private void ExportAsASPBtn_Click(object sender, EventArgs e)
         {
             // Define backup folder for this backup, and create it if it doesnt exist
-            string Folder = Path.Combine(Paths.DocumentsFolder, "Backups", "bak_" + DateTime.Now.ToString("yyyyMMdd_HHmm"));
+            string Folder = Path.Combine(Paths.DocumentsFolder, "Database Backups", "bak_" + DateTime.Now.ToString("yyyyMMdd_HHmm"));
             if (!Directory.Exists(Folder))
                 Directory.CreateDirectory(Folder);
 
@@ -205,7 +205,7 @@ namespace BF2Statistics
                 // Backup tables
                 try
                 {
-                    using (Stream Str = File.Open(BakFile, FileMode.Create))
+                    using (Stream Str = File.Open(BakFile, FileMode.OpenOrCreate))
                     using (StreamWriter Wtr = new StreamWriter(Str))
                     {
                         // Use a memory efficient way to export this stuff

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace BF2Statistics.MedalData
+﻿namespace BF2Statistics.MedalData
 {
     public interface ISourcePart
     {

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BF2Statistics
 {
@@ -10,5 +7,7 @@ namespace BF2Statistics
         public InvalidModException() : base() { }
 
         public InvalidModException(string Message) : base(Message)  { }
+
+        public InvalidModException(string Message, Exception InnerException) : base(Message, InnerException) { }
     }
 }

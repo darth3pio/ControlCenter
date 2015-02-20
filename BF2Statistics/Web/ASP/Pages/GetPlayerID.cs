@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Text;
 using System.Collections.Generic;
-using System.Data.Common;
+using System.Text;
 using BF2Statistics.ASP;
 using BF2Statistics.Database;
 
 namespace BF2Statistics.Web.ASP
 {
+    /// <summary>
+    /// /ASP/getplayerid.aspx
+    /// </summary>
     class GetPlayerID
     {
         /// <summary>
@@ -48,7 +50,7 @@ namespace BF2Statistics.Web.ASP
                 if (Rows.Count == 0)
                 {
                     // Grab new Player ID using thread safe methods
-                    Pid = (IsAI > 0) ? PidManager.GenerateNewAIPid() : PidManager.GenerateNewPlayerPid();
+                    Pid = (IsAI > 0) ? StatsManager.GenerateNewAIPid() : StatsManager.GenerateNewPlayerPid();
 
                     // Create New Player Unlock Data
                     StringBuilder Query = new StringBuilder("INSERT INTO unlocks VALUES ");
@@ -61,7 +63,7 @@ namespace BF2Statistics.Web.ASP
                     for (int i = 111; i < 556; i += 111)
                     {
                         Query.AppendFormat("({0}, {1}, 'n')", Pid, i);
-                        if (i != 555) 
+                        if (i != 555)
                             Query.Append(", ");
                     }
 
@@ -89,7 +91,7 @@ namespace BF2Statistics.Web.ASP
                 Response.WriteHeaderLine("pid");
 
                 // Fetch Players
-                Rows = Driver.Query("SELECT id FROM player WHERE ip <> '127.0.0.1'");
+                Rows = Driver.Query("SELECT id FROM player WHERE isbot=0 LIMIT 1000");
                 foreach (Dictionary<string, object> Player in Rows)
                     Response.WriteDataLine(Player["id"]);
             }

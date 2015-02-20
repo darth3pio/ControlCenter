@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace BF2Statistics.Database.QueryBuilder
+﻿namespace BF2Statistics.Database.QueryBuilder
 {
+    /// <summary>
+    /// This class represents a Literal value
+    /// to be used in a query (no quotations)
+    /// </summary>
     class SqlLiteral
     {
         public string Value { get; protected set; }

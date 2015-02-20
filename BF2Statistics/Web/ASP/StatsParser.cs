@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Net;
-using System.IO;
-using System.Xml;
-using BF2Statistics.Database;
-using BF2Statistics.Database.QueryBuilder;
+﻿using System.Collections.Generic;
 
 namespace BF2Statistics.Web.ASP
 {

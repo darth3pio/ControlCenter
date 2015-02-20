@@ -1,9 +1,8 @@
-﻿ using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 
 namespace BF2Statistics
 {
@@ -23,6 +22,8 @@ namespace BF2Statistics
         /// Contains a list of all the found mod folders located in the "mods" directory
         /// </summary>
         public static List<BF2Mod> Mods { get; protected set; }
+
+        public static List<string> ModLoadErrors { get; protected set; }
 
         /// <summary>
         /// Returns whether the server is currently running
@@ -94,6 +95,7 @@ namespace BF2Statistics
             }
 
             // Load all found mods, discarding invalid mods
+            ModLoadErrors = new List<string>();
             IEnumerable<string> ModList = from dir in Directory.GetDirectories(Modpath) select dir.Substring(Modpath.Length + 1);
             foreach (string Name in ModList)
             {
@@ -103,13 +105,15 @@ namespace BF2Statistics
                     BF2Mod Mod = new BF2Mod(Modpath, Name);
                     TempMods.Add(Mod);
                 }
-                catch (InvalidModException)
+                catch (InvalidModException E)
                 {
+                    ModLoadErrors.Add(E.Message);
                     continue;
                 }
-                catch (Exception e)
+                catch (Exception E)
                 {
-                    Program.ErrorLog.Write(e.Message);
+                    ModLoadErrors.Add(E.Message);
+                    Program.ErrorLog.Write(E.Message);
                 }
             }
 
@@ -145,7 +149,7 @@ namespace BF2Statistics
                         // Hook into the proccess so we know when its running, and register a closing event
                         ServerProcess = P;
                         ServerProcess.EnableRaisingEvents = true;
-                        ServerProcess.Exited += new EventHandler(ServerProcess_Exited);
+                        ServerProcess.Exited += ServerProcess_Exited;
 
                         // Fire Event
                         if (Started != null)
@@ -193,7 +197,7 @@ namespace BF2Statistics
 
             // Hook into the proccess so we know when its running, and register a closing event
             ServerProcess.EnableRaisingEvents = true;
-            ServerProcess.Exited += new EventHandler(ServerProcess_Exited);
+            ServerProcess.Exited += ServerProcess_Exited;
 
             // Call event
             if (Started != null)

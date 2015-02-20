@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using BF2Statistics.Database;
-using BF2Statistics.Database.QueryBuilder;
 
 namespace BF2Statistics.Web.ASP
 {
+    /// <summary>
+    /// /ASP/getawardsinfo.aspx
+    /// </summary>
     class GetAwardsInfo
     {
         /// <summary>

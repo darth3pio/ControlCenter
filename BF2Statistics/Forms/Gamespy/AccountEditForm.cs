@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using BF2Statistics.Gamespy;
 using BF2Statistics.Database;
+using BF2Statistics.Gamespy;
 
 namespace BF2Statistics
 {
@@ -28,8 +23,8 @@ namespace BF2Statistics
             this.AccountId = Pid;
 
             // Register for Events
-            GpcmClient.OnSuccessfulLogin += new ConnectionUpdate(GpcmClient_OnSuccessfulLogin);
-            GpcmClient.OnDisconnect += new GpcmConnectionClosed(GpcmClient_OnDisconnect);
+            GpcmClient.OnSuccessfulLogin += GpcmClient_OnSuccessfulLogin;
+            GpcmClient.OnDisconnect += GpcmClient_OnDisconnect;
             
             // Fill the account information boxes
             using (GamespyDatabase Database = new GamespyDatabase())
@@ -41,7 +36,7 @@ namespace BF2Statistics
                 AccountEmail.Text = User["email"].ToString();
 
                 // Disable options if user is online
-                if (User["session"].ToString() != "0")
+                if (LoginServer.IsPlayerConnected(AccountId))
                 {
                     SatusLabel.Text = "Online (IP: " + User["lastip"].ToString() + ")";
                     UpdateBtn.Enabled = false;
@@ -184,8 +179,8 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void AccountEditForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            GpcmClient.OnSuccessfulLogin -= new ConnectionUpdate(GpcmClient_OnSuccessfulLogin);
-            GpcmClient.OnDisconnect -= new GpcmConnectionClosed(GpcmClient_OnDisconnect);
+            GpcmClient.OnSuccessfulLogin -= GpcmClient_OnSuccessfulLogin;
+            GpcmClient.OnDisconnect -= GpcmClient_OnDisconnect;
         }
     }
 }

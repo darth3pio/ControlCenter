@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using System.Security.Cryptography;
-using BF2Statistics.Utilities;
+using System.Text;
 using BF2Statistics.Database;
+using BF2Statistics.Utilities;
+using System.Threading.Tasks;
 
 namespace BF2Statistics.Gamespy
 {
+    public enum LoginStatus { Processing, Completed, Disconnected }
+
     /// <summary>
     /// Gamespy Client Manager
     /// This class is used to proccess the client login process,
@@ -25,6 +26,11 @@ namespace BF2Statistics.Gamespy
         /// The current step of the login proccess
         /// </summary>
         private int Step = 0;
+
+        /// <summary>
+        /// Gets the current login status
+        /// </summary>
+        public LoginStatus Status { get; protected set; }
 
         /// <summary>
         /// The connected clients Nick
@@ -197,15 +203,17 @@ namespace BF2Statistics.Gamespy
         {
             // Set default variable values
             ClientNick = "Connecting...";
+            ClientPID = 0;
             Connection = Client;
             ClientEP = Connection.Client.RemoteEndPoint;
             IpAddress = ((IPEndPoint)ClientEP).Address;
             Disposed = false;
+            Status = LoginStatus.Processing;
 
             // Create our Client Stream
             Stream = new TcpClientStream(Client);
-            Stream.OnDisconnect += new ConnectionClosed(Stream_OnDisconnect);
-            Stream.DataReceived += new DataRecivedEvent(Stream_DataReceived);
+            Stream.OnDisconnect += Stream_OnDisconnect;
+            Stream.DataReceived += Stream_DataReceived;
 
             // Start by sending the server challenge
             SendServerChallenge();
@@ -236,21 +244,32 @@ namespace BF2Statistics.Gamespy
         public void Disconnect(int where)
         {
             // Console.WriteLine("Logout Called from: " + where);
-            // LoginServer.Database.Execute("UPDATE accounts SET session=0 WHERE id=" + ClientPID);
+            if (ConnectionLogged && where < 9)
+            {
+                try
+                {
+                    using (GamespyDatabase Database = new GamespyDatabase())
+                        Database.Execute("UPDATE accounts SET session=0 WHERE id=" + ClientPID);
+                }
+                catch { }
+            }
+
             // If connection is still alive, disconnect user
             try
             {
-                if (Connection.Client.IsConnected())
-                {
-                    Stream.IsClosing = true;
-                    Connection.Close();
-                }
+                Stream.IsClosing = true;
+                Stream.OnDisconnect -= Stream_OnDisconnect;
+                Connection.Close();
             }
             catch { }
 
-            // Log
+            // Set status and log
+            Status = LoginStatus.Disconnected;
             if (ConnectionLogged)
-                LoginServer.Log("[GPCM] Client Disconnected: {0} {1} {2}", ClientNick, ClientPID, ClientEP);
+                LoginServer.Log("Client Logout:  {0} - {1} - {2}", ClientNick, ClientPID, ClientEP);
+
+            // Preapare to be unloaded from memory
+            Dispose();
 
             // Call disconnect event
             if (OnDisconnect != null)
@@ -303,7 +322,7 @@ namespace BF2Statistics.Gamespy
         }
 
         /// <summary>
-        /// Main loop for handling the client stream
+        /// Event fired when the stream disconnects unexpectedly
         /// </summary>
         private void Stream_OnDisconnect()
         {
@@ -348,7 +367,7 @@ namespace BF2Statistics.Gamespy
             }
             catch (KeyNotFoundException)
             {
-                Program.ErrorLog.Write("A KeyNotFoundException occured during the login process! Query was: " + Message);
+                Program.ErrorLog.Write("ERROR: [Gpcm.ProcessLogin] A KeyNotFoundException occured during the login process! Query was: " + Message);
                 Stream.Send("\\error\\\\err\\265\\fatal\\\\errmsg\\The uniquenick provided is incorrect!\\id\\1\\final\\");
                 Disconnect(2);
                 return;
@@ -388,17 +407,18 @@ namespace BF2Statistics.Gamespy
                         );
 
                         // Log Incoming Connections
-                        LoginServer.Log("[GPCM] Client Login: {0} {1} {2}", ClientNick, ClientPID, ClientEP);
+                        LoginServer.Log("Client Login:   {0} - {1} - {2}", ClientNick, ClientPID, ClientEP);
                         ConnectionLogged = true;
+                        Status = LoginStatus.Completed;
 
                         // Call successful login event
+                        Conn.Execute("UPDATE accounts SET lastip=@P0, session=1 WHERE id=@P1", IpAddress, ClientPID);
                         OnSuccessfulLogin(this);
-                        Conn.Execute("UPDATE accounts SET lastip=@P0 WHERE id=@P1", IpAddress, ClientPID);
                     }
                     else
                     {
                         // Log Incoming Connections
-                        LoginServer.Log("[GPCM] Failed Login Attempt: {0} {1} {2}", ClientNick, ClientPID, ClientEP);
+                        LoginServer.Log("Failed Login Attempt: {0} - {1} - {2}", ClientNick, ClientPID, ClientEP);
 
                         // Password is incorrect with database value
                         Stream.Send("\\error\\\\err\\260\\fatal\\\\errmsg\\The password provided is incorrect.\\id\\1\\final\\");
@@ -494,6 +514,24 @@ namespace BF2Statistics.Gamespy
             }
         }
 
+        /// <summary>
+        /// Polls the connection, and checks for drops
+        /// </summary>
+        public void PollConnection()
+        {
+            if(Status == LoginStatus.Completed) // && !Connection.Client.IsConnected())
+            {
+                try
+                {
+                    Stream.Send(new byte[] { 0 });
+                }
+                catch
+                {
+                    Disconnect(1);
+                }
+            }
+        }
+
         #endregion
 
         #region Misc Methods
@@ -575,5 +613,21 @@ namespace BF2Statistics.Gamespy
         }
 
         #endregion
+
+        public override bool Equals(object Obj)
+        {
+            if (Obj is GpcmClient)
+            {
+                GpcmClient Compare = Obj as GpcmClient;
+                return (Compare.ClientPID == this.ClientPID || Compare.ClientNick == this.ClientNick);
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return ClientPID;
+        }
     }
 }

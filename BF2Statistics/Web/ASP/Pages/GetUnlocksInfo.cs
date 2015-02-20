@@ -1,10 +1,13 @@
 ﻿using System;
-using System.Text;
 using System.Collections.Generic;
+using System.Text;
 using BF2Statistics.Database;
 
 namespace BF2Statistics.Web.ASP
 {
+    /// <summary>
+    /// /ASP/getunlocksinfo.aspx
+    /// </summary>
     class GetUnlocksInfo
     {
         /// <summary>

@@ -396,7 +396,7 @@ namespace BF2Statistics
             string Name = DataTable.SelectedRows[0].Cells[2].Value.ToString();
 
             // Create export directory if it doesnt exist yet
-            string sPath = Path.Combine(Paths.DocumentsFolder, "Player Exports");
+            string sPath = Path.Combine(Paths.DocumentsFolder, "Player Backups");
             if (!Directory.Exists(sPath))
                 Directory.CreateDirectory(sPath);
 
@@ -428,7 +428,7 @@ namespace BF2Statistics
         private void fromPlayerExportSheetMenuItem_Click(object sender, EventArgs e)
         {
             // Create export directory if it doesnt exist yet
-            string sPath = Path.Combine(Paths.DocumentsFolder, "Player Exports");
+            string sPath = Path.Combine(Paths.DocumentsFolder, "Player Backups");
             if (!Directory.Exists(sPath))
                 Directory.CreateDirectory(sPath);
 

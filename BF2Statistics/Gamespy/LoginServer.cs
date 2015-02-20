@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Threading;
 using System.Windows.Forms;
 using BF2Statistics.Database;
 using BF2Statistics.Logging;
@@ -28,6 +26,25 @@ namespace BF2Statistics.Gamespy
         }
 
         /// <summary>
+        /// Returns a list of all the connected clients
+        /// </summary>
+        public static GpcmClient[] ConnectedClients
+        {
+            get 
+            { 
+                return (IsRunning) ? CmServer.ConnectedClients : new GpcmClient[0]; 
+            }
+        }
+
+        /// <summary>
+        /// Returns the number of connected clients
+        /// </summary>
+        public static int NumClientsConencted
+        {
+            get { return (IsRunning) ? CmServer.NumClients : 0; }
+        }
+
+        /// <summary>
         /// Gamespy GpCm Server Object
         /// </summary>
         private static GpcmServer CmServer;
@@ -45,12 +62,12 @@ namespace BF2Statistics.Gamespy
         /// <summary>
         /// Event that is fired when the login server is started
         /// </summary>
-        public static event StartupEventHandler OnStart;
+        public static event StartupEventHandler Started;
 
         /// <summary>
         /// Event that is fired when the login server is shutdown
         /// </summary>
-        public static event ShutdownEventHandler OnShutdown;
+        public static event ShutdownEventHandler Stopped;
 
         /// <summary>
         /// Event fires to update the client list
@@ -84,7 +101,7 @@ namespace BF2Statistics.Gamespy
                         SetupManager.ShowDatabaseSetupForm(DatabaseMode.Gamespy);
 
                     // Call the stoOnShutdown event to Re-enable the main forms buttons
-                    OnShutdown();
+                    Stopped();
                     return;
                 }
             }
@@ -109,7 +126,7 @@ namespace BF2Statistics.Gamespy
 
             // Let the client know we are ready for connections
             isRunning = true;
-            OnStart();
+            Started();
         }
 
         /// <summary>
@@ -132,7 +149,7 @@ namespace BF2Statistics.Gamespy
             SpServer.Shutdown();
 
             // Trigger the OnShutdown Event
-            OnShutdown();
+            Stopped();
 
             // Update status
             isRunning = false;
@@ -141,11 +158,17 @@ namespace BF2Statistics.Gamespy
         /// <summary>
         /// Forces the logout of a connected client
         /// </summary>
-        /// <param name="Pid"></param>
-        /// <returns></returns>
         public static bool ForceLogout(int Pid)
         {
             return (IsRunning) ? CmServer.ForceLogout(Pid) : false;
+        }
+
+        /// <summary>
+        /// Returns whether the specified player is currently connected
+        /// </summary>
+        public static bool IsPlayerConnected(int Pid)
+        {
+            return (IsRunning) ? CmServer.IsConnected(Pid) : false;
         }
 
         /// <summary>

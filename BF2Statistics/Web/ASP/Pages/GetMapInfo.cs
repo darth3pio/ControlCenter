@@ -5,6 +5,9 @@ using BF2Statistics.Database.QueryBuilder;
 
 namespace BF2Statistics.Web.ASP
 {
+    /// <summary>
+    /// /ASP/getmapinfo.aspx
+    /// </summary>
     class GetMapInfo
     {
         /// <summary>

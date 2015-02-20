@@ -4,6 +4,9 @@ using BF2Statistics.Database;
 
 namespace BF2Statistics.Web.ASP
 {
+    /// <summary>
+    /// /ASP/ranknotification.aspx
+    /// </summary>
     class RankNotification
     {
         /// <summary>

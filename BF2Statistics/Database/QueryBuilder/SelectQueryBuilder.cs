@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Data.Common;
 using System.Collections.Generic;
-using System.Linq;
+using System.Data.Common;
 using System.Text;
 
 namespace BF2Statistics.Database.QueryBuilder

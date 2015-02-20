@@ -49,6 +49,7 @@
             this.ServerStatusPic = new System.Windows.Forms.PictureBox();
             this.groupBox15 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.ModStatusPic = new System.Windows.Forms.PictureBox();
             this.ModSelectList = new System.Windows.Forms.ComboBox();
             this.LaunchWindow = new System.Windows.Forms.GroupBox();
             this.ExtraParamBtn = new System.Windows.Forms.Button();
@@ -75,7 +76,7 @@
             this.groupBox14 = new System.Windows.Forms.GroupBox();
             this.MinimizeConsole = new System.Windows.Forms.CheckBox();
             this.FileMoniter = new System.Windows.Forms.CheckBox();
-            this.IgnoreAsserts = new System.Windows.Forms.CheckBox();
+            this.ForceAiBots = new System.Windows.Forms.CheckBox();
             this.ShowConsole = new System.Windows.Forms.CheckBox();
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.RandomMapListBtn = new System.Windows.Forms.Button();
@@ -101,6 +102,7 @@
             this.shapeContainer3 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
             this.lineShape3 = new Microsoft.VisualBasic.PowerPacks.LineShape();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.RefreshChkBox = new System.Windows.Forms.CheckBox();
             this.ConnectedClients = new System.Windows.Forms.TextBox();
             this.tabPage7 = new System.Windows.Forms.TabPage();
             this.groupBox25 = new System.Windows.Forms.GroupBox();
@@ -191,6 +193,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.StatsStatusPic)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ServerStatusPic)).BeginInit();
             this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ModStatusPic)).BeginInit();
             this.LaunchWindow.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -240,6 +243,7 @@
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(590, 364);
             this.tabControl1.TabIndex = 0;
+            this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
             // 
             // tabPage1
             // 
@@ -342,9 +346,9 @@
             this.AspStatusDesc.AutoSize = true;
             this.AspStatusDesc.Location = new System.Drawing.Point(49, 71);
             this.AspStatusDesc.Name = "AspStatusDesc";
-            this.AspStatusDesc.Size = new System.Drawing.Size(105, 13);
+            this.AspStatusDesc.Size = new System.Drawing.Size(132, 13);
             this.AspStatusDesc.TabIndex = 6;
-            this.AspStatusDesc.Text = "ASP Server Running";
+            this.AspStatusDesc.Text = "ASP Stats Server Running";
             this.AspStatusDesc.DoubleClick += new System.EventHandler(this.AspStatusDesc_DoubleClick);
             // 
             // AspStatusPic
@@ -394,9 +398,9 @@
             this.StatsStatusDesc.AutoSize = true;
             this.StatsStatusDesc.Location = new System.Drawing.Point(49, 47);
             this.StatsStatusDesc.Name = "StatsStatusDesc";
-            this.StatsStatusDesc.Size = new System.Drawing.Size(109, 13);
+            this.StatsStatusDesc.Size = new System.Drawing.Size(107, 13);
             this.StatsStatusDesc.TabIndex = 4;
-            this.StatsStatusDesc.Text = "Stats Python Enabled";
+            this.StatsStatusDesc.Text = "Server Stats Enabled";
             this.StatsStatusDesc.DoubleClick += new System.EventHandler(this.StatsStatusDesc_DoubleClick);
             // 
             // StatsStatusPic
@@ -432,6 +436,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.ModStatusPic);
             this.groupBox2.Controls.Add(this.ModSelectList);
             this.groupBox2.Location = new System.Drawing.Point(17, 16);
             this.groupBox2.Name = "groupBox2";
@@ -440,13 +445,24 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Selected Mod";
             // 
+            // ModStatusPic
+            // 
+            this.ModStatusPic.Image = global::BF2Statistics.Properties.Resources.warning;
+            this.ModStatusPic.Location = new System.Drawing.Point(253, 26);
+            this.ModStatusPic.Name = "ModStatusPic";
+            this.ModStatusPic.Size = new System.Drawing.Size(25, 24);
+            this.ModStatusPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.ModStatusPic.TabIndex = 3;
+            this.ModStatusPic.TabStop = false;
+            this.ModStatusPic.Visible = false;
+            // 
             // ModSelectList
             // 
             this.ModSelectList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ModSelectList.FormattingEnabled = true;
-            this.ModSelectList.Location = new System.Drawing.Point(56, 28);
+            this.ModSelectList.Location = new System.Drawing.Point(47, 28);
             this.ModSelectList.Name = "ModSelectList";
-            this.ModSelectList.Size = new System.Drawing.Size(183, 21);
+            this.ModSelectList.Size = new System.Drawing.Size(200, 21);
             this.ModSelectList.TabIndex = 1;
             this.ModSelectList.SelectedIndexChanged += new System.EventHandler(this.ModSelectList_SelectedIndexChanged);
             // 
@@ -696,7 +712,7 @@
             // 
             this.groupBox14.Controls.Add(this.MinimizeConsole);
             this.groupBox14.Controls.Add(this.FileMoniter);
-            this.groupBox14.Controls.Add(this.IgnoreAsserts);
+            this.groupBox14.Controls.Add(this.ForceAiBots);
             this.groupBox14.Controls.Add(this.ShowConsole);
             this.groupBox14.Location = new System.Drawing.Point(8, 229);
             this.groupBox14.Name = "groupBox14";
@@ -708,8 +724,6 @@
             // MinimizeConsole
             // 
             this.MinimizeConsole.AutoSize = true;
-            this.MinimizeConsole.Checked = true;
-            this.MinimizeConsole.CheckState = System.Windows.Forms.CheckState.Checked;
             this.MinimizeConsole.Location = new System.Drawing.Point(158, 25);
             this.MinimizeConsole.Name = "MinimizeConsole";
             this.MinimizeConsole.Size = new System.Drawing.Size(107, 17);
@@ -727,15 +741,15 @@
             this.FileMoniter.Text = "File Moniter";
             this.FileMoniter.UseVisualStyleBackColor = true;
             // 
-            // IgnoreAsserts
+            // ForceAiBots
             // 
-            this.IgnoreAsserts.AutoSize = true;
-            this.IgnoreAsserts.Location = new System.Drawing.Point(12, 48);
-            this.IgnoreAsserts.Name = "IgnoreAsserts";
-            this.IgnoreAsserts.Size = new System.Drawing.Size(129, 17);
-            this.IgnoreAsserts.TabIndex = 8;
-            this.IgnoreAsserts.Text = "Ignore Asserts (Errors)";
-            this.IgnoreAsserts.UseVisualStyleBackColor = true;
+            this.ForceAiBots.AutoSize = true;
+            this.ForceAiBots.Location = new System.Drawing.Point(12, 48);
+            this.ForceAiBots.Name = "ForceAiBots";
+            this.ForceAiBots.Size = new System.Drawing.Size(117, 17);
+            this.ForceAiBots.TabIndex = 8;
+            this.ForceAiBots.Text = "Force Load AI Bots";
+            this.ForceAiBots.UseVisualStyleBackColor = true;
             // 
             // ShowConsole
             // 
@@ -992,6 +1006,7 @@
             // 
             // groupBox8
             // 
+            this.groupBox8.Controls.Add(this.RefreshChkBox);
             this.groupBox8.Controls.Add(this.ConnectedClients);
             this.groupBox8.Location = new System.Drawing.Point(290, 18);
             this.groupBox8.Name = "groupBox8";
@@ -1000,19 +1015,33 @@
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Connected Clients";
             // 
+            // RefreshChkBox
+            // 
+            this.RefreshChkBox.AutoSize = true;
+            this.RefreshChkBox.Checked = true;
+            this.RefreshChkBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.RefreshChkBox.Location = new System.Drawing.Point(67, 270);
+            this.RefreshChkBox.Name = "RefreshChkBox";
+            this.RefreshChkBox.Size = new System.Drawing.Size(137, 17);
+            this.RefreshChkBox.TabIndex = 9;
+            this.RefreshChkBox.Text = "Refresh List On Update";
+            this.RefreshChkBox.UseVisualStyleBackColor = true;
+            this.RefreshChkBox.CheckedChanged += new System.EventHandler(this.RefreshChkBox_CheckedChanged);
+            // 
             // ConnectedClients
             // 
             this.ConnectedClients.BackColor = System.Drawing.SystemColors.Control;
             this.ConnectedClients.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.ConnectedClients.Cursor = System.Windows.Forms.Cursors.Arrow;
-            this.ConnectedClients.Enabled = false;
+            this.ConnectedClients.ForeColor = System.Drawing.SystemColors.GrayText;
             this.ConnectedClients.Location = new System.Drawing.Point(5, 15);
             this.ConnectedClients.Multiline = true;
             this.ConnectedClients.Name = "ConnectedClients";
             this.ConnectedClients.ReadOnly = true;
             this.ConnectedClients.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.ConnectedClients.Size = new System.Drawing.Size(260, 270);
+            this.ConnectedClients.Size = new System.Drawing.Size(260, 249);
             this.ConnectedClients.TabIndex = 8;
+            this.ConnectedClients.Enter += new System.EventHandler(this.ConnectedClients_Enter);
             // 
             // tabPage7
             // 
@@ -1816,7 +1845,7 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(300, 13);
             this.textBox1.TabIndex = 5;
-            this.textBox1.Text = "Battlefield 2 Statistics Control Center v1.10.0";
+            this.textBox1.Text = "Battlefield 2 Statistics Control Center v2.0.1";
             // 
             // NotificationIcon
             // 
@@ -1861,6 +1890,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.StatsStatusPic)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ServerStatusPic)).EndInit();
             this.groupBox2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.ModStatusPic)).EndInit();
             this.LaunchWindow.ResumeLayout(false);
             this.LaunchWindow.PerformLayout();
             this.groupBox3.ResumeLayout(false);
@@ -1963,7 +1993,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.GroupBox groupBox14;
         private System.Windows.Forms.CheckBox FileMoniter;
-        private System.Windows.Forms.CheckBox IgnoreAsserts;
+        private System.Windows.Forms.CheckBox ForceAiBots;
         private System.Windows.Forms.CheckBox ShowConsole;
         private System.Windows.Forms.GroupBox groupBox15;
         private System.Windows.Forms.RichTextBox MapModeBox;
@@ -2067,6 +2097,8 @@
         private System.Windows.Forms.Button EditBf2sCloneBtn;
         private System.Windows.Forms.Button ReportBugBtn;
         private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.CheckBox RefreshChkBox;
+        private System.Windows.Forms.PictureBox ModStatusPic;
     }
 }
 

@@ -1,25 +1,169 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data.Common;
 using System.IO;
-using System.Text;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
-using BF2Statistics.Web.ASP;
+using BF2Statistics.ASP.StatsProcessor;
 using BF2Statistics.Database;
 using BF2Statistics.Database.QueryBuilder;
+using BF2Statistics.Web;
+using System.Net.Sockets;
 
 namespace BF2Statistics.ASP
 {
+    /// <summary>
+    /// The StatsManager is used to provide methods that allow you to
+    /// Validate ASP servers, Authorize game server IP addresses to post
+    /// snapshot data, and import snapshot data into the stats database.
+    /// </summary>
     class StatsManager
     {
+        // Define Min/Max PID numbers for players
+        const int DEFAULT_PID = 29000000;
+        const int MAX_PID = 30000000;
+
+        /// <summary>
+        /// The Queue in which snapshots will be stored in
+        /// </summary>
+        protected static ConcurrentEventQueue<Snapshot> SnapshotQueue = new ConcurrentEventQueue<Snapshot>();
+
+        /// <summary>
+        /// The Import Process for snapshots
+        /// </summary>
+        protected static Task ImportTask;
+
+        /// <summary>
+        /// Event fires when a snapshot has been sucessfully recieved
+        /// </summary>
+        public static event SnapshotRecieved SnapshotReceived;
+
+        /// <summary>
+        /// On Finish Event
+        /// </summary>
+        public static event SnapshotProccessed SnapshotProcessed;
+
+        /// <summary>
+        /// Indicates the number of snapshots that have been accepted
+        /// </summary>
+        public static int SnapshotsRecieved { get; protected set; }
+
+        /// <summary>
+        /// Indicates the number of snapshots processed successfully
+        /// </summary>
+        public static int SnapshotsCompleted { get; protected set; }
+
+        /// <summary>
+        /// The current highest player ID value (Incremented)
+        /// </summary>
+        protected static int PlayerPid = 0;
+
+        /// <summary>
+        /// The current Lowest player ID value (Decremented)
+        /// </summary>
+        protected static int AiPid = 0;
+
+        /// <summary>
+        /// Static constructor to register for Queue Events
+        /// </summary>
+        static StatsManager()
+        {
+            // When a snapshot is added to Queue, run the Process method
+            SnapshotQueue.ItemEnqueued += (s, e) =>  
+            {
+                SnapshotsRecieved++;
+                ProcessQueue(); 
+            };
+        }
+
+        /// <summary>
+        /// Method to be called everytime the HttpStatsServer is started
+        /// </summary>
+        public static void Load(StatsDatabase Driver)
+        {
+            // Get the lowest Offline PID from the database
+            var Rows = Driver.Query(
+                String.Format(
+                    "SELECT COALESCE(MIN(id), {0}) AS min, COALESCE(MAX(id), {0}) AS max FROM player WHERE id < {1}",
+                    DEFAULT_PID, MAX_PID
+                )
+            );
+
+            int Lowest = Int32.Parse(Rows[0]["min"].ToString());
+            int Highest = Int32.Parse(Rows[0]["max"].ToString());
+            AiPid = (Lowest > DEFAULT_PID) ? DEFAULT_PID : Lowest;
+            PlayerPid = (Highest < DEFAULT_PID) ? DEFAULT_PID : Highest;
+        }
+
+        /// <summary>
+        /// Adds a server's posted snapshot into the Snapshot Processing Queue, which
+        /// will process the snapshot as soon as possible. This method is Non-Blocking.
+        /// </summary>
+        /// <remarks>
+        /// Any errors that occur during the actual import of the data will be
+        /// logged inside the StatsDebug log
+        /// </remarks>
+        /// <param name="Data">The snapshot data provided by the server.</param>
+        /// <param name="ServerAddress">The IP address of the server.</param>
+        /// <exception cref="UnauthorizedAccessException">
+        ///     Thrown if the Server IP is not authorized to post game data to this server
+        /// </exception>
+        /// <exception cref="InvalidDataException">
+        ///     Thrown if the provided Snapshot data is not valid, and cannot be processed
+        /// </exception>
+        public static void QueueServerSnapshot(string Data, IPAddress ServerAddress)
+        {
+            // Make sure the server is authorized
+            if (!IsAuthorizedGameServer(ServerAddress))
+                throw new UnauthorizedAccessException("Un-Authorised Gameserver (Ip: " + ServerAddress + ")");
+
+            // Create the Snapshot Object
+            Snapshot Snap = new Snapshot(Data, DateTime.UtcNow, ServerAddress);
+
+            // Add snapshot to Queue
+            SnapshotQueue.Enqueue(Snap);
+        }
+
+        /// <summary>
+        /// Returns whether the specified IP address is authorized to POST snapshot
+        /// data to this ASP server. All local IP address are automatically authorized.
+        /// </summary>
+        /// <param name="RemoteIP">The server IP to authorize</param>
+        /// <returns></returns>
+        public static bool IsAuthorizedGameServer(IPAddress RemoteIP)
+        {
+            // Local is always authorized
+            if (IPAddress.IsLoopback(RemoteIP) || HttpServer.LocalIPs.Contains(RemoteIP))
+                return true;
+
+            // Setup local vars
+            IPAddress Ip;
+
+            // Loop through all Config allowed game hosts, and determine if the remote host is allowed
+            // to post snapshots here
+            if (!String.IsNullOrWhiteSpace(MainForm.Config.ASP_GameHosts))
+            {
+                string[] Hosts = MainForm.Config.ASP_GameHosts.Split(',');
+                foreach (string Host in Hosts)
+                {
+                    if (IPAddress.TryParse(Host, out Ip) && Ip.Equals(RemoteIP))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Returns whether the specified URI is a valid, and available ASP Service
         /// </summary>
         /// <param name="Url">The root url to the ASP server. Dont include the /ASP/ path!</param>
-        public static void CheckASPService(string Url)
+        public static void ValidateASPService(string Url)
         {
             // Create the ASP request, and fetch the http response
             WebRequest Request = WebRequest.Create(new Uri(Url.TrimEnd('/') + "/ASP/getbackendinfo.aspx"));
@@ -40,6 +184,100 @@ namespace BF2Statistics.ASP
             }
         }
 
+        /// <summary>
+        /// Returns a new PID number for use when creating a new player
+        /// for the stats database
+        /// </summary>
+        /// <returns></returns>
+        public static int GenerateNewPlayerPid()
+        {
+            // Thread safe decrement
+            return Interlocked.Increment(ref PlayerPid);
+        }
+
+        /// <summary>
+        /// Returns a new PID number for use when creating a new AI Bot
+        /// for the stats database
+        /// </summary>
+        /// <returns></returns>
+        public static int GenerateNewAIPid()
+        {
+            // Thread safe decrement
+            return Interlocked.Decrement(ref AiPid);
+        }
+
+        /// <summary>
+        /// If not already running, Whenever a snapshot is added to the Processing Queue,
+        /// This method will get called to Dequeue and process all snapshots
+        /// </summary>
+        protected static void ProcessQueue()
+        {
+            // Make sure we arent already processing
+            if (ImportTask != null && ImportTask.Status == TaskStatus.Running)
+                return;
+
+            // Do this in another thread
+            ImportTask = Task.Run(() =>
+            {
+                // Fire event
+                if (SnapshotReceived != null)
+                    SnapshotReceived();
+
+                // Loop through all of the snapshots and process em
+                while (SnapshotQueue.Count > 0)
+                {
+                    // Fetch our snapshot
+                    Snapshot Snap;
+                    if (!SnapshotQueue.TryDequeue(out Snap))
+                        throw new Exception("Unable to Dequeue Snapshot Item");
+
+                    // Attempt to process the snapshot
+                    bool WasSuccess = false;
+                    try
+                    {
+                        Snap.ProcessData();
+                        WasSuccess = true;
+                        SnapshotsCompleted++;
+
+                        // Fire event
+                        if (SnapshotProcessed != null)
+                            SnapshotProcessed();
+
+                        // Alert user
+                        Notify.Show("Snapshot Processed Successfully!", "From Server IP: " + Snap.ServerIp, AlertType.Success);
+                    }
+                    catch (Exception E)
+                    {
+                        HttpServer.AspStatsLog.Write("ERROR: [SnapshotProcess] " + E.Message + " @ " + E.TargetSite);
+                        ExceptionHandler.GenerateExceptionLog(E);
+                    }
+
+                    // Create backup of snapshot
+                    try
+                    {
+                        // Backup the snapshot
+                        string FileName = Snap.ServerPrefix + "-" + Snap.MapName + "_" + Snap.Date.ToLocalTime().ToString("yyyyMMdd_HHmm") + ".txt";
+                        File.AppendAllText(
+                            (WasSuccess) ? Path.Combine(Paths.SnapshotProcPath, FileName) : Path.Combine(Paths.SnapshotTempPath, FileName),
+                            Snap.DataString
+                        );
+                    }
+                    catch (Exception E)
+                    {
+                        HttpServer.AspStatsLog.Write("WARNING: [SnapshotFileOperations] Unable to create Snapshot Backup File: " + E.Message);
+                    }
+                }
+            })
+            .ContinueWith((Action<Task>)delegate
+            {
+                // Create an exception log if we failed to import correctly
+                if (ImportTask.IsFaulted)
+                {
+                    Program.ErrorLog.Write("ERROR: [SnapshotQueue] Failed to process all snapshots in Queue: " + ImportTask.Exception.Message);
+                    ExceptionHandler.GenerateExceptionLog(ImportTask.Exception);
+                }
+            });
+        }
 
         /// <summary>
         /// Exports a players stats and history into an Xml file

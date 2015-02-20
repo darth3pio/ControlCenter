@@ -32,10 +32,6 @@ namespace BF2Statistics
                 // Remove the path to the file
                 string fileF = file.Remove(0, PythonPath.Length + 1);
 
-                // Dont Add special forces ones
-                if (fileF.Contains("_xpack"))
-                    continue;
-
                 // Remove .py extension, and add it to the list of files
                 fileF = fileF.Remove(fileF.Length - 3, 3).Replace("medal_data_", "");
                 MedalData.Items.Add(fileF);
@@ -65,6 +61,9 @@ namespace BF2Statistics
         /// </summary>
         private void LoadConfig()
         {
+            // Stats Enabled
+            RankMode.SelectedIndex = StatsPython.Config.StatsEnabled ? 1 : 0;
+
             // Debug Enabled
             Debugging.SelectedIndex = StatsPython.Config.DebugEnabled ? 1 : 0;
 
@@ -94,9 +93,6 @@ namespace BF2Statistics
                     i++;
                 }
             }
-
-            // Force Medal Keystring
-            ForceKeyString.SelectedIndex = StatsPython.Config.ForceMedalKeystring ? 1 : 0;
 
             // ASP Address
             AspAddress.Text = StatsPython.Config.AspAddress.ToString();
@@ -170,11 +166,11 @@ namespace BF2Statistics
                 data = MedalData.Text;
 
             // Do replacements
+            StatsPython.Config.StatsEnabled = (RankMode.SelectedIndex == 1);
             StatsPython.Config.DebugEnabled = (Debugging.SelectedIndex == 1);
             StatsPython.Config.SnapshotLogging = Logging.SelectedIndex;
             StatsPython.Config.SnapshotPrefix = SnapshotPrefix.Text;
             StatsPython.Config.MedalDataProfile = data;
-            StatsPython.Config.ForceMedalKeystring = (ForceKeyString.SelectedIndex == 1);
             StatsPython.Config.AspAddress = System.Net.IPAddress.Parse(AspAddress.Text);
             StatsPython.Config.CentralAspAddress = System.Net.IPAddress.Parse(CentralAddress.Text);
             StatsPython.Config.AspPort = (int) AspPort.Value;

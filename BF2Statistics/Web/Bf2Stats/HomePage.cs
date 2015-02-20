@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using BF2Statistics.Database;
 
 namespace BF2Statistics.Web.Bf2Stats

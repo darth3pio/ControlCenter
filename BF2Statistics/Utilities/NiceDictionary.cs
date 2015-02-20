@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace System.Collections.Generic
+﻿namespace System.Collections.Generic
 {
     /// <summary>
     /// This is a very nice dictionary, because it throws a NiceKeyNotFoundException that

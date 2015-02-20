@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 
 namespace BF2Statistics
 {
     /// <summary>
-    /// 
+    /// Provides common file paths that this system will use
     /// </summary>
     public static class Paths
     {

@@ -4,6 +4,9 @@ using BF2Statistics.Database;
 
 namespace BF2Statistics.Web.ASP
 {
+    /// <summary>
+    /// /ASP/getrankinfo.aspx
+    /// </summary>
     class GetRankInfo
     {
         /// <summary>

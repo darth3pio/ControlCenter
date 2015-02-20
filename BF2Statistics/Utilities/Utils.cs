@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Text;
-using System.Linq;
 using System.Collections.Generic;
-using System.Reflection;
 using System.IO;
-using System.Diagnostics;
-using System.Net;
+using System.Reflection;
+using System.Text;
 
 namespace BF2Statistics
 {

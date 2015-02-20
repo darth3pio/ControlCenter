@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace System.Net.Sockets
+﻿namespace System.Net.Sockets
 {
     public static class SocketExtensions
     {

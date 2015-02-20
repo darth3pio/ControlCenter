@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.IO;
 using System.Windows.Forms;
 using BF2Statistics.Utilities;
 
@@ -42,7 +37,17 @@ namespace BF2Statistics
             ParseParamString();
 
             // Set tooltips
-            SetToolTips();
+            Tipsy.SetToolTip(WindowedMode, "If checked, Battlfield 2 will be started in windowed mode");
+            Tipsy.SetToolTip(CustomRes, "If checked, Battlefield 2 will be forced to use the custom resolution below");
+            Tipsy.SetToolTip(AutoLogin, "If checked, the account name below will automatically login");
+            Tipsy.SetToolTip(AccountPass, "Password is Case-Sensitive!");
+            Tipsy.SetToolTip(JoinServerIp, "To auto join a server, make sure to enable Auto Login!");
+            Tipsy.SetToolTip(PlayNow, "If checked, BF2 will automatically uses the 'Play Now' functionality");
+            Tipsy.SetToolTip(Restart, "Used by BF2 to restart the game without showing video for example when mod switching."
+                + Environment.NewLine + "Can also be used to start BF 2 without showing videos");
+            Tipsy.SetToolTip(DisableSwiff, "Disables the swiff player. Basically this disables the flash that is used at the main menu area.");
+            Tipsy.SetToolTip(NoSound, "If checked, Battlefield 2 will start with sound disabled.");
+            Tipsy.SetToolTip(LowPriority, "If checked,  Battlefield 2 will start with a lower process priority(less CPU intensive, lower performance)");
         }
 
         /// <summary>
@@ -92,24 +97,6 @@ namespace BF2Statistics
         }
 
         /// <summary>
-        /// Uses the Tipsy class to set the tooltips to most of the options
-        /// </summary>
-        private void SetToolTips()
-        {
-            Tipsy.SetToolTip(WindowedMode, "If checked, Battlfield 2 will be started in windowed mode");
-            Tipsy.SetToolTip(CustomRes, "If checked, Battlefield 2 will be forced to use the custom resolution below");
-            Tipsy.SetToolTip(AutoLogin, "If checked, the account name below will automatically login");
-            Tipsy.SetToolTip(AccountPass, "Password is Case-Sensitive!");
-            Tipsy.SetToolTip(JoinServerIp, "To auto join a server, make sure to enable Auto Login!");
-            Tipsy.SetToolTip(PlayNow, "If checked, BF2 will automatically uses the 'Play Now' functionality");
-            Tipsy.SetToolTip(Restart, "Used by BF2 to restart the game without showing video for example when mod switching."
-                + Environment.NewLine + "Can also be used to start BF 2 without showing videos");
-            Tipsy.SetToolTip(DisableSwiff, "Disables the swiff player. Basically this disables the flash that is used at the main menu area.");
-            Tipsy.SetToolTip(NoSound, "If checked, Battlefield 2 will start with sound disabled.");
-            Tipsy.SetToolTip(LowPriority, "If checked,  Battlefield 2 will start with a lower process priority(less CPU intensive, lower performance)");
-        }
-
-        /// <summary>
         /// This method takes a complete query param string for BF2 and parses it
         /// </summary>
         private void ParseParamString()
@@ -134,11 +121,11 @@ namespace BF2Statistics
                     case "fullscreen":
                         WindowedMode.Checked = (Value == "0");
                         break;
-                    case "szx":
+                    case "szy":
                         HeightText.Text = Value;
                         CustomRes.Checked = true;
                         break;
-                    case "szy":
+                    case "szx":
                         WidthText.Text = Value;
                         CustomRes.Checked = true;
                         break;
@@ -199,7 +186,7 @@ namespace BF2Statistics
 
             // Custom Resolution
             if (CustomRes.Checked)
-                Params.AppendFormat("+szy {0} +szx {1} ", WidthText.Text, HeightText.Text);
+                Params.AppendFormat("+szx {0} +szy {1} ", WidthText.Text, HeightText.Text);
 
             // Join Server
             if (!String.IsNullOrWhiteSpace(JoinServerIp.Text))

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using System.IO;
 
 namespace BF2Statistics
 {
@@ -58,7 +55,7 @@ namespace BF2Statistics
             {
                 MessageBox.Show("One or more scoring files are missing. Unable to modify scoring.", 
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.Load += new EventHandler(CloseOnStart);
+                this.Load += (s, e) => this.Close();
                 return;
             }
                 
@@ -71,7 +68,8 @@ namespace BF2Statistics
                 return;
 
             // Load the Conquest Scoring file
-            LoadConqFile();
+            if (!LoadConqFile())
+                return;
 
             // Fill form values
             FillFormFields();
@@ -103,7 +101,7 @@ namespace BF2Statistics
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning
                     );
 
-                this.Load += new EventHandler(CloseOnStart);
+                this.Load += (s, ev) => this.Close();
                 return false;
             }
 
@@ -120,7 +118,7 @@ namespace BF2Statistics
                         + " then formatting can break the scoring. Do you want to Format now?", "Confirm",
                         MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     {
-                        this.Load += new EventHandler(CloseOnStart);
+                        this.Load += (s, e) => this.Close();
                         return false;
                     }
 
@@ -132,7 +130,7 @@ namespace BF2Statistics
                     if (MessageBox.Show("The scoringCommon.py file needs to be formatted to use this feature."
                         + " Do you want to Format now?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     {
-                        this.Load += new EventHandler(CloseOnStart);
+                        this.Load += (s, e) => this.Close();
                         return false;
                     }
 
@@ -154,7 +152,7 @@ namespace BF2Statistics
             // Get all matches for the ScoringCommon.py
             MatchCollection Matches = Reg.Matches(file);
             foreach (Match m in Matches)
-                Scores.Add(m.Groups["varname"].Value, new string[] { m.Groups["value"].Value, m.Value });
+                Scores.Add(m.Groups["varname"].Value, new string[] { m.Groups["value"].Value, @"^" + m.Value + "(?:.*)$" });
 
             return true;
         }
@@ -163,17 +161,53 @@ namespace BF2Statistics
         /// Loads the conquest scoring file
         /// </summary>
         /// <remarks>We do a search and replace for the word DEFENT because the AIX devs spelled DEFEND incorrectly!</remarks>
-        private void LoadConqFile()
+        private bool LoadConqFile()
         {
-            ConqScores = new Dictionary<string, string[]>();
-            using (Stream Str = ScoringConqFile.Open(FileMode.Open, FileAccess.ReadWrite))
-            using (StreamReader Rdr = new StreamReader(Str))
+            string file;
+            try
             {
-                string file = Rdr.ReadToEnd().Replace("SCORE_DEFENT", "SCORE_DEFEND");
-                MatchCollection Matches = Reg.Matches(file);
-                foreach (Match m in Matches)
-                    ConqScores.Add(m.Groups["varname"].Value, new string[] { m.Groups["value"].Value, m.Value });
+                using (Stream Str = ScoringConqFile.Open(FileMode.Open, FileAccess.ReadWrite))
+                using (StreamReader Rdr = new StreamReader(Str))
+                    file = Rdr.ReadToEnd().Replace("SCORE_DEFENT", "SCORE_DEFEND");
             }
+            catch (Exception e)
+            {
+                MessageBox.Show(
+                    "Unable to Read/Write to the Conquest scoring file:" + Environment.NewLine
+                    + Environment.NewLine + "File: " + ScoringConqFile.FullName
+                    + Environment.NewLine + "Error: " + e.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning
+                    );
+
+                this.Load += (s, ev) => this.Close();
+                return false;
+            }
+
+            // Process
+            if (!file.StartsWith("# BF2Statistics Formatted Conq Scoring"))
+            {
+                // We need to replace the default file with the embedded one that
+                // Correctly formats the AI_ Scores
+                string DefaultPath = Path.Combine(Program.RootPath, "Python", "ScoringFiles", "bf2_cq.py");
+                string ModPath = Path.Combine(Program.RootPath, "Python", "ScoringFiles", MainForm.SelectedMod.Name + "_cq.py");
+
+                file = (!File.Exists(ModPath)) ? File.ReadAllText(DefaultPath) : File.ReadAllText(ModPath);
+
+                // Write formated data to the common soring file
+                using (Stream Str = ScoringConqFile.Open(FileMode.Truncate, FileAccess.Write))
+                using (StreamWriter Wtr = new StreamWriter(Str))
+                {
+                    Wtr.Write(file);
+                    Wtr.Flush();
+                }
+            }
+
+            ConqScores = new Dictionary<string, string[]>();
+            MatchCollection Matches = Reg.Matches(file);
+            foreach (Match m in Matches)
+                ConqScores.Add(m.Groups["varname"].Value, new string[] { m.Groups["value"].Value, @"^" + m.Value + "(?:.*)$" });
+
+            return true;
         }
 
         /// <summary>
@@ -186,18 +220,18 @@ namespace BF2Statistics
             {
                 using (Stream Str = ScoringCoopFile.Open(FileMode.Open, FileAccess.ReadWrite))
                 using (StreamReader Rdr = new StreamReader(Str))
-                    file = Rdr.ReadToEnd();
+                    file = Rdr.ReadToEnd().Replace("SCORE_DEFENT", "SCORE_DEFEND");
             }
             catch (Exception e)
             {
                 MessageBox.Show(
                     "Unable to Read/Write to the Coop scoring file:" + Environment.NewLine
-                    + Environment.NewLine + "File: " + ScoringCommonFile.FullName
+                    + Environment.NewLine + "File: " + ScoringCoopFile.FullName
                     + Environment.NewLine + "Error: " + e.Message,
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning
                     );
 
-                this.Load += new EventHandler(CloseOnStart);
+                this.Load += (s, ev) => this.Close();
                 return false;
             }
 
@@ -217,7 +251,7 @@ namespace BF2Statistics
                         + " then formatting can break the scoring. Do you want to Format now?",
                         "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     {
-                        this.Load += new EventHandler(CloseOnStart);
+                        this.Load += (s, e) => this.Close();
                         return false;
                     }
 
@@ -229,7 +263,7 @@ namespace BF2Statistics
                     if (MessageBox.Show("The Coop Scoring file needs to be formatted to use this feature."
                         + " Do you want to Format now?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     {
-                        this.Load += new EventHandler(CloseOnStart);
+                        this.Load += (s, e) => this.Close();
                         return false;
                     }
 
@@ -248,7 +282,7 @@ namespace BF2Statistics
             CoopScores = new Dictionary<string, string[]>();
             MatchCollection Matches = Reg.Matches(file);
             foreach (Match m in Matches)
-                CoopScores.Add(m.Groups["varname"].Value, new string[] { m.Groups["value"].Value, m.Value });
+                CoopScores.Add(m.Groups["varname"].Value, new string[] { m.Groups["value"].Value, @"^" + m.Value + "(?:.*)$" });
 
             return true;
         }
@@ -304,12 +338,19 @@ namespace BF2Statistics
             AiGiveAmmo.Value = Int32.Parse(Scores["AI_SCORE_GIVEAMMO"][0]);
             AiVehicleRepair.Value = Int32.Parse(Scores["AI_SCORE_REPAIR"][0]);
 
+            // AI Bots Coop Settings
+            AiCoopFlagCapture.Value = Int32.Parse(CoopScores["AI_SCORE_CAPTURE"][0]);
+            AiCoopFlagCaptureAsst.Value = Int32.Parse(CoopScores["AI_SCORE_CAPTUREASSIST"][0]);
+            AiCoopFlagNeutralize.Value = Int32.Parse(CoopScores["AI_SCORE_NEUTRALIZE"][0]);
+            AiCoopFlagNeutralizeAsst.Value = Int32.Parse(CoopScores["AI_SCORE_NEUTRALIZEASSIST"][0]);
+            AiCoopDefendFlag.Value = Int32.Parse(CoopScores["AI_SCORE_DEFEND"][0]);
+
             // AI Bots Conquest Settings
-            AiFlagCapture.Value = Int32.Parse(CoopScores["AI_SCORE_CAPTURE"][0]);
-            AiFlagCaptureAsst.Value = Int32.Parse(CoopScores["AI_SCORE_CAPTUREASSIST"][0]);
-            AiFlagNeutralize.Value = Int32.Parse(CoopScores["AI_SCORE_NEUTRALIZE"][0]);
-            AiFlagNeutralizeAsst.Value = Int32.Parse(CoopScores["AI_SCORE_NEUTRALIZEASSIST"][0]);
-            AiDefendFlag.Value = Int32.Parse(CoopScores["AI_SCORE_DEFEND"][0]);
+            AiCqFlagCapture.Value = Int32.Parse(ConqScores["AI_SCORE_CAPTURE"][0]);
+            AiCqFlagCaptureAsst.Value = Int32.Parse(ConqScores["AI_SCORE_CAPTUREASSIST"][0]);
+            AiCqFlagNeutralize.Value = Int32.Parse(ConqScores["AI_SCORE_NEUTRALIZE"][0]);
+            AiCqFlagNeutralizeAsst.Value = Int32.Parse(ConqScores["AI_SCORE_NEUTRALIZEASSIST"][0]);
+            AiCqDefendFlag.Value = Int32.Parse(ConqScores["AI_SCORE_DEFEND"][0]);
 
             // Replenish Scoring
             RepairPointLimit.Value = Int32.Parse(Scores["REPAIR_POINT_LIMIT"][0]);
@@ -318,14 +359,6 @@ namespace BF2Statistics
             TeamDamageLimit.Value = Int32.Parse(Scores["TEAMDAMAGE_POINT_LIMIT"][0]);
             TeamVDamageLimit.Value = Int32.Parse(Scores["TEAMVEHICLEDAMAGE_POINT_LIMIT"][0]);
             ReplenishInterval.Value = Int32.Parse(Scores["REPLENISH_POINT_MIN_INTERVAL"][0]);
-        }
-
-        /// <summary>
-        /// Event closes the form when fired
-        /// </summary>
-        private void CloseOnStart(object sender, EventArgs e)
-        {
-            this.Close();
         }
 
         #region Events
@@ -357,42 +390,42 @@ namespace BF2Statistics
                 contents = Rdr.ReadToEnd();
 
             // Player
-            contents = Regex.Replace(contents, Scores["SCORE_KILL"][1], "SCORE_KILL = " + KillScore.Value);
-            contents = Regex.Replace(contents, Scores["SCORE_TEAMKILL"][1], "SCORE_TEAMKILL = " + TeamKillScore.Value);
-            contents = Regex.Replace(contents, Scores["SCORE_SUICIDE"][1], "SCORE_SUICIDE = " + SuicideScore.Value);
-            contents = Regex.Replace(contents, Scores["SCORE_REVIVE"][1], "SCORE_REVIVE = " + ReviveScore.Value);
-            contents = Regex.Replace(contents, Scores["SCORE_TEAMDAMAGE"][1], "SCORE_TEAMDAMAGE = " + TeamDamage.Value);
-            contents = Regex.Replace(contents, Scores["SCORE_TEAMVEHICLEDAMAGE"][1], "SCORE_TEAMVEHICLEDAMAGE = " + TeamVehicleDamage.Value);
-            contents = Regex.Replace(contents, Scores["SCORE_DESTROYREMOTECONTROLLED"][1], "SCORE_DESTROYREMOTECONTROLLED = " + DestroyEnemyAsset.Value);
-            contents = Regex.Replace(contents, Scores["SCORE_KILLASSIST_DRIVER"][1], "SCORE_KILLASSIST_DRIVER = " + DriverKA.Value);
-            contents = Regex.Replace(contents, Scores["SCORE_KILLASSIST_PASSENGER"][1], "SCORE_KILLASSIST_PASSENGER = " + PassangerKA.Value);
-            contents = Regex.Replace(contents, Scores["SCORE_KILLASSIST_TARGETER"][1], "SCORE_KILLASSIST_TARGETER = " + TargeterKA.Value);
-            contents = Regex.Replace(contents, Scores["SCORE_KILLASSIST_DAMAGE"][1], "SCORE_KILLASSIST_DAMAGE = " + DamageAssist.Value);
-            contents = Regex.Replace(contents, Scores["SCORE_HEAL"][1], "SCORE_HEAL = " + GiveHealth.Value);
-            contents = Regex.Replace(contents, Scores["SCORE_GIVEAMMO"][1], "SCORE_GIVEAMMO = " + GiveAmmo.Value);
-            contents = Regex.Replace(contents, Scores["SCORE_REPAIR"][1], "SCORE_REPAIR = " + VehicleRepair.Value);
+            contents = Regex.Replace(contents, Scores["SCORE_KILL"][1], "SCORE_KILL = " + KillScore.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["SCORE_TEAMKILL"][1], "SCORE_TEAMKILL = " + TeamKillScore.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["SCORE_SUICIDE"][1], "SCORE_SUICIDE = " + SuicideScore.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["SCORE_REVIVE"][1], "SCORE_REVIVE = " + ReviveScore.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["SCORE_TEAMDAMAGE"][1], "SCORE_TEAMDAMAGE = " + TeamDamage.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["SCORE_TEAMVEHICLEDAMAGE"][1], "SCORE_TEAMVEHICLEDAMAGE = " + TeamVehicleDamage.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["SCORE_DESTROYREMOTECONTROLLED"][1], "SCORE_DESTROYREMOTECONTROLLED = " + DestroyEnemyAsset.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["SCORE_KILLASSIST_DRIVER"][1], "SCORE_KILLASSIST_DRIVER = " + DriverKA.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["SCORE_KILLASSIST_PASSENGER"][1], "SCORE_KILLASSIST_PASSENGER = " + PassangerKA.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["SCORE_KILLASSIST_TARGETER"][1], "SCORE_KILLASSIST_TARGETER = " + TargeterKA.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["SCORE_KILLASSIST_DAMAGE"][1], "SCORE_KILLASSIST_DAMAGE = " + DamageAssist.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["SCORE_HEAL"][1], "SCORE_HEAL = " + GiveHealth.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["SCORE_GIVEAMMO"][1], "SCORE_GIVEAMMO = " + GiveAmmo.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["SCORE_REPAIR"][1], "SCORE_REPAIR = " + VehicleRepair.Value, RegexOptions.Multiline);
             // Bots
-            contents = Regex.Replace(contents, Scores["AI_SCORE_KILL"][1], "AI_SCORE_KILL = " + AiKillScore.Value);
-            contents = Regex.Replace(contents, Scores["AI_SCORE_TEAMKILL"][1], "AI_SCORE_TEAMKILL = " + AiTeamKillScore.Value);
-            contents = Regex.Replace(contents, Scores["AI_SCORE_SUICIDE"][1], "AI_SCORE_SUICIDE = " + AiSuicideScore.Value);
-            contents = Regex.Replace(contents, Scores["AI_SCORE_REVIVE"][1], "AI_SCORE_REVIVE = " + AiReviveScore.Value);
-            contents = Regex.Replace(contents, Scores["AI_SCORE_TEAMDAMAGE"][1], "AI_SCORE_TEAMDAMAGE = " + AiTeamDamage.Value);
-            contents = Regex.Replace(contents, Scores["AI_SCORE_TEAMVEHICLEDAMAGE"][1], "AI_SCORE_TEAMVEHICLEDAMAGE = " + AiTeamVehicleDamage.Value);
-            contents = Regex.Replace(contents, Scores["AI_SCORE_DESTROYREMOTECONTROLLED"][1], "AI_SCORE_DESTROYREMOTECONTROLLED = " + AiDestroyEnemyAsset.Value);
-            contents = Regex.Replace(contents, Scores["AI_SCORE_KILLASSIST_DRIVER"][1], "AI_SCORE_KILLASSIST_DRIVER = " + AiDriverKA.Value);
-            contents = Regex.Replace(contents, Scores["AI_SCORE_KILLASSIST_PASSENGER"][1], "AI_SCORE_KILLASSIST_PASSENGER = " + AiPassangerKA.Value);
-            contents = Regex.Replace(contents, Scores["AI_SCORE_KILLASSIST_TARGETER"][1], "AI_SCORE_KILLASSIST_TARGETER = " + AiTargeterKA.Value);
-            contents = Regex.Replace(contents, Scores["AI_SCORE_KILLASSIST_DAMAGE"][1], "AI_SCORE_KILLASSIST_DAMAGE = " + AiDamageAssist.Value);
-            contents = Regex.Replace(contents, Scores["AI_SCORE_HEAL"][1], "AI_SCORE_HEAL = " + AiGiveHealth.Value);
-            contents = Regex.Replace(contents, Scores["AI_SCORE_GIVEAMMO"][1], "AI_SCORE_GIVEAMMO = " + AiGiveAmmo.Value);
-            contents = Regex.Replace(contents, Scores["AI_SCORE_REPAIR"][1], "AI_SCORE_REPAIR = " + AiVehicleRepair.Value);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_KILL"][1], "AI_SCORE_KILL = " + AiKillScore.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_TEAMKILL"][1], "AI_SCORE_TEAMKILL = " + AiTeamKillScore.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_SUICIDE"][1], "AI_SCORE_SUICIDE = " + AiSuicideScore.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_REVIVE"][1], "AI_SCORE_REVIVE = " + AiReviveScore.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_TEAMDAMAGE"][1], "AI_SCORE_TEAMDAMAGE = " + AiTeamDamage.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_TEAMVEHICLEDAMAGE"][1], "AI_SCORE_TEAMVEHICLEDAMAGE = " + AiTeamVehicleDamage.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_DESTROYREMOTECONTROLLED"][1], "AI_SCORE_DESTROYREMOTECONTROLLED = " + AiDestroyEnemyAsset.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_KILLASSIST_DRIVER"][1], "AI_SCORE_KILLASSIST_DRIVER = " + AiDriverKA.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_KILLASSIST_PASSENGER"][1], "AI_SCORE_KILLASSIST_PASSENGER = " + AiPassangerKA.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_KILLASSIST_TARGETER"][1], "AI_SCORE_KILLASSIST_TARGETER = " + AiTargeterKA.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_KILLASSIST_DAMAGE"][1], "AI_SCORE_KILLASSIST_DAMAGE = " + AiDamageAssist.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_HEAL"][1], "AI_SCORE_HEAL = " + AiGiveHealth.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_GIVEAMMO"][1], "AI_SCORE_GIVEAMMO = " + AiGiveAmmo.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["AI_SCORE_REPAIR"][1], "AI_SCORE_REPAIR = " + AiVehicleRepair.Value, RegexOptions.Multiline);
             // Replenish
-            contents = Regex.Replace(contents, Scores["REPAIR_POINT_LIMIT"][1], "REPAIR_POINT_LIMIT = " + RepairPointLimit.Value);
-            contents = Regex.Replace(contents, Scores["HEAL_POINT_LIMIT"][1], "HEAL_POINT_LIMIT = " + HealPointLimit.Value);
-            contents = Regex.Replace(contents, Scores["GIVEAMMO_POINT_LIMIT"][1], "GIVEAMMO_POINT_LIMIT = " + AmmoPointLimit.Value);
-            contents = Regex.Replace(contents, Scores["TEAMDAMAGE_POINT_LIMIT"][1], "TEAMDAMAGE_POINT_LIMIT = " + TeamDamageLimit.Value);
-            contents = Regex.Replace(contents, Scores["TEAMVEHICLEDAMAGE_POINT_LIMIT"][1], "TEAMVEHICLEDAMAGE_POINT_LIMIT = " + TeamVDamageLimit.Value);
-            contents = Regex.Replace(contents, Scores["REPLENISH_POINT_MIN_INTERVAL"][1], "REPLENISH_POINT_MIN_INTERVAL = " + ReplenishInterval.Value);
+            contents = Regex.Replace(contents, Scores["REPAIR_POINT_LIMIT"][1], "REPAIR_POINT_LIMIT = " + RepairPointLimit.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["HEAL_POINT_LIMIT"][1], "HEAL_POINT_LIMIT = " + HealPointLimit.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["GIVEAMMO_POINT_LIMIT"][1], "GIVEAMMO_POINT_LIMIT = " + AmmoPointLimit.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["TEAMDAMAGE_POINT_LIMIT"][1], "TEAMDAMAGE_POINT_LIMIT = " + TeamDamageLimit.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["TEAMVEHICLEDAMAGE_POINT_LIMIT"][1], "TEAMVEHICLEDAMAGE_POINT_LIMIT = " + TeamVDamageLimit.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, Scores["REPLENISH_POINT_MIN_INTERVAL"][1], "REPLENISH_POINT_MIN_INTERVAL = " + ReplenishInterval.Value, RegexOptions.Multiline);
             
             // Save File
             using (Stream Str = ScoringCommonFile.Open(FileMode.Truncate, FileAccess.Write))
@@ -409,11 +442,18 @@ namespace BF2Statistics
                 contents = Rdr.ReadToEnd();
 
             // Do Replacements
-            contents = Regex.Replace(contents, ConqScores["SCORE_CAPTURE"][1], "SCORE_CAPTURE = " + ConqFlagCapture.Value);
-            contents = Regex.Replace(contents, ConqScores["SCORE_CAPTUREASSIST"][1], "SCORE_CAPTUREASSIST = " + ConqFlagCaptureAsst.Value);
-            contents = Regex.Replace(contents, ConqScores["SCORE_NEUTRALIZE"][1], "SCORE_NEUTRALIZE = " + ConqFlagNeutralize.Value);
-            contents = Regex.Replace(contents, ConqScores["SCORE_NEUTRALIZEASSIST"][1], "SCORE_NEUTRALIZEASSIST = " + ConqFlagNeutralizeAsst.Value);
-            contents = Regex.Replace(contents, ConqScores["SCORE_DEFEND"][1], "SCORE_DEFEND = " + ConqDefendFlag.Value);
+            contents = Regex.Replace(contents, ConqScores["SCORE_CAPTURE"][1], "SCORE_CAPTURE = " + ConqFlagCapture.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, ConqScores["SCORE_CAPTUREASSIST"][1], "SCORE_CAPTUREASSIST = " + ConqFlagCaptureAsst.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, ConqScores["SCORE_NEUTRALIZE"][1], "SCORE_NEUTRALIZE = " + ConqFlagNeutralize.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, ConqScores["SCORE_NEUTRALIZEASSIST"][1], "SCORE_NEUTRALIZEASSIST = " + ConqFlagNeutralizeAsst.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, ConqScores["SCORE_DEFEND"][1], "SCORE_DEFEND = " + ConqDefendFlag.Value, RegexOptions.Multiline);
+            // Bots
+            contents = Regex.Replace(contents, ConqScores["AI_SCORE_CAPTURE"][1], "AI_SCORE_CAPTURE = " + AiCqFlagCapture.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, ConqScores["AI_SCORE_CAPTUREASSIST"][1], "AI_SCORE_CAPTUREASSIST = " + AiCqFlagCaptureAsst.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, ConqScores["AI_SCORE_NEUTRALIZE"][1], "AI_SCORE_NEUTRALIZE = " + AiCqFlagNeutralize.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, ConqScores["AI_SCORE_NEUTRALIZEASSIST"][1], "AI_SCORE_NEUTRALIZEASSIST = " + AiCqFlagNeutralizeAsst.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, ConqScores["AI_SCORE_DEFEND"][1], "AI_SCORE_DEFEND = " + AiCqDefendFlag.Value, RegexOptions.Multiline);
+            
 
             // Save File
             using (Stream Str = ScoringConqFile.Open(FileMode.Truncate, FileAccess.Write))
@@ -430,17 +470,17 @@ namespace BF2Statistics
                 contents = Rdr.ReadToEnd();
 
             // Do Replacements
-            contents = Regex.Replace(contents, CoopScores["SCORE_CAPTURE"][1], "SCORE_CAPTURE = " + CoopFlagCapture.Value);
-            contents = Regex.Replace(contents, CoopScores["SCORE_CAPTUREASSIST"][1], "SCORE_CAPTUREASSIST = " + CoopFlagCaptureAsst.Value);
-            contents = Regex.Replace(contents, CoopScores["SCORE_NEUTRALIZE"][1], "SCORE_NEUTRALIZE = " + CoopFlagNeutralize.Value);
-            contents = Regex.Replace(contents, CoopScores["SCORE_NEUTRALIZEASSIST"][1], "SCORE_NEUTRALIZEASSIST = " + CoopFlagNeutralizeAsst.Value);
-            contents = Regex.Replace(contents, CoopScores["SCORE_DEFEND"][1], "SCORE_DEFEND = " + CoopDefendFlag.Value);
+            contents = Regex.Replace(contents, CoopScores["SCORE_CAPTURE"][1], "SCORE_CAPTURE = " + CoopFlagCapture.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, CoopScores["SCORE_CAPTUREASSIST"][1], "SCORE_CAPTUREASSIST = " + CoopFlagCaptureAsst.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, CoopScores["SCORE_NEUTRALIZE"][1], "SCORE_NEUTRALIZE = " + CoopFlagNeutralize.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, CoopScores["SCORE_NEUTRALIZEASSIST"][1], "SCORE_NEUTRALIZEASSIST = " + CoopFlagNeutralizeAsst.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, CoopScores["SCORE_DEFEND"][1], "SCORE_DEFEND = " + CoopDefendFlag.Value, RegexOptions.Multiline);
             // Bots
-            contents = Regex.Replace(contents, CoopScores["AI_SCORE_CAPTURE"][1], "AI_SCORE_CAPTURE = " + AiFlagCapture.Value);
-            contents = Regex.Replace(contents, CoopScores["AI_SCORE_CAPTUREASSIST"][1], "AI_SCORE_CAPTUREASSIST = " + AiFlagCaptureAsst.Value);
-            contents = Regex.Replace(contents, CoopScores["AI_SCORE_NEUTRALIZE"][1], "AI_SCORE_NEUTRALIZE = " + AiFlagNeutralize.Value);
-            contents = Regex.Replace(contents, CoopScores["AI_SCORE_NEUTRALIZEASSIST"][1], "AI_SCORE_NEUTRALIZEASSIST = " + AiFlagNeutralizeAsst.Value);
-            contents = Regex.Replace(contents, CoopScores["AI_SCORE_DEFEND"][1], "AI_SCORE_DEFEND = " + AiDefendFlag.Value);
+            contents = Regex.Replace(contents, CoopScores["AI_SCORE_CAPTURE"][1], "AI_SCORE_CAPTURE = " + AiCoopFlagCapture.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, CoopScores["AI_SCORE_CAPTUREASSIST"][1], "AI_SCORE_CAPTUREASSIST = " + AiCoopFlagCaptureAsst.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, CoopScores["AI_SCORE_NEUTRALIZE"][1], "AI_SCORE_NEUTRALIZE = " + AiCoopFlagNeutralize.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, CoopScores["AI_SCORE_NEUTRALIZEASSIST"][1], "AI_SCORE_NEUTRALIZEASSIST = " + AiCoopFlagNeutralizeAsst.Value, RegexOptions.Multiline);
+            contents = Regex.Replace(contents, CoopScores["AI_SCORE_DEFEND"][1], "AI_SCORE_DEFEND = " + AiCoopDefendFlag.Value, RegexOptions.Multiline);
             
 
             // Save File
@@ -509,11 +549,11 @@ namespace BF2Statistics
             AiDamageAssist.Value = 1;
 
             // Conquest
-            AiFlagCapture.Value = 2;
-            AiFlagCaptureAsst.Value = 1;
-            AiFlagNeutralize.Value = 2;
-            AiFlagNeutralizeAsst.Value = 1;
-            AiDefendFlag.Value = 1;
+            AiCoopFlagCapture.Value = 2;
+            AiCoopFlagCaptureAsst.Value = 1;
+            AiCoopFlagNeutralize.Value = 2;
+            AiCoopFlagNeutralizeAsst.Value = 1;
+            AiCoopDefendFlag.Value = 1;
 
             // Replensih
             RepairPointLimit.Value = 100;

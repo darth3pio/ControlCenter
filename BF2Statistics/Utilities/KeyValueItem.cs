@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace BF2Statistics
+﻿namespace BF2Statistics
 {
     /// <summary>
     /// The Key Value item is similar to the KeyValuePair object,

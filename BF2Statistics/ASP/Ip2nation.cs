@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Net;
 using System.Data.SQLite;
+using System.IO;
+using System.Net;
 using BF2Statistics.Database;
 using BF2Statistics.Utilities;
 using BF2Statistics.Web;

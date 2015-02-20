@@ -6,6 +6,9 @@ using BF2Statistics.Database.QueryBuilder;
 
 namespace BF2Statistics.Web.ASP
 {
+    /// <summary>
+    /// /ASP/getclaninfo.aspx
+    /// </summary>
     class GetClanInfo
     {
         protected DatabaseDriver Driver;

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -25,12 +24,12 @@ namespace BF2Statistics.Web.Bf2Stats
         /// <param name="Score">The players current score</param>
         /// <param name="Rank">The players current rank ID</param>
         /// <param name="Awards">All the players earned awards</param>
+        /// <param name="Count">The number of next ranks to display</param>
         /// <returns></returns>
-        public static List<Rank> GetNext3Ranks(int Score, int Rank, Dictionary<string, int> Awards)
+        public static List<Rank> GetNextRanks(int Score, int Rank, Dictionary<string, int> Awards, int Count = 3)
         {
             // do 1 rank at a time until we get 3 go's
             List<Rank> NextXRanks = new List<Rank>();
-            int Count = 3; // Number of itterations to do
             int Avail = 21 - Rank; // Available promotions left
             StringBuilder Desc = new StringBuilder();
 

@@ -1,21 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.IO;
 using System.Data.Common;
 using System.Data.SQLite;
-using MySql.Data;
-using MySql.Data.Common;
-using MySql.Data.MySqlClient;
+using System.IO;
+using System.Windows.Forms;
 using BF2Statistics.Database;
+using MySql.Data.MySqlClient;
 
 namespace BF2Statistics
 {
+    /// <summary>
+    /// Specifies what type of database we are working with
+    /// </summary>
     public enum DatabaseMode
     {
         Stats, 
@@ -24,6 +19,9 @@ namespace BF2Statistics
 
     public partial class DatabaseConfigForm : Form
     {
+        /// <summary>
+        /// The database type we are working with (Stats or Gamespy)
+        /// </summary>
         protected DatabaseMode DbMode;
 
         public DatabaseConfigForm(DatabaseMode Mode)
@@ -154,6 +152,9 @@ namespace BF2Statistics
             Password.UseSystemPasswordChar = !Password.UseSystemPasswordChar;
         }
 
+        /// <summary>
+        /// Event fired when the cancel button is clicked
+        /// </summary>
         private void CancelBtn_Click(object sender, EventArgs e)
         {
             MainForm.Config.Reload();
@@ -161,6 +162,9 @@ namespace BF2Statistics
             this.Close();
         }
 
+        /// <summary>
+        /// Event fired when the Test button is clicked
+        /// </summary>
         private void TestBtn_Click(object sender, EventArgs e)
         {
             // Disable console
@@ -192,6 +196,9 @@ namespace BF2Statistics
             this.Enabled = true;
         }
 
+        /// <summary>
+        /// Event fired when the save button is clicked
+        /// </summary>
         private void SaveBtn_Click(object sender, EventArgs e)
         {
             SetConfigSettings();
@@ -200,11 +207,17 @@ namespace BF2Statistics
             this.Close();
         }
 
+        /// <summary>
+        /// Event fired when the database type selection has changed
+        /// </summary>
         private void TypeSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
             Hostname.Enabled = Port.Enabled = Username.Enabled = Password.Enabled = TestBtn.Enabled = (TypeSelect.SelectedIndex == 1);
         }
 
+        /// <summary>
+        /// Event fired when the next button is clicked
+        /// </summary>
         private void NextBtn_Click(object sender, EventArgs e)
         {
             // Disable this form

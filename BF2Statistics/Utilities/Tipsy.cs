@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace BF2Statistics.Utilities
@@ -53,18 +51,8 @@ namespace BF2Statistics.Utilities
         /// </summary>
         /// <param name="control"></param>
         /// <param name="text"></param>
-        public static void SetToolTip(Control control, string text)
-        {
-            SetToolTip(control, text, false);
-        }
-
-        /// <summary>
-        /// Sets a tooltip object for a control
-        /// </summary>
-        /// <param name="control"></param>
-        /// <param name="text"></param>
         /// <param name="ShowAlways"></param>
-        public static void SetToolTip(Control control, string text, bool ShowAlways)
+        public static void SetToolTip(Control control, string text, bool ShowAlways = false, int timeToDisplay = 5000)
         {
             // Prevent cross thread errors
             if (control.InvokeRequired)
@@ -73,6 +61,7 @@ namespace BF2Statistics.Utilities
                 {
                     ToolTip tt = Tipsy.GetControlToolTip(control);
                     tt.ShowAlways = ShowAlways;
+                    tt.AutoPopDelay = timeToDisplay;
                     tt.SetToolTip(control, text);
                 });
             }

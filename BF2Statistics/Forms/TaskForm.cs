@@ -1,21 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace BF2Statistics
 {
     public partial class TaskForm : Form
     {
-        const int WM_SYSCOMMAND = 0x0112;
-
-        const int SC_MOVE = 0xF010;
-
         /// <summary>
         /// Gets or Sets whether the task is cancelable
         /// </summary>
@@ -34,6 +27,11 @@ namespace BF2Statistics
         /// The task dialog's instance
         /// </summary>
         private static TaskForm Instance;
+
+        /// <summary>
+        /// The event that is fired when the Cancel button is pressed
+        /// </summary>
+        public static event CancelEventHandler Cancelled;
 
         /// <summary>
         /// Private constructor... Use the Show() method rather
@@ -97,19 +95,6 @@ namespace BF2Statistics
         /// <param name="InstructionText">Instruction text displayed after the info icon. Leave null
         /// to hide the instruction text and icon.</param>
         /// <param name="SubMessage">Detail text that is displayed just above the progress bar</param>
-        public static void Show(Form Parent, string WindowTitle, string InstructionText, string SubMessage)
-        {
-            Show(Parent, WindowTitle, InstructionText, SubMessage, true, ProgressBarStyle.Marquee, 0);
-        }
-
-        /// <summary>
-        /// Open and displays the task form.
-        /// </summary>
-        /// <param name="Parent">The calling form, so the task form can be centered</param>
-        /// <param name="WindowTitle">The task dialog window title</param>
-        /// <param name="InstructionText">Instruction text displayed after the info icon. Leave null
-        /// to hide the instruction text and icon.</param>
-        /// <param name="SubMessage">Detail text that is displayed just above the progress bar</param>
         /// <param name="Cancelable">Specifies whether the operation can be canceled</param>
         /// <param name="Style">The progress bar style</param>
         /// <exception cref="Exception">Thrown if the Task form is already open and running. Use the IsOpen property
@@ -160,12 +145,11 @@ namespace BF2Statistics
             double W = Parent.Location.X + (Parent.Width / 2) - (Instance.Width / 2);
             Instance.Location = new Point((int)Math.Round(W, 0), (int)Math.Round(H, 0));
 
-            // Run form in a new thread
-            Thread thread = new Thread(new ThreadStart(ShowForm));
-            thread.IsBackground = true;
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-            Thread.Sleep(100); // Wait for Run to work
+            // Run this in a background thread
+            Task.Run(() => Instance.ShowDialog());
+
+            // Loop till handle create
+            while (!Instance.IsHandleCreated) Thread.Sleep(50);
         }
 
         /// <summary>
@@ -173,25 +157,23 @@ namespace BF2Statistics
         /// </summary>
         public static void CloseForm()
         {
+            // No exception here
             if (Instance == null || Instance.IsDisposed)
-                throw new Exception("Invalid Operation. Please use the Show method before calling any operational methods");
+                return;
+
+            // Remove all cancellation subs
+            if (Cancelled != null)
+                Cancelled = null;
 
             try
             {
                 Instance.Invoke((Action)delegate()
                 {
                     Instance.Close();
+                    Instance = null;
                 });
             }
             catch { }
-        }
-
-        /// <summary>
-        /// Runs the form in a new application, to prevent thread lock
-        /// </summary>
-        protected static void ShowForm()
-        {
-            Application.Run(Instance);
         }
 
         /// <summary>
@@ -203,7 +185,7 @@ namespace BF2Statistics
             if (Instance == null || Instance.IsDisposed)
                 throw new Exception("Invalid Operation. Please use the Show method before calling any operational methods");
 
-            Instance.Invoke((Action)delegate()
+            Instance.Invoke((Action)delegate
             {
                 Instance.labelInstructionText.Text = Message;
             });
@@ -218,7 +200,7 @@ namespace BF2Statistics
             if (Instance == null || Instance.IsDisposed)
                 throw new Exception("Invalid Operation. Please use the Show method before calling any operational methods");
 
-            Instance.Invoke((Action)delegate()
+            Instance.Invoke((Action)delegate
             {
                 Instance.labelContent.Text = Message;
             });
@@ -233,7 +215,7 @@ namespace BF2Statistics
             if (Instance == null || Instance.IsDisposed)
                 throw new Exception("Invalid Operation. Please use the Show method before calling any operational methods");
 
-            Instance.Invoke((Action)delegate()
+            Instance.Invoke((Action)delegate
             {
                 Instance.progressBar.PerformStep();
             });
@@ -253,8 +235,9 @@ namespace BF2Statistics
 
         private void CancelBtn_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.Cancel;
-            this.Close();
+            // Call cancel event
+            if (Cancelled != null)
+                Cancelled(this, null);
         }
 
         private void TaskForm_FormClosed(object sender, FormClosedEventArgs e)

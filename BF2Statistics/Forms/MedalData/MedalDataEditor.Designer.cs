@@ -276,7 +276,7 @@
             this.ActivateProfileBtn.TabIndex = 5;
             this.ActivateProfileBtn.Text = "Set as Server Profile";
             this.Tipsy.SetToolTip(this.ActivateProfileBtn, "Set current profile as the active medal data profile. The active profile\'s\r\nmedal" +
-                    " data is used when the server is started.");
+        " data is used when the server is started.");
             this.ActivateProfileBtn.UseVisualStyleBackColor = true;
             this.ActivateProfileBtn.Click += new System.EventHandler(this.ActivateProfileBtn_Click);
             // 

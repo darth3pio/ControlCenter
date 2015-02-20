@@ -1,14 +1,16 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using BF2Statistics.Logging;
 
 namespace BF2Statistics.Gamespy
 {
+    /// <summary>
+    /// This object is used as a TcpClient Network Stream wrapper,
+    /// made to specifically handle Gamespy formated messages and 
+    /// protocol
+    /// </summary>
     class TcpClientStream
     {
         /// <summary>
@@ -54,7 +56,7 @@ namespace BF2Statistics.Gamespy
         {
             this.Client = client;
             this.Stream = client.GetStream();
-            Stream.BeginRead(buffer, 0, buffer.Length, new AsyncCallback(ReadCallback), Stream);
+            Stream.BeginRead(buffer, 0, buffer.Length, ReadCallback, Stream);
         }
 
         /// <summary>
@@ -77,10 +79,11 @@ namespace BF2Statistics.Gamespy
             }
             catch (ObjectDisposedException) { } // Fired when a the login server is shutown
 
-            // Force disconnect (Specifically for Gpsp, whom will spam null bytes)
+            // Force disconnect (Specifically for Gpsp, whom will spam empty connections)
             if (bytesRead == 0)
             {
-                OnDisconnect(); // Parent is responsible for closing the connection
+                if(OnDisconnect != null)
+                    OnDisconnect(); // Parent is responsible for closing the connection
                 return;
             }
 
@@ -90,24 +93,21 @@ namespace BF2Statistics.Gamespy
             // If message is complete
             if (!Stream.DataAvailable && Message.ToString().EndsWith("final\\"))
             {
-                // Debugging
-                //if (Debugging)
-                    //Log("Port {0} Recieves: {1}", ((IPEndPoint)Client.Client.LocalEndPoint).Port, Message.ToString());
-
                 // tell our parent that we recieved a message
                 DataReceived(Message.ToString());
                 Message = new StringBuilder();
             }
 
-            // Begin a new Read
+            // Begin a new Read if we are not closing the connection forcibly
             try
             {
                 if (!IsClosing)
-                    Stream.BeginRead(buffer, 0, buffer.Length, new AsyncCallback(ReadCallback), Stream);
+                    Stream.BeginRead(buffer, 0, buffer.Length, ReadCallback, Stream);
             }
             catch
             {
-                OnDisconnect();
+                if (OnDisconnect != null)
+                    OnDisconnect(); // Parent is responsible for closing the connection
                 return;
             }
         }
@@ -118,9 +118,6 @@ namespace BF2Statistics.Gamespy
         /// <param name="message">The complete message to be sent to the client</param>
         public void Send(string message)
         {
-            //if (Debugging)
-                //Log("Port {0} Sends: {1}", ((IPEndPoint)Client.Client.LocalEndPoint).Port, message);
-
             this.Send(Encoding.ASCII.GetBytes(message));
         }
 
@@ -130,11 +127,7 @@ namespace BF2Statistics.Gamespy
         /// <param name="message">The complete message to be sent to the client</param>
         public void Send(string message, params object[] items)
         {
-            message = String.Format(message, items);
-            //if (Debugging)
-                //Log("Port {0} Sends: {1}", ((IPEndPoint)Client.Client.LocalEndPoint).Port, message);
-
-            this.Send(Encoding.ASCII.GetBytes(message));
+            this.Send(Encoding.ASCII.GetBytes(String.Format(message, items)));
         }
 
         /// <summary>

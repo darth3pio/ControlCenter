@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 
 namespace BF2Statistics.Gamespy
 {
@@ -32,10 +29,10 @@ namespace BF2Statistics.Gamespy
             Listener.Start();
 
             // Register for disconnect
-            GpspClient.OnDisconnect += new GpspConnectionClosed(GpspClient_OnDisconnect);
+            GpspClient.OnDisconnect += GpspClient_OnDisconnect;
 
             // Create a new thread to accept the connection
-            Listener.BeginAcceptTcpClient(new AsyncCallback(AcceptClient), null);
+            Listener.BeginAcceptTcpClient(AcceptClient, null);
         }
 
         /// <summary>
@@ -48,7 +45,7 @@ namespace BF2Statistics.Gamespy
             Listener.Stop();
 
             // Unregister events so we dont get a shit ton of calls
-            GpspClient.OnDisconnect -= new GpspConnectionClosed(GpspClient_OnDisconnect);
+            GpspClient.OnDisconnect -= GpspClient_OnDisconnect;
 
             // Disconnected all connected clients
             foreach (GpspClient C in Clients)
@@ -71,7 +68,7 @@ namespace BF2Statistics.Gamespy
             try
             {
                 TcpClient Client = Listener.EndAcceptTcpClient(ar);
-                Listener.BeginAcceptTcpClient(new AsyncCallback(AcceptClient), null);
+                Listener.BeginAcceptTcpClient(AcceptClient, null);
                 Accepting = true;
 
                 // Process last so there is no delay in accepting connections
@@ -81,7 +78,7 @@ namespace BF2Statistics.Gamespy
             finally
             {
                 if (!Accepting && !isShutingDown)
-                    Listener.BeginAcceptTcpClient(new AsyncCallback(AcceptClient), null);
+                    Listener.BeginAcceptTcpClient(AcceptClient, null);
             }
         }
 

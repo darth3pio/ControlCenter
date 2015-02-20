@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
+using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
-using System.Reflection;
-using System.IO;
-using System.Text.RegularExpressions;
 using BF2Statistics.Properties;
 
 namespace BF2Statistics.MedalData
@@ -73,7 +69,7 @@ namespace BF2Statistics.MedalData
             InitializeComponent();
 
             // Make sure the bf2s config is present
-            if (!StatsPython.StatsEnabled)
+            if (!StatsPython.Installed)
             {
                 this.Load += (s, e) => this.Close();
                 MessageBox.Show("Stats need to be enabled before using the medal data editor.", "Error");
@@ -104,12 +100,8 @@ namespace BF2Statistics.MedalData
                 // Remove the path to the file
                 string fileF = file.Remove(0, PythonPath.Length + 1);
 
-                // Only Add special forces ones
-                if (!fileF.Contains("_xpack") || fileF == "medal_data_xpack.py")
-                    continue;
-
                 // Remove .py extension, and add it to the list of files
-                fileF = fileF.Remove(fileF.Length - 3, 3).Replace("medal_data_", "").Replace("_xpack", "");
+                fileF = fileF.Remove(fileF.Length - 3, 3).Replace("medal_data_", "");
                 ProfileSelector.Items.Add(fileF);
                 Profiles.Add(fileF.ToLower());
             }
@@ -313,6 +305,14 @@ namespace BF2Statistics.MedalData
                 // A null award is bad
                 AwardNode.ForeColor = Color.Red;
             }
+
+            // Now we also highlight all the parent nodes highlight as well
+            TreeNode qq = AwardNode;
+            while (qq.Parent != null)
+            {
+                qq = qq.Parent;
+                qq.ForeColor = AwardNode.ForeColor;
+            }
         }
 
         #endregion Class Methods
@@ -428,7 +428,7 @@ namespace BF2Statistics.MedalData
             // Get Medal Data
             try 
             {
-                MedalDataParser.LoadMedalDataFile(Path.Combine(PythonPath, "medal_data_" + Profile + "_xpack.py"));
+                MedalDataParser.LoadMedalDataFile(Path.Combine(PythonPath, "medal_data_" + Profile + ".py"));
             }
             catch (Exception ex) 
             {
@@ -440,9 +440,21 @@ namespace BF2Statistics.MedalData
                 return;
             }
 
+            // Iterator for badges
+            int itr = -1;
+
             // Add all awards to the corresponding Node
             foreach (Award A in AwardCache.GetBadges())
-                AwardTree.Nodes[0].Nodes.Add(A.Id, A.Name);
+            {
+                if(Award.GetBadgeLevel(A.Id) == BadgeLevel.Bronze)
+                {
+                    AwardTree.Nodes[0].Nodes.Add(A.Id, A.Name.Replace("Basic ", ""));
+                    AwardTree.Nodes[0].Nodes[++itr].Nodes.Add(A.Id, A.Name.Split(' ')[0]);
+                    continue;
+                }
+
+                AwardTree.Nodes[0].Nodes[itr].Nodes.Add(A.Id, A.Name.Split(' ')[0]);
+            }
 
             foreach (Award A in AwardCache.GetMedals())
                 AwardTree.Nodes[1].Nodes.Add(A.Id, A.Name);
@@ -461,10 +473,20 @@ namespace BF2Statistics.MedalData
             AwardNameBox.Text = null;
             AwardTypeBox.Text = null;
             AwardPictureBox.Image = null;
-            AwardTree.SelectedNode = AwardTree.Nodes[0];
 
-            // Apply highlighting of award text
-            for (int i = 0; i < 3; i++)
+            // Apply highlighting of badges
+            TreeNode BadgeNode = AwardTree.Nodes[0];
+            for (int i = 0; i < BadgeNode.Nodes.Count; i++)
+            {
+                foreach (TreeNode N in BadgeNode.Nodes[i].Nodes)
+                {
+                    IAward t = AwardCache.GetAward(N.Name);
+                    ValidateConditions(N, t.GetCondition());
+                }
+            }
+
+            // Apply highlighting of of all the other awards
+            for (int i = 1; i < 3; i++)
             {
                 foreach (TreeNode N in AwardTree.Nodes[i].Nodes)
                 {
@@ -533,7 +555,6 @@ namespace BF2Statistics.MedalData
                 {
                     // Delete medal data files
                     File.Delete(Path.Combine(PythonPath, "medal_data_" + Profile + ".py"));
-                    File.Delete(Path.Combine(PythonPath, "medal_data_" + Profile + "_xpack.py"));
 
                     // Unselect this as the default profile
                     ActiveProfile = null;
@@ -626,8 +647,25 @@ namespace BF2Statistics.MedalData
             string Profile = ProfileSelector.SelectedItem.ToString();
             int CondErrors = 0;
 
+            // Apply highlighting of badges
+            TreeNode BadgeNode = AwardTree.Nodes[0];
+            for (int i = 0; i < BadgeNode.Nodes.Count; i++)
+            {
+                foreach (TreeNode N in BadgeNode.Nodes[i].Nodes)
+                {
+                    IAward t = AwardCache.GetAward(N.Name);
+                    Condition Cond = t.GetCondition();
+                    if (Cond is ConditionList)
+                    {
+                        ConditionList Clist = Cond as ConditionList;
+                        if (Clist.HasConditionErrors)
+                            CondErrors++;
+                    }
+                }
+            }
+
             // Check for condition errors
-            for (int i = 0; i < 3; i++)
+            for (int i = 1; i < 3; i++)
             {
                 foreach (TreeNode N in AwardTree.Nodes[i].Nodes)
                 {
@@ -656,60 +694,36 @@ namespace BF2Statistics.MedalData
                     return;
             }
 
-            // Show save dialog
-            SaveForm Form = new SaveForm();
-            if (Form.ShowDialog() != DialogResult.OK)
-                return;
-
             // Add base medal data functions
             StringBuilder MedalData = new StringBuilder();
-            StringBuilder MedalDataSF = new StringBuilder();
             MedalData.AppendLine(Utils.GetResourceAsString("BF2Statistics.MedalData.PyFiles.functions.py"));
             MedalData.AppendLine("medal_data = (");
 
             // Add Each Award (except ranks) to the MedalData Array
             foreach (Award A in AwardCache.GetBadges())
-            {
-                if (!Award.IsSfAward(A.Id))
-                    MedalData.AppendLine("\t" + A.ToPython());
-                else
-                    MedalDataSF.AppendLine("\t" + A.ToPython());
-            }
+                MedalData.AppendLine("\t" + A.ToPython());
 
             foreach (Award A in AwardCache.GetMedals())
                 MedalData.AppendLine("\t" + A.ToPython());
 
             foreach (Award A in AwardCache.GetRibbons())
-            {
-                if (!Award.IsSfAward(A.Id))
-                    MedalData.AppendLine("\t" + A.ToPython());
-                else
-                    MedalDataSF.AppendLine("\t" + A.ToPython());
-            }
+                MedalData.AppendLine("\t" + A.ToPython());
 
             // Append Rank Data
-            StringBuilder RankData = new StringBuilder();
-            RankData.AppendLine(")" + Environment.NewLine + "rank_data = (");
+            MedalData.AppendLine(")");
+            MedalData.AppendLine("rank_data = (");
             foreach (Rank R in AwardCache.GetRanks())
-                RankData.AppendLine("\t" + R.ToPython());
+                MedalData.AppendLine("\t" + R.ToPython());
 
             // Close off the Rank Data Array
-            RankData.AppendLine(")#end");
+            MedalData.AppendLine(")#end");
 
             try
             {
-                // Write to the Non SF file
+                // Write to file
                 File.WriteAllText(
                     Path.Combine(PythonPath, "medal_data_" + Profile + ".py"),
-                    (SaveForm.IncludeSFData)
-                        ? MedalData.ToString() + MedalDataSF.ToString() + RankData.ToString().TrimEnd()
-                        : MedalData.ToString() + RankData.ToString().TrimEnd()
-                );
-
-                // Write to the SF file
-                File.WriteAllText(
-                    Path.Combine(PythonPath, "medal_data_" + Profile + "_xpack.py"),
-                    MedalData.ToString() + MedalDataSF.ToString() + RankData.ToString().TrimEnd()
+                    MedalData.ToString().TrimEnd()
                 );
 
                 // Update variables, and display success
@@ -751,7 +765,7 @@ namespace BF2Statistics.MedalData
                 SetAwardImage(SelectedAwardNode.Name);
 
                 // Set award name and type
-                AwardNameBox.Text = SelectedAwardNode.Text;
+                AwardNameBox.Text = Award.GetName(SelectedAwardNode.Name);
                 switch (Award.GetType(SelectedAwardNode.Name))
                 {
                     case AwardType.Badge:

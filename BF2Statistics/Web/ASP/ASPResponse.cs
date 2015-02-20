@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
-using System.Diagnostics;
-using BF2Statistics.Web;
 
 namespace BF2Statistics.Web.ASP
 {
+    /// <summary>
+    /// This object provides methods to help with
+    /// ASP specific responses
+    /// </summary>
     class ASPResponse : HttpResponse
     {
         /// <summary>
@@ -186,7 +188,7 @@ namespace BF2Statistics.Web.ASP
         public new void Send()
         {
             // Make sure our client didnt send a response already
-            if (Client.ResponseSent)
+            if (base.ResponseSent)
                 return;
 
             // Whats left of the transposed data

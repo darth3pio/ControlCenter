@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
+﻿using System.IO;
 
 namespace BF2Statistics
 {
@@ -15,7 +11,7 @@ namespace BF2Statistics
         /// <param name="destDirName">The destination dicrectoy, where all the copies will be stored. 
         /// The directory does NOT have to exist.</param>
         /// <param name="copySubDirs">Recursively copy sub folders?</param>
-        public static void Copy(string sourceDirName, string destDirName, bool copySubDirs)
+        public static void Copy(string sourceDirName, string destDirName, bool copySubDirs = true, bool overwriteFiles = false)
         {
             DirectoryInfo dir = new DirectoryInfo(sourceDirName);
             DirectoryInfo[] dirs = dir.GetDirectories();
@@ -36,7 +32,7 @@ namespace BF2Statistics
             foreach (FileInfo file in files)
             {
                 string temppath = Path.Combine(destDirName, file.Name);
-                file.CopyTo(temppath, false);
+                file.CopyTo(temppath, overwriteFiles);
             }
 
             // Do we recursivly copy?
@@ -45,7 +41,7 @@ namespace BF2Statistics
                 foreach (DirectoryInfo subdir in dirs)
                 {
                     string temppath = Path.Combine(destDirName, subdir.Name);
-                    Copy(subdir.FullName, temppath, copySubDirs);
+                    Copy(subdir.FullName, temppath, copySubDirs, overwriteFiles);
                 }
             }
         }

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using BF2Statistics.Database;
 
 namespace BF2Statistics.Web.Bf2Stats
@@ -854,9 +853,17 @@ namespace BF2Statistics.Web.Bf2Stats
                     Awds.Add(Row["awd"].ToString(), Int32.Parse(Row["level"].ToString()));
             }
 
+            // Debugging ranks? (personal uses)
+            int RanksToShow = 3;
+            if (Client.Request.QueryString.ContainsKey("nextranks"))
+                Int32.TryParse(Client.Request.QueryString["nextranks"], out RanksToShow);
+
+            // 3 min.
+            if (RanksToShow < 3) RanksToShow = 3;
+
             // Get our next ranks
             int Score = Int32.Parse(Player["score"].ToString());
-            NextPlayerRanks = RankCalculator.GetNext3Ranks(Score, Int32.Parse(Player["rank"].ToString()), Awds);
+            NextPlayerRanks = RankCalculator.GetNextRanks(Score, Int32.Parse(Player["rank"].ToString()), Awds, RanksToShow);
             foreach (Rank Rnk in NextPlayerRanks)
             {
                 // Get Needed Points for this next rank
@@ -922,7 +929,7 @@ namespace BF2Statistics.Web.Bf2Stats
                     }
                     catch (Exception e)
                     {
-                        Program.ErrorLog.Write("[PlayerPage.CreateCacheFile] " + e.Message);
+                        Program.ErrorLog.Write("WARNING: [PlayerPage.CreateCacheFile] " + e.Message);
                     }
 
                     return page;
@@ -939,7 +946,7 @@ namespace BF2Statistics.Web.Bf2Stats
                     }
                     catch (Exception e)
                     {
-                        Program.ErrorLog.Write("[PlayerPage.ReadCacheFile] " + e.Message);
+                        Program.ErrorLog.Write("ERROR: [PlayerPage.ReadCacheFile] " + e.Message);
                         return "Cache Read Error";
                     }
                 }

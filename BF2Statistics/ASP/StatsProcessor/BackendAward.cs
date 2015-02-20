@@ -1,9 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using BF2Statistics.Database;
 
 namespace BF2Statistics.ASP.StatsProcessor
 {
+    /// <summary>
+    /// This object represents an award that is earned during
+    /// the processing of a snapshot, and provides methods to
+    /// check if a given player has met the criteria to earn it.
+    /// </summary>
     class BackendAward
     {
         /// <summary>
@@ -37,7 +41,7 @@ namespace BF2Statistics.ASP.StatsProcessor
         {
             // Get the award count (or level for badges) for this award
             string Query = "SELECT COALESCE(max(level), 0) FROM awards WHERE id=@P0 AND awd=@P1";
-            int AwardCount = Convert.ToInt32(Driver.ExecuteScalar(Query, Pid, AwardId));
+            int AwardCount = Driver.ExecuteScalar<int>(Query, Pid, AwardId);
             bool IsRibbon = (AwardId > 3000000);
 
             // Can only recieve ribbons once in a lifetime, so return false if we have it already
@@ -56,7 +60,7 @@ namespace BF2Statistics.ASP.StatsProcessor
                 Query = String.Format("SELECT {0} FROM {1} WHERE id={2} AND {3}", Criteria.Field, Criteria.Table, Pid, Where);
 
                 // If we dont meet the expected result, the criteria is unmet, no use continuing
-                if (Convert.ToInt32(Driver.ExecuteScalar(Query)) < Criteria.ExpectedResult)
+                if (Driver.ExecuteScalar<int>(Query) < Criteria.ExpectedResult)
                     return false;
             }
 

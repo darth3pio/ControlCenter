@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BF2Statistics.Gamespy;
+﻿using BF2Statistics.Gamespy;
 
 namespace BF2Statistics
 {
@@ -16,7 +12,7 @@ namespace BF2Statistics
 
     public delegate void SnapshotProccessed();
 
-    public delegate void SnapshotRecieved(bool Proccessed);
+    public delegate void SnapshotRecieved();
 
     public delegate void DataRecivedEvent(string Message);
 

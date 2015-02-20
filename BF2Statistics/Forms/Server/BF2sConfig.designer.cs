@@ -48,7 +48,7 @@
             this.CentralDatabase = new System.Windows.Forms.ComboBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.label12 = new System.Windows.Forms.Label();
-            this.ForceKeyString = new System.Windows.Forms.ComboBox();
+            this.RankMode = new System.Windows.Forms.ComboBox();
             this.label11 = new System.Windows.Forms.Label();
             this.MedalData = new System.Windows.Forms.ComboBox();
             this.SnapshotPrefix = new System.Windows.Forms.TextBox();
@@ -139,7 +139,7 @@
             this.AspCallback.Size = new System.Drawing.Size(197, 20);
             this.AspCallback.TabIndex = 7;
             this.Tipsy.SetToolTip(this.AspCallback, "The relative path to the bf2statistics.php file on the ASP backend address\r\n\r\nNot" +
-                    " Recomended To Change!");
+        " Recomended To Change!");
             // 
             // label4
             // 
@@ -150,7 +150,7 @@
             this.label4.TabIndex = 6;
             this.label4.Text = "BF2Statistics ASP Callback:";
             this.Tipsy.SetToolTip(this.label4, "The relative path to the bf2statistics.php file on the ASP backend address\r\n\r\nNot" +
-                    " Recomended To Change!");
+        " Recomended To Change!");
             // 
             // label3
             // 
@@ -228,7 +228,7 @@
             this.CentralCallback.Size = new System.Drawing.Size(197, 20);
             this.CentralCallback.TabIndex = 7;
             this.Tipsy.SetToolTip(this.CentralCallback, "The relative path to the bf2statistics.php file on the ASP Central backend addres" +
-                    "s\r\n\r\nNot Recomended To Change!");
+        "s\r\n\r\nNot Recomended To Change!");
             // 
             // label5
             // 
@@ -239,7 +239,7 @@
             this.label5.TabIndex = 6;
             this.label5.Text = "BF2Statistics Central ASP Callback:";
             this.Tipsy.SetToolTip(this.label5, "The relative path to the bf2statistics.php file on the ASP Central backend addres" +
-                    "s");
+        "s");
             // 
             // label6
             // 
@@ -298,7 +298,7 @@
             // 
             this.groupBox3.BackColor = System.Drawing.SystemColors.Window;
             this.groupBox3.Controls.Add(this.label12);
-            this.groupBox3.Controls.Add(this.ForceKeyString);
+            this.groupBox3.Controls.Add(this.RankMode);
             this.groupBox3.Controls.Add(this.label11);
             this.groupBox3.Controls.Add(this.MedalData);
             this.groupBox3.Controls.Add(this.SnapshotPrefix);
@@ -317,38 +317,38 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(26, 150);
+            this.label12.Location = new System.Drawing.Point(70, 35);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(115, 13);
+            this.label12.Size = new System.Drawing.Size(71, 13);
             this.label12.TabIndex = 11;
-            this.label12.Text = "Force Medal Keystring:";
-            this.Tipsy.SetToolTip(this.label12, "Removing medal requirements can mess up the keystring, Use this to force the corr" +
-                    "ect string\r\n\r\nRecommended to br enabled if some medal requirements are removed.");
+            this.label12.Text = "Server Mode:";
+            this.Tipsy.SetToolTip(this.label12, "Non-Ranked: Disables the earning of medals and rank promotions\r\nRanked: Enables t" +
+        "he earning of medals and rank promotions");
             // 
-            // ForceKeyString
+            // RankMode
             // 
-            this.ForceKeyString.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ForceKeyString.FormattingEnabled = true;
-            this.ForceKeyString.Items.AddRange(new object[] {
-            "Disabled",
-            "Enabled"});
-            this.ForceKeyString.Location = new System.Drawing.Point(147, 147);
-            this.ForceKeyString.Name = "ForceKeyString";
-            this.ForceKeyString.Size = new System.Drawing.Size(146, 21);
-            this.ForceKeyString.TabIndex = 10;
-            this.Tipsy.SetToolTip(this.ForceKeyString, "Removing medal requirements can mess up the keystring, Use this to force the corr" +
-                    "ect string\r\n\r\nRecommended to br enabled if some medal requirements are removed.");
+            this.RankMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.RankMode.FormattingEnabled = true;
+            this.RankMode.Items.AddRange(new object[] {
+            "Non-Ranked",
+            "Ranked"});
+            this.RankMode.Location = new System.Drawing.Point(147, 32);
+            this.RankMode.Name = "RankMode";
+            this.RankMode.Size = new System.Drawing.Size(146, 21);
+            this.RankMode.TabIndex = 10;
+            this.Tipsy.SetToolTip(this.RankMode, "Non-Ranked: Disables the earning of medals and rank promotions\r\nRanked: Enables t" +
+        "he earning of medals and rank promotions");
             // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(44, 120);
+            this.label11.Location = new System.Drawing.Point(44, 153);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(97, 13);
             this.label11.TabIndex = 9;
             this.label11.Text = "Medal Data Profile:";
             this.Tipsy.SetToolTip(this.label11, "The chosen profile\'s medal criteria\'s will be used the next time the server is st" +
-                    "arted");
+        "arted");
             // 
             // MedalData
             // 
@@ -356,38 +356,38 @@
             this.MedalData.FormattingEnabled = true;
             this.MedalData.Items.AddRange(new object[] {
             "Default"});
-            this.MedalData.Location = new System.Drawing.Point(147, 117);
+            this.MedalData.Location = new System.Drawing.Point(147, 150);
             this.MedalData.Name = "MedalData";
             this.MedalData.Size = new System.Drawing.Size(146, 21);
             this.MedalData.TabIndex = 8;
             this.Tipsy.SetToolTip(this.MedalData, "The chosen profile\'s medal criteria\'s will be used the next time the server is st" +
-                    "arted");
+        "arted");
             // 
             // SnapshotPrefix
             // 
-            this.SnapshotPrefix.Location = new System.Drawing.Point(147, 88);
+            this.SnapshotPrefix.Location = new System.Drawing.Point(147, 121);
             this.SnapshotPrefix.Name = "SnapshotPrefix";
             this.SnapshotPrefix.Size = new System.Drawing.Size(146, 20);
             this.SnapshotPrefix.TabIndex = 7;
             this.Tipsy.SetToolTip(this.SnapshotPrefix, "Prefix Snapshots with this tag. This is also your Server\'s Prefix. Multiple \r\nser" +
-                    "vers on the same IP Must use different Prefix\'s to tell which is which");
+        "vers on the same IP Must use different Prefix\'s to tell which is which");
             this.SnapshotPrefix.Validating += new System.ComponentModel.CancelEventHandler(this.SnapshotPrefix_Validating);
             // 
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(57, 91);
+            this.label10.Location = new System.Drawing.Point(57, 124);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(84, 13);
             this.label10.TabIndex = 6;
             this.label10.Text = "Snapshot Prefix:";
             this.Tipsy.SetToolTip(this.label10, "Prefix Snapshots with this tag. This is also your Server\'s Prefix. Multiple \r\nser" +
-                    "vers on the same IP Must use different Prefix\'s to tell which is which");
+        "vers on the same IP Must use different Prefix\'s to tell which is which");
             // 
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(45, 62);
+            this.label9.Location = new System.Drawing.Point(45, 95);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(96, 13);
             this.label9.TabIndex = 5;
@@ -402,7 +402,7 @@
             "Disabled",
             "Enabled",
             "Only on Error"});
-            this.Logging.Location = new System.Drawing.Point(147, 59);
+            this.Logging.Location = new System.Drawing.Point(147, 92);
             this.Logging.Name = "Logging";
             this.Logging.Size = new System.Drawing.Size(146, 21);
             this.Logging.TabIndex = 4;
@@ -411,7 +411,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(79, 32);
+            this.label1.Location = new System.Drawing.Point(79, 65);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(62, 13);
             this.label1.TabIndex = 3;
@@ -425,7 +425,7 @@
             this.Debugging.Items.AddRange(new object[] {
             "Disabled",
             "Enabled"});
-            this.Debugging.Location = new System.Drawing.Point(147, 29);
+            this.Debugging.Location = new System.Drawing.Point(147, 62);
             this.Debugging.Name = "Debugging";
             this.Debugging.Size = new System.Drawing.Size(146, 21);
             this.Debugging.TabIndex = 2;
@@ -491,7 +491,7 @@
             this.CmBanCount.TabIndex = 22;
             this.CmBanCount.ThousandsSeparator = true;
             this.Tipsy.SetToolTip(this.CmBanCount, "A player with more then this many bans, will not be allowed to join your server.\r" +
-                    "\n\r\nPermBan is ALWAY BlackListed.");
+        "\n\r\nPermBan is ALWAY BlackListed.");
             // 
             // CmGlobalTime
             // 
@@ -550,7 +550,7 @@
             this.label20.TabIndex = 16;
             this.label20.Text = "Max Ban Count:";
             this.Tipsy.SetToolTip(this.label20, "A player with more then this many bans, will not be allowed to join your server.\r" +
-                    "\n\r\nPermBan is ALWAY BlackListed.");
+        "\n\r\nPermBan is ALWAY BlackListed.");
             // 
             // label19
             // 
@@ -779,8 +779,6 @@
         private System.Windows.Forms.ComboBox Debugging;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.ComboBox MedalData;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.ComboBox ForceKeyString;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.ComboBox CmServerMode;
@@ -807,5 +805,7 @@
         private System.Windows.Forms.NumericUpDown CmGlobalTime;
         private System.Windows.Forms.ToolTip Tipsy;
         private System.Windows.Forms.NumericUpDown CmKDRatio;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.ComboBox RankMode;
     }
 }

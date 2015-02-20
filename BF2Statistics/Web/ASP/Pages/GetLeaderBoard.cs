@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using BF2Statistics.Database;
-using BF2Statistics.Database.QueryBuilder;
 
 namespace BF2Statistics.Web.ASP
 {
+    /// <summary>
+    /// /ASP/getleaderboard.aspx
+    /// </summary>
     class GetLeaderBoard
     {
         private ASPResponse Response;

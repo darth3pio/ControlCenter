@@ -10,8 +10,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BF2Statistics</RootNamespace>
     <AssemblyName>BF2Statistics</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
@@ -38,6 +39,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -47,6 +49,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Logo.ico</ApplicationIcon>
@@ -59,13 +62,15 @@
       <HintPath>..\Libraries\FreeImageNET.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="Microsoft.VisualBasic.PowerPacks.Vs, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualBasic.PowerPacks.Vs, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <Private>True</Private>
+    </Reference>
     <Reference Include="MySql.Data, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SQLite, Version=1.0.92.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+    <Reference Include="System.Data.SQLite, Version=1.0.94.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\System.Data.SQLite.dll</HintPath>
     </Reference>
@@ -80,7 +85,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ASP\Ip2nation.cs" />
-    <Compile Include="ASP\PidManager.cs" />
+    <Compile Include="Extensions\ListExtensions.cs" />
+    <Compile Include="Utilities\ConcurrentEventQueue.cs" />
     <Compile Include="ASP\StatsManager.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Forms\DatabaseConfigForm.cs">
@@ -167,12 +173,6 @@
       <DependentUpon>EAStatsImportForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions\DateExtensions.cs" />
-    <None Include="Forms\AlertForm.cs">
-      <SubType>Form</SubType>
-    </None>
-    <None Include="Forms\AlertForm.Designer.cs">
-      <DependentUpon>AlertForm.cs</DependentUpon>
-    </None>
     <Compile Include="Database\QueryBuilder\Enum.cs" />
     <Compile Include="Database\QueryBuilder\InsertQueryBuilder.cs" />
     <Compile Include="Database\QueryBuilder\JoinClause.cs" />
@@ -336,7 +336,6 @@
       <DependentUpon>AccountListForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Gamespy\GamespyUtils.cs" />
-    <Compile Include="Gamespy\Gpcm\ClientList.cs" />
     <Compile Include="Gamespy\Gpcm\GpcmClient.cs" />
     <Compile Include="Gamespy\Gpcm\GpcmServer.cs" />
     <Compile Include="Gamespy\Gpsp\GpspClient.cs" />
@@ -387,12 +386,6 @@
     </Compile>
     <Compile Include="Forms\S2hmsForm.Designer.cs">
       <DependentUpon>S2hmsForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\MedalData\SaveForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\MedalData\SaveForm.Designer.cs">
-      <DependentUpon>SaveForm.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Resources\Ai\AIDefault.ai" />
     <None Include="Ip2nation.db">
@@ -457,7 +450,7 @@
     <None Include="Resources\question_button.png" />
     <None Include="Resources\Password_dots.png" />
     <Content Include="SQLite.Interop.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Web\Bf2Stats\TheaterData.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -485,9 +478,6 @@
     <EmbeddedResource Include="Forms\ASP\EAStatsImportForm.resx">
       <DependentUpon>EAStatsImportForm.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="Forms\AlertForm.resx">
-      <DependentUpon>AlertForm.cs</DependentUpon>
-    </None>
     <EmbeddedResource Include="Forms\ExceptionForm.resx">
       <DependentUpon>ExceptionForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -520,9 +510,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\MedalData\ObjectStatForm.resx">
       <DependentUpon>ObjectStatForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\MedalData\SaveForm.resx">
-      <DependentUpon>SaveForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\MedalData\ScoreStatForm.resx">
       <DependentUpon>ScoreStatForm.cs</DependentUpon>
@@ -3825,7 +3812,7 @@
     <Content Include="FreeImage.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Logo.ico" />
+    <EmbeddedResource Include="Logo.ico" />
     <EmbeddedResource Include="SQL\SQLite.Stats.sql" />
     <None Include="Resources\e_logo.png" />
     <EmbeddedResource Include="SQL\Ip2nation.sql" />

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 
 namespace BF2Statistics
@@ -25,7 +22,7 @@ namespace BF2Statistics
         /// <summary>
         /// Indicates whether the server has the ranked python files installed
         /// </summary>
-        public static bool StatsEnabled
+        public static bool Installed
         {
             get 
             { 
@@ -46,7 +43,7 @@ namespace BF2Statistics
             get
             {
                 // Make sure stats are enabled
-                if (!StatsEnabled)
+                if (!Installed)
                     throw new Exception("Cannot load Bf2StatisticsConfig.py, Stats are not enabled!");
 
                 // Make sure config has been Initiated
@@ -63,7 +60,7 @@ namespace BF2Statistics
         /// </summary>
         public static void BackupAndInstall()
         {
-            if (StatsEnabled)
+            if (Installed)
                 return;
 
             // Make sure we arent Ambiguous. If the backup folder exists, just leave it!!!
@@ -72,13 +69,11 @@ namespace BF2Statistics
             {
                 Directory.Delete(StatsBackupPath, true);
                 Directory.Delete(BF2Server.PythonPath, true);
-                //System.Threading.Thread.Sleep(750);
             }
             else
             {
                 // move the current "normal" files over to the backup path
                 Directory.Move(BF2Server.PythonPath, BackupPath);
-                //System.Threading.Thread.Sleep(750);
             }
 
             // Make sure we dont have an empty backup folder
@@ -96,19 +91,15 @@ namespace BF2Statistics
         /// </summary>
         public static void RemoveAndRestore()
         {
-            if (!StatsEnabled)
+            if (!Installed)
                 return;
 
             // Make sure we dont have a pending error here
             if (Directory.Exists(StatsBackupPath))
-            {
                 Directory.Delete(StatsBackupPath, true);
-                //System.Threading.Thread.Sleep(750);
-            }
 
             // Backup the users new bf2s python files
             Directory.Move(BF2Server.PythonPath, StatsBackupPath);
-            //System.Threading.Thread.Sleep(750);
 
             // Make sure we have a backup folder!!
             if (!Directory.Exists(BackupPath))
@@ -131,18 +122,14 @@ namespace BF2Statistics
         /// </summary>
         public static void RestoreRankedPyFiles()
         {
-            if (StatsEnabled)
-            {
-                Directory.Delete(BF2Server.PythonPath, true);
-                //System.Threading.Thread.Sleep(750);
-                DirectoryExt.Copy(Paths.RankedPythonPath, BF2Server.PythonPath, true);
-            }
-            else
-            {
-                Directory.Delete(StatsBackupPath, true);
-                //System.Threading.Thread.Sleep(750);
-                DirectoryExt.Copy(Paths.RankedPythonPath, StatsBackupPath, true);
-            }
+            // Use my handy extension method to Copy over the files without deleting
+            // any medal profiles or custom scripts
+            DirectoryExt.Copy(
+                Paths.RankedPythonPath,
+                (Installed) ? BF2Server.PythonPath : StatsBackupPath, 
+                true, 
+                true
+            );
         }
     }
 }

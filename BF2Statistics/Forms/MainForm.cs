@@ -1,23 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.IO;
-using System.Xml;
 using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Runtime.InteropServices;
-using BF2Statistics.Properties;
-using BF2Statistics.ASP.StatsProcessor;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using BF2Statistics.ASP;
 using BF2Statistics.Gamespy;
-using BF2Statistics.Logging;
+using BF2Statistics.Properties;
 using BF2Statistics.Utilities;
 using BF2Statistics.Web;
 
@@ -56,9 +51,15 @@ namespace BF2Statistics
         public static bool RedirectsEnabled { get; protected set; }
 
         /// <summary>
-        /// A Background worker used for Hosts file redirects
+        /// The task object that is uesd to rebuild the DNS cache
         /// </summary>
-        private BackgroundWorker HostsWorker = new BackgroundWorker();
+        private Task HostTask;
+
+        /// <summary>
+        /// The cancellation token used to cancel the HostTask if the user
+        /// undo's the redirects while the HostTask is still running
+        /// </summary>
+        private CancellationTokenSource HostTaskSource;
 
         /// <summary>
         /// Our Gamespy Available Server
@@ -89,9 +90,6 @@ namespace BF2Statistics
             // Set BF2Statistics Install Status
             SetInstallStatus();
 
-            // Get snapshot counts
-            CountSnapshots();
-
             // Try to access the hosts file
             DoHOSTSCheck();
 
@@ -100,7 +98,7 @@ namespace BF2Statistics
             GlobalServerSettings.Checked = Config.UseGlobalSettings;
             ShowConsole.Checked = Config.ShowServerConsole;
             MinimizeConsole.Checked = Config.MinimizeServerConsole;
-            IgnoreAsserts.Checked = Config.ServerIgnoreAsserts;
+            ForceAiBots.Checked = Config.ServerForceAi;
             FileMoniter.Checked = Config.ServerFileMoniter;
             GpcmAddress.Text = (!String.IsNullOrWhiteSpace(Config.LastLoginServerAddress)) ? Config.LastLoginServerAddress : "localhost";
             Bf2webAddress.Text = (!String.IsNullOrWhiteSpace(Config.LastStatsServerAddress)) ? Config.LastStatsServerAddress : "localhost";
@@ -113,24 +111,24 @@ namespace BF2Statistics
             AvailServer = new Bf2Available();
 
             // Register for ASP events
-            HttpServer.Started += new EventHandler(ASPServer_OnStart);
-            HttpServer.Stopped += new EventHandler(ASPServer_OnShutdown);
-            HttpServer.RequestRecieved += new AspRequest(ASPServer_ClientConnected);
-            Snapshot.SnapshotProcessed += new SnapshotProccessed(Snapshot_SnapshotProccessed);
-            Web.ASP.SnapshotPost.SnapshotReceived += new SnapshotRecieved(SnapshotPost_SnapshotReceived);
+            HttpServer.Started += ASPServer_OnStart;
+            HttpServer.Stopped += ASPServer_OnShutdown;
+            HttpServer.RequestRecieved += ASPServer_ClientConnected;
+            StatsManager.SnapshotProcessed += StatsManager_SnapshotProccessed;
+            StatsManager.SnapshotReceived += StatsManager_SnapshotReceived;
 
             // Register for Login server events
-            LoginServer.OnStart += new StartupEventHandler(LoginServer_OnStart);
-            LoginServer.OnShutdown += new ShutdownEventHandler(LoginServer_OnShutdown);
-            LoginServer.OnUpdate += new EventHandler(LoginServer_OnUpdate);
+            LoginServer.Started += LoginServer_OnStart;
+            LoginServer.Stopped += LoginServer_OnShutdown;
+            LoginServer.OnUpdate += LoginServer_OnUpdate;
 
             // Register for BF2 Server events
-            BF2Server.Started += new ServerChangedEvent(BF2Server_Started);
-            BF2Server.Exited += new ServerChangedEvent(BF2Server_Exited);
-            BF2Server.ServerPathChanged += new ServerChangedEvent(BF2Server_ServerPathChanged);
+            BF2Server.Started += BF2Server_Started;
+            BF2Server.Exited += BF2Server_Exited;
+            BF2Server.ServerPathChanged += LoadModList;
 
             // Initial setup
-            if (BF2Server.IsRunning) 
+            if (BF2Server.IsRunning)
                 this.Shown += (s, e) => BF2Server_Started();
 
             // Add administrator title to program title bar
@@ -138,11 +136,11 @@ namespace BF2Statistics
                 this.Text += " (Administrator)";
 
             // Set server tooltips
-            Tipsy.SetToolTip(LoginStatusPic, "Login server is currently offline.");
+            Tipsy.SetToolTip(LoginStatusPic, "Login server is currently offline");
             Tipsy.SetToolTip(AspStatusPic, "Asp server is currently offline");
+            Tipsy.SetToolTip(labelSnapshotsProc, "Processed / Received");
             SysIcon = NotificationIcon;
         }
-
 
         #region Startup Methods
 
@@ -151,15 +149,26 @@ namespace BF2Statistics
         /// </summary>
         private void SetInstallStatus()
         {
-            if (StatsPython.StatsEnabled)
+            // Cross Threaded Crap
+            if (StatsPython.Installed)
             {
                 InstallBox.ForeColor = Color.Green;
                 InstallBox.Text = "BF2 Statistics server files are currently installed.";
                 BF2sInstallBtn.Text = "Uninstall BF2 Statistics Python";
                 BF2sConfigBtn.Enabled = true;
                 BF2sEditMedalDataBtn.Enabled = true;
-                StatsStatusPic.Image = Resources.check;
-                Tipsy.SetToolTip(StatsStatusPic, "BF2 Statistics server files are currently installed."); 
+
+                // Updated status based on Ranked Mode Status
+                if (StatsPython.Config.StatsEnabled)
+                {
+                    StatsStatusPic.Image = Resources.check;
+                    Tipsy.SetToolTip(StatsStatusPic, "BF2 Server Stats are Enabled (Ranked)");
+                }
+                else
+                {
+                    StatsStatusPic.Image = Resources.error;
+                    Tipsy.SetToolTip(StatsStatusPic, "BF2 Server Stats are Disabled (Non-Ranked)");
+                }
             }
             else
             {
@@ -169,7 +178,7 @@ namespace BF2Statistics
                 BF2sConfigBtn.Enabled = false;
                 BF2sEditMedalDataBtn.Enabled = false;
                 StatsStatusPic.Image = Resources.error;
-                Tipsy.SetToolTip(StatsStatusPic, "BF2 Statistics server files are currently NOT installed"); 
+                Tipsy.SetToolTip(StatsStatusPic, "BF2 Statistics server files are currently NOT installed");
             }
         }
 
@@ -192,6 +201,15 @@ namespace BF2Statistics
             // Make sure we have a mod selected. This can fail to happen in the bf2 mod folder is changed
             if (ModSelectList.SelectedIndex == -1)
                 ModSelectList.SelectedIndex = 0;
+
+            // Add errors to icon
+            if (BF2Server.ModLoadErrors.Count > 0)
+            {
+                ModStatusPic.Visible = true;
+                Tipsy.SetToolTip(ModStatusPic, " * " + String.Join(Environment.NewLine.Repeat(1) + " * ", BF2Server.ModLoadErrors), true, 10000);
+            }
+            else
+                ModStatusPic.Visible = false;
         }
 
         /// <summary>
@@ -258,10 +276,30 @@ namespace BF2Statistics
         /// </summary>
         private void CountSnapshots()
         {
-            /// Unprocessed
-            TotalUnProcSnapCount.Text = Directory.GetFiles(Paths.SnapshotTempPath).Length.ToString();
-            // Processed
-            TotalSnapCount.Text = Directory.GetFiles(Paths.SnapshotProcPath).Length.ToString();
+            BeginInvoke((Action)delegate
+            {
+                /// Unprocessed
+                TotalUnProcSnapCount.Text = Directory.GetFiles(Paths.SnapshotTempPath).Length.ToString();
+                // Processed
+                TotalSnapCount.Text = Directory.GetFiles(Paths.SnapshotProcPath).Length.ToString();
+            });
+        }
+
+        /// <summary>
+        /// Builds the Login Tabs client list
+        /// </summary>
+        private void BuildClientsList()
+        {
+            StringBuilder Sb = new StringBuilder();
+            foreach (GpcmClient C in LoginServer.ConnectedClients)
+                Sb.AppendFormat(" {0} ({1}) - {2}{3}", C.ClientNick, C.ClientPID, C.IpAddress, Environment.NewLine);
+
+            // Update connected clients count, and list, on main thread
+            BeginInvoke((Action)delegate
+            {
+                ConnectedClients.Clear();
+                ConnectedClients.Text = Sb.ToString();
+            });
         }
 
         #endregion Startup Methods
@@ -271,39 +309,52 @@ namespace BF2Statistics
         /// <summary>
         /// Event fired when the Launch emulator button is pushed
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void LaunchEmuBtn_Click(object sender, EventArgs e)
+        private async void LaunchEmuBtn_Click(object sender, EventArgs e)
         {
             if (!LoginServer.IsRunning)
             {
+                // Make sure the Http web server is running, Cant generate PID's
+                // for accounts if the ASP isnt up :P
+                if (!HttpServer.IsRunning)
+                {
+                    DialogResult Res = MessageBox.Show(
+                        "The Login Server needs to be able to communicate with the ASP Stats server."
+                        + Environment.NewLine.Repeat(1)
+                        + "Would you like to start the ASP stats server now?",
+                        "Asp Stats Server Required",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning
+                    );
+
+                    // Start HTTP server if the user requests
+                    if (Res == DialogResult.Yes)
+                        StartAspServerBtn_Click(sender, e);
+
+                    return;
+                }
+
+                // Start the loading process
                 LaunchEmuBtn.Enabled = false;
                 StartLoginserverBtn.Enabled = false;
                 LoginStatusPic.Image = Resources.loading;
 
-                // Start Servers in another thread, Dont want MySQL locking up the GUI
-                ThreadPool.QueueUserWorkItem((o) =>
+                // Await Servers Async, Dont want MySQL locking up the GUI
+                try
                 {
-                    try
-                    {
-                        LoginServer.Start();
-                    }
-                    catch (Exception E)
-                    {
-                        // Exception message will already be there
-                        BeginInvoke((Action)delegate
-                        {
-                            LoginStatusPic.Image = Resources.warning;
-                            StartLoginserverBtn.Enabled = true;
-                            LaunchEmuBtn.Enabled = true;
-                            Tipsy.SetToolTip(LoginStatusPic, E.Message);
+                    await Task.Run(() => { LoginServer.Start(); });
+                }
+                catch (Exception E)
+                {
+                    // Exception message will already be there
+                    LoginStatusPic.Image = Resources.warning;
+                    StartLoginserverBtn.Enabled = true;
+                    LaunchEmuBtn.Enabled = true;
+                    Tipsy.SetToolTip(LoginStatusPic, E.Message);
 
-                            // Show the DB exception form if its a DB connection error
-                            if (E is DbConnectException)
-                                ExceptionForm.ShowDbConnectError(E as DbConnectException);
-                        });
-                    }
-                });
+                    // Show the DB exception form if its a DB connection error
+                    if (E is DbConnectException)
+                        ExceptionForm.ShowDbConnectError(E as DbConnectException);
+                }
             }
             else
             {
@@ -315,152 +366,138 @@ namespace BF2Statistics
         /// <summary>
         /// Client Launcher Button Click
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void LaunchClientBtn_Click(object sender, EventArgs e)
+        private async void LaunchClientBtn_Click(object sender, EventArgs e)
         {
             // Lock button to prevent spam
             LaunchClientBtn.Enabled = false;
 
-            // Start Servers in another thread, Dont want MySQL locking up the GUI
-            ThreadPool.QueueUserWorkItem((o) =>
+            // Launching
+            if (ClientProcess == null)
             {
-                if (ClientProcess == null)
+                // Make sure the Bf2 client supports this mod
+                if (!Directory.Exists(Path.Combine(Config.ClientPath, "mods", SelectedMod.Name)))
                 {
-                    // Make sure the Bf2 client supports this mod
-                    if (!Directory.Exists(Path.Combine(Config.ClientPath, "mods", SelectedMod.Name)))
+                    MessageBox.Show("The Battlefield 2 client installation does not have the selected mod installed." +
+                        " Please install the mod before launching the BF2 client", "Mod Error", MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                    return;
+                }
+
+                // Test the ASP stats service here if redirects are enabled. 
+                if (RedirectsEnabled && HostsFile.HasEntry("bf2web.gamespy.com"))
+                {
+                    IPAddress foundIp = null;
+
+                    // First things first, we fecth the IP address from the DNS cache of our stats server
+                    try
                     {
-                        MessageBox.Show("The Battlefield 2 client installation does not have the selected mod installed." +
-                            " Please install the mod before launching the BF2 client", "Mod Error", MessageBoxButtons.OK,
-                            MessageBoxIcon.Exclamation);
+                        // If we are unable to fecth any IP address at all, that means HOSTS file isnt working
+                        if (!Networking.TryGetIpAddress("bf2web.gamespy.com", out foundIp))
+                            throw new Exception(
+                                "Failed to obtain the IP address for the ASP stats server from Windows DNS. Most likely the HOSTS "
+                                + "file cannot be read by windows (permissions too strict for system)"
+                            );
+
+                        // Hosts file doesnt match whats been found in the cache
+                        if (!foundIp.Equals(IPAddress.Parse(HostsFile.Get("bf2web.gamespy.com"))))
+                            throw new Exception(
+                                "HOSTS file IP address does not match the IP address found by Windows DNS."
+                                + Environment.NewLine
+                                + "Expected: " + HostsFile.Get("bf2web.gamespy.com") + "; Found: " + foundIp.ToString()
+                                + Environment.NewLine + "This error can be caused if the HOSTS file cannot be read by windows "
+                                + "(Ex: permissions too strict for System)"
+                            );
+                    }
+                    catch (Exception Ex)
+                    {
+                        // ALert user
+                        MessageBox.Show(
+                            Ex.Message + Environment.NewLine.Repeat(1)
+                            + "You may choose to ignore this message and continue, but note that stats may not be working correctly in the BFHQ.",
+                            "Stats Redirect Error",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning
+                        );
+
+                        // Unlock Btn
+                        LaunchClientBtn.Enabled = true;
                         return;
                     }
 
-                    // Test the ASP stats service here if redirects are enabled. 
-                    if (RedirectsEnabled && HostsFile.HasEntry("bf2web.gamespy.com"))
+                    // Loopback for the Retry Button
+                CheckAsp:
                     {
-                        IPAddress foundIp = null;
-
-                        // First things first, we fecth the IP address from the DNS cache of our stats server
                         try
                         {
-                            // If we are unable to fecth any IP address at all, that means HOSTS file isnt working
-                            if (!Networking.TryGetIpAddress("bf2web.gamespy.com", out foundIp))
-                                throw new Exception(
-                                    "Failed to obtain the IP address for the ASP stats server from Windows DNS. Most likely the HOSTS "
-                                    + "file cannot be read by windows (permissions too strict for system)"
-                                );
-
-                            // Hosts file doesnt match whats been found in the cache
-                            if (!foundIp.Equals(IPAddress.Parse(HostsFile.Get("bf2web.gamespy.com"))))
-                                throw new Exception(
-                                    "HOSTS file IP address does not match the IP address found by Windows DNS."
-                                    + Environment.NewLine
-                                    + "Expected: " + HostsFile.Get("bf2web.gamespy.com") + "; Found: " + foundIp.ToString()
-                                    + Environment.NewLine + "This error can be caused if the HOSTS file cannot be read by windows "
-                                    + "(Ex: permissions too strict for System)"
-                                );
+                            // Check ASP service
+                            await Task.Run(() => StatsManager.ValidateASPService("http://" + foundIp));
                         }
                         catch (Exception Ex)
                         {
                             // ALert user
-                            MessageBox.Show(
-                                Ex.Message + Environment.NewLine + Environment.NewLine
-                                + "You may choose to ignore this message and continue, but note that stats may not be working correctly in the BFHQ.",
-                                "Stats Redirect Error",
-                                MessageBoxButtons.OK,
+                            DialogResult Res = MessageBox.Show(
+                                "There was an error trying to validate The ASP Stats server defined in your HOSTS file."
+                                + Environment.NewLine.Repeat(1)
+                                + "Error Message: " + Ex.Message + Environment.NewLine
+                                + "Server Address: " + foundIp
+                                + Environment.NewLine.Repeat(1)
+                                + "You may choose to ignore this message and continue, but note that stats will not be working correctly in the BFHQ.",
+                                "Stats Server Verification",
+                                MessageBoxButtons.AbortRetryIgnore,
                                 MessageBoxIcon.Warning
                             );
 
-                            // Unlock Btn
-                            BeginInvoke((Action)delegate { LaunchClientBtn.Enabled = true; });
-                            return;
-                        }
-
-                        // Loopback for the Retry Button
-                        CheckAsp:
-                        {
-
-                            try
+                            // User Button Selection
+                            if (Res == DialogResult.Retry)
                             {
-                                // Check ASP service
-                                ASP.StatsManager.CheckASPService("http://" + foundIp);
+                                goto CheckAsp;
                             }
-                            catch (Exception Ex)
+                            else if (Res == DialogResult.Abort || Res != DialogResult.Ignore)
                             {
-                                // ALert user
-                                DialogResult Res = MessageBox.Show(
-                                    "There was an error trying to validate The ASP Stats server defined in your HOSTS file."
-                                    + Environment.NewLine + Environment.NewLine
-                                    + "Error Message: " + Ex.Message + Environment.NewLine
-                                    + "Server Address: " + foundIp
-                                    + Environment.NewLine + Environment.NewLine
-                                    + "You may choose to ignore this message and continue, but note that stats will not be working correctly in the BFHQ.",
-                                    "Stats Server Verification",
-                                    MessageBoxButtons.AbortRetryIgnore,
-                                    MessageBoxIcon.Warning
-                                );
-
-                                // User Button Selection
-                                if (Res == DialogResult.Retry)
-                                {
-                                    goto CheckAsp;
-                                }
-                                else if (Res == DialogResult.Abort || Res != DialogResult.Ignore)
-                                {
-                                    // Unlock Btn
-                                    BeginInvoke((Action)delegate { LaunchClientBtn.Enabled = true; });
-                                    return;
-                                }
-
+                                // Unlock Btn
+                                LaunchClientBtn.Enabled = true;
+                                return;
                             }
                         }
                     }
-
-                    // Start new BF2 proccess
-                    ProcessStartInfo Info = new ProcessStartInfo();
-                    Info.Arguments = String.Format(" +modPath mods/{0} {1}", SelectedMod.Name, ParamBox.Text.Trim());
-                    Info.FileName = "bf2.exe";
-                    Info.WorkingDirectory = Config.ClientPath;
-                    ClientProcess = Process.Start(Info);
-
-                    // Hook into the proccess so we know when its running, and register a closing event
-                    ClientProcess.EnableRaisingEvents = true;
-                    ClientProcess.Exited += new EventHandler(BF2Client_Exited);
-
-                    // Update button
-                    BeginInvoke((Action)delegate
-                    {
-                        LaunchClientBtn.Enabled = true;
-                        LaunchClientBtn.Text = "Shutdown Battlefield 2";
-                    });
                 }
-                else
+
+                // Start new BF2 proccess
+                ProcessStartInfo Info = new ProcessStartInfo();
+                Info.Arguments = String.Format(" +modPath mods/{0} {1}", SelectedMod.Name, ParamBox.Text.Trim());
+                Info.FileName = "bf2.exe";
+                Info.WorkingDirectory = Config.ClientPath;
+                ClientProcess = Process.Start(Info);
+
+                // Hook into the proccess so we know when its running, and register a closing event
+                ClientProcess.EnableRaisingEvents = true;
+                ClientProcess.Exited += new EventHandler(BF2Client_Exited);
+
+                // Update button
+                LaunchClientBtn.Enabled = true;
+                LaunchClientBtn.Text = "Shutdown Battlefield 2";
+            }
+            else
+            {
+                try
                 {
-                    try
-                    {
-                        // Make this Cross Thread Safe
-                        BeginInvoke((Action)delegate
-                        {
-                            this.Enabled = false;
-                            LoadingForm.ShowScreen(this);
-                            ClientProcess.Kill();
-                        });
-                    }
-                    catch (Exception E)
-                    {
-                        MessageBox.Show("Unable to stop Battlefield 2 client process!" + Environment.NewLine + Environment.NewLine +
-                            E.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    // prevent button spam
+                    this.Enabled = false;
+                    LoadingForm.ShowScreen(this);
+                    ClientProcess.Kill();
                 }
-            });
+                catch (Exception E)
+                {
+                    MessageBox.Show("Unable to stop Battlefield 2 client process!"
+                        + Environment.NewLine.Repeat(1) + E.Message,
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         /// <summary>
         /// Event fired when Server has exited
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void BF2Client_Exited(object sender, EventArgs e)
         {
             // Make this cross thread safe
@@ -478,105 +515,99 @@ namespace BF2Statistics
         /// <summary>
         /// Server Launcher Button Click
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void LaunchServerBtn_Click(object sender, EventArgs e)
+        private async void LaunchServerBtn_Click(object sender, EventArgs e)
         {
             // Show the loading icon
             ServerStatusPic.Image = Resources.loading;
 
-            // Do this in a New thread to prevent lockups on the main thread
-            ThreadPool.QueueUserWorkItem((object o) =>
+            // === Starting Server
+            if (!BF2Server.IsRunning)
             {
-                // === Starting Server
-                if (!BF2Server.IsRunning)
+                // We are going to test the ASP stats service here if stats are enabled. 
+                // I coded this because it sucks to get ingame and everyone's stats are reset
+                // because you forgot to start the stats server, or some kind of error.
+                // The BF2 server will continue to load, even if it cant connect
+                if (StatsPython.Installed && StatsPython.Config.StatsEnabled)
                 {
-                    // We are going to test the ASP stats service here if stats are enabled. 
-                    // I coded this because it sucks to get ingame and everyone's stats are reset
-                    // because you forgot to start the stats server, or some kind of error.
-                    // The BF2 server will continue to load, even if it cant connect
-                    if (StatsPython.StatsEnabled)
+                    // Loopback for the Retry Button
+                    CheckAsp:
                     {
-                        // Loopback for the Retry Button
-                        CheckAsp:
+                        try
                         {
-                            try
-                            {
-                                ASP.StatsManager.CheckASPService("http://" + StatsPython.Config.AspAddress);
-                            }
-                            catch (Exception Ex)
-                            {
-                                // ALert user
-                                DialogResult Res = MessageBox.Show(
-                                    "Unable to connect to the Stats ASP webservice defined in the BF2Statistics config! "
-                                    + "Please double check your Asp Server settings and check that your ASP server is running."
-                                    + Environment.NewLine + Environment.NewLine
-                                    + "Server Address: http://" + StatsPython.Config.AspAddress + Environment.NewLine
-                                    + "Error Message: " + Ex.Message,
-                                    "Stats Server Connection Failure",
-                                    MessageBoxButtons.AbortRetryIgnore,
-                                    MessageBoxIcon.Warning
-                                );
+                            // Check ASP service
+                            await Task.Run(() => StatsManager.ValidateASPService("http://" + StatsPython.Config.AspAddress));
+                        }
+                        catch (Exception Ex)
+                        {
+                            // ALert user
+                            DialogResult Res = MessageBox.Show(
+                                "Unable to connect to the Stats ASP webservice defined in the BF2Statistics config! "
+                                + "Please double check your Asp Server settings and check that your ASP server is running."
+                                + Environment.NewLine.Repeat(1)
+                                + "Server Address: http://" + StatsPython.Config.AspAddress + Environment.NewLine
+                                + "Error Message: " + Ex.Message,
+                                "Stats Server Connection Failure",
+                                MessageBoxButtons.AbortRetryIgnore,
+                                MessageBoxIcon.Warning
+                            );
 
-                                // User Button Selection
-                                if (Res == DialogResult.Retry)
-                                {
-                                    goto CheckAsp;
-                                }
-                                else if (Res == DialogResult.Abort || Res != DialogResult.Ignore)
-                                {
-                                    // Reset image
-                                    ServerStatusPic.Image = Resources.error;
-                                    return;
-                                }
-                                
+                            // User Button Selection
+                            if (Res == DialogResult.Retry)
+                            {
+                                goto CheckAsp;
                             }
+                            else if (Res == DialogResult.Abort || Res != DialogResult.Ignore)
+                            {
+                                // Reset image
+                                ServerStatusPic.Image = Resources.error;
+                                return;
+                            }
+
                         }
                     }
-
-                    // Use the global server settings file?
-                    string Arguments = "";
-                    if (GlobalServerSettings.Checked)
-                        Arguments += " +config \"" + Path.Combine(Program.RootPath, "Python", "GlobalServerSettings.con") + "\"";
-
-                    // Moniter Con Files?
-                    if (FileMoniter.Checked)
-                        Arguments += " +fileMonitor 1";
-
-                    // Ignore Asserts? (Non-Fetal Startup Errors)
-                    if (IgnoreAsserts.Checked)
-                        Arguments += " +ignoreAsserts 1";
-
-                    // Start the server
-                    try
-                    {
-                        BF2Server.Start(SelectedMod, Arguments, ShowConsole.Checked, MinimizeConsole.Checked);
-                    }
-                    catch(Exception Ex)
-                    {
-                        MessageBox.Show("Unable to start the BF2 server process!" + Environment.NewLine + Environment.NewLine +
-                            Ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
                 }
-                else
+
+                // Use the global server settings file?
+                string Arguments = "";
+                if (GlobalServerSettings.Checked)
+                    Arguments += " +config \"" + Path.Combine(Program.RootPath, "Python", "GlobalServerSettings.con") + "\"";
+
+                // Moniter Con Files?
+                if (FileMoniter.Checked)
+                    Arguments += " +fileMonitor 1";
+
+                // Force AI Bots?
+                if (ForceAiBots.Checked)
+                    Arguments += " +ai 1";
+
+                // Start the server
+                try
                 {
-                    try
-                    {
-                        // Make this cross thread safe
-                        BeginInvoke((Action)delegate
-                        {
-                            this.Enabled = false;
-                            LoadingForm.ShowScreen(this);
-                            BF2Server.Stop();
-                        });
-                    }
-                    catch (Exception E)
-                    {
-                        MessageBox.Show("Unable to stop the BF2 server process!" + Environment.NewLine + Environment.NewLine +
-                            E.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    BF2Server.Start(SelectedMod, Arguments, ShowConsole.Checked, MinimizeConsole.Checked);
                 }
-            });
+                catch (Exception Ex)
+                {
+                    MessageBox.Show("Unable to start the BF2 server process!"
+                        + Environment.NewLine.Repeat(1) + Ex.Message,
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                try
+                {
+                    // Prevent button spam
+                    this.Enabled = false;
+                    LoadingForm.ShowScreen(this);
+                    BF2Server.Stop();
+                }
+                catch (Exception E)
+                {
+                    MessageBox.Show("Unable to stop the BF2 server process!"
+                        + Environment.NewLine.Repeat(1) + E.Message,
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         /// <summary>
@@ -617,11 +648,9 @@ namespace BF2Statistics
         /// <summary>
         /// Event fired when the selected mod changes
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ModSelectList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            SelectedMod = (BF2Mod) ModSelectList.SelectedItem;
+            SelectedMod = (BF2Mod)ModSelectList.SelectedItem;
             string Mapname, Type, Size;
             SelectedMod.GetNextMapToBePlayed(out Mapname, out Type, out Size);
 
@@ -683,8 +712,6 @@ namespace BF2Statistics
         /// <summary>
         /// Event fired when the Extra Params button is clicked
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ExtraParamBtn_Click(object sender, EventArgs e)
         {
             ClientParamsForm F = new ClientParamsForm(ParamBox.Text);
@@ -713,6 +740,7 @@ namespace BF2Statistics
                 EditAcctBtn.Enabled = true;
                 LoginStatusLabel.Text = "Running";
                 LoginStatusLabel.ForeColor = Color.LimeGreen;
+                Tipsy.SetToolTip(LoginStatusPic, "Login server is Running");
             });
         }
 
@@ -735,6 +763,7 @@ namespace BF2Statistics
                 EditAcctBtn.Enabled = false;
                 LoginStatusLabel.Text = "Stopped";
                 LoginStatusLabel.ForeColor = SystemColors.ControlDark;
+                Tipsy.SetToolTip(LoginStatusPic, "Login server is currently offline");
             });
         }
 
@@ -746,22 +775,18 @@ namespace BF2Statistics
         private void LoginServer_OnUpdate(object sender, EventArgs e)
         {
             // DO processing in this thread
-            StringBuilder SB = new StringBuilder();
-            List<GpcmClient> Clients = ((ClientList)e).Clients;
             int PeakClients = Int32.Parse(labelPeakClients.Text);
-            if (PeakClients < Clients.Count)
-                PeakClients = Clients.Count;
-
-            foreach (GpcmClient C in Clients)
-                SB.AppendFormat(" {0} ({1}) - {2}{3}", C.ClientNick, C.ClientPID, C.IpAddress, Environment.NewLine);
+            int Connected = LoginServer.NumClientsConencted;
+            if (PeakClients < Connected)
+                PeakClients = Connected;
 
             // Update connected clients count, and list, on main thread
             BeginInvoke((Action)delegate
             {
-                ClientCountLabel.Text = Clients.Count.ToString();
+                ClientCountLabel.Text = Connected.ToString();
                 labelPeakClients.Text = PeakClients.ToString();
-                ConnectedClients.Clear();
-                ConnectedClients.Text = SB.ToString();
+                if (tabControl1.SelectedIndex == 2 && RefreshChkBox.Checked)
+                    BuildClientsList();
             });
         }
 
@@ -787,6 +812,22 @@ namespace BF2Statistics
             Form.ShowDialog();
         }
 
+        private void RefreshChkBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (RefreshChkBox.Checked)
+                Task.Run(() => { BuildClientsList(); });
+        }
+
+        /// <summary>
+        /// This event is used to prevent the Connected Login Clients window
+        /// from being activatable, giving it the appearence of being disabled
+        /// </summary>
+        private void ConnectedClients_Enter(object sender, EventArgs e)
+        {
+            ConnectedClients.Enabled = false;
+            ConnectedClients.Enabled = true;
+        }
+
         #endregion Login Emulator Tab
 
         #region BF2s Config Tab
@@ -802,26 +843,33 @@ namespace BF2Statistics
             this.Enabled = false;
             LoadingForm.ShowScreen(this);
 
-            try
+            // Put this in a task incase the HDD is being slow (busy)
+            Task.Run(() =>
             {
-                if (!StatsPython.StatsEnabled)
-                    StatsPython.BackupAndInstall();
-                else
-                    StatsPython.RemoveAndRestore();
-            }
-            catch (Exception E)
-            {
-                Program.ErrorLog.Write("ERROR: [BF2sPythonInstall] " + E.Message);
-                throw;
-            }
-            finally
-            {
-                // Unlock now that we are done
-                System.Threading.Thread.Sleep(300);
-                SetInstallStatus();
-                this.Enabled = true;
-                LoadingForm.CloseForm();
-            }
+                try
+                {
+                    if (!StatsPython.Installed)
+                        StatsPython.BackupAndInstall();
+                    else
+                        StatsPython.RemoveAndRestore();
+                }
+                catch (Exception E)
+                {
+                    Program.ErrorLog.Write("ERROR: [BF2sPythonInstall] " + E.Message);
+                    throw;
+                }
+                finally
+                {
+                    // WE are cross threaded right now, so invoke
+                    Invoke((Action)delegate
+                    {
+                        // Unlock now that we are done
+                        SetInstallStatus();
+                        this.Enabled = true;
+                        LoadingForm.CloseForm();
+                    });
+                }
+            });
         }
 
         /// <summary>
@@ -831,13 +879,12 @@ namespace BF2Statistics
         {
             BF2sConfig Form = new BF2sConfig();
             Form.ShowDialog();
+            SetInstallStatus();
         }
 
         /// <summary>
         /// This button opens up the Medal Data Editor
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void BF2sEditMedalDataBtn_Click(object sender, EventArgs e)
         {
             MedalData.MedalDataEditor Form = new MedalData.MedalDataEditor();
@@ -866,6 +913,13 @@ namespace BF2Statistics
                 try
                 {
                     StatsPython.RestoreRankedPyFiles();
+
+                    // Reset medal data profile
+                    if (StatsPython.Installed)
+                    {
+                        StatsPython.Config.MedalDataProfile = "";
+                        StatsPython.Config.Save();
+                    }
 
                     // Show Success Message
                     Notify.Show("Stats Python Files Have Been Restored!", "Operation Successful", AlertType.Success);
@@ -903,8 +957,6 @@ namespace BF2Statistics
         /// <summary>
         /// Event fired when the Randomize Maplist button is pushed
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void RandomMapListBtn_Click(object sender, EventArgs e)
         {
             RandomizeForm F = new RandomizeForm();
@@ -930,8 +982,6 @@ namespace BF2Statistics
         /// <summary>
         /// Shows the Edit Score Settings form
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void EditScoreSettingsBtn_Click(object sender, EventArgs e)
         {
             // Show score form
@@ -946,8 +996,6 @@ namespace BF2Statistics
         /// <summary>
         /// This is the main HOSTS file button event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void RedirectButton_Click(object sender, EventArgs e)
         {
             // Clear the output window
@@ -975,7 +1023,7 @@ namespace BF2Statistics
                 if (!Bf2webCheckbox.Checked && !GpcmCheckbox.Checked)
                 {
                     MessageBox.Show(
-                        "Please select at least 1 redirect option", 
+                        "Please select at least 1 redirect option",
                         "Select an Option", MessageBoxButtons.OK, MessageBoxIcon.Information
                     );
                     return;
@@ -988,7 +1036,7 @@ namespace BF2Statistics
                 if (Bf2webCheckbox.Checked)
                 {
                     // Make sure we have a valid IP address in the address box!
-                    string text = Bf2webAddress.Text.Trim();
+                    string text = Bf2webAddress.Text.Trim().ToLower();
                     if (text.Length < 8)
                     {
                         MessageBox.Show(
@@ -1001,12 +1049,13 @@ namespace BF2Statistics
                     }
 
                     // Convert Localhost to the Loopback Address
-                    if (text.ToLower().Trim() == "localhost")
+                    if (text == "localhost")
                         text = IPAddress.Loopback.ToString();
 
                     // Check if this is an IP address or hostname
                     IPAddress BF2Web;
-                    try {
+                    try
+                    {
                         UpdateHostFileStatus("- Resolving Hostname: " + text);
                         BF2Web = Networking.GetIpAddress(text);
                         UpdateHostFileStatus("- Found IP: " + BF2Web);
@@ -1033,11 +1082,11 @@ namespace BF2Statistics
                 if (GpcmCheckbox.Checked)
                 {
                     // Make sure we have a valid IP address in the address box!
-                    string text2 = GpcmAddress.Text.Trim();
+                    string text2 = GpcmAddress.Text.Trim().ToLower();
                     if (text2.Length < 8)
                     {
                         MessageBox.Show(
-                            "You must enter an IP address or Hostname in the Address box!", 
+                            "You must enter an IP address or Hostname in the Address box!",
                             "Invalid Address", MessageBoxButtons.OK, MessageBoxIcon.Warning
                         );
                         UnlockGroups();
@@ -1046,12 +1095,13 @@ namespace BF2Statistics
                     }
 
                     // Convert Localhost to the Loopback Address
-                    if (text2.ToLower().Trim() == "localhost")
+                    if (text2 == "localhost")
                         text2 = IPAddress.Loopback.ToString();
 
                     // Make sure the IP address is valid!
                     IPAddress GpcmA;
-                    try {
+                    try
+                    {
                         UpdateHostFileStatus("- Resolving Hostname: " + text2);
                         GpcmA = Networking.GetIpAddress(text2);
                         UpdateHostFileStatus("- Found IP: " + GpcmA);
@@ -1081,10 +1131,6 @@ namespace BF2Statistics
                 // Save last used addresses
                 Config.Save();
 
-                // Create new instance of the background worker
-                HostsWorker = new BackgroundWorker();
-                HostsWorker.WorkerSupportsCancellation = true;
-
                 // Write the lines to the hosts file
                 UpdateHostFileStatus("- Writting to hosts file... ", false);
                 try
@@ -1098,14 +1144,8 @@ namespace BF2Statistics
                     HostsFile.Save();
                     UpdateHostFileStatus("Success!");
 
-                    // Flush DNS Cache
-                    FlushDNS();
-
-                    // Do pings, And lock hosts file. We do this in
-                    // a background worker so the User can imediatly start
-                    // the BF2 client while the HOSTS redirect finishes
-                    HostsWorker.DoWork += new DoWorkEventHandler(RebuildDNSCache);
-                    HostsWorker.RunWorkerAsync();
+                    // Rebuilds the DNS cache async
+                    RebuildDNSCacheAsync();
 
                     // Set form data
                     RedirectsEnabled = true;
@@ -1130,25 +1170,103 @@ namespace BF2Statistics
                 // Lock the button
                 RedirectButton.Enabled = false;
 
-                // Create new instance of the background worker
-                if (HostsWorker == null)
-                {
-                    HostsWorker = new BackgroundWorker();
-                    HostsWorker.WorkerSupportsCancellation = true;
-                }
-
                 // Stop worker if its busy
-                if (HostsWorker.IsBusy)
+                if (HostTask != null && HostTask.Status == TaskStatus.Running)
                 {
-                    LoadingForm.ShowScreen(this);
-                    this.Enabled = false;
-                    HostsWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(HostsWorker_Completed);
-                    HostsWorker.CancelAsync();
+                    HostTaskSource.Cancel();
                     return;
                 }
 
                 UndoRedirects();
             }
+        }
+
+        /// <summary>
+        /// Method is used to unlock the input fields
+        /// </summary>
+        private void UnlockGroups()
+        {
+            RedirectButton.Enabled = true;
+            GpcmGroupBox.Enabled = true;
+            BF2webGroupBox.Enabled = true;
+            Bf2AaGroupBox.Enabled = true;
+        }
+
+        /// <summary>
+        /// Method is used to lock the input fields while redirect is active
+        /// </summary>
+        private void LockGroups()
+        {
+            RedirectButton.Enabled = false;
+            GpcmGroupBox.Enabled = false;
+            BF2webGroupBox.Enabled = false;
+            Bf2AaGroupBox.Enabled = false;
+        }
+
+        /// <summary>
+        /// Preforms the pings required to fill the dns cache, and locks the HOSTS file.
+        /// The reason we ping, is because once the HOSTS file is locked, any request
+        /// made to a url (when the DNS cache is empty), will skip the hosts file, because 
+        /// it cant be read. If we ping first, then the DNS cache fills up with the IP 
+        /// addresses in the hosts file.
+        /// </summary>
+        private void RebuildDNSCacheAsync()
+        {
+            // Create a new Cancellation token sequence
+            HostTaskSource = new CancellationTokenSource();
+            CancellationToken CancelToken = HostTaskSource.Token;
+
+            // Run as a task in a different thread
+            HostTask = Task.Run(() =>
+            {
+                // Flush DNS Cache
+                FlushDNS();
+
+                // Rebuild the DNS cache with the hosts file redirects
+                UpdateHostFileStatus("- Rebuilding DNS Cache... ", false);
+                foreach (KeyValuePair<String, String> IP in HostsFile.GetLines())
+                {
+                    // Quit on cancel
+                    if (CancelToken.IsCancellationRequested)
+                        return;
+
+                    // Ping server to get the IP address in the dns cache
+                    Ping p = new Ping();
+                    PingReply reply = p.Send(IP.Key);
+                }
+
+                // Update status window
+                UpdateHostFileStatus("Done");
+                UpdateHostFileStatus("- Locking HOSTS file");
+
+                // Lock the hosts file
+                HostsFile.Lock();
+                UpdateHostFileStatus("- All Done!");
+                Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are currently active.");
+
+            }, CancelToken)
+
+            // Runs if cancelled
+            .ContinueWith((Action<Task>)delegate
+            {
+                // Execute on the main thread
+                BeginInvoke((Action)delegate
+                {
+                    // Update status window
+                    UpdateHostFileStatus("Cancelled!");
+
+                    // Lock form and show loading screen
+                    LoadingForm.ShowScreen(this);
+                    this.Enabled = false;
+
+                    // Undo the redirects
+                    UndoRedirects();
+
+                    // Close loading form and allow user to access form again
+                    LoadingForm.CloseForm();
+                    this.Enabled = true;
+                });
+            }, TaskContinuationOptions.OnlyOnCanceled);
         }
 
         /// <summary>
@@ -1200,79 +1318,6 @@ namespace BF2Statistics
         }
 
         /// <summary>
-        /// If the user cancels the redirects while the worker is currently building
-        /// the DNS cache, this event will be registered. On completion, the redirects
-        /// are reverted.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void HostsWorker_Completed(object sender, RunWorkerCompletedEventArgs e)
-        {
-            // Unregister
-            HostsWorker.RunWorkerCompleted -= new RunWorkerCompletedEventHandler(HostsWorker_Completed);
-            UndoRedirects();
-            LoadingForm.CloseForm();
-            this.Enabled = true;
-        }
-
-        /// <summary>
-        /// Method is used to unlock the input fields
-        /// </summary>
-        private void UnlockGroups()
-        {
-            RedirectButton.Enabled = true;
-            GpcmGroupBox.Enabled = true;
-            BF2webGroupBox.Enabled = true;
-            Bf2AaGroupBox.Enabled = true;
-        }
-
-        /// <summary>
-        /// Method is used to lock the input fields while redirect is active
-        /// </summary>
-        private void LockGroups()
-        {
-            RedirectButton.Enabled = false;
-            GpcmGroupBox.Enabled = false;
-            BF2webGroupBox.Enabled = false;
-            Bf2AaGroupBox.Enabled = false;
-        }
-
-        /// <summary>
-        /// Preforms the pings required to fill the dns cache, and locks the HOSTS file.
-        /// The reason we ping, is because once the HOSTS file is locked, any request
-        /// made to a url (when the DNS cache is empty), will skip the hosts file, because 
-        /// it cant be read. If we ping first, then the DNS cache fills up with the IP 
-        /// addresses in the hosts file.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RebuildDNSCache(object sender, DoWorkEventArgs e)
-        {
-            // Update status window
-            UpdateHostFileStatus("- Rebuilding DNS Cache... ", false);
-            foreach (KeyValuePair<String, String> IP in HostsFile.GetLines())
-            {
-                // Cancel if we have a cancelation request
-                if (HostsWorker.CancellationPending)
-                {
-                    UpdateHostFileStatus("Cancelled!");
-                    e.Cancel = true;
-                    return;
-                }
-
-                Ping p = new Ping();
-                PingReply reply = p.Send(IP.Key);
-            }
-            UpdateHostFileStatus("Done");
-
-            // Lock the hosts file
-            UpdateHostFileStatus("- Locking HOSTS file");
-            HostsFile.Lock();
-            UpdateHostFileStatus("- All Done!");
-            Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are currently active.");
-        }
-
-        /// <summary>
         /// Adds a new line to the "status" window on the GUI
         /// </summary>
         /// <param name="message">The message to print</param>
@@ -1308,15 +1353,6 @@ namespace BF2Statistics
         }
 
         /// <summary>
-        /// For external use... Displays a message box with the provided message
-        /// </summary>
-        /// <param name="message">The message to dispay to the client</param>
-        public static void Show(string message) 
-        {
-            MessageBox.Show(message, "Error");
-        }
-
-        /// <summary>
         /// Flushes the Windows DNS cache
         /// </summary>
         public void FlushDNS()
@@ -1335,9 +1371,7 @@ namespace BF2Statistics
         /// <summary>
         /// Starts and stops the ASP HTTP server
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void StartAspServerBtn_Click(object sender, EventArgs e)
+        private async void StartAspServerBtn_Click(object sender, EventArgs e)
         {
             if (!HttpServer.IsRunning)
             {
@@ -1345,59 +1379,49 @@ namespace BF2Statistics
                 StartAspServerBtn.Enabled = false;
                 StartWebserverBtn.Enabled = false;
 
-                // Start Server in a Background worker, Dont want MySQL locking up the GUI
-                ThreadPool.QueueUserWorkItem((o) =>
+                // Start Server
+                try
                 {
-                    try
-                    {
-                        // Start server
-                        HttpServer.Start();
-                    }
-                    catch (HttpListenerException E)
-                    {
-                        // Custom port 80 in use message
-                        string Message;
-                        if (E.ErrorCode == 32)
-                            Message = "Port 80 is already in use by another program.";
-                        else
-                            Message = E.Message;
+                    // Start Server in a different thread, Dont want MySQL locking up the GUI
+                    await Task.Run(() => { HttpServer.Start(); });
+                }
+                catch (HttpListenerException E)
+                {
+                    // Custom port 80 in use message
+                    string Message = (E.ErrorCode == 32) ? "Port 80 is already in use by another program." : E.Message;
 
-                        BeginInvoke((Action)delegate
-                        {
-                            StartAspServerBtn.Enabled = true;
-                            StartWebserverBtn.Enabled = true;
-                            AspStatusPic.Image = Resources.warning;
-                            Tipsy.SetToolTip(AspStatusPic, Message);
-                            Notify.Show("Failed to start ASP Server!", Message, AlertType.Warning);
-                        });
-                    }
-                    catch (Exception E)
-                    {
-                        // Check for specific error
-                        Program.ErrorLog.Write("[ASP Server] " + E.Message);
-                        BeginInvoke((Action)delegate
-                        {
-                            StartAspServerBtn.Enabled = true;
-                            StartWebserverBtn.Enabled = true;
-                            AspStatusPic.Image = Resources.warning;
-                            Tipsy.SetToolTip(AspStatusPic, E.Message);
+                    // Enable buttons again, warn user
+                    StartAspServerBtn.Enabled = true;
+                    StartWebserverBtn.Enabled = true;
+                    AspStatusPic.Image = Resources.warning;
+                    Tipsy.SetToolTip(AspStatusPic, Message);
+                    Notify.Show("Failed to start ASP Server!", Message, AlertType.Warning);
+                }
+                catch (Exception E)
+                {
+                    // Check for specific error
+                    Program.ErrorLog.Write("[ASP Server] " + E.Message);
+                    StartAspServerBtn.Enabled = true;
+                    StartWebserverBtn.Enabled = true;
+                    AspStatusPic.Image = Resources.warning;
+                    Tipsy.SetToolTip(AspStatusPic, E.Message);
 
-                            // Show the DB exception form if its a DB connection error
-                            if (E is DbConnectException)
-                                ExceptionForm.ShowDbConnectError(E as DbConnectException);
-                            else
-                                Notify.Show("Failed to start ASP Server!", E.Message, AlertType.Warning);
-                        });
-                    }
-                });
+                    // Show the DB exception form if its a DB connection error
+                    if (E is DbConnectException)
+                        ExceptionForm.ShowDbConnectError(E as DbConnectException);
+                    else
+                        Notify.Show("Failed to start ASP Server!", E.Message, AlertType.Warning);
+                }
             }
             else
             {
-                try {
+                try
+                {
                     HttpServer.Stop();
-                    Tipsy.SetToolTip(AspStatusPic, "Asp server is currently offline");  
+                    Tipsy.SetToolTip(AspStatusPic, "Asp server is currently offline");
                 }
-                catch(Exception E) {
+                catch (Exception E)
+                {
                     Program.ErrorLog.Write(E.Message);
                 }
             }
@@ -1406,8 +1430,6 @@ namespace BF2Statistics
         /// <summary>
         /// Starts the ASP Webserver
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void StartWebserverBtn_Click(object sender, EventArgs e)
         {
             StartAspServerBtn_Click(sender, e);
@@ -1423,7 +1445,6 @@ namespace BF2Statistics
                 AspStatusPic.Image = Resources.check;
                 StartAspServerBtn.Enabled = true;
                 StartAspServerBtn.Text = "Shutdown ASP Server";
-                // ViewSnapshotBtn.Enabled = true;
                 ViewBf2sCloneBtn.Enabled = true;
                 EditPlayerBtn.Enabled = true;
                 EditASPDatabaseBtn.Enabled = false;
@@ -1446,7 +1467,6 @@ namespace BF2Statistics
                 AspStatusPic.Image = Resources.error;
                 StartAspServerBtn.Text = "Start ASP Server";
                 StartAspServerBtn.Enabled = true;
-                // ViewSnapshotBtn.Enabled = false;
                 ViewBf2sCloneBtn.Enabled = false;
                 EditPlayerBtn.Enabled = false;
                 EditASPDatabaseBtn.Enabled = true;
@@ -1468,34 +1488,30 @@ namespace BF2Statistics
             BeginInvoke((Action)delegate
             {
                 labelTotalWebRequests.Text = (++Config.TotalASPRequests).ToString();
-                int Sr = Int32.Parse(labelSessionWebRequests.Text);
-                if (Sr < HttpServer.SessionRequests)
-                    labelSessionWebRequests.Text = HttpServer.SessionRequests.ToString();
+                labelSessionWebRequests.Text = HttpServer.SessionRequests.ToString();
             });
         }
 
         /// <summary>
         /// Updates the GUI when a snapshot is proccessed
         /// </summary>
-        private void Snapshot_SnapshotProccessed()
+        private void StatsManager_SnapshotProccessed()
         {
-            BeginInvoke((Action)delegate { CountSnapshots(); });
+            BeginInvoke((Action)delegate
+            {
+                labelSnapshotsProc.Text = StatsManager.SnapshotsCompleted + " / " + StatsManager.SnapshotsRecieved;
+                CountSnapshots();
+            });
         }
 
         /// <summary>
         /// Updates the GUI when a snapshot is recieved successfully
         /// </summary>
-        private void SnapshotPost_SnapshotReceived(bool Proccessed)
+        private void StatsManager_SnapshotReceived()
         {
             BeginInvoke((Action)delegate
             {
-                string[] Parts = labelSnapshotsProc.Text.Split('/');
-                int Total = Int32.Parse(Parts[1]) + 1;
-                int Good = Int32.Parse(Parts[0]);
-                if (Proccessed)
-                    Good++;
-
-                labelSnapshotsProc.Text = String.Concat(Good, " / ", Total);
+                labelSnapshotsProc.Text = StatsManager.SnapshotsCompleted + " / " + StatsManager.SnapshotsRecieved;
             });
         }
 
@@ -1514,8 +1530,6 @@ namespace BF2Statistics
         /// <summary>
         /// View ASP Access Log Button Click Event
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ViewAccessLogBtn_Click(object sender, EventArgs e)
         {
             Process.Start(Path.Combine(Program.RootPath, "Logs", "AspAccess.log"));
@@ -1524,8 +1538,6 @@ namespace BF2Statistics
         /// <summary>
         /// View ASP Error Log Button Click Event
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ViewErrorLogBtn_Click(object sender, EventArgs e)
         {
             Process.Start(Path.Combine(Program.RootPath, "Logs", "AspServer.log"));
@@ -1534,8 +1546,6 @@ namespace BF2Statistics
         /// <summary>
         /// View Snapshot Logs Button Click Event
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ViewSnapshotLogBtn_Click(object sender, EventArgs e)
         {
             // Make sure the log file exists... It doesnt get created on startup like the others
@@ -1549,8 +1559,6 @@ namespace BF2Statistics
         /// <summary>
         /// View Snapshots Button Click Event
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ViewSnapshotBtn_Click(object sender, EventArgs e)
         {
             SnapshotViewForm Form = new SnapshotViewForm();
@@ -1561,8 +1569,6 @@ namespace BF2Statistics
         /// <summary>
         /// Edit Stats Database Settings Button Click Event
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void EditASPDatabaseBtn_Click(object sender, EventArgs e)
         {
             SetupManager.ShowDatabaseSetupForm(DatabaseMode.Stats);
@@ -1571,14 +1577,15 @@ namespace BF2Statistics
         /// <summary>
         /// Edit ASP Settings Button Click Event
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void EditASPSettingsBtn_Click(object sender, EventArgs e)
         {
             ASPConfigForm Form = new ASPConfigForm();
             Form.ShowDialog();
         }
 
+        /// <summary>
+        /// Edit BF2sClone Config Button Click Event
+        /// </summary>
         private void EditBf2sCloneBtn_Click(object sender, EventArgs e)
         {
             LeaderboardConfigForm F = new LeaderboardConfigForm();
@@ -1588,13 +1595,11 @@ namespace BF2Statistics
         /// <summary>
         /// View Leaderboard Button Click Event
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ViewBf2sCloneBtn_Click(object sender, EventArgs e)
         {
             if (!MainForm.Config.BF2S_Enabled)
             {
-                DialogResult Res = MessageBox.Show("The Battlefield 2 Leaderboard is currently disabled! Would you like to enable it now?.", 
+                DialogResult Res = MessageBox.Show("The Battlefield 2 Leaderboard is currently disabled! Would you like to enable it now?.",
                     "Disabled Leaderboard", MessageBoxButtons.YesNo, MessageBoxIcon.Question
                 );
 
@@ -1614,8 +1619,6 @@ namespace BF2Statistics
         /// <summary>
         /// Edit Player Button Click Event
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void EditPlayerBtn_Click(object sender, EventArgs e)
         {
             PlayerSearchForm Form = new PlayerSearchForm();
@@ -1625,8 +1628,6 @@ namespace BF2Statistics
         /// <summary>
         /// Clear Stats Database Button Click Event
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ManageStatsDBBtn_Click(object sender, EventArgs e)
         {
             ManageStatsDBForm Form = new ManageStatsDBForm();
@@ -1635,7 +1636,7 @@ namespace BF2Statistics
 
         #endregion ASP Server
 
-        #region Status OnClick Events
+        #region Status Window OnClick Events
 
         private void HostsFileStatusLabel_DoubleClick(object sender, EventArgs e)
         {
@@ -1662,7 +1663,26 @@ namespace BF2Statistics
             tabControl1.SelectedIndex = 1;
         }
 
-        #endregion Status OnClick Events
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Get the selected tab
+            int tab = tabControl1.SelectedIndex;
+
+            // Run in a new task
+            Task.Run(() =>
+            {
+                if (tab == 2 && RefreshChkBox.Checked)
+                {
+                    BuildClientsList();
+                }
+                else if (tab == 3)
+                {
+                    CountSnapshots();
+                }
+            });
+        }
+
+        #endregion Status Window OnClick Events
 
         #region About Tab
 
@@ -1674,8 +1694,6 @@ namespace BF2Statistics
         /// <summary>
         /// Setup Button Click Event. Relaunches the setup client/server paths screen
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void SetupBtn_Click(object sender, EventArgs e)
         {
             Config.ServerPath = "";
@@ -1688,8 +1706,6 @@ namespace BF2Statistics
         /// <summary>
         /// Open Program Folder Click Event
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void OpenRootBtn_Click(object sender, EventArgs e)
         {
             Process.Start(Program.RootPath);
@@ -1698,8 +1714,6 @@ namespace BF2Statistics
         /// <summary>
         /// Check for Updates Button
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ChkUpdateBtn_Click(object sender, EventArgs e)
         {
             Process.Start("https://github.com/BF2Statistics/ControlCenter/releases/latest");
@@ -1708,8 +1722,6 @@ namespace BF2Statistics
         /// <summary>
         /// Report Issue or Bug Button
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ReportBugBtn_Click(object sender, EventArgs e)
         {
             Process.Start("https://github.com/BF2Statistics/ControlCenter/issues");
@@ -1717,41 +1729,7 @@ namespace BF2Statistics
 
         #endregion About Tab
 
-        #region Static Control Methods
-
-        /// <summary>
-        /// Static call that can disable the main form
-        /// </summary>
-        public static void Disable()
-        {
-            Instance.Invoke((Action)delegate
-            {
-                Instance.Enabled = false;
-            });
-        }
-
-        /// <summary>
-        /// Static call that can enable the main form
-        /// </summary>
-        public static void Enable()
-        {
-            Instance.Invoke((Action)delegate
-            {
-                Instance.Enabled = true;
-            });
-        }
-
-        #endregion Static Control Methods
-
         #region Closer Methods
-
-        /// <summary>
-        /// Event closes the form when fired
-        /// </summary>
-        private void CloseOnStart(object sender, EventArgs e)
-        {
-            this.Close();
-        }
 
         /// <summary>
         /// Destructor
@@ -1765,7 +1743,7 @@ namespace BF2Statistics
             Config.UseGlobalSettings = GlobalServerSettings.Checked;
             Config.ShowServerConsole = ShowConsole.Checked;
             Config.MinimizeServerConsole = MinimizeConsole.Checked;
-            Config.ServerIgnoreAsserts = IgnoreAsserts.Checked;
+            Config.ServerForceAi = ForceAiBots.Checked;
             Config.ServerFileMoniter = FileMoniter.Checked;
             Config.Save();
 
@@ -1782,31 +1760,5 @@ namespace BF2Statistics
         }
 
         #endregion Closer Methods
-
-        /// <summary>
-        /// Fired when the server changes paths
-        /// </summary>
-        private void BF2Server_ServerPathChanged()
-        {
-            LoadModList();
-        }
-
-        /// <summary>
-        /// This method is used to store a message in the console.log file
-        /// </summary>
-        /// <param name="message">The message to be written to the log file</param>
-        public static void Log(string message)
-        {
-            Program.ErrorLog.Write(message);
-        }
-
-        /// <summary>
-        /// This method is used to store a message in the console.log file
-        /// </summary>
-        /// <param name="message">The message to be written to the log file</param>
-        public static void Log(string message, params object[] items)
-        {
-            Program.ErrorLog.Write(String.Format(message, items));
-        }
     }
 }

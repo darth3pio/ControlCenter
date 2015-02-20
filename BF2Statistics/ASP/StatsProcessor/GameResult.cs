@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BF2Statistics.ASP.StatsProcessor
 {
+    /// <summary>
+    /// This class represents the Game data found in a
+    /// Battlefield 2 Snapshot
+    /// </summary>
     public abstract class GameResult
     {
         /// <summary>
-        /// The snapshot Date
+        /// The UTC date of when this snapshot was sent to the ASP for processing
         /// </summary>
         public DateTime Date { get; protected set; }
 

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BF2Statistics.ASP;
 
 namespace BF2Statistics.Database
@@ -154,17 +152,17 @@ namespace BF2Statistics.Database
                 {
                     // NOTE: online account names in the stats DB start with a single space!
                     var Row = Db.Query("SELECT id FROM player WHERE upper(name) = upper(@P0)", " " + Nick);
-                    Pid = (Row.Count == 0) ? PidManager.GenerateNewPlayerPid() : Int32.Parse(Row[0]["id"].ToString());
+                    Pid = (Row.Count == 0) ? StatsManager.GenerateNewPlayerPid() : Int32.Parse(Row[0]["id"].ToString());
                 }
             }
             catch
             {
-                Pid = PidManager.GenerateNewPlayerPid();
+                Pid = StatsManager.GenerateNewPlayerPid();
             }
 
             // Create the user in the database
             int Rows = base.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES(@P0, @P1, @P2, @P3, @P4)",
-                Pid, Nick, Pass, Email, Country
+                Pid, Nick, Pass, Email.ToLowerInvariant(), Country
             );
 
             return (Rows != 0);
@@ -190,7 +188,7 @@ namespace BF2Statistics.Database
 
             // Create the user in the database
             int Rows = base.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES(@P0, @P1, @P2, @P3, @P4)",
-                Pid, Nick, Pass, Email, Country
+                Pid, Nick, Pass, Email.ToLowerInvariant(), Country
             );
 
             return (Rows != 0);
@@ -217,7 +215,7 @@ namespace BF2Statistics.Database
         public void UpdateUser(int Id, int NewPid, string NewNick, string NewPassword, string NewEmail)
         {
             base.Execute("UPDATE accounts SET id=@P0, name=@P1, password=@P2, email=@P3 WHERE id=@P4", 
-                NewPid, NewNick, NewPassword, NewEmail, Id);
+                NewPid, NewNick, NewPassword, NewEmail.ToLowerInvariant(), Id);
         }
 
         /// <summary>

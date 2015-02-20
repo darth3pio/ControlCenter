@@ -9,11 +9,10 @@
 
 using System;
 using System.IO;
+using System.Security.Principal;
 using System.Threading;
 using System.Windows.Forms;
-using System.Security.Principal;
 using BF2Statistics.Logging;
-using BF2Statistics.Properties;
 
 namespace BF2Statistics
 {
@@ -22,7 +21,7 @@ namespace BF2Statistics
         /// <summary>
         /// Specifies the Program Version
         /// </summary>
-        public static readonly Version Version = new Version(1, 10, 0);
+        public static readonly Version Version = new Version(2, 0, 1);
 
         /// <summary>
         /// Specifies the installation directory of this program
@@ -52,17 +51,36 @@ namespace BF2Statistics
         [STAThread]
         static void Main(string[] args)
         {
-            // Set exception Handler
-            Application.ThreadException += new ThreadExceptionEventHandler(ExceptionHandler.OnThreadException);
-            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(ExceptionHandler.OnUnhandledException);
-
-            // Create ErrorLog file
-            ErrorLog = new LogWritter(Path.Combine(Application.StartupPath, "Logs", "Error.log"));
-
-            // Load the main form!
+            // Enable application visual styling
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+
+            // Set Exception Handler
+            Application.ThreadException += ExceptionHandler.OnThreadException;
+            AppDomain.CurrentDomain.UnhandledException += ExceptionHandler.OnUnhandledException;
+
+            // Create Error Log Writter object
+            ErrorLog = new LogWritter(Path.Combine(Application.StartupPath, "Logs", "Error.log"));
+
+            // We only allow 1 instance of this application to run at a time, to prevent all kinds of issues with sockets and such
+            // A Mutex will allow us to easily require 1 instance
+            bool createdNew = true;
+            using (Mutex mutex = new Mutex(true, "BF2Statistics Control Center", out createdNew))
+            {
+                if (createdNew)
+                {
+                    // Load the main form!
+                    Application.Run(new MainForm());
+                }
+                else
+                {
+                    // Alert the user
+                    MessageBox.Show(
+                        "BF2Statistics Control Center is already running. Only one instance of this application can run at a time.",
+                        "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning
+                    );
+                }
+            }
         }
     }
 }

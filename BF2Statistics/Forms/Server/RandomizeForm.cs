@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -24,85 +21,92 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void GenerateBtn_Click(object sender, EventArgs e)
         {
+            // Initialize lists
+            List<string> Modes = new List<string>();
+            List<string> Sizes = new List<string>();
+
+            // Get list of supported Game Modes the user wants
+            if (ConquestBox.Checked) Modes.Add("gpm_cq");
+            if (CoopBox.Checked)     Modes.Add("gpm_coop");
+
+            // Get list of sizes the user wants
+            if (s16Box.Checked) Sizes.Add("16");
+            if (s32Box.Checked) Sizes.Add("32");
+            if (s64Box.Checked) Sizes.Add("64");
+
+            // Make sure we have at least 1 mode and size
+            if (Modes.Count == 0 || Sizes.Count == 0)
+            {
+                // Handle Message
+                MessageBox.Show("You must select at least 1 GameMode and Map Size!", "User Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             // Initialize internal variables
             BF2Mod Mod = MainForm.SelectedMod;
             Random Rnd = new Random();
-            List<string> Modes = new List<string>();
-            List<string> Sizes = new List<string>();
-            int Num = (int) NumMaps.Value;
+            int NumOfMapsToAdd = (int)NumMaps.Value;
             int MapCount = Mod.Levels.Count;
+            string[] gModes = Modes.ToArray();
             StringBuilder Sb = new StringBuilder();
 
-            // Get list of supported Game Modes the user wants
-            if (ConquestBox.Checked)
-                Modes.Add("gpm_cq");
-            if (CoopBox.Checked)
-                Modes.Add("gpm_coop");
+            // Shuffle the maplist
+            Mod.Levels.Shuffle();
 
-            // Get list of sizes the user wants
-            if (s16Box.Checked)
-                Sizes.Add("16");
-            if (s32Box.Checked)
-                Sizes.Add("32");
-            if (s64Box.Checked)
-                Sizes.Add("64");
-
-            if (Modes.Count == 0)
-            {
-                // Handle Message
-                MessageBox.Show("You must select at least 1 GameMode!", "User Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (Sizes.Count == 0)
-            {
-                // Handle Message
-                MessageBox.Show("You must select at least 1 Map Size!", "User Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            // Show loading form
+            LoadingForm.ShowScreen(this);
+            this.Enabled = false;
 
             // Loop through, the number of times the user specified, adding a map
-            for (int i = 0; i < Num; i++)
+            for (int i = 0; i < NumOfMapsToAdd; i++)
             {
-                // Grab a random map from the levels array
-                string map = Mod.Levels[Rnd.Next(MapCount)];
+                // Prevent infinite looping and/or quit if we have reached the map count
+                if (i > 255 || (noDupesBox.Checked && i == MapCount)) 
+                    break;
 
+                // Grab a random map from the levels array
                 try
                 {
                     // Try and load the map... if an exception is thrown, this loop doesnt count
-                    BF2Map Map = Mod.LoadMap(map);
+                    BF2Map Map = Mod.LoadMap((noDupesBox.Checked) ? Mod.Levels[i] : Mod.Levels[Rnd.Next(0, MapCount)]);
+
+                    // Get the common intersected gamemodes that the map has in common with what the user wants
+                    string[] Common = Map.GameModes.Keys.ToArray();
+                    Common = gModes.Intersect(Common).ToArray();
+
+                    // No common game modes
+                    if(Common.Length == 0)
+                    {
+                        NumOfMapsToAdd++;
+                        continue;
+                    }
 
                     // Get a random gamemode key
-                    string Key = Modes[Rnd.Next(Modes.Count)];
-                    if (Map.GameModes.ContainsKey(Key))
+                    string Mode = Common[Rnd.Next(0, Common.Length)];
+
+                    // Get the common map sizes between what the user wants, and what the map supports
+                    Common = Map.GameModes[Mode].Intersect(Sizes).ToArray();
+                    if (Common.Length == 0)
                     {
-                        // Get the common map sizes between what the user wants, and what the map supports
-                        string[] Common = Map.GameModes[Key].Intersect(Sizes).ToArray();
-
-                        // If there are no common sizes, try another map
-                        if (Common.Length == 0)
-                        {
-                            ++Num;
-                            continue;
-                        }
-
-                        // Get a random size, and add the map
-                        string Size = Common[Rnd.Next(Common.Length)];
-                        Sb.AppendLine(Map.Name + " " + Key + " " + Size);
+                        // No common sizes, try another map
+                        NumOfMapsToAdd++;
+                        continue;
                     }
-                    else
-                        ++Num;
-                    
+
+                    // Get a random size, and add the map
+                    string Size = Common[Rnd.Next(0, Common.Length)];
+                    Sb.AppendLine(Map.Name + " " + Mode + " " + Size);
                 }
                 catch (InvalidMapException) 
                 {
-                    Num++;
+                    NumOfMapsToAdd++;
                 }
             }
 
             // Add new maplist to the maplist box
             MapListBox.Text = Sb.ToString();
-
+            this.Enabled = true;
+            LoadingForm.CloseForm();
         }
 
         /// <summary>

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using BF2Statistics.Database;
 
 namespace BF2Statistics.Gamespy
@@ -48,12 +45,12 @@ namespace BF2Statistics.Gamespy
             // Set the client variable
             this.Client = client;
             this.ClientEP = client.Client.RemoteEndPoint;
-            LoginServer.Log("[GPSP] Client Connected: {0}", ClientEP);
+            //LoginServer.Log("[GPSP] Client Connected: {0}", ClientEP);
 
             // Init a new client stream class
             Stream = new TcpClientStream(client);
-            Stream.OnDisconnect += new ConnectionClosed(Stream_OnDisconnect);
-            Stream.DataReceived += new DataRecivedEvent(Stream_DataReceived);
+            Stream.OnDisconnect += Stream_OnDisconnect;
+            Stream.DataReceived += Stream_DataReceived;
         }
 
         /// <summary>
@@ -85,7 +82,7 @@ namespace BF2Statistics.Gamespy
             this.Disposed = true;
 
             // Log
-            LoginServer.Log("[GPSP] Client Disconnected: {0}", ClientEP);
+            //LoginServer.Log("[GPSP] Client Disconnected: {0}", ClientEP);
         }
 
         /// <summary>

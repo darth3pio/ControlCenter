@@ -1,11 +1,10 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.IO;
+using System.Net;
 using System.Security.AccessControl;
 using System.Security.Principal;
-using System.Net;
+using System.Text.RegularExpressions;
 
 namespace BF2Statistics
 {

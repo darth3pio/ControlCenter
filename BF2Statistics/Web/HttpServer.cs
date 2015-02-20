@@ -1,25 +1,19 @@
 ﻿using System;
-using System.IO;
-using System.Data;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Web;
+using System.IO;
 using System.Net;
-using System.Net.Sockets;
-using System.Diagnostics;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using BF2Statistics.ASP;
 using BF2Statistics.Database;
 using BF2Statistics.Logging;
-using BF2Statistics.Web;
 using BF2Statistics.Web.ASP;
+using System.Linq;
 
 namespace BF2Statistics.Web
 {
     /// <summary>
-    /// The ASP Server is used to emulate the official Gamespy BF2 Stat
+    /// The ASP Server is used to emulate the official Gamespy BF2 Stats
     /// Server HTTP Requests, and provide players with the ability to run 
     /// thier own BF2 Ranking system on thier personal PC's.
     /// </summary>
@@ -31,39 +25,24 @@ namespace BF2Statistics.Web
         private static HttpListener Listener;
 
         /// <summary>
-        /// ASP server log writter
+        /// The StatsDebug.log file
         /// </summary>
-        private static LogWritter ServerLog;
+        public static LogWritter AspStatsLog { get; protected set; }
 
         /// <summary>
-        /// Our Access log
+        /// THe Http Server Access log
         /// </summary>
-        public static LogWritter AccessLog { get; protected set; }
-
-        /// <summary>
-        /// Occurs when the server is started.
-        /// </summary>
-        public static event EventHandler Started;
-
-        /// <summary>
-        /// Occurs when the server is about to stop.
-        /// </summary>
-        public static event EventHandler Stopping;
-
-        /// <summary>
-        /// Occurs when the server is stopped.
-        /// </summary>
-        public static event EventHandler Stopped;
-
-        /// <summary>
-        /// Event fired when ASP server recieves a connection
-        /// </summary>
-        public static event AspRequest RequestRecieved;
+        public static LogWritter HttpAccessLog { get; protected set; }
 
         /// <summary>
         /// A List of local IP addresses for this machine
         /// </summary>
         public static readonly List<IPAddress> LocalIPs;
+
+        /// <summary>
+        /// An array of http request methods that this server will accept
+        /// </summary>
+        public static readonly string[] AcceptableMethods = { "GET", "POST", "HEAD" };
 
         /// <summary>
         /// Number of session web requests
@@ -91,6 +70,9 @@ namespace BF2Statistics.Web
             }
         }
 
+        /// <summary>
+        /// Contains a list of Mime types for the response
+        /// </summary>
         private static readonly Dictionary<string, string> MIMETypes = new Dictionary<string, string>
         {
             {"css", "text/css"},
@@ -105,13 +87,34 @@ namespace BF2Statistics.Web
         };
 
         /// <summary>
+        /// Occurs when the server is started.
+        /// </summary>
+        public static event EventHandler Started;
+
+        /// <summary>
+        /// Occurs when the server is about to stop.
+        /// </summary>
+        public static event EventHandler Stopping;
+
+        /// <summary>
+        /// Occurs when the server is stopped.
+        /// </summary>
+        public static event EventHandler Stopped;
+
+        /// <summary>
+        /// Event fired when ASP server recieves a connection
+        /// </summary>
+        public static event AspRequest RequestRecieved;
+
+
+        /// <summary>
         /// Static constructor
         /// </summary>
         static HttpServer()
         {
             // Create our Server and Access logs
-            ServerLog = new LogWritter(Path.Combine(Program.RootPath, "Logs", "AspServer.log"));
-            AccessLog = new LogWritter(Path.Combine(Program.RootPath, "Logs", "AspAccess.log"), true);
+            AspStatsLog = new LogWritter(Path.Combine(Program.RootPath, "Logs", "AspServer.log"));
+            HttpAccessLog = new LogWritter(Path.Combine(Program.RootPath, "Logs", "AspAccess.log"), true);
 
             // Get a list of all our local IP addresses
             LocalIPs = new List<IPAddress>(Dns.GetHostAddresses(Dns.GetHostName()));
@@ -142,12 +145,12 @@ namespace BF2Statistics.Web
                             SetupManager.ShowDatabaseSetupForm(DatabaseMode.Stats);
 
                         // Call the stopped event to Re-enable the main forms buttons
-                        Stopped(null, null);
+                        Stopped(null, EventArgs.Empty);
                         return;
                     }
 
-                    // Initialize the player id manager
-                    PidManager.Load(Database);
+                    // Initialize the stats manager
+                    StatsManager.Load(Database);
 
                     // Drop the SQLite ip2nation country tables
                     if (Database.DatabaseEngine == DatabaseEngine.Sqlite)
@@ -166,11 +169,24 @@ namespace BF2Statistics.Web
                 Bf2Stats.StatsData.Load();
 
                 // Start the Listener and accept new connections
-                Listener.Start();
-                Listener.BeginGetContext(new AsyncCallback(DoAcceptClientCallback), Listener);
+                try
+                {
+                    Listener.Start();
+                    Listener.BeginGetContext(HandleRequest, Listener);
+                }
+                catch(ObjectDisposedException)
+                {
+                    // If we are disposed (happens when port 80 was in use already before, and we tried to start)
+                    // Then we need to start over with a new Listener
+                    Listener = new HttpListener();
+                    Listener.Prefixes.Add("http://*/ASP/");
+                    Listener.Prefixes.Add("http://*/bf2stats/");
+                    Listener.Start();
+                    Listener.BeginGetContext(HandleRequest, Listener);
+                }
                 
                 // Fire Startup Event
-                Started(null, null);
+                Started(null, EventArgs.Empty);
             }
         }
 
@@ -183,7 +199,7 @@ namespace BF2Statistics.Web
             {
                 // Call Stopping Event to disconnect clients
                 if (Stopping != null)
-                    Stopping(null, null);
+                    Stopping(null, EventArgs.Empty);
 
                 try
                 {
@@ -191,54 +207,58 @@ namespace BF2Statistics.Web
                     Listener.Stop();
 
                     // Fire the stopped event
-                    Stopped(null, null);
+                    Stopped(null, EventArgs.Empty);
                 }
                 catch(Exception E)
                 {
-                    ServerLog.Write(E.Message);
+                    Program.ErrorLog.Write("ERROR: [HttpServer.Stop] " + E.Message);
                 }
+
+                SessionRequests = 0;
             }
         }
 
         /// <summary>
         /// Accepts the connection
         /// </summary>
-        private static void DoAcceptClientCallback(IAsyncResult Sync)
+        private static void HandleRequest(IAsyncResult Sync)
         {
             try
             {
                 // Finish accepting the client
                 HttpListenerContext Context = Listener.EndGetContext(Sync);
-                ThreadPool.QueueUserWorkItem(HandleRequest, new HttpClient(Context));
+                Task.Run(() => { ProcessRequest(new HttpClient(Context)); });
             }
             catch (HttpListenerException E)
             {
-                // Thread abort, or application abort request
+                // Thread abort, or application abort request... Ignore
                 if (E.ErrorCode == 995)
                     return;
 
-                ServerLog.Write("ERROR: [DoAcceptClientCallback] \r\n\t - {0}\r\n\t - ErrorCode: {1}", E.Message, E.ErrorCode);
+                // Log error
+                Program.ErrorLog.Write(
+                    "ERROR: [HttpServer.HandleRequest] \r\n\t - {0}\r\n\t - ErrorCode: {1}", 
+                    E.Message, 
+                    E.ErrorCode
+                );
             }
             catch (Exception E)
             {
-                ServerLog.Write("ERROR: [DoAcceptClientCallback] \r\n\t - {0}", E.Message);
+                Program.ErrorLog.Write("ERROR: [HttpServer.HandleRequest] \r\n\t - {0}", E.Message);
             }
 
             // Begin Listening again
             if(IsRunning) 
-                Listener.BeginGetContext(new AsyncCallback(DoAcceptClientCallback), Listener);
+                Listener.BeginGetContext(HandleRequest, Listener);
         }
 
         /// <summary>
         /// Handles the Http Connecting client in a new thread
         /// </summary>
-        private static void HandleRequest(object Sync)
+        private static void ProcessRequest(HttpClient Client)
         {
-            // Setup the variables
-            HttpClient Client = Sync as HttpClient;
-            StatsDatabase Database;
-
             // Update client count, and fire connection event
+            StatsDatabase Database;
             SessionRequests++;
             RequestRecieved();
 
@@ -254,7 +274,7 @@ namespace BF2Statistics.Web
             }
             catch(Exception e)
             {
-                ServerLog.Write("ERROR: [HandleRequest] " + e.Message);
+                Program.ErrorLog.Write("ERROR: [HttpServer.ProcessRequest] " + e.Message);
 
                 // Set service is unavialable
                 Client.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
@@ -263,11 +283,9 @@ namespace BF2Statistics.Web
             }
 
             // Make sure request method is supported
-            if (Client.Request.HttpMethod != "GET" 
-                && Client.Request.HttpMethod != "POST"
-                && Client.Request.HttpMethod != "HEAD")
+            if (!AcceptableMethods.Contains(Client.Request.HttpMethod))
             {
-                ServerLog.Write("NOTICE: [HandleRequest] Invalid HttpMethod {0} used by client", Client.Request.HttpMethod);
+                //Program.ErrorLog.Write("NOTICE: [HttpServer.HandleRequest] Invalid HttpMethod {0} used by client", Client.Request.HttpMethod);
                 Client.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
                 Client.Response.Send();
                 return;
@@ -299,7 +317,7 @@ namespace BF2Statistics.Web
             }
             catch (Exception E)
             {
-                ServerLog.Write("ERROR: " + E.Message);
+                Program.ErrorLog.Write("ERROR: [HttpServer.ProcessRequest] " + E.Message);
                 ExceptionHandler.GenerateExceptionLog(E);
                 if (!Client.ResponseSent)
                 {
@@ -433,24 +451,6 @@ namespace BF2Statistics.Web
                         break;
                 }
             }
-        }
-
-        /// <summary>
-        /// Writes a message to the stream log
-        /// </summary>
-        /// <param name="message"></param>
-        public static void Log(string message)
-        {
-            ServerLog.Write(message);
-        }
-
-        /// <summary>
-        /// Writes a message to the stream log
-        /// </summary>
-        /// <param name="message"></param>
-        public static void Log(string message, params object[] items)
-        {
-            ServerLog.Write(message, items);
         }
     }
 }

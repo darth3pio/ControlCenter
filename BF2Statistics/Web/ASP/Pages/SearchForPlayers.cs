@@ -4,6 +4,9 @@ using BF2Statistics.Database;
 
 namespace BF2Statistics.Web.ASP
 {
+    /// <summary>
+    /// /ASP/searchforplayers.aspx
+    /// </summary>
     class SearchForPlayers
     {
         public SearchForPlayers(HttpClient Client, StatsDatabase Driver)

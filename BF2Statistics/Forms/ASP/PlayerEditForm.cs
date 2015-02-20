@@ -169,7 +169,7 @@ namespace BF2Statistics
         private void ExportPlayerBtn_Click(object sender, EventArgs e)
         {
             // Create export directory if it doesnt exist yet
-            string sPath = Path.Combine(Paths.DocumentsFolder, "Player Exports");
+            string sPath = Path.Combine(Paths.DocumentsFolder, "Player Backups");
             if (!Directory.Exists(sPath))
                 Directory.CreateDirectory(sPath);
 
@@ -389,6 +389,22 @@ namespace BF2Statistics
                     TaskForm.CloseForm();
                 }
             }
+        }
+
+        /// <summary>
+        /// Event called when the client clicks the "Copy to Clipboard" link
+        /// </summary>
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Clipboard.SetText(this.Pid.ToString());
+        }
+
+        /// <summary>
+        /// Event called when the "View on Leaderboard" button is clicked
+        /// </summary>
+        private void ViewBf2sBtn_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("http://localhost/bf2stats/player?pid=" + this.Pid);
         }
     }
 }

@@ -29,29 +29,31 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.ConquestBox = new System.Windows.Forms.CheckBox();
-            this.CoopBox = new System.Windows.Forms.CheckBox();
-            this.s16Box = new System.Windows.Forms.CheckBox();
-            this.s32Box = new System.Windows.Forms.CheckBox();
-            this.s64Box = new System.Windows.Forms.CheckBox();
-            this.NumMaps = new System.Windows.Forms.NumericUpDown();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.CancelBtn = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.NumMaps = new System.Windows.Forms.NumericUpDown();
+            this.s64Box = new System.Windows.Forms.CheckBox();
+            this.s32Box = new System.Windows.Forms.CheckBox();
+            this.s16Box = new System.Windows.Forms.CheckBox();
+            this.CoopBox = new System.Windows.Forms.CheckBox();
+            this.ConquestBox = new System.Windows.Forms.CheckBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.SaveBtn = new System.Windows.Forms.Button();
             this.GenerateBtn = new System.Windows.Forms.Button();
+            this.CancelBtn = new System.Windows.Forms.Button();
             this.MapListBox = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.SaveBtn = new System.Windows.Forms.Button();
+            this.noDupesBox = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
-            this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaps)).BeginInit();
+            this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.noDupesBox);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.label1);
@@ -68,6 +70,100 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Randomize Criteria";
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(150, 78);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(56, 13);
+            this.label3.TabIndex = 8;
+            this.label3.Text = "Map Sizes";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(39, 78);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(73, 13);
+            this.label2.TabIndex = 7;
+            this.label2.Text = "Game Modes:";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(39, 36);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(88, 13);
+            this.label1.TabIndex = 6;
+            this.label1.Text = "Number of Maps:";
+            // 
+            // NumMaps
+            // 
+            this.NumMaps.Location = new System.Drawing.Point(133, 34);
+            this.NumMaps.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.NumMaps.Name = "NumMaps";
+            this.NumMaps.Size = new System.Drawing.Size(68, 20);
+            this.NumMaps.TabIndex = 5;
+            this.NumMaps.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // s64Box
+            // 
+            this.s64Box.AutoSize = true;
+            this.s64Box.Location = new System.Drawing.Point(153, 148);
+            this.s64Box.Name = "s64Box";
+            this.s64Box.Size = new System.Drawing.Size(38, 17);
+            this.s64Box.TabIndex = 4;
+            this.s64Box.Text = "64";
+            this.s64Box.UseVisualStyleBackColor = true;
+            // 
+            // s32Box
+            // 
+            this.s32Box.AutoSize = true;
+            this.s32Box.Location = new System.Drawing.Point(153, 125);
+            this.s32Box.Name = "s32Box";
+            this.s32Box.Size = new System.Drawing.Size(38, 17);
+            this.s32Box.TabIndex = 3;
+            this.s32Box.Text = "32";
+            this.s32Box.UseVisualStyleBackColor = true;
+            // 
+            // s16Box
+            // 
+            this.s16Box.AutoSize = true;
+            this.s16Box.Location = new System.Drawing.Point(153, 102);
+            this.s16Box.Name = "s16Box";
+            this.s16Box.Size = new System.Drawing.Size(38, 17);
+            this.s16Box.TabIndex = 2;
+            this.s16Box.Text = "16";
+            this.s16Box.UseVisualStyleBackColor = true;
+            // 
+            // CoopBox
+            // 
+            this.CoopBox.AutoSize = true;
+            this.CoopBox.Location = new System.Drawing.Point(42, 125);
+            this.CoopBox.Name = "CoopBox";
+            this.CoopBox.Size = new System.Drawing.Size(56, 17);
+            this.CoopBox.TabIndex = 1;
+            this.CoopBox.Text = "COOP";
+            this.CoopBox.UseVisualStyleBackColor = true;
+            // 
+            // ConquestBox
+            // 
+            this.ConquestBox.AutoSize = true;
+            this.ConquestBox.Location = new System.Drawing.Point(42, 102);
+            this.ConquestBox.Name = "ConquestBox";
+            this.ConquestBox.Size = new System.Drawing.Size(71, 17);
+            this.ConquestBox.TabIndex = 0;
+            this.ConquestBox.Text = "Conquest";
+            this.ConquestBox.UseVisualStyleBackColor = true;
+            // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.SaveBtn);
@@ -79,104 +175,15 @@
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             // 
-            // ConquestBox
+            // SaveBtn
             // 
-            this.ConquestBox.AutoSize = true;
-            this.ConquestBox.Location = new System.Drawing.Point(37, 127);
-            this.ConquestBox.Name = "ConquestBox";
-            this.ConquestBox.Size = new System.Drawing.Size(71, 17);
-            this.ConquestBox.TabIndex = 0;
-            this.ConquestBox.Text = "Conquest";
-            this.ConquestBox.UseVisualStyleBackColor = true;
-            // 
-            // CoopBox
-            // 
-            this.CoopBox.AutoSize = true;
-            this.CoopBox.Location = new System.Drawing.Point(37, 150);
-            this.CoopBox.Name = "CoopBox";
-            this.CoopBox.Size = new System.Drawing.Size(56, 17);
-            this.CoopBox.TabIndex = 1;
-            this.CoopBox.Text = "COOP";
-            this.CoopBox.UseVisualStyleBackColor = true;
-            // 
-            // s16Box
-            // 
-            this.s16Box.AutoSize = true;
-            this.s16Box.Location = new System.Drawing.Point(153, 127);
-            this.s16Box.Name = "s16Box";
-            this.s16Box.Size = new System.Drawing.Size(38, 17);
-            this.s16Box.TabIndex = 2;
-            this.s16Box.Text = "16";
-            this.s16Box.UseVisualStyleBackColor = true;
-            // 
-            // s32Box
-            // 
-            this.s32Box.AutoSize = true;
-            this.s32Box.Location = new System.Drawing.Point(153, 150);
-            this.s32Box.Name = "s32Box";
-            this.s32Box.Size = new System.Drawing.Size(38, 17);
-            this.s32Box.TabIndex = 3;
-            this.s32Box.Text = "32";
-            this.s32Box.UseVisualStyleBackColor = true;
-            // 
-            // s64Box
-            // 
-            this.s64Box.AutoSize = true;
-            this.s64Box.Location = new System.Drawing.Point(153, 173);
-            this.s64Box.Name = "s64Box";
-            this.s64Box.Size = new System.Drawing.Size(38, 17);
-            this.s64Box.TabIndex = 4;
-            this.s64Box.Text = "64";
-            this.s64Box.UseVisualStyleBackColor = true;
-            // 
-            // NumMaps
-            // 
-            this.NumMaps.Location = new System.Drawing.Point(133, 50);
-            this.NumMaps.Name = "NumMaps";
-            this.NumMaps.Size = new System.Drawing.Size(68, 20);
-            this.NumMaps.TabIndex = 5;
-            this.NumMaps.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(39, 52);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(88, 13);
-            this.label1.TabIndex = 6;
-            this.label1.Text = "Number of Maps:";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(34, 103);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(73, 13);
-            this.label2.TabIndex = 7;
-            this.label2.Text = "Game Modes:";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(150, 103);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(56, 13);
-            this.label3.TabIndex = 8;
-            this.label3.Text = "Map Sizes";
-            // 
-            // CancelBtn
-            // 
-            this.CancelBtn.Location = new System.Drawing.Point(306, 19);
-            this.CancelBtn.Name = "CancelBtn";
-            this.CancelBtn.Size = new System.Drawing.Size(75, 23);
-            this.CancelBtn.TabIndex = 0;
-            this.CancelBtn.Text = "Cancel";
-            this.CancelBtn.UseVisualStyleBackColor = true;
-            this.CancelBtn.Click += new System.EventHandler(this.CancelBtn_Click);
+            this.SaveBtn.Location = new System.Drawing.Point(387, 19);
+            this.SaveBtn.Name = "SaveBtn";
+            this.SaveBtn.Size = new System.Drawing.Size(75, 23);
+            this.SaveBtn.TabIndex = 2;
+            this.SaveBtn.Text = "Save";
+            this.SaveBtn.UseVisualStyleBackColor = true;
+            this.SaveBtn.Click += new System.EventHandler(this.SaveBtn_Click);
             // 
             // GenerateBtn
             // 
@@ -187,6 +194,16 @@
             this.GenerateBtn.Text = "Generate";
             this.GenerateBtn.UseVisualStyleBackColor = true;
             this.GenerateBtn.Click += new System.EventHandler(this.GenerateBtn_Click);
+            // 
+            // CancelBtn
+            // 
+            this.CancelBtn.Location = new System.Drawing.Point(306, 19);
+            this.CancelBtn.Name = "CancelBtn";
+            this.CancelBtn.Size = new System.Drawing.Size(75, 23);
+            this.CancelBtn.TabIndex = 0;
+            this.CancelBtn.Text = "Cancel";
+            this.CancelBtn.UseVisualStyleBackColor = true;
+            this.CancelBtn.Click += new System.EventHandler(this.CancelBtn_Click);
             // 
             // MapListBox
             // 
@@ -208,15 +225,15 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "MapList Preview";
             // 
-            // SaveBtn
+            // noDupesBox
             // 
-            this.SaveBtn.Location = new System.Drawing.Point(387, 19);
-            this.SaveBtn.Name = "SaveBtn";
-            this.SaveBtn.Size = new System.Drawing.Size(75, 23);
-            this.SaveBtn.TabIndex = 2;
-            this.SaveBtn.Text = "Save";
-            this.SaveBtn.UseVisualStyleBackColor = true;
-            this.SaveBtn.Click += new System.EventHandler(this.SaveBtn_Click);
+            this.noDupesBox.AutoSize = true;
+            this.noDupesBox.Location = new System.Drawing.Point(62, 180);
+            this.noDupesBox.Name = "noDupesBox";
+            this.noDupesBox.Size = new System.Drawing.Size(93, 17);
+            this.noDupesBox.TabIndex = 9;
+            this.noDupesBox.Text = "No Duplicates";
+            this.noDupesBox.UseVisualStyleBackColor = true;
             // 
             // RandomizeForm
             // 
@@ -235,8 +252,8 @@
             this.Text = "Random Maplist Generator";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.NumMaps)).EndInit();
+            this.groupBox2.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
@@ -261,5 +278,6 @@
         private System.Windows.Forms.TextBox MapListBox;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Button SaveBtn;
+        private System.Windows.Forms.CheckBox noDupesBox;
     }
 }

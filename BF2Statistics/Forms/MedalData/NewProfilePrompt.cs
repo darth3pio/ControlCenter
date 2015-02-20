@@ -1,11 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace BF2Statistics.MedalData
@@ -38,16 +32,16 @@ namespace BF2Statistics.MedalData
                 return;
             }
 
-            // Define paths
-            string file = Path.Combine(MedalDataEditor.PythonPath, "medal_data_" + Name + ".py");
-            string sfFile = Path.Combine(MedalDataEditor.PythonPath, "medal_data_" + Name + "_xpack.py");
-            string Functions = Utils.GetResourceAsString("BF2Statistics.MedalData.PyFiles.functions.py");
-
             // Write default medal data
             try
             {
-                File.WriteAllText(file, Functions + Utils.GetResourceAsString("BF2Statistics.MedalData.PyFiles.medal_data.py"));
-                File.WriteAllText(sfFile, Functions + Utils.GetResourceAsString("BF2Statistics.MedalData.PyFiles.medal_data_xpack.py"));
+                File.WriteAllText(
+                    Path.Combine(MedalDataEditor.PythonPath, "medal_data_" + Name + ".py"),
+                    String.Concat(
+                        Utils.GetResourceAsString("BF2Statistics.MedalData.PyFiles.functions.py"),
+                        Utils.GetResourceAsString("BF2Statistics.MedalData.PyFiles.medal_data_xpack.py")
+                    )
+                );
             }
             catch (Exception ex)
             {

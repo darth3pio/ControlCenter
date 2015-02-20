@@ -1,14 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data.Common;
-using System.IO;
-using System.Net;
-using System.ComponentModel;
-using BF2Statistics.Web.ASP;
-using BF2Statistics.Database.QueryBuilder;
-using System.Data.SQLite;
 
 namespace BF2Statistics.Database
 {

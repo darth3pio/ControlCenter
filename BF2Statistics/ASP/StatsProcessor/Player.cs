@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Net;
 
 namespace BF2Statistics.ASP.StatsProcessor
 {
+    /// <summary>
+    /// This class is used to convert the Key => value data
+    /// for a player in a Snapshot, into an object, as well
+    /// as Validate that all the player data is valid.
+    /// </summary>
     public class Player
     {
         #region Vars

@@ -1,14 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Data.SQLite;
-using MySql;
-using MySql.Data.Common;
+using System.Globalization;
 using MySql.Data.MySqlClient;
 
 namespace BF2Statistics.Database
@@ -480,6 +475,34 @@ namespace BF2Statistics.Database
 
                 // Execute command, and dispose of the command
                 return Command.ExecuteScalar();
+            }
+        }
+
+        /// <summary>
+        /// Executes the query, and returns the first column of the first row in the result 
+        /// set returned by the query. Additional columns or rows are ignored.
+        /// </summary>
+        /// <param name="Sql">The SQL statement to be executed</param>
+        public T ExecuteScalar<T>(string Sql, params object[] Items)
+        {
+            // Create the SQL Command
+            using (DbCommand Command = this.CreateCommand(Sql))
+            {
+                // Add params
+                for (int i = 0; i < Items.Length; i++)
+                {
+                    DbParameter Param = this.CreateParam();
+                    Param.ParameterName = "@P" + i;
+                    Param.Value = Items[i];
+                    Command.Parameters.Add(Param);
+                }
+
+                // Increase Query Count
+                NumQueries++;
+
+                // Execute command, and dispose of the command
+                object Value = Command.ExecuteScalar();
+                return (T)Convert.ChangeType(Value, typeof(T), CultureInfo.InvariantCulture);
             }
         }
 

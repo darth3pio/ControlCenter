@@ -1,16 +1,11 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Diagnostics;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using BF2Statistics.ASP;
 using BF2Statistics.ASP.StatsProcessor;
 using BF2Statistics.Database;
 using BF2Statistics.Web;
@@ -19,7 +14,10 @@ namespace BF2Statistics
 {
     public partial class SnapshotViewForm : Form
     {
-        private static BackgroundWorker bWorker;
+        /// <summary>
+        /// Our cancellation token used if we want to cancel the import
+        /// </summary>
+        private CancellationTokenSource ImportTaskSource;
 
         public SnapshotViewForm()
         {
@@ -33,7 +31,10 @@ namespace BF2Statistics
             ViewSelect.SelectedIndex = 0;
         }
 
-        private void ImportBtn_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Event is fired when the Import Button is clicked
+        /// </summary>
+        private async void ImportBtn_Click(object sender, EventArgs e)
         {
             // List of files to process
             List<string> Files = new List<string>();
@@ -52,37 +53,38 @@ namespace BF2Statistics
 
             // Disable this form, and show the TaskForm
             this.Enabled = false;
-            TaskForm.Show(this, "Importing Snapshots", "Importing Snapshots", true, ProgressBarStyle.Blocks, Files.Count); 
-
-            // Initialize Background worker
-            bWorker = new BackgroundWorker();
-            bWorker.WorkerSupportsCancellation = true;
-            bWorker.DoWork += new DoWorkEventHandler(bWorker_DoWork);
-            bWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bWorker_RunWorkerCompleted);
-            bWorker.RunWorkerAsync(Files);
-        }
-
-        private void bWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            BeginInvoke((Action)delegate
+            TaskForm.Show(this, "Importing Snapshots", "Importing Snapshots", true, ProgressBarStyle.Blocks, Files.Count);
+            TaskForm.Cancelled += (s, ev) =>
             {
-                // Add each found snapshot to the snapshot view
-                SnapshotView.Items.Clear();
-                BuildList();
+                TaskForm.UpdateStatus("Cancelling....");
+                ImportTaskSource.Cancel();
+            };
 
-                TaskForm.CloseForm();
-                this.Enabled = true;
-                this.Focus();
-            });
+            // Setup cancellation
+            ImportTaskSource = new CancellationTokenSource();
+            CancellationToken CancelToken = ImportTaskSource.Token;
+
+            // Wrap in a Task so we dont lock the GUI
+            await Task.Run(() => ImportSnaphotFiles(Files, CancelToken), CancelToken);
+
+            // Let progress bar update to 100%
+            TaskForm.UpdateStatus("Done! Cleaning up...");
+
+            // Update the snapshots found close task form
+            BuildList();
+            TaskForm.CloseForm();
+            this.Enabled = true;
+            this.Focus();
+            
         }
 
-        private void bWorker_DoWork(object sender, DoWorkEventArgs e)
+        /// <summary>
+        /// Imports the provided snapshot files into the stats database
+        /// </summary>
+        /// <param name="Files">List of snapshot file paths to import</param>
+        /// <param name="CancelToken">Cancellation token, to cancel the import</param>
+        private void ImportSnaphotFiles(List<string> Files, CancellationToken CancelToken)
         {
-            // Loop through each snapshot, and process it
-            List<string> Files = e.Argument as List<string>;
-            int Selected = Files.Count;
-            StatsDatabase Database = new StatsDatabase();
-
             // Order snapshots by timestamp
             var Sorted = from _File in Files
                          let parts = _File.Split('_')
@@ -95,14 +97,8 @@ namespace BF2Statistics
             foreach (string SnapshotFile in Sorted)
             {
                 // If we have a cancelation request
-                if (bWorker.CancellationPending)
-                {
-                    e.Cancel = true;
+                if (CancelToken.IsCancellationRequested)
                     break;
-                }
-
-                // Reset query Count
-                Database.NumQueries = 0;
 
                 // Process the snapshot
                 try
@@ -114,19 +110,13 @@ namespace BF2Statistics
 
                     // Update status and run snapshot
                     TaskForm.UpdateStatus(String.Format("Processing: \"{0}\"", SnapshotFile));
-                    Snapshot Snapshot = new Snapshot(File.ReadAllText(Path.Combine(Paths.SnapshotTempPath, SnapshotFile)), Date, Database);
+                    Snapshot Snapshot = new Snapshot(File.ReadAllText(Path.Combine(Paths.SnapshotTempPath, SnapshotFile)), Date);
 
                     // Do snapshot
                     Snapshot.ProcessData();
 
                     // Move the Temp snapshot to the Processed folder
                     File.Move(Path.Combine(Paths.SnapshotTempPath, SnapshotFile), Path.Combine(Paths.SnapshotProcPath, SnapshotFile));
-
-                    // Update progress
-                    TaskForm.ProgressBarStep();
-
-                    // Slow thread to let progress update
-                    Thread.Sleep(250);
                 }
                 catch (Exception E)
                 {
@@ -139,14 +129,18 @@ namespace BF2Statistics
                     if (Result == System.Windows.Forms.DialogResult.Abort)
                         break;
                 }
+                finally
+                {
+                    // Whether we failed or succeeded, we are finished with this step
+                    TaskForm.ProgressBarStep();
+                }
             }
-
-            // Let progress bar update to 100%
-            TaskForm.UpdateStatus("Done! Cleaning up...");
-            Database.Dispose();
-            Thread.Sleep(500);
         }
 
+        /// <summary>
+        /// Builds the snapshot file list, based on the snapshot files found within
+        /// the Temp and Processed folders
+        /// </summary>
         private void BuildList()
         {
             SnapshotView.Items.Clear();
@@ -178,6 +172,9 @@ namespace BF2Statistics
             SnapshotView.Update();
         }
 
+        /// <summary>
+        /// Event fired when the Select All button is clicked
+        /// </summary>
         private void SelectAllBtn_Click(object sender, EventArgs e)
         {
             foreach (ListViewItem I in SnapshotView.Items)
@@ -186,6 +183,9 @@ namespace BF2Statistics
             SnapshotView.Update();
         }
 
+        /// <summary>
+        /// Event fired when the Select None button is clicked
+        /// </summary>
         private void SelectNoneBtn_Click(object sender, EventArgs e)
         {
             foreach (ListViewItem I in SnapshotView.Items)
@@ -197,8 +197,6 @@ namespace BF2Statistics
         /// <summary>
         /// Event fired when the user right clicks, to open the context menu
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void SnapshotView_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right && SnapshotView.FocusedItem.Bounds.Contains(e.Location))
@@ -211,8 +209,6 @@ namespace BF2Statistics
         /// Event fire when the Details item menu is selected from the
         /// context menu
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void Details_MenuItem_Click(object sender, EventArgs e)
         {
             // Get our snapshot file name
@@ -229,21 +225,14 @@ namespace BF2Statistics
                 : Path.Combine(Paths.SnapshotProcPath, Name);
 
             // Load up the snapshot, and display the Game Result Window
-            GameResultForm F;
-            using (StatsDatabase Database = new StatsDatabase())
-            {
-                Snapshot Snapshot = new Snapshot(File.ReadAllText(_File), Date, Database);
-                F = new GameResultForm(Snapshot as GameResult);
-            }
-
+            Snapshot Snapshot = new Snapshot(File.ReadAllText(_File), Date);
+            GameResultForm F = new GameResultForm(Snapshot as GameResult);
             F.ShowDialog();
         }
 
         /// <summary>
         /// Event fired when the snapshot view type is changed
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void ViewSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Enable/Disable features based in mode
@@ -272,6 +261,9 @@ namespace BF2Statistics
             }
         }
 
+        /// <summary>
+        /// Event fired when the Move Snapshot menu item is clicked from the drop down menu (right click)
+        /// </summary>
         private void MoveSnapshotMenuItem_Click(object sender, EventArgs e)
         {
             // Get our snapshot file name
@@ -298,6 +290,11 @@ namespace BF2Statistics
             BuildList();
         }
 
+        /// <summary>
+        /// Event fired when the Delete button is clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DeleteBtn_Click(object sender, EventArgs e)
         {
             // List of files to process

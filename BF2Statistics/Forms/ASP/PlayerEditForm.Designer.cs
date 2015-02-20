@@ -35,6 +35,7 @@
             this.RankPictureBox = new System.Windows.Forms.PictureBox();
             this.panel2 = new System.Windows.Forms.Panel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.LabelPid = new System.Windows.Forms.Label();
             this.LabelJoined = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.PermBanSelect = new System.Windows.Forms.ComboBox();
@@ -45,6 +46,7 @@
             this.ClanTagBox = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.ResetStatsBtn = new System.Windows.Forms.Button();
             this.DeletePlayerBtn = new System.Windows.Forms.Button();
             this.ExportPlayerBtn = new System.Windows.Forms.Button();
             this.ResetUnlocksBtn = new System.Windows.Forms.Button();
@@ -66,8 +68,8 @@
             this.lineShape1 = new Microsoft.VisualBasic.PowerPacks.LineShape();
             this.SaveBtn = new System.Windows.Forms.Button();
             this.CancelBtn = new System.Windows.Forms.Button();
-            this.ResetStatsBtn = new System.Windows.Forms.Button();
-            this.LabelPid = new System.Windows.Forms.Label();
+            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.ViewBf2sBtn = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.CountryPicture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RankPictureBox)).BeginInit();
@@ -143,6 +145,7 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.linkLabel1);
             this.groupBox3.Controls.Add(this.LabelPid);
             this.groupBox3.Controls.Add(this.LabelJoined);
             this.groupBox3.Controls.Add(this.label2);
@@ -159,6 +162,15 @@
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Player Data";
+            // 
+            // LabelPid
+            // 
+            this.LabelPid.AutoSize = true;
+            this.LabelPid.Location = new System.Drawing.Point(69, 32);
+            this.LabelPid.Name = "LabelPid";
+            this.LabelPid.Size = new System.Drawing.Size(61, 13);
+            this.LabelPid.TabIndex = 13;
+            this.LabelPid.Text = "000000000";
             // 
             // LabelJoined
             // 
@@ -280,6 +292,17 @@
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Operations";
+            // 
+            // ResetStatsBtn
+            // 
+            this.ResetStatsBtn.Location = new System.Drawing.Point(25, 64);
+            this.ResetStatsBtn.Name = "ResetStatsBtn";
+            this.ResetStatsBtn.Size = new System.Drawing.Size(150, 28);
+            this.ResetStatsBtn.TabIndex = 1;
+            this.ResetStatsBtn.TabStop = false;
+            this.ResetStatsBtn.Text = "Reset Player Stats";
+            this.ResetStatsBtn.UseVisualStyleBackColor = true;
+            this.ResetStatsBtn.Click += new System.EventHandler(this.ResetStatsBtn_Click);
             // 
             // DeletePlayerBtn
             // 
@@ -507,31 +530,33 @@
             this.CancelBtn.UseVisualStyleBackColor = true;
             this.CancelBtn.Click += new System.EventHandler(this.CancelBtn_Click);
             // 
-            // ResetStatsBtn
+            // linkLabel1
             // 
-            this.ResetStatsBtn.Location = new System.Drawing.Point(25, 64);
-            this.ResetStatsBtn.Name = "ResetStatsBtn";
-            this.ResetStatsBtn.Size = new System.Drawing.Size(150, 28);
-            this.ResetStatsBtn.TabIndex = 1;
-            this.ResetStatsBtn.TabStop = false;
-            this.ResetStatsBtn.Text = "Reset Player Stats";
-            this.ResetStatsBtn.UseVisualStyleBackColor = true;
-            this.ResetStatsBtn.Click += new System.EventHandler(this.ResetStatsBtn_Click);
+            this.linkLabel1.AutoSize = true;
+            this.linkLabel1.Location = new System.Drawing.Point(136, 32);
+            this.linkLabel1.Name = "linkLabel1";
+            this.linkLabel1.Size = new System.Drawing.Size(90, 13);
+            this.linkLabel1.TabIndex = 14;
+            this.linkLabel1.TabStop = true;
+            this.linkLabel1.Text = "Copy to Clipboard";
+            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
-            // LabelPid
+            // ViewBf2sBtn
             // 
-            this.LabelPid.AutoSize = true;
-            this.LabelPid.Location = new System.Drawing.Point(69, 32);
-            this.LabelPid.Name = "LabelPid";
-            this.LabelPid.Size = new System.Drawing.Size(61, 13);
-            this.LabelPid.TabIndex = 13;
-            this.LabelPid.Text = "000000000";
+            this.ViewBf2sBtn.Location = new System.Drawing.Point(19, 300);
+            this.ViewBf2sBtn.Name = "ViewBf2sBtn";
+            this.ViewBf2sBtn.Size = new System.Drawing.Size(125, 28);
+            this.ViewBf2sBtn.TabIndex = 4;
+            this.ViewBf2sBtn.Text = "View on Leaderboard";
+            this.ViewBf2sBtn.UseVisualStyleBackColor = true;
+            this.ViewBf2sBtn.Click += new System.EventHandler(this.ViewBf2sBtn_Click);
             // 
             // PlayerEditForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(669, 337);
+            this.Controls.Add(this.ViewBf2sBtn);
             this.Controls.Add(this.CancelBtn);
             this.Controls.Add(this.SaveBtn);
             this.Controls.Add(this.panel2);
@@ -598,5 +623,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button ResetStatsBtn;
         private System.Windows.Forms.Label LabelPid;
+        private System.Windows.Forms.LinkLabel linkLabel1;
+        private System.Windows.Forms.Button ViewBf2sBtn;
     }
 }

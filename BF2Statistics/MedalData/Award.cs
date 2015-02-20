@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace BF2Statistics.MedalData
 {
+    /// <summary>
+    /// Represents an award found in the medal data file as an object
+    /// </summary>
     public class Award : IAward
     {
         /// <summary>

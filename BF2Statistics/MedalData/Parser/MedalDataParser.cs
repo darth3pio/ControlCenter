@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Diagnostics;
-using System.Xml;
 using System.Windows.Forms;
 
 namespace BF2Statistics.MedalData

@@ -1,21 +1,22 @@
 ﻿using System;
-using System.IO;
-using System.Data;
-using System.Data.Common;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Data.Common;
 using System.Diagnostics;
-using System.Net;
 using System.Globalization;
+using System.IO;
+using System.Net;
+using System.Text;
 using BF2Statistics.Database;
-using BF2Statistics.Logging;
 using BF2Statistics.Database.QueryBuilder;
-using BF2Statistics.Web;
-using BF2Statistics.Utilities;
+using BF2Statistics.Logging;
 
 namespace BF2Statistics.ASP.StatsProcessor
 {
+    /// <summary>
+    /// This class is used to Validate, and Process the
+    /// Game data sent from the Battlefield 2 server at
+    /// the end of a round (Aka: Snapshot data)
+    /// </summary>
     class Snapshot : GameResult
     {
         /// <summary>
@@ -39,25 +40,34 @@ namespace BF2Statistics.ASP.StatsProcessor
         public bool IsProcessed { get; protected set; }
 
         /// <summary>
-        /// On Finish Event
+        /// Returns the Original Data string used to build this snapshot object
         /// </summary>
-        public static event SnapshotProccessed SnapshotProcessed;
+        public string DataString { get; protected set; }
+
+        /// <summary>
+        /// Returns the server IP that posted this snapshot. If no Server
+        /// IP is provided (Ex: loading snapshot from a file), then the local
+        /// loopback address will be returned instead
+        /// </summary>
+        public IPAddress ServerIp { get; protected set; }
 
         /// <summary>
         /// Initializes a new Snapshot, with the specified Date it was Posted
         /// </summary>
         /// <param name="Snapshot">The snapshot source</param>
         /// <param name="Date">The original date in which this snapshot was created</param>
-        public Snapshot(string Snapshot, DateTime Date, StatsDatabase Database)
+        public Snapshot(string Snapshot, DateTime Date, IPAddress ServerIp = null)
         {
             // Set some internal variables
-            this.Driver = Database;
+            this.Driver = new StatsDatabase();
             this.Date = Date;
             this.TimeStamp = Date.ToUnixTimestamp();
+            this.ServerIp = ServerIp ?? IPAddress.Loopback;
             this.Players = new List<Player>();
 
             // Get our snapshot key value pairs
-            string[] Data = Snapshot.Trim().Split('\\');
+            this.DataString = Snapshot.Trim();
+            string[] Data = DataString.Split('\\');
             Snapshot = null;
 
             // Check for invalid snapshot string. All snapshots have at least 36 data pairs, 
@@ -70,7 +80,7 @@ namespace BF2Statistics.ASP.StatsProcessor
             // Assign server name and prefix, and determine if we are central update. the "cdb_update" variable must be the LAST sector in snapshot
             this.ServerPrefix = Data[0];
             this.ServerName = Data[1];
-            this.IsCentralUpdate = (Data[Data.Length - 2] == "cdb_update" && Data[Data.Length - 1] == "1");
+            this.IsCentralUpdate = (Data[Data.Length - 2] == "cdb_update" && Data[Data.Length - 1] != "0");
 
             // Setup our data dictionary's
             NiceDictionary<string, string> StandardData = new NiceDictionary<string, string>();
@@ -743,7 +753,7 @@ namespace BF2Statistics.ASP.StatsProcessor
                                 Query += " AND level=" + Award.Value.ToString();
 
                             // Check for prior awarding of award
-                            if (Convert.ToInt32(Driver.ExecuteScalar(Query, Player.Pid, Award.Key)) == 0)
+                            if (Driver.ExecuteScalar<int>(Query, Player.Pid, Award.Key) == 0)
                             {
                                 // Need to do extra work for Badges as more than one badge level may have been awarded.
                                 // The snapshot will only post the highest awarded level of a badge, so here we award
@@ -754,7 +764,7 @@ namespace BF2Statistics.ASP.StatsProcessor
                                     for (int j = 1; j < Award.Value; j++)
                                     {
                                         Query = "SELECT COUNT(*) FROM awards WHERE id=@P0 AND awd=@P1 AND level=@P2";
-                                        if (Convert.ToInt32(Driver.ExecuteScalar(Query, Player.Pid, Award.Key, j)) == 0)
+                                        if (Driver.ExecuteScalar<int>(Query, Player.Pid, Award.Key, j) == 0)
                                         {
                                             // Prepare Query
                                             InsertQuery.SetField("id", Player.Pid);
@@ -876,7 +886,6 @@ namespace BF2Statistics.ASP.StatsProcessor
                 this.IsProcessed = true;
                 TimeSpan Timer = new TimeSpan(Clock.ElapsedTicks);
                 Log(String.Format("Snapshot ({0}) processed in {1} milliseconds [{2} Queries]", this.MapName, Timer.Milliseconds, Driver.NumQueries), LogLevel.Info);
-                SnapshotProcessed();
             }
             catch (Exception E)
             {

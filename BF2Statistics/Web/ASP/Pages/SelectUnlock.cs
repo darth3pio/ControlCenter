@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using BF2Statistics.Database;
-using System.Data.Common;
 
 namespace BF2Statistics.Web.ASP
 {
+    /// <summary>
+    /// /ASP/selectunlock.aspx
+    /// </summary>
     class SelectUnlock
     {
         /// <summary>

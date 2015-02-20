@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using System.Threading;
 
 namespace BF2Statistics
 {
@@ -42,18 +39,7 @@ namespace BF2Statistics
         static Notify()
         {
             AlertsShowing = false;
-            MainForm.SysIcon.BalloonTipClosed += new EventHandler(AlertClosed);
-        }
-
-        /// <summary>
-        /// Displays a generic Toast message with the Info icon
-        /// </summary>
-        /// <param name="Message"></param>
-        /// <param name="SubText"></param>
-        public static void Show(string Message, string SubText)
-        {
-            Alerts.Enqueue(new NotifyOptions(Message, SubText, AlertType.Info));
-            CheckAlerts();
+            MainForm.SysIcon.BalloonTipClosed += AlertClosed;
         }
 
         /// <summary>
@@ -62,7 +48,7 @@ namespace BF2Statistics
         /// <param name="Message"></param>
         /// <param name="SubText"></param>
         /// <param name="Type"></param>
-        public static void Show(string Message, string SubText, AlertType Type)
+        public static void Show(string Message, string SubText, AlertType Type = AlertType.Info)
         {
             Alerts.Enqueue(new NotifyOptions(Message, SubText, Type));
             CheckAlerts();

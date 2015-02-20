@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace BF2Statistics
@@ -68,7 +67,7 @@ namespace BF2Statistics
                 return Items[Name];
             }
             catch (KeyNotFoundException) {
-                MainForm.Log("Settings Parser: Item not found \"{0}\"", Name);
+                Program.ErrorLog.Write("WARNING: [SettingsParser]: Server Setting \"{0}\" Not Found in ServerSettings.con", Name);
                 throw;
             }
         }

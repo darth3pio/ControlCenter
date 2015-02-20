@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 namespace BF2Statistics
 {
@@ -110,35 +109,45 @@ namespace BF2Statistics
             // Make sure we have a mod description file
             if (!File.Exists(DescFile))
             {
-                Program.ErrorLog.Write("Mod \"" + ModName + "\" Does not contain mod.desc file");
-                throw new InvalidModException("Mod does not contain a mod.desc file");
+                Program.ErrorLog.Write("NOTICE: Mod \"" + ModName + "\" Does not contain mod.desc file");
+                throw new InvalidModException("Mod \"" + ModName + "\" does not contain a mod.desc file");
             }
 
             // Make sure we have a levels directory
             if (!Directory.Exists(LevelsPath))
             {
-                Program.ErrorLog.Write("Mod \"" + ModName + "\" Does not contain a Levels folder");
-                throw new InvalidModException("Mod does not contain a levels folder");
+                Program.ErrorLog.Write("NOTICE: Mod \"" + ModName + "\" Does not contain a Levels folder");
+                throw new InvalidModException("Mod \"" + ModName + "\" does not contain a levels folder");
             }
 
             // Make sure we have a maplist!
             if (!File.Exists(MaplistFile))
             {
-                Program.ErrorLog.Write("Mod \"" + ModName + "\" Does not contain a maplist.con file");
-                throw new InvalidModException("Mod does not contain a a maplist.con file");
+                Program.ErrorLog.Write("NOTICE: Mod \"" + ModName + "\" Does not contain a maplist.con file");
+                throw new InvalidModException("Mod \"" + ModName + "\" does not contain a maplist.con file");
             }
 
             // Get the actual name of the mod
-            XmlDocument Desc = new XmlDocument();
-            Desc.Load(DescFile);
-            XmlNodeList Node = Desc.GetElementsByTagName("title");
-            string Name = Node[0].InnerText.Trim();
-            if (Name == "MODDESC_BF2_TITLE")
-                this.Title = "Battlefield 2";
-            else if (Name == "MODDESC_XP_TITLE")
-                this.Title = "Battlefield 2: Special Forces";
-            else
-                this.Title = Name;
+            try
+            {
+                XmlDocument Desc = new XmlDocument();
+                Desc.Load(DescFile);
+                XmlNodeList Node = Desc.GetElementsByTagName("title");
+                string Name = Node[0].InnerText.Trim();
+                if (Name == "MODDESC_BF2_TITLE")
+                    this.Title = "Battlefield 2";
+                else if (Name == "MODDESC_XP_TITLE")
+                    this.Title = "Battlefield 2: Special Forces";
+                else
+                    this.Title = Name;
+            }
+            catch(Exception E)
+            {
+                throw new InvalidModException(
+                    "Mod \"" + ModName + "\" contains an invalid Mod.desc file: "
+                    + Environment.NewLine + "   " + E.Message, E
+                );
+            }
 
             // Load the levels
             Levels = new List<string>(from dir in Directory.GetDirectories(LevelsPath) select dir.Substring(LevelsPath.Length + 1));

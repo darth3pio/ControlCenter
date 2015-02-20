@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Globalization;
 using System.IO;
 using BF2Statistics.Database;
@@ -208,7 +206,7 @@ namespace BF2Statistics.Web.Bf2Stats
                     }
                     catch (Exception e)
                     {
-                        Program.ErrorLog.Write("[PlayerPage.CreateCacheFile] " + e.Message);
+                        Program.ErrorLog.Write("WARNING: [PlayerPage.CreateCacheFile] " + e.Message);
                     }
 
                     return page;
@@ -225,7 +223,7 @@ namespace BF2Statistics.Web.Bf2Stats
                     }
                     catch (Exception e)
                     {
-                        Program.ErrorLog.Write("[PlayerPage.ReadCacheFile] " + e.Message);
+                        Program.ErrorLog.Write("ERROR: [PlayerPage.ReadCacheFile] " + e.Message);
                         return "Cache Read Error";
                     }
                 }

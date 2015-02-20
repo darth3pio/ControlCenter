@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace BF2Statistics
@@ -20,7 +17,12 @@ namespace BF2Statistics
         /// </summary>
         protected string FileContents;
 
-        #region Misc Settings
+        #region General Settings
+
+        /// <summary>
+        /// Enables or Disables Ranked mode
+        /// </summary>
+        public bool StatsEnabled;
 
         /// <summary>
         /// Enables or Disables the debug for the BF2Statistics python scripts
@@ -42,12 +44,7 @@ namespace BF2Statistics
         /// </summary>
         public string MedalDataProfile;
 
-        /// <summary>
-        /// Enabes or Disables the forced medal data keystring
-        /// </summary>
-        public bool ForceMedalKeystring;
-
-        #endregion Misc Settings
+        #endregion General Settings
 
         #region ASP
 
@@ -143,10 +140,17 @@ namespace BF2Statistics
             Match Match;
             int dummy;
 
+            // Stats Enabled
+            Match = Regex.Match(FileContents, @"stats_enable = (?<value>[0-1])");
+            if (!Int32.TryParse(Match.Groups["value"].Value, out dummy))
+                throw new Exception("The config key \"stats_enable\" was not formated correctly.");
+
+            StatsEnabled = (dummy == 1);
+
             // Debug Enabled
             Match = Regex.Match(FileContents, @"debug_enable = (?<value>[0-1])");
             if (!Int32.TryParse(Match.Groups["value"].Value, out dummy))
-                throw new Exception("The config key \"debug_enabled\" was not formated correctly.");
+                throw new Exception("The config key \"debug_enable\" was not formated correctly.");
 
             DebugEnabled = (dummy == 1);
 
@@ -168,13 +172,6 @@ namespace BF2Statistics
                 throw new Exception("The config key \"medals_custom_data\" was not formated correctly.");
 
             MedalDataProfile = Match.Groups["value"].Value;
-
-            // Force Medal Keystring
-            Match = Regex.Match(FileContents, @"medals_force_keystring = (?<value>[0-1])");
-            if (!Int32.TryParse(Match.Groups["value"].Value, out dummy))
-                throw new Exception("The config key \"medals_force_keystring\" was not formated correctly.");
-
-            ForceMedalKeystring = (dummy == 1);
 
             // ASP Address
             Match = Regex.Match(FileContents, @"http_backend_addr = '(?<value>.*)'");
@@ -288,11 +285,11 @@ namespace BF2Statistics
         public void Save()
         {
             // Do replacements
+            FileContents = Regex.Replace(FileContents, @"stats_enable = ([0-1])", "stats_enable = " + (StatsEnabled ? 1 : 0));
             FileContents = Regex.Replace(FileContents, @"debug_enable = ([0-1])", "debug_enable = " + (DebugEnabled ? 1 : 0));
             FileContents = Regex.Replace(FileContents, @"snapshot_logging = ([0-2])", "snapshot_logging = " + SnapshotLogging);
             FileContents = Regex.Replace(FileContents, @"snapshot_prefix = '([A-Za-z0-9_]*)'", String.Format("snapshot_prefix = '{0}'", SnapshotPrefix));
             FileContents = Regex.Replace(FileContents, @"medals_custom_data = '([A-Za-z0-9_]*)'", String.Format("medals_custom_data = '{0}'", MedalDataProfile));
-            FileContents = Regex.Replace(FileContents, @"medals_force_keystring = ([0-1])", "medals_force_keystring = " + (ForceMedalKeystring ? 1 : 0));
             FileContents = Regex.Replace(FileContents, @"http_backend_addr = '(.*)'", String.Format("http_backend_addr = '{0}'", AspAddress));
             FileContents = Regex.Replace(FileContents, @"http_central_addr = '(.*)'", String.Format("http_central_addr = '{0}'", CentralAspAddress));
             FileContents = Regex.Replace(FileContents, @"http_backend_port = ([0-9]+)", "http_backend_port = " + AspPort);

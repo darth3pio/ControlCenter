@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
 using System.Net;
-using BF2Statistics.ASP;
+using System.Text;
 
 namespace BF2Statistics.Web
 {
@@ -73,17 +70,6 @@ namespace BF2Statistics.Web
         public bool ResponseSent { get; protected set; }
 
         /// <summary>
-        /// Event that is called when the response is being prepared to be sent
-        /// </summary>
-        public event EventHandler SendingResponse;
-
-        /// <summary>
-        /// Event that is called when the response has been written to the
-        /// output stream.
-        /// </summary>
-        public event EventHandler SentResponse;
-
-        /// <summary>
         /// Constructor
         /// </summary>
         public HttpResponse(HttpListenerResponse Response, HttpClient Client)
@@ -117,18 +103,14 @@ namespace BF2Statistics.Web
             Response.KeepAlive = false;
             Response.ContentLength64 = 0;
             Response.Redirect(url);
+
+            // Response is finished
+            ResponseSent = true;
             Response.Close();
             Clock.Stop();
 
             // Log Request
             LogAccess();
-
-            // Response is finished
-            ResponseSent = true;
-
-            // Fire Event
-            if (SentResponse != null)
-                SentResponse(this, null);
         }
 
         /// <summary>
@@ -160,30 +142,34 @@ namespace BF2Statistics.Web
         {
             // Cant send a second response!
             if (ResponseSent)
-                throw new Exception("Unable to send a response to the client, A response has already been sent!");
+                return; //throw new Exception("Unable to send a response to the client, A response has already been sent!");
 
-            // Fire Event
-            if (SendingResponse != null)
-                SendingResponse(this, null);
+            try
+            {
+                // Set the contents length, Instruct to close the connection
+                Response.ContentLength64 = Body.Length;
+                Response.KeepAlive = false;
 
-            // Set the contents length, Instruct to close the connection
-            Response.ContentLength64 = Body.Length;
-            Response.KeepAlive = false;
+                // Send Response to the remote socket
+                if(Client.Request.HttpMethod != "HEAD")
+                    Response.OutputStream.Write(Body, 0, Body.Length);
+            }
+            catch(Exception Ex)
+            {
+                Program.ErrorLog.Write("WARNING: [HttpResponse.Send] " + Ex.Message);
+            }
+            finally
+            {
+                // Response is finished
+                ResponseSent = true;
 
-            // Send Response to the remote socket
-            Response.OutputStream.Write(Body, 0, Body.Length);
-            Response.Close();
-            Clock.Stop();
+                // Close the response objects
+                Response.Close();
+                Clock.Stop();
 
-            // Log Request
-            LogAccess();
-
-            // Response is finished
-            ResponseSent = true;
-
-            // Fire Event
-            if (SentResponse != null)
-                SentResponse(this, null);
+                // Log Request
+                LogAccess();
+            }
         }
 
         /// <summary>
@@ -211,7 +197,7 @@ namespace BF2Statistics.Web
         /// </summary>
         protected void LogAccess()
         {
-            HttpServer.AccessLog.Write("{0} - \"{1}\" [Status: {2}, Len: {3}, Time: {4}ms]",
+            HttpServer.HttpAccessLog.Write("{0} - \"{1}\" [Status: {2}, Len: {3}, Time: {4}ms]",
                 Client.RemoteEndPoint.Address,
                 String.Concat(
                     Client.Request.HttpMethod,
