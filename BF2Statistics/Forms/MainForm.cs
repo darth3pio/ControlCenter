@@ -18,6 +18,9 @@ using BF2Statistics.Web;
 
 namespace BF2Statistics
 {
+    /// <summary>
+    /// This form represents the Main GUI window of the application
+    /// </summary>
     public partial class MainForm : Form
     {
         /// <summary>
@@ -71,9 +74,8 @@ namespace BF2Statistics
         /// </summary>
         public MainForm()
         {
+            // Create Form Controls and Set Instance
             InitializeComponent();
-
-            // Set instance
             Instance = this;
 
             // Make sure the basic configuration settings are setup by the user,
@@ -84,10 +86,10 @@ namespace BF2Statistics
                 return;
             }
 
-            // Load Mods, and fill the Mod Select Dropdown
+            // Fill the Mod Select Dropdown with the loaded server mods
             LoadModList();
 
-            // Set BF2Statistics Install Status
+            // Set BF2Statistics Python Install / Ranked Status
             SetInstallStatus();
 
             // Try to access the hosts file
@@ -107,10 +109,10 @@ namespace BF2Statistics
             // If we dont have a client path, disable the Launch Client button
             LaunchClientBtn.Enabled = (!String.IsNullOrWhiteSpace(Config.ClientPath) && File.Exists(Path.Combine(Config.ClientPath, "bf2.exe")));
 
-            // Start Gamespy Available Server
+            // Start Gamespy Available Server. This prevents the 60 second hang on Bf2 Startup
             AvailServer = new Bf2Available();
 
-            // Register for ASP events
+            // Register for ASP server events
             HttpServer.Started += ASPServer_OnStart;
             HttpServer.Stopped += ASPServer_OnShutdown;
             HttpServer.RequestRecieved += ASPServer_ClientConnected;
@@ -127,15 +129,15 @@ namespace BF2Statistics
             BF2Server.Exited += BF2Server_Exited;
             BF2Server.ServerPathChanged += LoadModList;
 
-            // Initial setup
+            // Since we werent registered for Bf2Server events before, do this here
             if (BF2Server.IsRunning)
                 this.Shown += (s, e) => BF2Server_Started();
 
-            // Add administrator title to program title bar
+            // Add administrator title to program title bar if in Admin mode
             if (Program.IsAdministrator)
                 this.Text += " (Administrator)";
 
-            // Set server tooltips
+            // Set some tooltips
             Tipsy.SetToolTip(LoginStatusPic, "Login server is currently offline");
             Tipsy.SetToolTip(AspStatusPic, "Asp server is currently offline");
             Tipsy.SetToolTip(labelSnapshotsProc, "Processed / Received");
@@ -1049,27 +1051,30 @@ namespace BF2Statistics
                     }
 
                     // Convert Localhost to the Loopback Address
-                    if (text == "localhost")
-                        text = IPAddress.Loopback.ToString();
-
-                    // Check if this is an IP address or hostname
                     IPAddress BF2Web;
-                    try
+                    if (text == "localhost")
                     {
-                        UpdateHostFileStatus("- Resolving Hostname: " + text);
-                        BF2Web = Networking.GetIpAddress(text);
-                        UpdateHostFileStatus("- Found IP: " + BF2Web);
+                        BF2Web = IPAddress.Loopback;
                     }
-                    catch
+                    else
                     {
-                        MessageBox.Show(
-                            "Stats server redirect address is invalid, or doesnt exist. Please enter a valid, and existing IPv4/6 or Hostname.",
-                            "Invalid Address", MessageBoxButtons.OK, MessageBoxIcon.Warning
-                        );
+                        try
+                        {
+                            UpdateHostFileStatus("- Resolving Hostname: " + text);
+                            BF2Web = Networking.GetIpAddress(text);
+                            UpdateHostFileStatus("- Found IP: " + BF2Web);
+                        }
+                        catch
+                        {
+                            MessageBox.Show(
+                                "Stats server redirect address is invalid, or doesnt exist. Please enter a valid, and existing IPv4/6 or Hostname.",
+                                "Invalid Address", MessageBoxButtons.OK, MessageBoxIcon.Warning
+                            );
 
-                        UpdateHostFileStatus("- Failed to Resolve Hostname!");
-                        UnlockGroups();
-                        return;
+                            UpdateHostFileStatus("- Failed to Resolve Hostname!");
+                            UnlockGroups();
+                            return;
+                        }
                     }
 
                     // Append line, and update status
@@ -1095,27 +1100,30 @@ namespace BF2Statistics
                     }
 
                     // Convert Localhost to the Loopback Address
-                    if (text2 == "localhost")
-                        text2 = IPAddress.Loopback.ToString();
-
-                    // Make sure the IP address is valid!
                     IPAddress GpcmA;
-                    try
+                    if (text2 == "localhost")
                     {
-                        UpdateHostFileStatus("- Resolving Hostname: " + text2);
-                        GpcmA = Networking.GetIpAddress(text2);
-                        UpdateHostFileStatus("- Found IP: " + GpcmA);
+                        GpcmA = IPAddress.Loopback;
                     }
-                    catch
+                    else
                     {
-                        MessageBox.Show(
-                            "Login Server redirect address is invalid, or doesnt exist. Please enter a valid, and existing IPv4/6 or Hostname.",
-                            "Invalid Address", MessageBoxButtons.OK, MessageBoxIcon.Warning
-                        );
+                        try
+                        {
+                            UpdateHostFileStatus("- Resolving Hostname: " + text2);
+                            GpcmA = Networking.GetIpAddress(text2);
+                            UpdateHostFileStatus("- Found IP: " + GpcmA);
+                        }
+                        catch
+                        {
+                            MessageBox.Show(
+                                "Login Server redirect address is invalid, or doesnt exist. Please enter a valid, and existing IPv4/6 or Hostname.",
+                                "Invalid Address", MessageBoxButtons.OK, MessageBoxIcon.Warning
+                            );
 
-                        UpdateHostFileStatus("- Failed to Resolve Hostname!");
-                        UnlockGroups();
-                        return;
+                            UpdateHostFileStatus("- Failed to Resolve Hostname!");
+                            UnlockGroups();
+                            return;
+                        }
                     }
 
                     // Update status
@@ -1321,21 +1329,14 @@ namespace BF2Statistics
         /// Adds a new line to the "status" window on the GUI
         /// </summary>
         /// <param name="message">The message to print</param>
-        public void UpdateHostFileStatus(string message)
-        {
-            UpdateHostFileStatus(message, true);
-        }
-
-        /// <summary>
-        /// Adds a new line to the "status" window on the GUI
-        /// </summary>
-        /// <param name="message">The message to print</param>
         /// <param name="newLine">Add a new line for the next message?</param>
-        public void UpdateHostFileStatus(string message, bool newLine)
+        public void UpdateHostFileStatus(string message, bool newLine = true)
         {
             // Add new line
             if (newLine) message = message + Environment.NewLine;
 
+            // Ask if we need invoke to prevent an exception at startup 
+            // because window handle wasnt created yet.
             if (InvokeRequired)
             {
                 // Invoke the logbox update

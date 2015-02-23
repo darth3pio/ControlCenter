@@ -48,11 +48,6 @@ namespace BF2Statistics.Web.ASP
             this.Response = Client.Response as ASPResponse;
             this.Driver = Database;
 
-            // Earned and Available Unlocks
-            int HasUsed = 0;
-            int Earned = 0;
-            int Available = 0;
-
             // Get player ID
             if (Client.Request.QueryString.ContainsKey("pid"))
                 Int32.TryParse(Client.Request.QueryString["pid"], out Pid);
@@ -76,9 +71,9 @@ namespace BF2Statistics.Web.ASP
 
                     // Get total number of unlocks player is allowed to have givin his rank, and bonus unlocks
                     Rank = Int32.Parse(Rows[0]["rank"].ToString());
-                    HasUsed = Int32.Parse(Rows[0]["usedunlocks"].ToString());
-                    Available = Int32.Parse(Rows[0]["availunlocks"].ToString());
-                    Earned = GetBonusUnlocks();
+                    int HasUsed = Int32.Parse(Rows[0]["usedunlocks"].ToString());
+                    int Available = Int32.Parse(Rows[0]["availunlocks"].ToString());
+                    int Earned = GetBonusUnlocks();
 
                     // Determine total unlocks available, based on what he has earned, minus what he has used already
                     Rows = Driver.Query("SELECT COUNT(id) AS count FROM unlocks WHERE id = @P0 AND state = 's'", Pid);

@@ -16,9 +16,7 @@ namespace BF2Statistics
         public static string Repeat(this string input, int count = 1, string delimiter = "")
         {
             // Make sure we arent null!
-            if (input == null)
-                return "";
-            else if (count == 0)
+            if (input == null || count == 0)
                 return input;
 
             // Create a new string builder
@@ -30,6 +28,14 @@ namespace BF2Statistics
                 builder.Append(delimiter + input);
 
             return builder.ToString();
+        }
+
+        /// <summary>
+        /// Returns this string, in reverse order (abcde becomes edcba)
+        /// </summary>
+        public static string Inverse(this string input)
+        {
+            return new string(input.Reverse().ToArray());
         }
 
         /// <summary>

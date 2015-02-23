@@ -2,6 +2,7 @@
 using System.Data.Common;
 using System.Data.SQLite;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using BF2Statistics.Database;
 using MySql.Data.MySqlClient;
@@ -165,7 +166,7 @@ namespace BF2Statistics
         /// <summary>
         /// Event fired when the Test button is clicked
         /// </summary>
-        private void TestBtn_Click(object sender, EventArgs e)
+        private async void TestBtn_Click(object sender, EventArgs e)
         {
             // Disable console
             this.Enabled = false;
@@ -181,19 +182,36 @@ namespace BF2Statistics
             // Attempt to connect, reporting any and all errors
             try
             {
-                MySqlConnection Connection = new MySqlConnection(Builder.ConnectionString);
-                Connection.Open();
-                Connection.Close();
+                // Show loading form
+                LoadingForm.ShowScreen(this, true, "Connecting to MySQL Database...");
+
+                // Dont lock up the program
+                await Task.Run(() =>
+                {
+                    MySqlConnection Connection = new MySqlConnection(Builder.ConnectionString);
+                    Connection.Open();
+                    Connection.Close();
+                });
             }
             catch (Exception E)
             {
-                this.Enabled = true;
-                MessageBox.Show(E.Message, "Connection Error");
+                MessageBox.Show(E.Message, "Connection Error", MessageBoxButtons.OK, 
+                    MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1,
+                    (MessageBoxOptions)0x40000 // Force window on top
+                );
                 return;
             }
+            finally
+            {
+                LoadingForm.CloseForm();
+                this.Enabled = true;
+            }
 
-            MessageBox.Show("Connection Successful!", "Success");
-            this.Enabled = true;
+            // Show success after loading form has been called to close
+            MessageBox.Show("Connection Successful!", "Success", MessageBoxButtons.OK,
+                MessageBoxIcon.Information, MessageBoxDefaultButton.Button1,
+                (MessageBoxOptions)0x40000 // Force window on top
+            );
         }
 
         /// <summary>

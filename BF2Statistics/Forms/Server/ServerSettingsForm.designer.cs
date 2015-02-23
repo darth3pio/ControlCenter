@@ -306,7 +306,7 @@
             this.EnablePunkBuster.TabIndex = 29;
             this.EnablePunkBuster.Text = "Enable Punk Buster";
             this.Tipsy.SetToolTip(this.EnablePunkBuster, "Enable PunkBuster automatic cheat protection. Visit http://www.evenbalance.com fo" +
-                    "r more information about PunkBuster.");
+        "r more information about PunkBuster.");
             this.EnablePunkBuster.UseVisualStyleBackColor = true;
             // 
             // AutoBalanceBox
@@ -318,8 +318,8 @@
             this.AutoBalanceBox.TabIndex = 28;
             this.AutoBalanceBox.Text = "Autobalance Teams";
             this.Tipsy.SetToolTip(this.AutoBalanceBox, "Enabling this will automatically move players to the team with less players when " +
-                    "they die, and will prevent players from switching\r\nteams if it would cause them " +
-                    "to be too unbalanced.");
+        "they die, and will prevent players from switching\r\nteams if it would cause them " +
+        "to be too unbalanced.");
             this.AutoBalanceBox.UseVisualStyleBackColor = true;
             // 
             // ServerIpBox
@@ -338,8 +338,8 @@
             this.label9.TabIndex = 26;
             this.label9.Text = "Server IP:";
             this.Tipsy.SetToolTip(this.label9, "This setting allows you to set the network IP address for your server. This setti" +
-                    "ng needs to match the \"interfaceIP\" setting.\r\n\r\nNote: Leave Blank to use the def" +
-                    "ault IP for this machine");
+        "ng needs to match the \"interfaceIP\" setting.\r\n\r\nNote: Leave Blank to use the def" +
+        "ault IP for this machine");
             // 
             // groupBox13
             // 
@@ -376,8 +376,8 @@
             this.TeamRatioBar.TabIndex = 20;
             this.TeamRatioBar.TickFrequency = 10;
             this.Tipsy.SetToolTip(this.TeamRatioBar, "This ratio represents how autoBalanceTeam considers the desired ratio between tea" +
-                    "m 1 and team 2. \r\nThe percent represents what percent of team 1\'s current player" +
-                    "s is considered \'even\' for team 2.");
+        "m 1 and team 2. \r\nThe percent represents what percent of team 1\'s current player" +
+        "s is considered \'even\' for team 2.");
             this.TeamRatioBar.Value = 50;
             this.TeamRatioBar.ValueChanged += new System.EventHandler(this.TeamRatioBar_ValueChanged);
             // 
@@ -516,8 +516,8 @@
             this.PlayersToStartSlider.TabIndex = 8;
             this.PlayersToStartSlider.TickFrequency = 8;
             this.Tipsy.SetToolTip(this.PlayersToStartSlider, "The minimum number of players needed for a round to begin. Until this number of p" +
-                    "layers have joined, \r\nthe server stays in a \"pre-game\" state and neither team lo" +
-                    "ses any tickets.");
+        "layers have joined, \r\nthe server stays in a \"pre-game\" state and neither team lo" +
+        "ses any tickets.");
             this.PlayersToStartSlider.Value = 2;
             this.PlayersToStartSlider.ValueChanged += new System.EventHandler(this.PlayersToStartSlider_ValueChanged);
             // 
@@ -660,7 +660,7 @@
             this.label3.TabIndex = 4;
             this.label3.Text = "Rounds Per Map:";
             this.Tipsy.SetToolTip(this.label3, "Set the number of rounds to complete before the map automatically changes to the " +
-                    "next on the list.");
+        "next on the list.");
             // 
             // EnablePublicServerBox
             // 
@@ -682,7 +682,7 @@
             this.label2.TabIndex = 1;
             this.label2.Text = "Password:";
             this.Tipsy.SetToolTip(this.label2, "If you set a password, players will need to enter it before connecting to your se" +
-                    "rver.");
+        "rver.");
             // 
             // label1
             // 
@@ -693,7 +693,7 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Server Name:";
             this.Tipsy.SetToolTip(this.label1, "This is the name your server will be listed by in the Internet or LAN server brow" +
-                    "ser.");
+        "ser.");
             // 
             // groupBox3
             // 
@@ -745,7 +745,7 @@
             this.TimeB4RestartMapBar.TabIndex = 11;
             this.TimeB4RestartMapBar.TickFrequency = 5;
             this.Tipsy.SetToolTip(this.TimeB4RestartMapBar, "This is the number of seconds before a round starts once the minimun number of pl" +
-                    "ayers has joined.");
+        "ayers has joined.");
             this.TimeB4RestartMapBar.Value = 15;
             this.TimeB4RestartMapBar.ValueChanged += new System.EventHandler(this.TimeB4RestartMapBar_ValueChanged);
             // 
@@ -822,7 +822,7 @@
             this.EORBar.TabIndex = 11;
             this.EORBar.TickFrequency = 5;
             this.Tipsy.SetToolTip(this.EORBar, "This is the amount of time in seconds that the message stating which team won is " +
-                    "displayed \r\nat the end of the round.");
+        "displayed \r\nat the end of the round.");
             this.EORBar.Value = 45;
             this.EORBar.ValueChanged += new System.EventHandler(this.EORBar_ValueChanged);
             // 
@@ -861,7 +861,7 @@
             this.EndDelayBar.TabIndex = 11;
             this.EndDelayBar.TickFrequency = 5;
             this.Tipsy.SetToolTip(this.EndDelayBar, "This is the amount of time in seconds between when a round ends and a new round b" +
-                    "egins.");
+        "egins.");
             this.EndDelayBar.Value = 15;
             this.EndDelayBar.ValueChanged += new System.EventHandler(this.EndDelayBar_ValueChanged);
             // 
@@ -900,7 +900,7 @@
             this.StartDelayBar.TabIndex = 11;
             this.StartDelayBar.TickFrequency = 5;
             this.Tipsy.SetToolTip(this.StartDelayBar, "This is the amount of time in seconds players are kept waiting for the game to st" +
-                    "art, \r\nonce the minimum number of players has been reached.");
+        "art, \r\nonce the minimum number of players has been reached.");
             this.StartDelayBar.Value = 15;
             this.StartDelayBar.ValueChanged += new System.EventHandler(this.StartDelayBar_ValueChanged);
             // 
@@ -939,7 +939,7 @@
             this.ManDownBar.TabIndex = 11;
             this.ManDownBar.TickFrequency = 5;
             this.Tipsy.SetToolTip(this.ManDownBar, "This is the amount of time players will wait to spawn in the game again after bei" +
-                    "ng incapacitated \r\nand able to be revived by a medic.");
+        "ng incapacitated \r\nand able to be revived by a medic.");
             this.ManDownBar.Value = 15;
             this.ManDownBar.ValueChanged += new System.EventHandler(this.ManDownBar_ValueChanged);
             // 
@@ -978,7 +978,7 @@
             this.SpawnTimeBar.TabIndex = 11;
             this.SpawnTimeBar.TickFrequency = 5;
             this.Tipsy.SetToolTip(this.SpawnTimeBar, "This is the amount of time in seconds that players will wait to spawn in the game" +
-                    " again after being killed.");
+        " again after being killed.");
             this.SpawnTimeBar.Value = 15;
             this.SpawnTimeBar.ValueChanged += new System.EventHandler(this.SpawnTimeBar_ValueChanged);
             // 
@@ -1063,7 +1063,7 @@
             this.VoipPasswordBox.Size = new System.Drawing.Size(150, 20);
             this.VoipPasswordBox.TabIndex = 31;
             this.Tipsy.SetToolTip(this.VoipPasswordBox, "When using an external VOIP server, this should be set to the password associated" +
-                    " with the VOIP Server port from the VOIP server\'s configuration. ");
+        " with the VOIP Server port from the VOIP server\'s configuration. ");
             // 
             // label12
             // 
@@ -1101,7 +1101,7 @@
             this.EnableRemoteVoip.TabIndex = 27;
             this.EnableRemoteVoip.Text = "Enable Remote VOIP";
             this.Tipsy.SetToolTip(this.EnableRemoteVoip, "Enable the use of an external BF2 VOIP Server, thereby disabling the integrated V" +
-                    "OIP server.");
+        "OIP server.");
             this.EnableRemoteVoip.UseVisualStyleBackColor = true;
             this.EnableRemoteVoip.CheckedChanged += new System.EventHandler(this.EnableRemoteVoip_CheckedChanged);
             // 
@@ -1205,8 +1205,8 @@
             this.label16.Text = "Voip Quality (1 = Worst, 5 = Best)";
             this.label16.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.Tipsy.SetToolTip(this.label16, "Use this to adjust the quality of VOIP audio. Raising the quality level will incr" +
-                    "ease the amount of bandwidth your server uses. Recommended settings are 5 for LA" +
-                    "N and 3 for Internet.");
+        "ease the amount of bandwidth your server uses. Recommended settings are 5 for LA" +
+        "N and 3 for Internet.");
             // 
             // VoipQualityBar
             // 
@@ -1277,7 +1277,7 @@
             this.label8.TabIndex = 47;
             this.label8.Text = "Teamkills before Kick:";
             this.Tipsy.SetToolTip(this.label8, "When punishing is enabled, this sets the number of punished teamkills required to" +
-                    " be kicked from the server.");
+        " be kicked from the server.");
             // 
             // TksBeforeKickBox
             // 
@@ -1323,7 +1323,7 @@
             this.FriendlyFireBox.TabIndex = 44;
             this.FriendlyFireBox.Text = "Friendly Fire With Mines";
             this.Tipsy.SetToolTip(this.FriendlyFireBox, "Turn this setting off to prevent friendly mines and claymores from detonating whe" +
-                    "n teammates go over them.");
+        "n teammates go over them.");
             this.FriendlyFireBox.UseVisualStyleBackColor = true;
             // 
             // PunishTeamKillsBox
@@ -1335,7 +1335,7 @@
             this.PunishTeamKillsBox.TabIndex = 43;
             this.PunishTeamKillsBox.Text = "Punish TeamKills";
             this.Tipsy.SetToolTip(this.PunishTeamKillsBox, "Enable the system through which players can punish teamkillers in an attempt to k" +
-                    "ick them from the server.");
+        "ick them from the server.");
             this.PunishTeamKillsBox.UseVisualStyleBackColor = true;
             this.PunishTeamKillsBox.CheckedChanged += new System.EventHandler(this.PunishTeamKillsBox_CheckedChanged);
             // 
@@ -1549,8 +1549,8 @@
             this.label25.Text = "Radio Block Time (Seconds)";
             this.label25.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.Tipsy.SetToolTip(this.label25, "This is the amount of time a player will be blocked from posting any further mess" +
-                    "ages after violating the Radio Max Spam Count \r\nwithin the Radio Spam Interval t" +
-                    "ime frame");
+        "ages after violating the Radio Max Spam Count \r\nwithin the Radio Spam Interval t" +
+        "ime frame");
             // 
             // RadioBlockTimeBar
             // 
@@ -1598,7 +1598,7 @@
             this.label24.TabIndex = 16;
             this.label24.Text = "Radio Max Spam Count:";
             this.Tipsy.SetToolTip(this.label24, "The maximum amout of messages a player can post within the Radio Spam Interval be" +
-                    "fore being blocked");
+        "fore being blocked");
             // 
             // label7
             // 
@@ -1609,7 +1609,7 @@
             this.label7.TabIndex = 15;
             this.label7.Text = "Radio Spam Interval:";
             this.Tipsy.SetToolTip(this.label7, "The amount of interval at which players messages will be checked against the max " +
-                    "spam count");
+        "spam count");
             // 
             // AllowNoseCam
             // 
@@ -1620,7 +1620,7 @@
             this.AllowNoseCam.TabIndex = 14;
             this.AllowNoseCam.Text = "Allow Nose Cam";
             this.Tipsy.SetToolTip(this.AllowNoseCam, "Use this to enable or disable the use of nose-cam in certain vehicles (planes/hel" +
-                    "icopters).");
+        "icopters).");
             this.AllowNoseCam.UseVisualStyleBackColor = true;
             // 
             // HitIndicatorEnabled
@@ -1632,7 +1632,7 @@
             this.HitIndicatorEnabled.TabIndex = 13;
             this.HitIndicatorEnabled.Text = "Hit Indicator";
             this.Tipsy.SetToolTip(this.HitIndicatorEnabled, "This setting toggles whether or not players receive crosshair feedback indicating" +
-                    " they have hit a target.");
+        " they have hit a target.");
             this.HitIndicatorEnabled.UseVisualStyleBackColor = true;
             // 
             // AllowExtViews
@@ -1655,7 +1655,7 @@
             this.AllowFreeCam.TabIndex = 11;
             this.AllowFreeCam.Text = "Allow Free Cam";
             this.Tipsy.SetToolTip(this.AllowFreeCam, "Allow players to use a free-roaming camera while waiting to spawn. Players can ac" +
-                    "tivate this camera using the JUMP key.");
+        "tivate this camera using the JUMP key.");
             this.AllowFreeCam.UseVisualStyleBackColor = true;
             // 
             // AllowNATNagotiation
@@ -1667,7 +1667,7 @@
             this.AllowNATNagotiation.TabIndex = 10;
             this.AllowNATNagotiation.Text = "Allow NAT Negotiation";
             this.Tipsy.SetToolTip(this.AllowNATNagotiation, "Allow Network Address Translation negotiation. \r\n\r\nTry this if you use a router o" +
-                    "r gateway device and are having problems hosting a server.");
+        "r gateway device and are having problems hosting a server.");
             this.AllowNATNagotiation.UseVisualStyleBackColor = true;
             // 
             // tabControl1
@@ -2036,7 +2036,7 @@
             this.label17.Text = "Vote Time (Seconds)";
             this.label17.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.Tipsy.SetToolTip(this.label17, "This is the amount of time that a poll such as a kick vote or map vote stays open" +
-                    ".");
+        ".");
             // 
             // VoteTimeBar
             // 
@@ -2060,7 +2060,7 @@
             this.EnableTeamVotingBox.TabIndex = 6;
             this.EnableTeamVotingBox.Text = "Team Voting Only";
             this.Tipsy.SetToolTip(this.EnableTeamVotingBox, "This option will restrict all voting queries and responses to members of the same" +
-                    " team.");
+        " team.");
             this.EnableTeamVotingBox.UseVisualStyleBackColor = true;
             // 
             // EnableVotingBox
@@ -2115,8 +2115,8 @@
             this.label23.TabIndex = 36;
             this.label23.Text = "Sponser Logo URL:";
             this.Tipsy.SetToolTip(this.label23, "Enter a URL to an image, and it will be displayed in the server browser when the " +
-                    "server is highlighted. \r\nThe image must be in PNG or JPG format, and should have" +
-                    " a 4:1 aspect ratio for best results.");
+        "server is highlighted. \r\nThe image must be in PNG or JPG format, and should have" +
+        " a 4:1 aspect ratio for best results.");
             // 
             // CLogoUrlBox
             // 
@@ -2135,8 +2135,8 @@
             this.label22.TabIndex = 34;
             this.label22.Text = "Community Logo URL:";
             this.Tipsy.SetToolTip(this.label22, "Enter a URL to an image, and it will be displayed in the loading screen when conn" +
-                    "ecting to the server. The image must be in PNG or JPG format, \r\nand should have " +
-                    "a 4:1 aspect ratio for best results.");
+        "ecting to the server. The image must be in PNG or JPG format, \r\nand should have " +
+        "a 4:1 aspect ratio for best results.");
             // 
             // groupBox5
             // 
@@ -2174,7 +2174,7 @@
             this.label19.TabIndex = 32;
             this.label19.Text = "Auto Demo Hook:";
             this.Tipsy.SetToolTip(this.label19, "This is the application or script that is called on to manage demo recordings at " +
-                    "the end of rounds.");
+        "the end of rounds.");
             // 
             // DemoDownloadBox
             // 
@@ -2201,7 +2201,7 @@
             this.label20.TabIndex = 29;
             this.label20.Text = "Demo Download URL:";
             this.Tipsy.SetToolTip(this.label20, "If demo recording is enabled, this should be set to the publicly accessible URL w" +
-                    "here the demo files can be downloaded.");
+        "here the demo files can be downloaded.");
             // 
             // label21
             // 
@@ -2234,7 +2234,7 @@
             this.label18.Text = "Demo Quality (1 = Worst, 10 = Best)";
             this.label18.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.Tipsy.SetToolTip(this.label18, "Set the quality of demo recording, if enabled, on the server. \r\n\r\nINCREASING THE " +
-                    "VALUE OF THIS SETTING WILL SEVERLY IMPACT THE PERFORMANCE OF THIS SERVER.");
+        "VALUE OF THIS SETTING WILL SEVERLY IMPACT THE PERFORMANCE OF THIS SERVER.");
             // 
             // DemoQualityBar
             // 

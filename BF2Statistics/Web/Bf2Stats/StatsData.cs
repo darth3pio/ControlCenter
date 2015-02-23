@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
@@ -253,67 +254,122 @@ namespace BF2Statistics.Web.Bf2Stats
                 };
                 TheatreMapIds = new Dictionary<string, int[]>();
 
-                // Enumerate through each .list file in the data directory
+                // Enumerate through each .XML file in the data directory
                 string DataDir = Path.Combine(Program.RootPath, "Web", "Bf2Stats");
+                FileStream file;
                 XmlDocument Doc = new XmlDocument();
 
-                // Load Army's
-                Doc.Load(Path.Combine(DataDir, "ArmyData.xml"));
-                foreach (XmlNode Node in Doc.GetElementsByTagName("army"))
+                // Load Army Data, Creating file if it doesnt exist already
+                using (file = new FileStream(Path.Combine(DataDir, "ArmyData.xml"), FileMode.OpenOrCreate))
                 {
-                    Armies.Add(Int32.Parse(Node.Attributes["id"].Value), Node.InnerText);
+                    if (file.Length == 0)
+                    {
+                        using (StreamWriter writer = new StreamWriter(file, Encoding.UTF8, 1024, true))
+                            writer.Write(Utils.GetResourceAsString("BF2Statistics.Web.Bf2Stats.ArmyData.xml"));
+
+                        file.Flush();
+                        file.Seek(0, SeekOrigin.Begin);
+                    }
+
+                    // Load the xml data
+                    Doc.Load(file);
+                    foreach (XmlNode Node in Doc.GetElementsByTagName("army"))
+                    {
+                        Armies.Add(Int32.Parse(Node.Attributes["id"].Value), Node.InnerText);
+                    }
                 }
 
-                // Load Maps
-                Doc.Load(Path.Combine(DataDir, "MapData.xml"));
-                foreach (XmlNode Node in Doc.GetElementsByTagName("map"))
+                // Load Map Data, Creating file if it doesnt exist already
+                using (file = new FileStream(Path.Combine(DataDir, "MapData.xml"), FileMode.OpenOrCreate))
                 {
-                    int mid = Int32.Parse(Node.Attributes["id"].Value);
-                    string mod = Node.Attributes["mod"].Value;
-                    Maps.Add(mid, Node.InnerText);
+                    if (file.Length == 0)
+                    {
+                        using (StreamWriter writer = new StreamWriter(file, Encoding.UTF8, 1024, true))
+                            writer.Write(Utils.GetResourceAsString("BF2Statistics.Web.Bf2Stats.MapData.xml"));
 
-                    // Add map to mod map ids if mod is not empty
-                    if (!String.IsNullOrWhiteSpace(mod) && ModMapIds.ContainsKey(mod))
-                        ModMapIds[mod].Add(mid);
+                        file.Flush();
+                        file.Seek(0, SeekOrigin.Begin);
+                    }
+
+                    // Load the xml data
+                    Doc.Load(file);
+                    foreach (XmlNode Node in Doc.GetElementsByTagName("map"))
+                    {
+                        int mid = Int32.Parse(Node.Attributes["id"].Value);
+                        string mod = Node.Attributes["mod"].Value;
+                        Maps.Add(mid, Node.InnerText);
+
+                        // Add map to mod map ids if mod is not empty
+                        if (!String.IsNullOrWhiteSpace(mod) && ModMapIds.ContainsKey(mod))
+                            ModMapIds[mod].Add(mid);
+                    }
                 }
 
-                // Load Theaters
-                Doc.Load(Path.Combine(DataDir, "TheaterData.xml"));
-                foreach (XmlNode Node in Doc.GetElementsByTagName("theater"))
+                // Load Theater Data, Creating file if it doesnt exist already
+                using (file = new FileStream(Path.Combine(DataDir, "TheaterData.xml"), FileMode.OpenOrCreate))
                 {
-                    string name = Node.Attributes["name"].Value;
-                    string[] arr = Node.Attributes["maps"].Value.Split(',');
-                    TheatreMapIds.Add(name, Array.ConvertAll(arr, Int32.Parse));
+                    if (file.Length == 0)
+                    {
+                        using (StreamWriter writer = new StreamWriter(file, Encoding.UTF8, 1024, true))
+                            writer.Write(Utils.GetResourceAsString("BF2Statistics.Web.Bf2Stats.TheaterData.xml"));
+
+                        file.Flush();
+                        file.Seek(0, SeekOrigin.Begin);
+                    }
+
+                    // Load the xml data
+                    Doc.Load(file);
+                    foreach (XmlNode Node in Doc.GetElementsByTagName("theater"))
+                    {
+                        string name = Node.Attributes["name"].Value;
+                        string[] arr = Node.Attributes["maps"].Value.Split(',');
+                        TheatreMapIds.Add(name, Array.ConvertAll(arr, Int32.Parse));
+                    }
                 }
 
                 // Load Rank Data
                 Rank[] Ranks = new Rank[22];
                 int i = 0;
-                Doc.Load(Path.Combine(DataDir, "RankData.xml"));
-                foreach (XmlNode Node in Doc.GetElementsByTagName("rank"))
+
+                // Load Rank Data, Creating file if it doesnt exist already
+                using (file = new FileStream(Path.Combine(DataDir, "RankData.xml"), FileMode.OpenOrCreate))
                 {
-                    Dictionary<string, int> Awards = new Dictionary<string, int>();
-                    XmlNode AwardsNode = Node.SelectSingleNode("reqAwards");
-                    if (AwardsNode != null && AwardsNode.HasChildNodes)
+                    if (file.Length == 0)
                     {
-                        foreach (XmlNode E in AwardsNode.ChildNodes)
-                        {
-                            Awards.Add(E.Attributes["id"].Value, Int32.Parse(E.Attributes["level"].Value));
-                        }
+                        using (StreamWriter writer = new StreamWriter(file, Encoding.UTF8, 1024, true))
+                            writer.Write(Utils.GetResourceAsString("BF2Statistics.Web.Bf2Stats.RankData.xml"));
+
+                        file.Flush();
+                        file.Seek(0, SeekOrigin.Begin);
                     }
-                    string[] arr = Node.SelectSingleNode("reqRank").InnerText.Split(',');
 
-                    Ranks[i] = new Rank
+                    // Load the xml data
+                    Doc.Load(file);
+                    foreach (XmlNode Node in Doc.GetElementsByTagName("rank"))
                     {
-                        Id = i,
-                        MinPoints = Int32.Parse(Node.SelectSingleNode("reqPoints").InnerText),
-                        ReqRank = Array.ConvertAll(arr, Int32.Parse),
-                        ReqAwards = Awards
-                    };
-                    i++;
-                }
+                        Dictionary<string, int> Awards = new Dictionary<string, int>();
+                        XmlNode AwardsNode = Node.SelectSingleNode("reqAwards");
+                        if (AwardsNode != null && AwardsNode.HasChildNodes)
+                        {
+                            foreach (XmlNode E in AwardsNode.ChildNodes)
+                            {
+                                Awards.Add(E.Attributes["id"].Value, Int32.Parse(E.Attributes["level"].Value));
+                            }
+                        }
+                        string[] arr = Node.SelectSingleNode("reqRank").InnerText.Split(',');
 
-                RankCalculator.SetRankData(Ranks);
+                        Ranks[i] = new Rank
+                        {
+                            Id = i,
+                            MinPoints = Int32.Parse(Node.SelectSingleNode("reqPoints").InnerText),
+                            ReqRank = Array.ConvertAll(arr, Int32.Parse),
+                            ReqAwards = Awards
+                        };
+                        i++;
+                    }
+
+                    RankCalculator.SetRankData(Ranks);
+                }
             }
             catch(Exception e)
             {

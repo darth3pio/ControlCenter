@@ -54,9 +54,10 @@ namespace BF2Statistics.MedalData
         /// <summary>
         /// Used by the parser to add found awards to the list
         /// </summary>
-        /// <param name="A"></param>
+        /// <param name="A">The Award Object To Add</param>
         public static void AddAward(Award A)
         {
+            // Add award to individual award type collection
             switch (Award.GetType(A.Id))
             {
                 case AwardType.Badge:
@@ -70,24 +71,34 @@ namespace BF2Statistics.MedalData
                     break;
             }
 
+            // Add the award to the overall awards cache
             Awards.Add(A.Id, A);
+
+            // Build the award tree here to Initially check for condition errors
+            A.ToTree();
         }
 
         /// <summary>
         /// Used by the parser to add found ranks to the list
         /// </summary>
-        /// <param name="A"></param>
+        /// <param name="A">The Rank Object To Add</param>
         public static void AddRank(Rank A)
         {
+            // Add rank to indiviual rank collection
             Ranks.Add(A);
+
+            // Add the award to the overall awards cache
             Awards.Add(A.Id.ToString(), A);
+
+            // Build the award tree here to Initially check for condition errors
+            A.ToTree();
         }
 
         /// <summary>
         /// Used by the Medal data parser to add the original award conditions
         /// </summary>
-        /// <param name="Id"></param>
-        /// <param name="C"></param>
+        /// <param name="Id">The Award ID found in the Medal Data file</param>
+        /// <param name="C">The parsed condition to earn the award</param>
         public static void AddDefaultAwardCondition(string Id, Condition C)
         {
             if(!OrigConditions.ContainsKey(Id))
@@ -97,8 +108,7 @@ namespace BF2Statistics.MedalData
         /// <summary>
         /// Returns the original (vanilla) condition list to earn the specified award
         /// </summary>
-        /// <param name="Id"></param>
-        /// <returns></returns>
+        /// <param name="Id">The award's ID</param>
         public static Condition GetDefaultAwardCondition(string Id)
         {
             if (OrigConditions.Count == 0)
@@ -110,7 +120,6 @@ namespace BF2Statistics.MedalData
         /// <summary>
         /// Returns all found badges
         /// </summary>
-        /// <returns></returns>
         public static IEnumerable<Award> GetBadges()
         {
             foreach (Award A in Badges)
@@ -120,7 +129,6 @@ namespace BF2Statistics.MedalData
         /// <summary>
         /// Returns all found Medals
         /// </summary>
-        /// <returns></returns>
         public static IEnumerable<Award> GetMedals()
         {
             foreach (Award A in Medals)
@@ -130,7 +138,6 @@ namespace BF2Statistics.MedalData
         /// <summary>
         /// Returns all found ribbons
         /// </summary>
-        /// <returns></returns>
         public static IEnumerable<Award> GetRibbons()
         {
             foreach (Award A in Ribbons)
@@ -140,7 +147,6 @@ namespace BF2Statistics.MedalData
         /// <summary>
         /// Returns all found ranks
         /// </summary>
-        /// <returns></returns>
         public static IEnumerable<Rank> GetRanks()
         {
             foreach (Rank A in Ranks)
@@ -150,8 +156,7 @@ namespace BF2Statistics.MedalData
         /// <summary>
         /// This method is used to fetch a particular Award or rank by ID
         /// </summary>
-        /// <param name="Id"></param>
-        /// <returns></returns>
+        /// <param name="Id">The Award ID</param>
         public static IAward GetAward(string Id)
         {
             return Awards[Id];

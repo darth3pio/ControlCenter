@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Data.Common;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Windows.Forms;
 using BF2Statistics.Database;
 using BF2Statistics.Database.QueryBuilder;
@@ -56,7 +52,7 @@ namespace BF2Statistics
             {
                 ExceptionForm.ShowDbConnectError(Ex);
                 HttpServer.Stop();
-                this.Load += new EventHandler(CloseOnStart);
+                this.Close();
                 return;
             }
 
@@ -386,16 +382,6 @@ namespace BF2Statistics
         {
             TaskForm.ProgressBarStep();
             TaskForm.UpdateStatus(e.UserState.ToString());
-        }
-
-        /// <summary>
-        /// Causes the form to be closed
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void CloseOnStart(object sender, EventArgs e)
-        {
-            this.Close();
         }
     }
 }

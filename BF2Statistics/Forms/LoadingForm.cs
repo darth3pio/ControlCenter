@@ -33,25 +33,17 @@ namespace BF2Statistics
         private static LoadingForm Instance;
 
         /// <summary>
-        /// Text alignment
-        /// </summary>
-        public static HorizontalAlignment TextAlign = HorizontalAlignment.Center;
-
-        /// <summary>
         /// Delegate for cross thread call to close
         /// </summary>
         private delegate void CloseDelegate();
 
         /// <summary>
-        /// Delegate for cross thread call to update text
-        /// </summary>
-        private delegate void UpdateStatus();
-
-        /// <summary>
         /// Main calling method. Opens a new instance of the form, and displays it
         /// </summary>
-        /// <param name="WindowTitle"></param>
-        public static void ShowScreen(Form Parent)
+        /// <param name="Parent">The parent form, that will be used to center this form over</param>
+        /// <param name="IsTopMost">Sets whether this window will be foreced to be the topmost window</param>
+        /// <param name="WindowTitle">The text in the window title bar</param>
+        public static void ShowScreen(Form Parent, bool IsTopMost = false, string WindowTitle = "Loading... Please Wait")
         {
             // Make sure it is currently not open and running.
             if (Instance != null && !Instance.IsDisposed)
@@ -59,6 +51,8 @@ namespace BF2Statistics
 
             // Set window position to center parent
             Instance = new LoadingForm();
+            Instance.Text = WindowTitle;
+            Instance.TopMost = IsTopMost;
             double H = Parent.Location.Y + (Parent.Height / 2) - (Instance.Height / 2);
             double W = Parent.Location.X + (Parent.Width / 2) - (Instance.Width / 2);
             Instance.Location = new Point((int)Math.Round(W, 0), (int)Math.Round(H, 0));

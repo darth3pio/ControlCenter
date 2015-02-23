@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Badges");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Medals");
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Ribbons");
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Ranks");
+            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Badges");
+            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Medals");
+            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("Ribbons");
+            System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("Ranks");
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.AwardTypeBox = new System.Windows.Forms.Label();
             this.AwardNameBox = new System.Windows.Forms.Label();
@@ -166,7 +166,7 @@
             this.NewCriteriaMenuItem.Name = "NewCriteriaMenuItem";
             this.NewCriteriaMenuItem.Size = new System.Drawing.Size(171, 22);
             this.NewCriteriaMenuItem.Text = "Add New Criteria";
-            this.NewCriteriaMenuItem.Click += new System.EventHandler(this.NewCriteria_Click);
+            this.NewCriteriaMenuItem.Click += new System.EventHandler(this.NewCriteriaMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
@@ -233,19 +233,19 @@
             this.AwardTree.Enabled = false;
             this.AwardTree.Location = new System.Drawing.Point(9, 20);
             this.AwardTree.Name = "AwardTree";
-            treeNode1.Name = "BadgeNode";
-            treeNode1.Text = "Badges";
-            treeNode2.Name = "MedalNode";
-            treeNode2.Text = "Medals";
-            treeNode3.Name = "RibbonNode";
-            treeNode3.Text = "Ribbons";
-            treeNode4.Name = "RankNode";
-            treeNode4.Text = "Ranks";
+            treeNode5.Name = "BadgeNode";
+            treeNode5.Text = "Badges";
+            treeNode6.Name = "MedalNode";
+            treeNode6.Text = "Medals";
+            treeNode7.Name = "RibbonNode";
+            treeNode7.Text = "Ribbons";
+            treeNode8.Name = "RankNode";
+            treeNode8.Text = "Ranks";
             this.AwardTree.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode2,
-            treeNode3,
-            treeNode4});
+            treeNode5,
+            treeNode6,
+            treeNode7,
+            treeNode8});
             this.AwardTree.Size = new System.Drawing.Size(230, 260);
             this.AwardTree.TabIndex = 0;
             this.AwardTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.AwardTree_AfterSelect);
@@ -362,14 +362,14 @@
             this.EditCritertiaMenuItem.Name = "EditCritertiaMenuItem";
             this.EditCritertiaMenuItem.Size = new System.Drawing.Size(148, 22);
             this.EditCritertiaMenuItem.Text = "Edit Criteria";
-            this.EditCritertiaMenuItem.Click += new System.EventHandler(this.EditCriteria_Click);
+            this.EditCritertiaMenuItem.Click += new System.EventHandler(this.EditCriteriaMenuItem_Click);
             // 
             // DeleteCriteriaMenuItem
             // 
             this.DeleteCriteriaMenuItem.Name = "DeleteCriteriaMenuItem";
             this.DeleteCriteriaMenuItem.Size = new System.Drawing.Size(148, 22);
             this.DeleteCriteriaMenuItem.Text = "Delete Criteria";
-            this.DeleteCriteriaMenuItem.Click += new System.EventHandler(this.DeleteCriteria_Click);
+            this.DeleteCriteriaMenuItem.Click += new System.EventHandler(this.DeleteCriteriaMenuItem_Click);
             // 
             // MedalDataEditor
             // 

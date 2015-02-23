@@ -9,6 +9,10 @@ using System.Windows.Forms;
 
 namespace BF2Statistics
 {
+    /// <summary>
+    /// This is a dummy form used to display a full sized map image from the MapList
+    /// Editor.
+    /// </summary>
     public partial class ImageForm : Form
     {
         public ImageForm(Bitmap Image)

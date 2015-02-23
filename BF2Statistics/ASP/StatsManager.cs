@@ -191,7 +191,7 @@ namespace BF2Statistics.ASP
         /// <returns></returns>
         public static int GenerateNewPlayerPid()
         {
-            // Thread safe decrement
+            // Thread safe increment
             return Interlocked.Increment(ref PlayerPid);
         }
 

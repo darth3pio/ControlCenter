@@ -96,7 +96,7 @@ namespace BF2Statistics.MedalData
         /// <summary>
         /// Required by Condition abstract class. Donot use.
         /// </summary>
-        /// <param name="Params"></param>
+        /// <param name="Params">Not Used in a condition list!! Use <see cref="Add()"/></param>
         public override void SetParams(List<string> Params) { }
 
         /// <summary>
@@ -119,7 +119,6 @@ namespace BF2Statistics.MedalData
         /// <summary>
         /// Returns a copy (clone) of this object
         /// </summary>
-        /// <returns></returns>
         public override object Clone()
         {
             ConditionList Clone = new ConditionList(this.Type);
@@ -132,7 +131,7 @@ namespace BF2Statistics.MedalData
         /// <summary>
         /// Converts this list and all sub-conditions into a python string
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A python representation of this condition list</returns>
         public override string ToPython() 
         {
             // If there is no sub conditions, return true by default...
@@ -172,10 +171,10 @@ namespace BF2Statistics.MedalData
         /// <summary>
         /// Converts the list to tree view. If there is only 1 sub criteria
         /// on an "And" or "Or" type list, then the list will not collapse into the
-        /// sub criteria
+        /// sub criteria. Invalid Sub condition nodes will be highlighted in Red.
         /// </summary>
-        /// <returns></returns>
-        public TreeNode ToTreeNoCollapse()
+        /// <returns>A TreeNode representation of the Conditions in this list</returns>
+        public override TreeNode ToTree()
         {
             // Define vars
             string Name = "Meets All Requirements:";
@@ -265,25 +264,11 @@ namespace BF2Statistics.MedalData
         }
 
         /// <summary>
-        /// Converts the condition list to tree view
-        /// </summary>
-        /// <returns></returns>
-        public override TreeNode ToTree()
-        {
-            // If we have just 1 sub condition, return it
-            //if (Type != ConditionType.Not && SubConditions.Count == 1)
-                //return SubConditions[0].ToTree();
-
-            return ToTreeNoCollapse();
-        }
-
-        /// <summary>
         /// Validates that the given parameter is a valid return type to make this
         /// condition list work properly
         /// </summary>
         /// <param name="ParamId">The current parameter index</param>
         /// <param name="RType">The return type if the current parameter</param>
-        /// <returns></returns>
         protected bool ValidateParam(int ParamId, ReturnType RType)
         {
             switch (Type)

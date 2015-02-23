@@ -101,7 +101,7 @@ namespace BF2Statistics
             if (!Recoverable)
             {
                 buttonContinue.Hide();
-                buttonViewLog.Location = new Point(230, 12);
+                buttonViewLog.Location = new Point(225, 12);
             }
 
             // Reset log button

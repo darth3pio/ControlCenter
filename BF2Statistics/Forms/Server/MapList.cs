@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Windows.Forms;
 using System.IO;
-using System.Diagnostics;
-using System.Xml;
+using System.Linq;
+using System.Windows.Forms;
 using FreeImageAPI;
 
 namespace BF2Statistics
@@ -70,8 +66,6 @@ namespace BF2Statistics
         /// <summary>
         /// Called when a map is selected or changed
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void MapListSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Reset image
@@ -223,8 +217,8 @@ namespace BF2Statistics
             // Reset image
             if (MapPictureBox.Image != null)
             {
-                Bitmap Img = MapPictureBox.Image as Bitmap;
-                Img.Dispose();
+                MapPictureBox.Image.Dispose();
+                MapPictureBox.Image = null;
             }
 
             // Dispose old image
@@ -266,11 +260,9 @@ namespace BF2Statistics
             // Load the image if we have one
             if (ImgPath != null)
             {
-                // Attempt to load image as a DDS file
+                // Attempt to load image as a DDS file... or png if its a mod sometimes
                 FREE_IMAGE_FORMAT Format = FREE_IMAGE_FORMAT.FIF_UNKNOWN;
                 MapImage = FreeImage.LoadBitmap(ImgPath, FREE_IMAGE_LOAD_FLAGS.DEFAULT, ref Format);
-
-                // If we have an image bitmap, display it :D
                 if (MapImage != null)
                 {
                     MapPictureBox.Image = new Bitmap(MapImage, 250, 250);
@@ -281,8 +273,6 @@ namespace BF2Statistics
         /// <summary>
         /// Event fired when the map image is clicked
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void MapPictureBox_DoubleClick(object sender, EventArgs e)
         {
             if (MapListSelect.SelectedIndex != -1 && MapPictureBox.Image != null)
@@ -367,13 +357,5 @@ namespace BF2Statistics
         }
 
         #endregion
-
-        /// <summary>
-        /// Event closes the form when fired
-        /// </summary>
-        private void CloseOnStart(object sender, EventArgs e)
-        {
-            this.Close();
-        }
     }
 }

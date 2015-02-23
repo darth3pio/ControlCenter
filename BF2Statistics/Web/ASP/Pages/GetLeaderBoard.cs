@@ -144,9 +144,7 @@ namespace BF2Statistics.Web.ASP
                     if(Rows.Count > 0)
                     {
                         Response.WriteDataLine(
-                            Int32.Parse(
-                                Driver.Query("SELECT COUNT(id) as count FROM player WHERE score > @P0", Rows[0]["score"])[0]["count"].ToString()
-                            ) + 1,
+                            Driver.ExecuteScalar<int>("SELECT COUNT(id) as count FROM player WHERE score > @P0", Rows[0]["score"]) + 1,
                             Rows[0]["id"],
                             Rows[0]["name"].ToString().Trim(),
                             Rows[0]["score"],
@@ -162,8 +160,7 @@ namespace BF2Statistics.Web.ASP
             }
             else if (Id == "commander")
             {
-                Rows = Driver.Query("SELECT COUNT(id) AS count FROM player WHERE cmdscore > 0");
-                Count = Int32.Parse(Rows[0]["count"].ToString());
+                Count = Driver.ExecuteScalar<int>("SELECT COUNT(id) AS count FROM player WHERE cmdscore > 0");
                 Response.WriteDataLine(Count, DateTime.UtcNow.ToUnixTimestamp());
 
                 // Build New Header Output
@@ -200,9 +197,7 @@ namespace BF2Statistics.Web.ASP
                     if(Rows.Count > 0)
                     {
                         Response.WriteDataLine(
-                            Int32.Parse(
-                                Driver.Query("SELECT COUNT(id) as count FROM player WHERE cmdscore > @P0", Rows[0]["cmdscore"])[0]["count"].ToString()
-                            ) + 1,
+                            Driver.ExecuteScalar<int>("SELECT COUNT(id) as count FROM player WHERE cmdscore > @P0", Rows[0]["cmdscore"]) + 1,
                             Rows[0]["id"],
                             Rows[0]["name"].ToString().Trim(),
                             Rows[0]["cmdscore"],
@@ -218,8 +213,7 @@ namespace BF2Statistics.Web.ASP
             }
             else if (Id == "team")
             {
-                Rows = Driver.Query("SELECT COUNT(id) AS count FROM player WHERE teamscore > 0");
-                Count = Int32.Parse(Rows[0]["count"].ToString());
+                Count = Driver.ExecuteScalar<int>("SELECT COUNT(id) AS count FROM player WHERE teamscore > 0");
                 Response.WriteDataLine(Count, DateTime.UtcNow.ToUnixTimestamp());
 
                 // Build New Header Output
@@ -256,9 +250,7 @@ namespace BF2Statistics.Web.ASP
                     if(Rows.Count > 0)
                     {
                         Response.WriteDataLine(
-                            Int32.Parse(
-                                Driver.Query("SELECT COUNT(id) as count FROM player WHERE teamscore > @P0", Rows[0]["teamscore"])[0]["count"].ToString()
-                            ) + 1,
+                            Driver.ExecuteScalar<int>("SELECT COUNT(id) as count FROM player WHERE teamscore > @P0", Rows[0]["teamscore"]) + 1,
                             Rows[0]["id"],
                             Rows[0]["name"].ToString().Trim(),
                             Rows[0]["teamscore"],
@@ -274,8 +266,7 @@ namespace BF2Statistics.Web.ASP
             }
             else if (Id == "combat")
             {
-                Rows = Driver.Query("SELECT COUNT(id) AS count FROM player WHERE skillscore > 0");
-                Count = Int32.Parse(Rows[0]["count"].ToString());
+                Count = Driver.ExecuteScalar<int>("SELECT COUNT(id) AS count FROM player WHERE skillscore > 0");
                 Response.WriteDataLine(Count, DateTime.UtcNow.ToUnixTimestamp());
 
                 // Build New Header Output
@@ -313,9 +304,7 @@ namespace BF2Statistics.Web.ASP
                     if (Rows.Count > 0)
                     {
                         Response.WriteDataLine(
-                            Int32.Parse(
-                                Driver.Query("SELECT COUNT(id) as count FROM player WHERE skillscore > @P0", Rows[0]["skillscore"])[0]["count"].ToString()
-                            ) + 1,
+                            Driver.ExecuteScalar<int>("SELECT COUNT(id) as count FROM player WHERE skillscore > @P0", Rows[0]["skillscore"]) + 1,
                             Rows[0]["id"],
                             Rows[0]["name"].ToString().Trim(),
                             Rows[0]["skillscore"],
@@ -434,14 +423,8 @@ namespace BF2Statistics.Web.ASP
                 return;
             }
 
-            // Prepare variables
-            String Query;
-            List<Dictionary<string, object>> Rows;
-            int Count;
-
             // Get total number of players who have at least 1 kill in kit
-            Rows = Driver.Query(String.Format("SELECT COUNT(id) AS count FROM kits WHERE kills{0} > 0", Id));
-            Count = Int32.Parse(Rows[0]["count"].ToString());
+            int Count = Driver.ExecuteScalar<int>(String.Format("SELECT COUNT(id) AS count FROM kits WHERE kills{0} > 0", Id));
             Response.WriteResponseStart();
             Response.WriteHeaderLine("size", "asof");
             Response.WriteDataLine(Count, DateTime.UtcNow.ToUnixTimestamp());
@@ -450,13 +433,13 @@ namespace BF2Statistics.Web.ASP
             Response.WriteHeaderLine("n", "pid", "nick", "killswith", "deathsby", "timeplayed", "playerrank", "countrycode");
 
             // Get Leaderboard Positions
-            Query = String.Format("SELECT player.id AS plid, name, rank, country, kills{0} AS kills, deaths{0} AS deaths, time{0} AS time"
+            string Query = String.Format("SELECT player.id AS plid, name, rank, country, kills{0} AS kills, deaths{0} AS deaths, time{0} AS time"
                 + " FROM player NATURAL JOIN kits WHERE kills{0} > 0 ORDER BY kills{0} DESC, name DESC", KitId);
 
             if (Pid == 0)
                 Query += String.Format(" LIMIT {0}, {1}", Min, Max);
 
-            Rows = Driver.Query(Query);
+            List<Dictionary<string, object>> Rows = Driver.Query(Query);
             foreach (Dictionary<string, object> Player in Rows)
             {
                 if (Pid == 0 || Int32.Parse(Player["plid"].ToString()) == Pid)
@@ -495,14 +478,8 @@ namespace BF2Statistics.Web.ASP
                 return;
             }
 
-            // Prepare Variables
-            String Query;
-            List<Dictionary<string, object>> Rows;
-            int Count;
-
             // Get total number of players who have at least 1 kill in kit
-            Rows = Driver.Query(String.Format("SELECT COUNT(id) AS count FROM vehicles WHERE kills{0} > 0", Id));
-            Count = Int32.Parse(Rows[0]["count"].ToString());
+            int Count = Driver.ExecuteScalar<int>(String.Format("SELECT COUNT(id) AS count FROM vehicles WHERE kills{0} > 0", Id));
             Response.WriteResponseStart();
             Response.WriteHeaderLine("size", "asof");
             Response.WriteDataLine(Count, DateTime.UtcNow.ToUnixTimestamp());
@@ -511,12 +488,12 @@ namespace BF2Statistics.Web.ASP
             Response.WriteHeaderLine("n", "pid", "nick", "killswith", "detahsby", "timeused", "playerrank", "countrycode");
 
             // Get Leaderboard Positions
-            Query = String.Format("SELECT player.id AS plid, name, rank, country, kills{0} AS kills, deaths{0} AS deaths, time{0} AS time"
+            string Query = String.Format("SELECT player.id AS plid, name, rank, country, kills{0} AS kills, deaths{0} AS deaths, time{0} AS time"
                 + " FROM player NATURAL JOIN vehicles WHERE kills{0} > 0 ORDER BY kills{0} DESC, name DESC", KitId);
             if (Pid == 0)
                 Query += String.Format(" LIMIT {0}, {1}", Min, Max);
 
-            Rows = Driver.Query(Query);
+            List<Dictionary<string, object>> Rows = Driver.Query(Query);
             foreach (Dictionary<string, object> Player in Rows)
             {
                 if (Pid == 0 || Int32.Parse(Player["plid"].ToString()) == Pid)
@@ -555,14 +532,8 @@ namespace BF2Statistics.Web.ASP
                 return;
             }
 
-            // Prepare variables
-            String Query;
-            List<Dictionary<string, object>> Rows;
-            int Count;
-
             // Get total number of players who have at least 1 kill in kit
-            Rows = Driver.Query(String.Format("SELECT COUNT(id) AS count FROM weapons WHERE kills{0} > 0", Id));
-            Count = Int32.Parse(Rows[0]["count"].ToString());
+            int Count = Driver.ExecuteScalar<int>(String.Format("SELECT COUNT(id) AS count FROM weapons WHERE kills{0} > 0", Id));
             Response.WriteResponseStart();
             Response.WriteHeaderLine("size", "asof");
             Response.WriteDataLine(Count, DateTime.UtcNow.ToUnixTimestamp());
@@ -571,12 +542,12 @@ namespace BF2Statistics.Web.ASP
             Response.WriteHeaderLine("n", "pid", "nick", "killswith", "detahsby", "timeused", "accuracy", "playerrank", "countrycode");
 
             // Get Leaderboard Positions
-            Query = String.Format("SELECT player.id AS plid, name, rank, country, kills{0} AS kills, deaths{0} AS deaths, time{0} AS time, "
+            string Query = String.Format("SELECT player.id AS plid, name, rank, country, kills{0} AS kills, deaths{0} AS deaths, time{0} AS time, "
                 + "hit{0} AS hit, fired{0} AS fired FROM player NATURAL JOIN weapons WHERE kills{0} > 0 ORDER BY kills{0} DESC, name DESC", KitId);
             if (Pid == 0)
                 Query += String.Format(" LIMIT {0}, {1}", Min, Max);
 
-            Rows = Driver.Query(Query);
+            List<Dictionary<string, object>> Rows = Driver.Query(Query);
             foreach (Dictionary<string, object> Player in Rows)
             {
                 if (Pid == 0 || Int32.Parse(Player["plid"].ToString()) == Pid)

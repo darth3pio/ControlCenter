@@ -1,10 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace BF2Statistics.MedalData
@@ -77,7 +72,7 @@ namespace BF2Statistics.MedalData
             // Add Conditions to tree view
             ConditionTree.BeginUpdate();
             ConditionTree.Nodes.Clear();
-            ConditionTree.Nodes.Add(List.ToTreeNoCollapse());
+            ConditionTree.Nodes.Add(List.ToTree());
             ConditionTree.EndUpdate();
             ConditionTree.ExpandAll();
 
@@ -143,8 +138,6 @@ namespace BF2Statistics.MedalData
         /// </summary>
         public void EditCriteria()
         {
-            TreeNode SelectedNode = ConditionTree.SelectedNode;
-
             // Make sure we have a node selected
             if (Node == null)
             {
@@ -152,7 +145,8 @@ namespace BF2Statistics.MedalData
                 return;
             }
 
-            // Make sure its a child node
+            // Make sure its a child node, unless... its the only node :eek:
+            TreeNode SelectedNode = ConditionTree.SelectedNode;
             if (SelectedNode.Parent == null && SelectedNode.Nodes.Count != 0)
                 return;
 
@@ -178,7 +172,7 @@ namespace BF2Statistics.MedalData
                 NN = (ConditionList) MedalDataParser.ParseNodeConditions(ConditionTree.Nodes[0]);
 
                 ConditionTree.Nodes.Clear();
-                ConditionTree.Nodes.Add(NN.ToTreeNoCollapse());
+                ConditionTree.Nodes.Add(NN.ToTree());
                 ConditionTree.Refresh();
                 ConditionTree.ExpandAll();
             }
@@ -251,7 +245,7 @@ namespace BF2Statistics.MedalData
             // update tree
             ConditionTree.BeginUpdate();
             ConditionTree.Nodes.Clear();
-            ConditionTree.Nodes.Add(NList.ToTreeNoCollapse());
+            ConditionTree.Nodes.Add(NList.ToTree());
             ConditionTree.ExpandAll();
             ConditionTree.EndUpdate();
         }
@@ -313,8 +307,6 @@ namespace BF2Statistics.MedalData
         /// <summary>
         /// New Criteria menu item click
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void NewCriteria_Click(object sender, EventArgs e)
         {
             if (List.Type == ConditionType.Plus || List.Type == ConditionType.Div)
@@ -337,15 +329,13 @@ namespace BF2Statistics.MedalData
             // Make sure we are only adding to the root condition list
 
             Child = new NewCriteriaForm();
-            Child.FormClosing += new FormClosingEventHandler(Child_FormClosing);
+            Child.FormClosing += Child_FormClosing;
             Child.Show();
         }
 
         /// <summary>
         /// Delete Criteria menu item click
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void DeleteCriteria_Click(object sender, EventArgs e)
         {
             DeleteCriteria();
@@ -354,8 +344,6 @@ namespace BF2Statistics.MedalData
         /// <summary>
         /// Edit Criteria menu item click
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void EditCriteria_Click(object sender, EventArgs e)
         {
             EditCriteria();
@@ -364,8 +352,6 @@ namespace BF2Statistics.MedalData
         /// <summary>
         /// Undo Changes menu item click
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void UndoChanges_Click(object sender, EventArgs e)
         {
             List = (ConditionList)OrigList.Clone();
@@ -465,7 +451,7 @@ namespace BF2Statistics.MedalData
             // will still display the old window below it until the new child closes.
             Child.Visible = false;
             Child = C;
-            Child.FormClosing += new FormClosingEventHandler(AddNewCriteria);
+            Child.FormClosing += AddNewCriteria;
             Child.ShowDialog();
         }
     }

@@ -95,9 +95,7 @@ namespace BF2Statistics.Web.ASP
             }
 
             // Get Missing keys for a standard request
-            List<string> ReqKeys = RequiredKeys.Split(',').ToList<string>();
-            IEnumerable<string> Diff = from item in ReqKeys where !Info.Contains(item) select item;
-            List<string> MissingKeys = new List<string>(Diff);
+            List<string> MissingKeys = RequiredKeys.Split(',').Except(Info).ToList();
 
             // Standard BF2HQ Request
             if (MissingKeys.Count == 0)
@@ -376,43 +374,19 @@ namespace BF2Statistics.Web.ASP
                 }
             }
 
-            for (int i = 100; i < 106; i++)
-            {
-                Mtm.Add(i, "0");
-                Mwn.Add(i, "0");
-                Mls.Add(i, "0");
-                if (Extended)
-                {
-                    Mbs.Add(i, "0");
-                    Mws.Add(i, "0");
-                }
-            }
-
-            for (int i = 601; i < 603; i++)
-            {
-                Mtm.Add(i, "0");
-                Mwn.Add(i, "0");
-                Mls.Add(i, "0");
-                if (Extended)
-                {
-                    Mbs.Add(i, "0");
-                    Mws.Add(i, "0");
-                }
-            }
-
-            for (int i = 300; i < 308; i++)
-            {
-                Mtm.Add(i, "0");
-                Mwn.Add(i, "0");
-                Mls.Add(i, "0");
-                if (Extended)
-                {
-                    Mbs.Add(i, "0");
-                    Mws.Add(i, "0");
-                }
-            }
-
             for (int i = 10; i < 13; i++)
+            {
+                Mtm.Add(i, "0");
+                Mwn.Add(i, "0");
+                Mls.Add(i, "0");
+                if (Extended)
+                {
+                    Mbs.Add(i, "0");
+                    Mws.Add(i, "0");
+                }
+            }
+
+            for (int i = 100; i < 106; i++)
             {
                 Mtm.Add(i, "0");
                 Mwn.Add(i, "0");
@@ -437,6 +411,30 @@ namespace BF2Statistics.Web.ASP
             }
 
             for (int i = 200; i < 203; i++)
+            {
+                Mtm.Add(i, "0");
+                Mwn.Add(i, "0");
+                Mls.Add(i, "0");
+                if (Extended)
+                {
+                    Mbs.Add(i, "0");
+                    Mws.Add(i, "0");
+                }
+            }
+
+            for (int i = 300; i < 308; i++)
+            {
+                Mtm.Add(i, "0");
+                Mwn.Add(i, "0");
+                Mls.Add(i, "0");
+                if (Extended)
+                {
+                    Mbs.Add(i, "0");
+                    Mws.Add(i, "0");
+                }
+            }
+
+            for (int i = 601; i < 604; i++)
             {
                 Mtm.Add(i, "0");
                 Mwn.Add(i, "0");
@@ -1180,7 +1178,7 @@ namespace BF2Statistics.Web.ASP
         /// </summary>
         private void GetFavMap()
         {
-            Rows = Driver.Query("SELECT mapid FROM maps WHERE id=@P0 ORDER BY time DESC LIMIT 1", Pid);
+            Rows = Driver.Query("SELECT mapid FROM maps WHERE id=@P0 AND mapid < 700 ORDER BY time DESC LIMIT 1", Pid);
             if (Rows.Count == 0)
                 Out["fmap"] = 0;
             else

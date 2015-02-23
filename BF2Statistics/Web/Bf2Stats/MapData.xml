@@ -16,8 +16,8 @@
         Accepted values are:
           "bf" => Vanilla Battlefield 2
           "sf" => Special Forces expansion
-          "ef" => Euro Force expansion
-          "af" => Armored Fury expansion
+          "ef" => Euro Force booster pack
+          "af" => Armored Fury booster pack
           "" => Leave empty for Custom maps where time played does not accumulate towards an expansion
           
     ** Any changes made to this file will require the Http Server be restarted if running to take affect.
@@ -50,6 +50,8 @@
     <map id="305" mod="sf">Mass Destruction</map>
     <map id="306" mod="sf">Surge</map>
     <map id="307" mod="sf">Ghost Town</map>
-    <map id="601" mod="sf">Wake Island 2007</map>
+    <map id="601" mod="bf">Wake Island 2007</map>
+    <map id="602" mod="bf">Highway Tampa</map>
+    <map id="603" mod="bf">Operation Blue Pearl</map>
   </maps>
 </MapData>

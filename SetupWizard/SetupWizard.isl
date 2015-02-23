@@ -4502,7 +4502,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
 		<row><td>ProductCode</td><td>{159EC11B-5886-4180-A0DA-2C7E3B2BA2D0}</td><td/></row>
 		<row><td>ProductName</td><td>BF2Statistics Control Center</td><td/></row>
-		<row><td>ProductVersion</td><td>2.0.1</td><td/></row>
+		<row><td>ProductVersion</td><td>2.0.2</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
