@@ -133,18 +133,6 @@ namespace BF2Statistics.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool ASP_StatsRankCheck {
-            get {
-                return ((bool)(this["ASP_StatsRankCheck"]));
-            }
-            set {
-                this["ASP_StatsRankCheck"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int ASP_MinRoundTime {
             get {
@@ -416,6 +404,66 @@ namespace BF2Statistics.Properties {
             }
             set {
                 this["GamespyDBConnectionString"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("127.0.0.1")]
+        public string GamespyExtAddress {
+            get {
+                return ((string)(this["GamespyExtAddress"]));
+            }
+            set {
+                this["GamespyExtAddress"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool GamespyEnableServerlist {
+            get {
+                return ((bool)(this["GamespyEnableServerlist"]));
+            }
+            set {
+                this["GamespyEnableServerlist"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool GamespyAllowExtServers {
+            get {
+                return ((bool)(this["GamespyAllowExtServers"]));
+            }
+            set {
+                this["GamespyAllowExtServers"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool GamespyServerDebug {
+            get {
+                return ((bool)(this["GamespyServerDebug"]));
+            }
+            set {
+                this["GamespyServerDebug"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool LockHostsFile {
+            get {
+                return ((bool)(this["LockHostsFile"]));
+            }
+            set {
+                this["LockHostsFile"] = value;
             }
         }
     }

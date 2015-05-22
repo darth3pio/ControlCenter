@@ -25,7 +25,7 @@ namespace BF2Statistics.ASP.StatsProcessor
         /// </summary>
         /// <param name="AwardId">The award id</param>
         /// <param name="Criterias">The criteria's needed to earn the award</param>
-        public BackendAward(int AwardId,  params AwardCriteria[] Criterias)
+        public BackendAward(int AwardId, AwardCriteria[] Criterias)
         {
             this.AwardId = AwardId;
             this.Criterias = Criterias;

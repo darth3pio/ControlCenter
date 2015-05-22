@@ -121,7 +121,7 @@ namespace BF2Statistics.ASP
                 throw new UnauthorizedAccessException("Un-Authorised Gameserver (Ip: " + ServerAddress + ")");
 
             // Create the Snapshot Object
-            Snapshot Snap = new Snapshot(Data, DateTime.UtcNow, ServerAddress);
+            Snapshot Snap = new Snapshot(Data, ServerAddress);
 
             // Add snapshot to Queue
             SnapshotQueue.Enqueue(Snap);
@@ -256,7 +256,7 @@ namespace BF2Statistics.ASP
                     try
                     {
                         // Backup the snapshot
-                        string FileName = Snap.ServerPrefix + "-" + Snap.MapName + "_" + Snap.Date.ToLocalTime().ToString("yyyyMMdd_HHmm") + ".txt";
+                        string FileName = Snap.ServerPrefix + "-" + Snap.MapName + "_" + Snap.RoundEndDate.ToLocalTime().ToString("yyyyMMdd_HHmm") + ".txt";
                         File.AppendAllText(
                             (WasSuccess) ? Path.Combine(Paths.SnapshotProcPath, FileName) : Path.Combine(Paths.SnapshotTempPath, FileName),
                             Snap.DataString

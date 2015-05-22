@@ -65,11 +65,6 @@ namespace BF2Statistics
         private CancellationTokenSource HostTaskSource;
 
         /// <summary>
-        /// Our Gamespy Available Server
-        /// </summary>
-        private Bf2Available AvailServer;
-
-        /// <summary>
         /// Constructor. Initializes and Displays the Applications main GUI
         /// </summary>
         public MainForm()
@@ -92,8 +87,8 @@ namespace BF2Statistics
             // Set BF2Statistics Python Install / Ranked Status
             SetInstallStatus();
 
-            // Try to access the hosts file
-            DoHOSTSCheck();
+            // Try to access the hosts file when the form is showed
+            this.Shown += (s, e) => DoHOSTSCheck();
 
             // Load Cross Session Settings
             ParamBox.Text = Config.ClientParams;
@@ -105,12 +100,11 @@ namespace BF2Statistics
             GpcmAddress.Text = (!String.IsNullOrWhiteSpace(Config.LastLoginServerAddress)) ? Config.LastLoginServerAddress : "localhost";
             Bf2webAddress.Text = (!String.IsNullOrWhiteSpace(Config.LastStatsServerAddress)) ? Config.LastStatsServerAddress : "localhost";
             labelTotalWebRequests.Text = Config.TotalASPRequests.ToString();
+            HostsLockCheckbox.Checked = Config.LockHostsFile;
+            HostsLockCheckbox.CheckedChanged += HostsLockCheckbox_CheckedChanged;
 
             // If we dont have a client path, disable the Launch Client button
             LaunchClientBtn.Enabled = (!String.IsNullOrWhiteSpace(Config.ClientPath) && File.Exists(Path.Combine(Config.ClientPath, "bf2.exe")));
-
-            // Start Gamespy Available Server. This prevents the 60 second hang on Bf2 Startup
-            AvailServer = new Bf2Available();
 
             // Register for ASP server events
             HttpServer.Started += ASPServer_OnStart;
@@ -119,10 +113,14 @@ namespace BF2Statistics
             StatsManager.SnapshotProcessed += StatsManager_SnapshotProccessed;
             StatsManager.SnapshotReceived += StatsManager_SnapshotReceived;
 
-            // Register for Login server events
-            LoginServer.Started += LoginServer_OnStart;
-            LoginServer.Stopped += LoginServer_OnShutdown;
-            LoginServer.OnUpdate += LoginServer_OnUpdate;
+            // Register for Gamespy server events
+            GamespyEmulator.Started += GamespyServer_OnStart;
+            GamespyEmulator.Stopped += GamespyServer_OnShutdown;
+            GamespyEmulator.OnClientsUpdate += GamepsyServer_OnUpdate;
+            GamespyEmulator.OnServerlistUpdate += (s, e) => BeginInvoke((Action)delegate 
+            { 
+                ServerListSize.Text = GamespyEmulator.ServersOnline.ToString(); 
+            });
 
             // Register for BF2 Server events
             BF2Server.Started += BF2Server_Started;
@@ -138,7 +136,7 @@ namespace BF2Statistics
                 this.Text += " (Administrator)";
 
             // Set some tooltips
-            Tipsy.SetToolTip(LoginStatusPic, "Login server is currently offline");
+            Tipsy.SetToolTip(GamespyStatusPic, "Gamespy server is currently offline");
             Tipsy.SetToolTip(AspStatusPic, "Asp server is currently offline");
             Tipsy.SetToolTip(labelSnapshotsProc, "Processed / Received");
             SysIcon = NotificationIcon;
@@ -258,18 +256,20 @@ namespace BF2Statistics
                     Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are currently active.");
                     UpdateHostFileStatus("- Found old redirect data in HOSTS file.");
                     RedirectsEnabled = true;
-                    HostsStatusPic.Image = Resources.check;
+                    HostsStatusPic.Image = Resources.loading;
                     LockGroups();
 
                     RedirectButton.Enabled = true;
                     RedirectButton.Text = "Remove HOSTS Redirect";
 
-                    UpdateHostFileStatus("- Locking HOSTS file");
-                    HostsFile.Lock();
-                    UpdateHostFileStatus("- All Done!");
+                    // Refresh DNS cache with just the HOSTS file entries
+                    RebuildDNSCacheAsync(false);
                 }
                 else
                     Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are not active.");
+
+                // Force checkbox
+                //HostsLockCheckbox_CheckedChanged(this, EventArgs.Empty);
             }
         }
 
@@ -288,13 +288,13 @@ namespace BF2Statistics
         }
 
         /// <summary>
-        /// Builds the Login Tabs client list
+        /// Builds the Login Tab's client list
         /// </summary>
         private void BuildClientsList()
         {
             StringBuilder Sb = new StringBuilder();
-            foreach (GpcmClient C in LoginServer.ConnectedClients)
-                Sb.AppendFormat(" {0} ({1}) - {2}{3}", C.ClientNick, C.ClientPID, C.IpAddress, Environment.NewLine);
+            foreach (GpcmClient C in GamespyEmulator.ConnectedClients)
+                Sb.AppendFormat(" {0} ({1}) - {2}{3}", C.PlayerNick, C.PlayerId, C.RemoteEndPoint.Address, Environment.NewLine);
 
             // Update connected clients count, and list, on main thread
             BeginInvoke((Action)delegate
@@ -313,14 +313,14 @@ namespace BF2Statistics
         /// </summary>
         private async void LaunchEmuBtn_Click(object sender, EventArgs e)
         {
-            if (!LoginServer.IsRunning)
+            if (!GamespyEmulator.IsRunning)
             {
                 // Make sure the Http web server is running, Cant generate PID's
                 // for accounts if the ASP isnt up :P
                 if (!HttpServer.IsRunning)
                 {
                     DialogResult Res = MessageBox.Show(
-                        "The Login Server needs to be able to communicate with the ASP Stats server."
+                        "The Gamespy Server needs to be able to communicate with the ASP Stats server."
                         + Environment.NewLine.Repeat(1)
                         + "Would you like to start the ASP stats server now?",
                         "Asp Stats Server Required",
@@ -338,20 +338,20 @@ namespace BF2Statistics
                 // Start the loading process
                 LaunchEmuBtn.Enabled = false;
                 StartLoginserverBtn.Enabled = false;
-                LoginStatusPic.Image = Resources.loading;
+                GamespyStatusPic.Image = Resources.loading;
 
                 // Await Servers Async, Dont want MySQL locking up the GUI
                 try
                 {
-                    await Task.Run(() => { LoginServer.Start(); });
+                    await Task.Run(() => GamespyEmulator.Start());
                 }
                 catch (Exception E)
                 {
                     // Exception message will already be there
-                    LoginStatusPic.Image = Resources.warning;
+                    GamespyStatusPic.Image = Resources.warning;
                     StartLoginserverBtn.Enabled = true;
                     LaunchEmuBtn.Enabled = true;
-                    Tipsy.SetToolTip(LoginStatusPic, E.Message);
+                    Tipsy.SetToolTip(GamespyStatusPic, E.Message);
 
                     // Show the DB exception form if its a DB connection error
                     if (E is DbConnectException)
@@ -360,8 +360,8 @@ namespace BF2Statistics
             }
             else
             {
-                LoginServer.Shutdown();
-                Tipsy.SetToolTip(LoginStatusPic, "Login server us currently offline.");
+                GamespyEmulator.Shutdown();
+                Tipsy.SetToolTip(GamespyStatusPic, "Gamespy server is currently offline.");
             }
         }
 
@@ -728,44 +728,44 @@ namespace BF2Statistics
         /// <summary>
         /// Event fired when the login server starts
         /// </summary>
-        private void LoginServer_OnStart()
+        private void GamespyServer_OnStart()
         {
             // Make this cross thread safe
             BeginInvoke((Action)delegate
             {
-                LoginStatusPic.Image = Resources.check;
-                LaunchEmuBtn.Text = "Shutdown Login Server";
+                GamespyStatusPic.Image = Resources.check;
+                LaunchEmuBtn.Text = "Shutdown Gamespy Server";
                 LaunchEmuBtn.Enabled = true;
-                StartLoginserverBtn.Text = "Shutdown Login Server";
+                StartLoginserverBtn.Text = "Shutdown Gamespy Server";
                 StartLoginserverBtn.Enabled = true;
-                CreateAcctBtn.Enabled = true;
+                ManageGpDbBtn.Enabled = false;
                 EditAcctBtn.Enabled = true;
                 LoginStatusLabel.Text = "Running";
                 LoginStatusLabel.ForeColor = Color.LimeGreen;
-                Tipsy.SetToolTip(LoginStatusPic, "Login server is Running");
+                Tipsy.SetToolTip(GamespyStatusPic, "Gamespy server is Running");
             });
         }
 
         /// <summary>
         /// Event fired when the login emulator shutsdown
         /// </summary>
-        private void LoginServer_OnShutdown()
+        private void GamespyServer_OnShutdown()
         {
             // Make this cross thread safe
             BeginInvoke((Action)delegate
             {
                 ConnectedClients.Clear();
-                LoginStatusPic.Image = Resources.error;
+                GamespyStatusPic.Image = Resources.error;
                 ClientCountLabel.Text = "0";
-                LaunchEmuBtn.Text = "Start Login Server";
+                LaunchEmuBtn.Text = "Start Gamespy Server";
                 LaunchEmuBtn.Enabled = true;
-                StartLoginserverBtn.Text = "Start Login Server";
+                StartLoginserverBtn.Text = "Start Gamespy Server";
                 StartLoginserverBtn.Enabled = true;
-                CreateAcctBtn.Enabled = false;
+                ManageGpDbBtn.Enabled = true;
                 EditAcctBtn.Enabled = false;
                 LoginStatusLabel.Text = "Stopped";
                 LoginStatusLabel.ForeColor = SystemColors.ControlDark;
-                Tipsy.SetToolTip(LoginStatusPic, "Login server is currently offline");
+                Tipsy.SetToolTip(GamespyStatusPic, "Gamespy server is currently offline");
             });
         }
 
@@ -774,11 +774,11 @@ namespace BF2Statistics
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void LoginServer_OnUpdate(object sender, EventArgs e)
+        private void GamepsyServer_OnUpdate(object sender, EventArgs e)
         {
             // DO processing in this thread
             int PeakClients = Int32.Parse(labelPeakClients.Text);
-            int Connected = LoginServer.NumClientsConencted;
+            int Connected = GamespyEmulator.NumClientsConencted;
             if (PeakClients < Connected)
                 PeakClients = Connected;
 
@@ -797,15 +797,15 @@ namespace BF2Statistics
             LaunchEmuBtn_Click(sender, e);
         }
 
-        private void CreateAcctBtn_Click(object sender, EventArgs e)
+        private void ManageGpDbBtn_Click(object sender, EventArgs e)
         {
-            CreateAcctForm Form = new CreateAcctForm();
-            Form.ShowDialog();
+            SetupManager.ShowDatabaseSetupForm(DatabaseMode.Gamespy);
         }
 
         private void EditGamespyConfigBtn_Click(object sender, EventArgs e)
         {
-            SetupManager.ShowDatabaseSetupForm(DatabaseMode.Gamespy);
+            GamespyConfigForm form = new GamespyConfigForm();
+            form.ShowDialog();
         }
 
         private void EditAcctBtn_Click(object sender, EventArgs e)
@@ -1127,12 +1127,17 @@ namespace BF2Statistics
                     }
 
                     // Update status
-                    UpdateHostFileStatus("- Adding gpcm.gamespy.com redirect to hosts file");
-                    UpdateHostFileStatus("- Adding gpsp.gamespy.com redirect to hosts file");
+                    UpdateHostFileStatus("- Adding gamespy redirects to hosts file");
 
                     // Append lines to hosts file
                     HostsFile.Set("gpcm.gamespy.com", GpcmA.ToString());
                     HostsFile.Set("gpsp.gamespy.com", GpcmA.ToString());
+                    HostsFile.Set("motd.gamespy.com", GpcmA.ToString());
+                    HostsFile.Set("master.gamespy.com", GpcmA.ToString());
+                    HostsFile.Set("gamestats.gamespy.com", GpcmA.ToString());
+                    HostsFile.Set("battlefield2.ms14.gamespy.com", GpcmA.ToString());
+                    HostsFile.Set("battlefield2.master.gamespy.com", GpcmA.ToString());
+                    HostsFile.Set("battlefield2.available.gamespy.com", GpcmA.ToString());
                     Config.LastLoginServerAddress = GpcmAddress.Text.Trim();
                 }
 
@@ -1144,22 +1149,17 @@ namespace BF2Statistics
                 try
                 {
                     // Save lines to hosts file
-                    string localAddr = IPAddress.Loopback.ToString();
-                    HostsFile.Set("motd.gamespy.com", localAddr);
-                    HostsFile.Set("battlefield2.ms14.gamespy.com", localAddr);
-                    HostsFile.Set("battlefield2.master.gamespy.com", localAddr);
-                    HostsFile.Set("battlefield2.available.gamespy.com", localAddr);
                     HostsFile.Save();
                     UpdateHostFileStatus("Success!");
 
-                    // Rebuilds the DNS cache async
-                    RebuildDNSCacheAsync();
-
                     // Set form data
                     RedirectsEnabled = true;
-                    HostsStatusPic.Image = Resources.check;
+                    HostsStatusPic.Image = Resources.loading;
                     RedirectButton.Text = "Remove HOSTS Redirect";
                     RedirectButton.Enabled = true;
+
+                    // Rebuilds the DNS cache async
+                    RebuildDNSCacheAsync();
                 }
                 catch
                 {
@@ -1171,12 +1171,13 @@ namespace BF2Statistics
                         "It may also help to run this program as an administrator.",
                         "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning
                     );
+                    HostsLockCheckbox.Enabled = true;
                 }
             }
             else
             {
                 // Lock the button
-                RedirectButton.Enabled = false;
+                RedirectButton.Enabled = true;
 
                 // Stop worker if its busy
                 if (HostTask != null && HostTask.Status == TaskStatus.Running)
@@ -1189,6 +1190,61 @@ namespace BF2Statistics
             }
         }
 
+        private void HostsDiagnosticsBtn_Click(object sender, EventArgs e)
+        {
+            HostsFileTestForm f = new HostsFileTestForm();
+            f.ShowDialog();
+        }
+
+        private void HostsLockCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            // Save config
+            Config.LockHostsFile = HostsLockCheckbox.Checked;
+            Config.Save();
+
+            // We only do something if redirects are enabled
+            if (RedirectsEnabled)
+            {
+                // Lock or unlock the file
+                if (HostsLockCheckbox.Checked && !HostsFile.IsLocked)
+                {
+                    // Attempt to lock the hosts file
+                    if (!HostsFile.Lock())
+                    {
+                        MessageBox.Show(
+                            "Unable to lock the HOSTS file! Reason: " + HostsFile.LastException.Message,
+                            "Hosts File Error", MessageBoxButtons.OK, MessageBoxIcon.Error
+                        );
+                        return;
+                    }
+
+                    // Update the GUI
+                    HostsLockStatus.Text = "Locked";
+                    HostsLockStatus.ForeColor = Color.Green;
+                    HostsStatusPic.Image = Resources.check;
+                    Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are currently active.");
+                }
+                else if (!HostsLockCheckbox.Checked && HostsFile.IsLocked)
+                {
+                    // Attempt to unlock the hosts file
+                    if (!HostsFile.UnLock())
+                    {
+                        MessageBox.Show(
+                            "Unable to unlock the HOSTS file! Reason: " + HostsFile.LastException.Message,
+                            "Hosts File Error", MessageBoxButtons.OK, MessageBoxIcon.Error
+                        );
+                        return;
+                    }
+
+                    // Update the GUI
+                    HostsLockStatus.Text = "UnLocked";
+                    HostsLockStatus.ForeColor = Color.Red;
+                    HostsStatusPic.Image = Resources.warning;
+                    Tipsy.SetToolTip(HostsStatusPic, "HOSTS file is unlocked, Redirects will not work!");
+                }
+            }
+        }
+
         /// <summary>
         /// Method is used to unlock the input fields
         /// </summary>
@@ -1197,7 +1253,6 @@ namespace BF2Statistics
             RedirectButton.Enabled = true;
             GpcmGroupBox.Enabled = true;
             BF2webGroupBox.Enabled = true;
-            Bf2AaGroupBox.Enabled = true;
         }
 
         /// <summary>
@@ -1208,7 +1263,6 @@ namespace BF2Statistics
             RedirectButton.Enabled = false;
             GpcmGroupBox.Enabled = false;
             BF2webGroupBox.Enabled = false;
-            Bf2AaGroupBox.Enabled = false;
         }
 
         /// <summary>
@@ -1218,39 +1272,96 @@ namespace BF2Statistics
         /// it cant be read. If we ping first, then the DNS cache fills up with the IP 
         /// addresses in the hosts file.
         /// </summary>
-        private void RebuildDNSCacheAsync()
+        private void RebuildDNSCacheAsync(bool FlushDnsCache = true)
         {
             // Create a new Cancellation token sequence
             HostTaskSource = new CancellationTokenSource();
             CancellationToken CancelToken = HostTaskSource.Token;
 
+            // Lock hosts file lock
+            HostsLockCheckbox.Enabled = false;
+
             // Run as a task in a different thread
-            HostTask = Task.Run(() =>
+            HostTask = Task.Run(async () =>
             {
-                // Flush DNS Cache
-                FlushDNS();
-
-                // Rebuild the DNS cache with the hosts file redirects
-                UpdateHostFileStatus("- Rebuilding DNS Cache... ", false);
-                foreach (KeyValuePair<String, String> IP in HostsFile.GetLines())
+                try
                 {
-                    // Quit on cancel
-                    if (CancelToken.IsCancellationRequested)
-                        return;
+                    if (FlushDnsCache)
+                    {
+                        // Flush DNS Cache
+                        UpdateHostFileStatus("- Rebuilding DNS Cache... ", false);
+                        DnsFlushResolverCache();
+                    }
+                    else
+                    {
+                        UpdateHostFileStatus("- Refreshing DNS HOSTS File Entries... ", false);
+                    }
 
-                    // Ping server to get the IP address in the dns cache
-                    Ping p = new Ping();
-                    PingReply reply = p.Send(IP.Key);
+                    // Dispose of the ping object correctly
+                        // Rebuild the DNS cache with the hosts file redirects
+                        foreach (KeyValuePair<String, String> IP in HostsFile.GetLines())
+                        {
+                            // Quit on cancel
+                            if (CancelToken.IsCancellationRequested)
+                                return;
+
+                            try
+                            {
+                                // Ping server to get the IP address in the dns cache
+                                await Dns.GetHostAddressesAsync(IP.Key);
+                            }
+                            catch
+                            {
+                                continue;
+                            }
+                        }
+
+                    // Update status window
+                    UpdateHostFileStatus("Done");
+
+                    // Wait for DNS cache to catch up
+                    await Task.Delay(1000);
+
+                    // Lock the hosts file
+                    if (HostsLockCheckbox.Checked)
+                    {
+                        UpdateHostFileStatus("- Locking HOSTS file");
+                        HostsFile.Lock();
+                    }
+
+                    UpdateHostFileStatus("- All Done!");
+                    Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are currently active.");
+                    BeginInvoke((Action)delegate
+                    {
+                        HostsStatusPic.Image = Resources.check;
+                        HostsDiagnosticsBtn.Enabled = true;
+
+                        // Set hosts file locked status
+                        if(HostsFile.IsLocked)
+                        {
+                            HostsLockStatus.Text = "Locked";
+                            HostsLockStatus.ForeColor = Color.Green;
+                        }
+                        else
+                        {
+                            HostsLockStatus.Text = "UnLocked";
+                            HostsLockStatus.ForeColor = Color.Red;
+                        }
+                        HostsLockCheckbox.Enabled = true;
+                    });
                 }
-
-                // Update status window
-                UpdateHostFileStatus("Done");
-                UpdateHostFileStatus("- Locking HOSTS file");
-
-                // Lock the hosts file
-                HostsFile.Lock();
-                UpdateHostFileStatus("- All Done!");
-                Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are currently active.");
+                catch(Exception e)
+                {
+                    // Execute on the main thread
+                    BeginInvoke((Action)delegate
+                    {
+                        // Update status window
+                        UpdateHostFileStatus("Error!");
+                        HostsStatusPic.Image = Resources.warning;
+                        HostsLockCheckbox.Enabled = true;
+                        Tipsy.SetToolTip(HostsStatusPic, e.Message);
+                    });
+                }
 
             }, CancelToken)
 
@@ -1295,6 +1406,8 @@ namespace BF2Statistics
                 HostsFile.Remove("gpcm.gamespy.com");
                 HostsFile.Remove("gpsp.gamespy.com");
                 HostsFile.Remove("motd.gamespy.com");
+                HostsFile.Remove("master.gamespy.com");
+                HostsFile.Remove("gamestats.gamespy.com");
                 HostsFile.Remove("battlefield2.ms14.gamespy.com");
                 HostsFile.Remove("battlefield2.master.gamespy.com");
                 HostsFile.Remove("battlefield2.available.gamespy.com");
@@ -1312,7 +1425,8 @@ namespace BF2Statistics
             }
 
             // Flush the DNS!
-            FlushDNS();
+            UpdateHostFileStatus("- Flushing DNS Cache");
+            DnsFlushResolverCache();
 
             // Update status
             UpdateHostFileStatus("- All Done!");
@@ -1322,6 +1436,9 @@ namespace BF2Statistics
             RedirectsEnabled = false;
             HostsStatusPic.Image = Resources.error;
             RedirectButton.Text = "Begin HOSTS Redirect";
+            HostsDiagnosticsBtn.Enabled = false;
+            HostsLockStatus.Text = "UnLocked";
+            HostsLockStatus.ForeColor = Color.Red;
             UnlockGroups();
         }
 
@@ -1353,15 +1470,6 @@ namespace BF2Statistics
             }
         }
 
-        /// <summary>
-        /// Flushes the Windows DNS cache
-        /// </summary>
-        public void FlushDNS()
-        {
-            UpdateHostFileStatus("- Flushing DNS Cache");
-            DnsFlushResolverCache();
-        }
-
         [DllImport("dnsapi.dll", EntryPoint = "DnsFlushResolverCache")]
         private static extern UInt32 DnsFlushResolverCache();
 
@@ -1384,7 +1492,7 @@ namespace BF2Statistics
                 try
                 {
                     // Start Server in a different thread, Dont want MySQL locking up the GUI
-                    await Task.Run(() => { HttpServer.Start(); });
+                    await Task.Run(() => HttpServer.Start());
                 }
                 catch (HttpListenerException E)
                 {
@@ -1749,8 +1857,8 @@ namespace BF2Statistics
             Config.Save();
 
             // Shutdown login servers
-            if (LoginServer.IsRunning)
-                LoginServer.Shutdown();
+            if (GamespyEmulator.IsRunning)
+                GamespyEmulator.Shutdown();
 
             // Shutdown ASP Server
             if (HttpServer.IsRunning)

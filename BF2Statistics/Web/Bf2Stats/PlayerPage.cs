@@ -562,13 +562,13 @@ namespace BF2Statistics.Web.Bf2Stats
 
             // Add Favorites
             Favorites.Add("army", (from x in ArmyData orderby x.Time select ArmyData.IndexOf(x)).Last());
-            Favorites.Add("map", (from x in MapData orderby x.Time select MapData.IndexOf(x)).Last());
+            Favorites.Add("map", (MapData.Count == 0) ? -1 : (from x in MapData orderby x.Time select MapData.IndexOf(x)).Last());
             Favorites.Add("theater", (from x in TheaterData orderby x.Time select TheaterData.IndexOf(x)).Last());
             Favorites.Add("vehicle", (from x in VehicleData orderby x.Time select VehicleData.IndexOf(x)).Last());
             Favorites.Add("kit", (from x in KitData orderby x.Time select KitData.IndexOf(x)).Last());
             Favorites.Add("weapon", (from x in WeaponData orderby x.Time select WeaponData.IndexOf(x)).Last());
             Favorites.Add("equipment", (from x in WeaponData orderby x.Time let index = WeaponData.IndexOf(x) where index > 8 select index).Last());
-            FavoriteMapId = MapData[Favorites["map"]].Id;
+            FavoriteMapId = Favorites["map"] >= 0 ? MapData[Favorites["map"]].Id : -1;
 
             #region TopEnemy and Victim
             // Get top enemy's

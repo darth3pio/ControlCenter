@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using System.Net.Mail;
 using BF2Statistics.Database;
 
 namespace BF2Statistics
@@ -88,6 +81,7 @@ namespace BF2Statistics
                 }
             }
 
+            this.DialogResult = DialogResult.OK;
             this.Close();
         }
     }

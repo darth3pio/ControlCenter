@@ -65,7 +65,7 @@ namespace BF2Statistics
             CancellationToken CancelToken = ImportTaskSource.Token;
 
             // Wrap in a Task so we dont lock the GUI
-            await Task.Run(() => ImportSnaphotFiles(Files, CancelToken), CancelToken);
+            await Task.Factory.StartNew(() => ImportSnaphotFiles(Files, CancelToken), CancelToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
             // Let progress bar update to 100%
             TaskForm.UpdateStatus("Done! Cleaning up...");
@@ -103,14 +103,9 @@ namespace BF2Statistics
                 // Process the snapshot
                 try
                 {
-                    // Parse date of snapshot
-                    string[] Parts = SnapshotFile.Split('_');
-                    string D = Parts[Parts.Length - 2] + "_" + Parts[Parts.Length - 1].Replace(".txt", "");
-                    DateTime Date = DateTime.ParseExact(D, "yyyyMMdd_HHmm", CultureInfo.InvariantCulture).ToUniversalTime();
-
                     // Update status and run snapshot
                     TaskForm.UpdateStatus(String.Format("Processing: \"{0}\"", SnapshotFile));
-                    Snapshot Snapshot = new Snapshot(File.ReadAllText(Path.Combine(Paths.SnapshotTempPath, SnapshotFile)), Date);
+                    Snapshot Snapshot = new Snapshot(File.ReadAllText(Path.Combine(Paths.SnapshotTempPath, SnapshotFile)));
 
                     // Do snapshot
                     Snapshot.ProcessData();
@@ -126,7 +121,8 @@ namespace BF2Statistics
                         + "snapshot files. If you click Quit, the operation will be aborted.";
                     DialogResult Result = Form.ShowDialog();
 
-                    if (Result == System.Windows.Forms.DialogResult.Abort)
+                    // User Abort
+                    if (Result == DialogResult.Abort)
                         break;
                 }
                 finally
@@ -217,16 +213,13 @@ namespace BF2Statistics
                 return;
 
             // Parse date of snapshot, and build the file file location
-            string[] Parts = Name.Split('_');
-            string D = Parts[Parts.Length - 2] + "_" + Parts[Parts.Length - 1].Replace(".txt", "");
-            DateTime Date = DateTime.ParseExact(D, "yyyyMMdd_HHmm", CultureInfo.InvariantCulture).ToUniversalTime();
             string _File = (ViewSelect.SelectedIndex == 0) 
                 ? Path.Combine(Paths.SnapshotTempPath, Name) 
                 : Path.Combine(Paths.SnapshotProcPath, Name);
 
             // Load up the snapshot, and display the Game Result Window
-            Snapshot Snapshot = new Snapshot(File.ReadAllText(_File), Date);
-            GameResultForm F = new GameResultForm(Snapshot as GameResult);
+            Snapshot Snapshot = new Snapshot(File.ReadAllText(_File));
+            GameResultForm F = new GameResultForm(Snapshot as GameResult, Snapshot.IsProcessed);
             F.ShowDialog();
         }
 

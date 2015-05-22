@@ -23,6 +23,10 @@ namespace BF2Statistics
         /// </summary>
         public static List<BF2Mod> Mods { get; protected set; }
 
+        /// <summary>
+        /// While loading the server's found mods, if there was any errors, the messages
+        /// will be stored in this list
+        /// </summary>
         public static List<string> ModLoadErrors { get; protected set; }
 
         /// <summary>
@@ -63,17 +67,11 @@ namespace BF2Statistics
             if (!File.Exists(Path.Combine(ServerPath, "bf2_w32ded.exe")))
                 throw new ArgumentException("Invalid server path");
 
-            // Defines if our path really did change
-            bool Changed = false;
-
-            // Do we need to fire a change event?
-            if (!String.IsNullOrEmpty(RootPath))
+            // Make sure we actually changed server paths before processing
+            if (!String.IsNullOrEmpty(RootPath) && (new Uri(ServerPath)) == (new Uri(RootPath)))
             {
                 // Same path is selected, just return
-                if ((new Uri(ServerPath)) == (new Uri(RootPath)))
-                    return;
-                else
-                    Changed = true;
+                return;
             }
 
             // Temporary variables
@@ -127,7 +125,7 @@ namespace BF2Statistics
             Mods = TempMods;
 
             // Fire change event
-            if (Changed && ServerPathChanged != null)
+            if (ServerPathChanged != null)
                 ServerPathChanged();
             
             // Recheck server process

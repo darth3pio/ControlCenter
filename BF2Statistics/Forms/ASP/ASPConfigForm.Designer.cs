@@ -38,7 +38,6 @@
             this.GeneralProcessing = new System.Windows.Forms.ComboBox();
             this.SmocProcessing = new System.Windows.Forms.ComboBox();
             this.RankTenure = new System.Windows.Forms.NumericUpDown();
-            this.RankChecking = new System.Windows.Forms.ComboBox();
             this.MinRoundPlayers = new System.Windows.Forms.NumericUpDown();
             this.MinRoundTime = new System.Windows.Forms.NumericUpDown();
             this.IgnoreAi = new System.Windows.Forms.ComboBox();
@@ -46,7 +45,6 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -87,7 +85,6 @@
             this.groupBox1.Controls.Add(this.GeneralProcessing);
             this.groupBox1.Controls.Add(this.SmocProcessing);
             this.groupBox1.Controls.Add(this.RankTenure);
-            this.groupBox1.Controls.Add(this.RankChecking);
             this.groupBox1.Controls.Add(this.MinRoundPlayers);
             this.groupBox1.Controls.Add(this.MinRoundTime);
             this.groupBox1.Controls.Add(this.IgnoreAi);
@@ -95,7 +92,6 @@
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.label6);
-            this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.label1);
@@ -109,7 +105,7 @@
             // label18
             // 
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(263, 172);
+            this.label18.Location = new System.Drawing.Point(263, 158);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(31, 13);
             this.label18.TabIndex = 20;
@@ -144,7 +140,7 @@
             this.GeneralProcessing.Items.AddRange(new object[] {
             "Disabled",
             "Enabled"});
-            this.GeneralProcessing.Location = new System.Drawing.Point(160, 233);
+            this.GeneralProcessing.Location = new System.Drawing.Point(160, 219);
             this.GeneralProcessing.Name = "GeneralProcessing";
             this.GeneralProcessing.Size = new System.Drawing.Size(180, 21);
             this.GeneralProcessing.TabIndex = 16;
@@ -157,16 +153,16 @@
             this.SmocProcessing.Items.AddRange(new object[] {
             "Disabled",
             "Enabled"});
-            this.SmocProcessing.Location = new System.Drawing.Point(160, 199);
+            this.SmocProcessing.Location = new System.Drawing.Point(160, 185);
             this.SmocProcessing.Name = "SmocProcessing";
             this.SmocProcessing.Size = new System.Drawing.Size(180, 21);
             this.SmocProcessing.TabIndex = 15;
             this.Tipsy.SetToolTip(this.SmocProcessing, "Automatcially assign new Sergeant Major of the Corp every <Special Rank Tenure> d" +
-                    "ays?");
+        "ays?");
             // 
             // RankTenure
             // 
-            this.RankTenure.Location = new System.Drawing.Point(160, 168);
+            this.RankTenure.Location = new System.Drawing.Point(160, 154);
             this.RankTenure.Maximum = new decimal(new int[] {
             365,
             0,
@@ -186,20 +182,6 @@
             0,
             0});
             // 
-            // RankChecking
-            // 
-            this.RankChecking.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.RankChecking.FormattingEnabled = true;
-            this.RankChecking.Items.AddRange(new object[] {
-            "Disabled",
-            "Enabled"});
-            this.RankChecking.Location = new System.Drawing.Point(160, 137);
-            this.RankChecking.Name = "RankChecking";
-            this.RankChecking.Size = new System.Drawing.Size(180, 21);
-            this.RankChecking.TabIndex = 13;
-            this.Tipsy.SetToolTip(this.RankChecking, "Only if your having issues with rank being reset to 0 at the end of the round, en" +
-                    "able this option.");
-            // 
             // MinRoundPlayers
             // 
             this.MinRoundPlayers.Location = new System.Drawing.Point(160, 105);
@@ -212,7 +194,7 @@
             this.MinRoundPlayers.Size = new System.Drawing.Size(97, 20);
             this.MinRoundPlayers.TabIndex = 12;
             this.Tipsy.SetToolTip(this.MinRoundPlayers, "Number of players (and Bots) needed to spawn in order for stats to be saved at th" +
-                    "e end of the round.");
+        "e end of the round.");
             this.MinRoundPlayers.Value = new decimal(new int[] {
             1,
             0,
@@ -231,7 +213,7 @@
             this.MinRoundTime.Size = new System.Drawing.Size(97, 20);
             this.MinRoundTime.TabIndex = 11;
             this.Tipsy.SetToolTip(this.MinRoundTime, "Minimum amount of time (in seconds) the player must play in the round for thier s" +
-                    "tats to be saved.");
+        "tats to be saved.");
             this.MinRoundTime.Value = new decimal(new int[] {
             1,
             0,
@@ -250,7 +232,7 @@
             this.IgnoreAi.Size = new System.Drawing.Size(180, 21);
             this.IgnoreAi.TabIndex = 9;
             this.Tipsy.SetToolTip(this.IgnoreAi, "Ignore AI Bot stats at the end of the round? \r\nEnabling this option will cause AI" +
-                    " stats to NOT be saved at the end of each round.");
+        " stats to NOT be saved at the end of each round.");
             // 
             // label9
             // 
@@ -264,7 +246,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(11, 236);
+            this.label8.Location = new System.Drawing.Point(11, 222);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(102, 13);
             this.label8.TabIndex = 7;
@@ -273,7 +255,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(11, 202);
+            this.label7.Location = new System.Drawing.Point(11, 188);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(92, 13);
             this.label7.TabIndex = 6;
@@ -282,20 +264,11 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(11, 170);
+            this.label6.Location = new System.Drawing.Point(11, 156);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(111, 13);
             this.label6.TabIndex = 5;
             this.label6.Text = "Special Rank Tenure:";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(11, 140);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(84, 13);
-            this.label5.TabIndex = 4;
-            this.label5.Text = "Rank Checking:";
             // 
             // label4
             // 
@@ -376,7 +349,7 @@
             this.OfflinePid.Size = new System.Drawing.Size(97, 20);
             this.OfflinePid.TabIndex = 14;
             this.Tipsy.SetToolTip(this.OfflinePid, "Default Offline PlayerID. All offline accounts that do not have an ID number will" +
-                    " decrement off of this number.\r\nNot recomended to change");
+        " decrement off of this number.\r\nNot recomended to change");
             this.OfflinePid.Value = new decimal(new int[] {
             29000000,
             0,
@@ -490,7 +463,6 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;
@@ -507,7 +479,6 @@
         private System.Windows.Forms.ComboBox GeneralProcessing;
         private System.Windows.Forms.ComboBox SmocProcessing;
         private System.Windows.Forms.NumericUpDown RankTenure;
-        private System.Windows.Forms.ComboBox RankChecking;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.TextBox AuthGameServers;

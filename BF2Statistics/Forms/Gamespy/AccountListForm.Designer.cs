@@ -50,6 +50,7 @@
             this.menuItemDelete = new System.Windows.Forms.ToolStripMenuItem();
             this.OnlineAccountsCheckBox = new System.Windows.Forms.CheckBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.menuItemCreate = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.PageNumber)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DataTable)).BeginInit();
             this.contextMenu.SuspendLayout();
@@ -247,15 +248,16 @@
             // contextMenu
             // 
             this.contextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuItemCreate,
             this.menuItemDelete});
             this.contextMenu.Name = "contextMenu";
-            this.contextMenu.Size = new System.Drawing.Size(156, 26);
+            this.contextMenu.Size = new System.Drawing.Size(157, 70);
             this.contextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenu_Opening);
             // 
             // menuItemDelete
             // 
             this.menuItemDelete.Name = "menuItemDelete";
-            this.menuItemDelete.Size = new System.Drawing.Size(155, 22);
+            this.menuItemDelete.Size = new System.Drawing.Size(156, 22);
             this.menuItemDelete.Text = "Delete Account";
             this.menuItemDelete.Click += new System.EventHandler(this.menuItemDelete_Click);
             // 
@@ -278,7 +280,14 @@
             this.label3.Size = new System.Drawing.Size(622, 13);
             this.label3.TabIndex = 23;
             this.label3.Text = "Below is a list of all the gamespy accounts in your database. Select an account t" +
-                "o edit or view by double clicking on a player below";
+    "o edit or view by double clicking on a player below";
+            // 
+            // menuItemCreate
+            // 
+            this.menuItemCreate.Name = "menuItemCreate";
+            this.menuItemCreate.Size = new System.Drawing.Size(156, 22);
+            this.menuItemCreate.Text = "Create Account";
+            this.menuItemCreate.Click += new System.EventHandler(this.menuItemCreate_Click);
             // 
             // AccountListForm
             // 
@@ -337,5 +346,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn lastip;
         private System.Windows.Forms.ContextMenuStrip contextMenu;
         private System.Windows.Forms.ToolStripMenuItem menuItemDelete;
+        private System.Windows.Forms.ToolStripMenuItem menuItemCreate;
     }
 }

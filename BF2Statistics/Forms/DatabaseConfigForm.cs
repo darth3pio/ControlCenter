@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data.Common;
 using System.Data.SQLite;
 using System.IO;
 using System.Threading.Tasks;
@@ -30,6 +29,7 @@ namespace BF2Statistics
             InitializeComponent();
             this.DbMode = Mode;
 
+            // === Stats
             if (Mode == DatabaseMode.Stats)
             {
                 // Fill values for config boxes
@@ -53,7 +53,7 @@ namespace BF2Statistics
                     DBName.Text = Builder.Database;
                 }
             }
-            else
+            else // === Gamespy === //
             {
                 // Fill values for config boxes
                 if (MainForm.Config.StatsDBEngine == "Sqlite")
@@ -87,59 +87,44 @@ namespace BF2Statistics
         /// </summary>
         private void SetConfigSettings()
         {
+            // Our connection string temp variable
+            string ConnString;
+
+            // Sqlite or Mysql
+            if (TypeSelect.SelectedIndex == 0)
+            {
+                SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder();
+                Builder.DataSource = Path.Combine(Program.RootPath, DBName.Text + ".sqlite3");
+                Builder.Version = 3;
+                Builder.PageSize = 4096; // Set page size to NTFS cluster size = 4096 bytes
+                Builder.CacheSize = 10000;
+                Builder.JournalMode = SQLiteJournalModeEnum.Wal;
+                Builder.LegacyFormat = false;
+                Builder.DefaultTimeout = 500;
+                ConnString = Builder.ConnectionString;
+            }
+            else
+            {
+                MySqlConnectionStringBuilder Builder = new MySqlConnectionStringBuilder();
+                Builder.Server = Hostname.Text;
+                Builder.Port = (uint)Port.Value;
+                Builder.UserID = Username.Text;
+                Builder.Password = Password.Text;
+                Builder.Database = DBName.Text;
+                Builder.ConvertZeroDateTime = true;
+                ConnString = Builder.ConnectionString;
+            }
+
+            // Set config vars based on the database mode
             if (DbMode == DatabaseMode.Stats)
             {
                 MainForm.Config.StatsDBEngine = (TypeSelect.SelectedIndex == 0) ? "Sqlite" : "Mysql";
-                if (TypeSelect.SelectedIndex == 0)
-                {
-                    SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder();
-                    Builder.DataSource = Path.Combine(Program.RootPath, DBName.Text + ".sqlite3");
-                    Builder.Version = 3;
-                    Builder.PageSize = 4096; // Set page size to NTFS cluster size = 4096 bytes
-                    Builder.CacheSize = 10000;
-                    Builder.JournalMode = SQLiteJournalModeEnum.Wal;
-                    Builder.LegacyFormat = false;
-                    Builder.DefaultTimeout = 500;
-                    MainForm.Config.StatsDBConnectionString = Builder.ConnectionString;
-                }
-                else
-                {
-                    MySqlConnectionStringBuilder Builder = new MySqlConnectionStringBuilder();
-                    Builder.Server = Hostname.Text;
-                    Builder.Port = (uint)Port.Value;
-                    Builder.UserID = Username.Text;
-                    Builder.Password = Password.Text;
-                    Builder.Database = DBName.Text;
-                    Builder.ConvertZeroDateTime = true;
-                    MainForm.Config.StatsDBConnectionString = Builder.ConnectionString;
-                }
+                MainForm.Config.StatsDBConnectionString = ConnString;
             }
             else
             {
                 MainForm.Config.GamespyDBEngine = (TypeSelect.SelectedIndex == 0) ? "Sqlite" : "Mysql";
-                if (TypeSelect.SelectedIndex == 0)
-                {
-                    SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder();
-                    Builder.DataSource = Path.Combine(Program.RootPath, DBName.Text + ".sqlite3");
-                    Builder.Version = 3;
-                    Builder.PageSize = 4096; // Set page size to NTFS cluster size = 4096 bytes
-                    Builder.CacheSize = 10000;
-                    Builder.JournalMode = SQLiteJournalModeEnum.Wal;
-                    Builder.LegacyFormat = false;
-                    Builder.DefaultTimeout = 500;
-                    MainForm.Config.GamespyDBConnectionString = Builder.ConnectionString;
-                }
-                else
-                {
-                    MySqlConnectionStringBuilder Builder = new MySqlConnectionStringBuilder();
-                    Builder.Server = Hostname.Text;
-                    Builder.Port = (uint)Port.Value;
-                    Builder.UserID = Username.Text;
-                    Builder.Password = Password.Text;
-                    Builder.Database = DBName.Text;
-                    Builder.ConvertZeroDateTime = true;
-                    MainForm.Config.GamespyDBConnectionString = Builder.ConnectionString;
-                }
+                MainForm.Config.GamespyDBConnectionString = ConnString;
             }
         }
 
@@ -172,12 +157,12 @@ namespace BF2Statistics
             this.Enabled = false;
 
             // Build Connection String
-            DbConnectionStringBuilder Builder = new MySqlConnectionStringBuilder();
-            Builder.Add("Server", Hostname.Text);
-            Builder.Add("Port", (int)Port.Value);
-            Builder.Add("User ID", Username.Text);
-            Builder.Add("Password", Password.Text);
-            Builder.Add("Database", DBName.Text);
+            MySqlConnectionStringBuilder Builder = new MySqlConnectionStringBuilder();
+            Builder.Server = Hostname.Text;
+            Builder.Port = (uint)Port.Value;
+            Builder.UserID = Username.Text;
+            Builder.Password = Password.Text;
+            Builder.Database = DBName.Text;
 
             // Attempt to connect, reporting any and all errors
             try
@@ -188,9 +173,11 @@ namespace BF2Statistics
                 // Dont lock up the program
                 await Task.Run(() =>
                 {
-                    MySqlConnection Connection = new MySqlConnection(Builder.ConnectionString);
-                    Connection.Open();
-                    Connection.Close();
+                    using (MySqlConnection Connection = new MySqlConnection(Builder.ConnectionString))
+                    {
+                        Connection.Open();
+                        Connection.Close();
+                    }
                 });
             }
             catch (Exception E)
@@ -266,7 +253,7 @@ namespace BF2Statistics
                 {
                     using (StatsDatabase Db = new StatsDatabase())
                     {
-                        if (!Db.IsInstalled)
+                        if (!Db.TablesExist)
                         {
                             PreviousInstall = false;
 
@@ -289,7 +276,7 @@ namespace BF2Statistics
                 {
                     using (GamespyDatabase Db = new GamespyDatabase())
                     {
-                        if (!Db.IsInstalled)
+                        if (!Db.TablesExist)
                         {
                             PreviousInstall = false;
 

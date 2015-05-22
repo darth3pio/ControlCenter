@@ -11,18 +11,18 @@ namespace BF2Statistics
         /// <returns></returns>
         public static int ToUnixTimestamp(this DateTime target)
         {
-            return (int)(target - new DateTime(1970, 1, 1, 0, 0, 0, target.Kind)).TotalSeconds;
+            DateTime Unix = (new DateTime(target.Ticks, target.Kind)).ToUniversalTime();
+            return (int)(Unix.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc))).TotalSeconds;
         }
 
         /// <summary>
-        /// Converts a timestamp to a DataTime
+        /// Converts a timestamp to a UTC DataTime
         /// </summary>
-        /// <param name="target"></param>
-        /// <param name="timestamp"></param>
+        /// <param name="timestamp">The number of seconds from Epoch</param>
         /// <returns></returns>
-        public static DateTime ToDateTime(this DateTime target, int timestamp)
+        public static DateTime FromUnixTimestamp(this DateTime target, int timestamp)
         {
-            DateTime Date = new DateTime(1970, 1, 1, 0, 0, 0, target.Kind);
+            DateTime Date = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             return Date.AddSeconds(timestamp);
         }
     }

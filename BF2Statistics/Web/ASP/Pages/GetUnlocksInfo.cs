@@ -76,13 +76,12 @@ namespace BF2Statistics.Web.ASP
                     int Earned = GetBonusUnlocks();
 
                     // Determine total unlocks available, based on what he has earned, minus what he has used already
-                    Rows = Driver.Query("SELECT COUNT(id) AS count FROM unlocks WHERE id = @P0 AND state = 's'", Pid);
-                    int Used = Int32.Parse(Rows[0]["count"].ToString());
+                    int Used = Driver.ExecuteScalar<int>("SELECT COUNT(*) FROM unlocks WHERE id=@P0 AND state='s'", Pid);
                     Earned -= Used;
 
                     // Update database if the database is off
                     if (Earned != Available || HasUsed != Used)
-                        Driver.Execute("UPDATE player SET availunlocks = @P0, usedunlocks = @P1 WHERE id = @P2", Earned, Used, Pid);
+                        Driver.Execute("UPDATE player SET availunlocks=@P0, usedunlocks=@P1 WHERE id=@P2", Earned, Used, Pid);
 
                     // Output more
                     Response.WriteHeaderLine("enlisted", "officer");
@@ -90,12 +89,11 @@ namespace BF2Statistics.Web.ASP
                     Response.WriteHeaderLine("id", "state");
 
                     // Add each unlock's state
-                    Dictionary<string, bool> Unlocks = new Dictionary<string, bool>();
                     Rows = Driver.Query("SELECT kit, state FROM unlocks WHERE id=@P0 ORDER BY kit ASC", Pid);
                     if (Rows.Count == 0)
                     {
                         // Create Player Unlock Data
-                        StringBuilder Query = new StringBuilder("INSERT INTO unlocks VALUES ");
+                        StringBuilder Query = new StringBuilder("INSERT INTO unlocks VALUES ", 350);
 
                         // Normal unlocks
                         for (int i = 11; i < 100; i += 11)
@@ -119,6 +117,7 @@ namespace BF2Statistics.Web.ASP
                     }
                     else
                     {
+                        Dictionary<string, bool> Unlocks = new Dictionary<string, bool>(7);
                         foreach (Dictionary<string, object> Unlock in Rows)
                         {
                             // Add unlock to output if its a base unlock

@@ -39,7 +39,7 @@ namespace BF2Statistics
             "Canadian Forces"
         };
 
-        public GameResultForm(GameResult Game)
+        public GameResultForm(GameResult Game, bool isProcessed)
         {
             InitializeComponent();
 
@@ -93,13 +93,13 @@ namespace BF2Statistics
             }
 
             // Set window title text
-            this.Text = "Game Result: " + Game.MapName + " [" + Game.Mod + "] - " + Game.Date.ToString() + " UTC";
+            this.Text = String.Format("Game Result: {0} [{1}] - {2} UTC", Game.MapName, Game.Mod, Game.RoundEndDate.ToString());
             this.MapNameLabel.Text = Game.MapName + " (ID: " + Game.MapId + ")";
             this.ModLabel.Text = Game.Mod;
             this.KillsLabel.Text = Game.MapKills.ToString();
             this.DeathsLabel.Text = Game.MapDeaths.ToString();
-            this.StartTimeLabel.Text = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(Game.RoundStart).ToLocalTime().ToString();
-            this.EndTimeLabel.Text = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds(Game.RoundEnd).ToLocalTime().ToString();
+            this.StartTimeLabel.Text = DateTime.UtcNow.FromUnixTimestamp(Game.RoundStartTime).ToLocalTime().ToString();
+            this.EndTimeLabel.Text = DateTime.UtcNow.FromUnixTimestamp(Game.RoundEndTime).ToLocalTime().ToString();
             this.RoundTimeLabel.Text = Game.RoundTime.ToString();
             this.ServerNameLabel.Text = Game.ServerName;
             this.ServerPortLabel.Text = Game.ServerPort.ToString();
@@ -108,6 +108,7 @@ namespace BF2Statistics
             this.Team2PlayersLabel.Text = Game.Team2Players.ToString();
             this.EorPlayers1Label.Text = Game.Team1PlayersEnd.ToString();
             this.EorPlayers2Label.Text = Game.Team2PlayersEnd.ToString();
+            this.RoundProcLabel.Text = isProcessed ? "True" : "False";
 
             // Set Gamemode
             this.GameModeLabel.Text = GetGameModeText(Game.GameMode);

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using BF2Statistics.ASP;
+using BF2Statistics.Database.QueryBuilder;
 
 namespace BF2Statistics.Database
 {
@@ -10,18 +12,35 @@ namespace BF2Statistics.Database
     public class GamespyDatabase : DatabaseDriver, IDisposable
     {
         /// <summary>
+        /// Indicates the most up to date database table version
+        /// </summary>
+        public static readonly Version LatestVersion = new Version(2, 1);
+
+        /// <summary>
+        /// Indicates the current Database tables version
+        /// </summary>
+        public Version Version { get; protected set; }
+
+        /// <summary>
         /// Indicates whether the SQL tables exist in this database
         /// </summary>
-        public bool IsInstalled { get; protected set; }
+        public bool TablesExist
+        {
+            get { return Version.Major > 0; }
+        }
+
+        /// <summary>
+        /// Indicates whether the user should be notified to update the database
+        /// </summary>
+        public bool NeedsUpdated
+        {
+            get { return Version.CompareTo(LatestVersion) < 0; }
+        }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public GamespyDatabase() : 
-            base(
-                MainForm.Config.GamespyDBEngine,
-                MainForm.Config.GamespyDBConnectionString
-            )
+        public GamespyDatabase() : base(MainForm.Config.GamespyDBEngine, MainForm.Config.GamespyDBConnectionString)
         {
             // Try and Reconnect
             try
@@ -31,12 +50,17 @@ namespace BF2Statistics.Database
                 // Try and get database version
                 try
                 {
-                    IsInstalled = (base.Query("SELECT dbver FROM _version LIMIT 1").Count > 0);
+                    // Correct the version string from older database installs
+                    string ver = base.ExecuteScalar("SELECT dbver FROM _version LIMIT 1").ToString();
+                    if (!ver.Contains(".")) ver += ".0";
+
+                    // Set internals
+                    Version = Version.Parse(ver);
                 }
                 catch
                 {
                     // Table doesnt contain a _version table, then we arent installed
-                    IsInstalled = false;
+                    Version = new Version(0, 0);
                 }
             }
             catch (Exception)
@@ -84,13 +108,12 @@ namespace BF2Statistics.Database
         /// <summary>
         /// Fetches an account from the gamespy database
         /// </summary>
-        /// <param name="Email">Account email</param>
-        /// <param name="Password">Account Password</param>
+        /// <param name="Email">The Account email</param>
+        /// <param name="Password">the MD5 HASHED Account Password</param>
         /// <returns></returns>
-        public Dictionary<string, object> GetUser(string Email, string Password)
+        public List<Dictionary<string, object>> GetUsersByEmailPass(string Email, string Password)
         {
-            var Rows = base.Query("SELECT * FROM accounts WHERE email=@P0 AND password=@P1", Email, Password);
-            return (Rows.Count == 0) ? null : Rows[0];
+            return base.Query("SELECT * FROM accounts WHERE email=@P0 AND password=@P1", Email.ToLowerInvariant(), Password);
         }
 
         /// <summary>
@@ -136,11 +159,11 @@ namespace BF2Statistics.Database
         /// </summary>
         /// <remarks>Used by the login server when a create account request is made</remarks>
         /// <param name="Nick">The Account Name</param>
-        /// <param name="Pass">The Account Password</param>
+        /// <param name="Pass">The UN-HASHED Account Password</param>
         /// <param name="Email">The Account Email Address</param>
         /// <param name="Country">The Country Code for this Account</param>
-        /// <returns>A bool indicating whether the account was created sucessfully</returns>
-        public bool CreateUser(string Nick, string Pass, string Email, string Country)
+        /// <returns>Returns the Player ID if sucessful, 0 otherwise</returns>
+        public int CreateUser(string Nick, string Pass, string Email, string Country)
         {
             int Pid = 0;
 
@@ -162,10 +185,10 @@ namespace BF2Statistics.Database
 
             // Create the user in the database
             int Rows = base.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES(@P0, @P1, @P2, @P3, @P4)",
-                Pid, Nick, Pass, Email.ToLowerInvariant(), Country
+                Pid, Nick, Pass.GetMD5Hash(false), Email.ToLowerInvariant(), Country
             );
 
-            return (Rows != 0);
+            return (Rows != 0) ? Pid : 0;
         }
 
         /// <summary>
@@ -174,7 +197,7 @@ namespace BF2Statistics.Database
         /// <remarks>Only used in the Gamespy Account Creation Form</remarks>
         /// <param name="Pid">The Profile Id to assign this account</param>
         /// <param name="Nick">The Account Name</param>
-        /// <param name="Pass">The Account Password</param>
+        /// <param name="Pass">The UN-HASHED Account Password</param>
         /// <param name="Email">The Account Email Address</param>
         /// <param name="Country">The Country Code for this Account</param>
         /// <returns>A bool indicating whether the account was created sucessfully</returns>
@@ -188,7 +211,7 @@ namespace BF2Statistics.Database
 
             // Create the user in the database
             int Rows = base.Execute("INSERT INTO accounts(id, name, password, email, country) VALUES(@P0, @P1, @P2, @P3, @P4)",
-                Pid, Nick, Pass, Email.ToLowerInvariant(), Country
+                Pid, Nick, Pass.GetMD5Hash(false), Email.ToLowerInvariant(), Country
             );
 
             return (Rows != 0);
@@ -210,18 +233,27 @@ namespace BF2Statistics.Database
         /// <param name="Id">The Current Account ID</param>
         /// <param name="NewPid">New Account ID</param>
         /// <param name="NewNick">New Account Name</param>
-        /// <param name="NewPassword">New Account Password</param>
+        /// <param name="NewPassword">New Account Password, UN HASHED. Leave empty to not set a new password</param>
         /// <param name="NewEmail">New Account Email Address</param>
         public void UpdateUser(int Id, int NewPid, string NewNick, string NewPassword, string NewEmail)
         {
-            base.Execute("UPDATE accounts SET id=@P0, name=@P1, password=@P2, email=@P3 WHERE id=@P4", 
-                NewPid, NewNick, NewPassword, NewEmail.ToLowerInvariant(), Id);
+            UpdateQueryBuilder Query = new UpdateQueryBuilder("accounts", this);
+            Query.SetField("id", NewPid);
+            Query.SetField("name", NewNick);
+            Query.SetField("email", NewEmail.ToLowerInvariant());
+            Query.AddWhere("id", Comparison.Equals, Id);
+
+            // Set new password if not empty
+            if (!String.IsNullOrWhiteSpace(NewPassword))
+                Query.SetField("password", NewPassword.GetMD5Hash(false));
+
+            Query.Execute();
         }
 
         /// <summary>
         /// Deletes a Gamespy Account
         /// </summary>
-        /// <param name="Nick"></param>
+        /// <param name="Nick">The Player's Nick, a.k.a Account name</param>
         /// <returns></returns>
         public int DeleteUser(string Nick)
         {
@@ -243,7 +275,7 @@ namespace BF2Statistics.Database
         /// </summary>
         /// <param name="Nick"></param>
         /// <returns></returns>
-        public int GetPID(string Nick)
+        public int GetPlayerId(string Nick)
         {
             var Rows = base.Query("SELECT id FROM accounts WHERE name=@P0", Nick);
             return (Rows.Count == 0) ? 0 : Int32.Parse(Rows[0]["id"].ToString());
@@ -255,7 +287,7 @@ namespace BF2Statistics.Database
         /// <param name="Nick">The account Nick we are setting the new Pid for</param>
         /// <param name="Pid">The new Pid</param>
         /// <returns></returns>
-        public int SetPID(string Nick, int Pid)
+        public int SetPlayerId(string Nick, int Pid)
         {
             // If no user exists, return code -1
             if (!UserExists(Nick))
@@ -285,7 +317,7 @@ namespace BF2Statistics.Database
         /// </summary>
         public void CreateSqlTables()
         {
-            if (IsInstalled)
+            if (TablesExist)
                 return;
 
             // If an exception is thrown, table doesnt exist... fresh install
@@ -293,6 +325,62 @@ namespace BF2Statistics.Database
                 base.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.SQLite.Gamespy.sql"));
             else
                 base.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.MySQL.Gamespy.sql"));
+        }
+
+        /// <summary>
+        /// If there is any table updates that need to be applied, calling this method will apply
+        /// each update until the current database version is up to date
+        /// </summary>
+        public void MigrateTables()
+        {
+            // If we dont need updated, what are we doing here?
+            if (!NeedsUpdated) return;
+
+            // MD5 Hash Update, only update to date so i will make this better in the future
+            if(Version.Major == 2 && Version.Minor == 0)
+            {
+                // In this update, we hash all of the passwords to MD5!
+                using (DbTransaction Transaction = base.BeginTransaction())
+                {
+                    try
+                    {
+                        // Here we use the QueryReader method to pull 1 row at a time, using memory efficiently
+                        foreach (Dictionary<string, object> Row in base.QueryReader("SELECT id, password FROM accounts"))
+                        {
+                            base.Execute("UPDATE accounts SET password=@P0 WHERE id=@P1",
+                                Row["password"].ToString().GetMD5Hash(false),
+                                Row["id"]
+                            );
+                        }
+
+                        // Delete old version data
+                        base.Execute("DELETE FROM _version");
+
+                        // Run the alter table command on MySql, SQLite does not support this
+                        if (base.DatabaseEngine == DatabaseEngine.Mysql)
+                        {
+                            base.Execute("ALTER TABLE _version MODIFY dbver VARCHAR(4)");
+                        }
+                        else
+                        {
+                            base.Execute("DROP TABLE IF EXISTS \"main\".\"_version\"");
+                            base.Execute("CREATE TABLE \"main\".\"_version\"(\"dbver\" TEXT NOT NULL DEFAULT 0, \"dbdate\" INT NOT NULL DEFAULT 0, PRIMARY KEY (\"dbver\"));");
+                        }
+
+                        // Insert New Data
+                        base.Execute("INSERT INTO _version(dbver, dbdate) VALUES (@P0, @P1)", "2.1", DateTime.UtcNow.ToUnixTimestamp());
+                        Transaction.Commit();
+
+                        // Set new version
+                        Version = new Version(2, 1);
+                    }
+                    catch
+                    {
+                        Transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
         }
     }
 }

@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<AwardData>
+  <!--
+    Below is a list of awards, and their conditions to be earned, that are awarded in the Snapshot Processor
+    when a snapshot is received from a server. Any changes to this file will require that the ASP server being
+    restarted if currently running to take effect. DONOT change any of the award id attributes, as this will prevent
+    the awarding of the proper award.
+    
+    Each award contains <query> elements... the "result" attribute is the expected/minimum required value for that query 
+    condition to be met. THE QUERY MUST RETURN AN INTEGER (a whole number). If all of the query conditions are met for an award, 
+    then it is awarded to the player when the snapshot finishes processing.
+    
+    NOTE: In service medals, you may place *### to designate that the award can be awarded multiple times (### being the multiplier)
+  -->
+  <BackendAwards>
+    <!-- Service Ribbons -->
+    <award id="3191305" name="Middle Eastern Service Ribbon">
+      <query table="maps" select="count(*)" where="mapid IN (0,1,2,3,4,5,6) AND time >= 1" result="7" />
+    </award>
+    <award id="3190605" name="Far East Service Ribbon">
+      <query table="maps" select="count(*)" where="mapid IN (100,101,102,103,105,601) AND time >= 1" result="6" />
+    </award>
+    <award id="3270519" name="European Union Service Ribbon">
+      <query table="maps" select="count(*)" where="mapid IN (10,11,110) AND time >= 1" result="3" />
+      <query table="maps" select="sum(time)" where="mapid IN (10,11,110)" result="180000" />
+    </award>
+    <award id="3271401" name="North American Service Ribbon">
+      <query table="maps" select="count(*)" where="mapid IN (200,201,202) AND time >= 1" result="3" />
+      <query table="maps" select="sum(time)" where="mapid IN (200,201,202)" result="90000" />
+    </award>
+    <!-- Xpack Service Ribbons-->
+    <award id="3261919" name="Navy Seal Special Service Ribbon">
+      <query table="army" select="count(*)" where="time3 >= 180000" result="1" />
+      <query table="maps" select="count(*)" where="mapid IN (300,301,304) AND time >= 1" result="3" />
+    </award>
+    <award id="3261901" name="SAS Special Service Ribbon">
+      <query table="army" select="count(*)" where="time4 >= 180000" result="1" />
+      <query table="maps" select="count(*)" where="mapid IN (302,303,307) AND time >= 1" result="3" />
+    </award>
+    <award id="3261819" name="SPETZNAS Service Ribbon">
+      <query table="army" select="count(*)" where="time5 >= 180000" result="1" />
+      <query table="maps" select="count(*)" where="mapid IN (305,306,307) AND time >= 1" result="3" />
+    </award>
+    <award id="3261319" name="MECSF Service Ribbon">
+      <query table="army" select="count(*)" where="time6 >= 180000" result="1" />
+      <query table="maps" select="count(*)" where="mapid IN (300,301,304) AND time >= 1" result="3" />
+    </award>
+    <award id="3261805" name="Rebel Service Ribbon">
+      <query table="army" select="count(*)" where="time7 >= 180000" result="1" />
+      <query table="maps" select="count(*)" where="mapid IN (305,306) AND time >= 1" result="2" />
+    </award>
+    <award id="3260914" name="Insurgent Service Ribbon">
+      <query table="army" select="count(*)" where="time8 >= 180000" result="1" />
+      <query table="maps" select="count(*)" where="mapid IN (302,303) AND time >= 1" result="2" />
+    </award>
+    <!-- Service Medals -->
+    <award id="2021403" name="Navy Cross">
+      <query table="army" select="count(*)" where="time0 >= 360000*### AND best0 >= 100*### AND win0 >= 100*###" result="1" />
+    </award>
+    <award id="2020719" name="Golden Scimitar">
+      <query table="army" select="count(*)" where="time1 >= 360000*### AND best1 >= 100*### AND win1 >= 100*###" result="1" />
+    </award>
+    <award id="2021613" name="Peoples Madallion">
+      <query table="army" select="count(*)" where="time2 >= 360000*### AND best2 >= 100*### AND win2 >= 100*###" result="1" />
+    </award>
+    <award id="2270521" name="European Union Service Medal">
+      <query table="army" select="count(*)" where="time9 >= 360000*### AND best9 >= 100*### AND win9 >= 100*###" result="1" />
+    </award>
+    <!-- Xpack Service Medals -->
+    <award id="2261913" name="Navy Seal Special Service Medal">
+      <query table="army" select="count(*)" where="time3 >= 180000*### AND best3 >= 100*### AND win3 >= 50*###" result="1" />
+    </award>
+    <award id="2261919" name="SAS Special Service Medal">
+      <query table="army" select="count(*)" where="time4 >= 180000*### AND best4 >= 100*### AND win4 >= 50*###" result="1" />
+    </award>
+    <award id="2261613" name="SPETZ Special Service Medal">
+      <query table="army" select="count(*)" where="time5 >= 180000*### AND best5 >= 100*### AND win5 >= 50*###" result="1" />
+    </award>
+    <award id="2261303" name="MECSF Special Service Medal">
+      <query table="army" select="count(*)" where="time6 >= 180000*### AND best6 >= 100*### AND win6 >= 50*###" result="1" />
+    </award>
+    <award id="2261802" name="Rebels Special Service Medal">
+      <query table="army" select="count(*)" where="time7 >= 180000*### AND best7 >= 100*### AND win7 >= 50*###" result="1" />
+    </award>
+    <award id="2260914" name="Insurgent Special Service Medal">
+      <query table="army" select="count(*)" where="time8 >= 180000*### AND best8 >= 100*### AND win8 >= 50*###" result="1" />
+    </award>
+  </BackendAwards>
+</AwardData>

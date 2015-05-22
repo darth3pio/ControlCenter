@@ -85,7 +85,36 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ASP\Ip2nation.cs" />
+    <Compile Include="Extensions\BoolExtensions.cs" />
+    <Compile Include="Extensions\ByteExtensions.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />
+    <Compile Include="Forms\Gamespy\GamespyConfigForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Gamespy\GamespyConfigForm.Designer.cs">
+      <DependentUpon>GamespyConfigForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Gamespy\Master\CDKeyServer.cs" />
+    <Compile Include="Gamespy\Enctypex.cs" />
+    <Compile Include="Gamespy\Master\GameServer.cs" />
+    <Compile Include="Gamespy\Master\MasterClient.cs" />
+    <Compile Include="Gamespy\Master\MasterServer.cs" />
+    <Compile Include="Gamespy\Master\ServerListRetrieveSocket.cs" />
+    <Compile Include="HostsFileTestForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="HostsFileTestForm.Designer.cs">
+      <DependentUpon>HostsFileTestForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Net\BufferDataToken.cs" />
+    <Compile Include="Net\BufferManager.cs" />
+    <Compile Include="Net\GamespyTcpStream.cs" />
+    <Compile Include="Gamespy\Gpcm\GpcmServer.cs" />
+    <Compile Include="Gamespy\Gpcm\GpcmClient.cs" />
+    <Compile Include="Net\GamespyUdpPacket.cs" />
+    <Compile Include="Net\GamespyUdpSocket.cs" />
+    <Compile Include="Net\SocketAsyncEventArgsPool.cs" />
+    <Compile Include="Net\GamespyTcpSocket.cs" />
     <Compile Include="Utilities\ConcurrentEventQueue.cs" />
     <Compile Include="ASP\StatsManager.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
@@ -102,9 +131,11 @@
       <DependentUpon>LeaderboardConfigForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Python\StatsPythonConfig.cs" />
+    <Compile Include="Utilities\DynamicLinq.cs" />
     <Compile Include="Utilities\NiceDictionary.cs" />
     <Compile Include="SetupManager.cs" />
     <Compile Include="Python\StatsPython.cs" />
+    <Compile Include="Utilities\SQLMethods.cs" />
     <Compile Include="Web\Bf2Stats\MyLeaderboardPage.cs" />
     <Compile Include="Web\Bf2Stats\Pages\MyLeaderboardPage.cs">
       <AutoGen>True</AutoGen>
@@ -198,7 +229,7 @@
       <DependentUpon>ASPConfigForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Web\ASP\ASPResponse.cs" />
-    <Compile Include="ASP\StatsProcessor\AwardData.cs" />
+    <Compile Include="ASP\StatsProcessor\BackendAwardData.cs" />
     <Compile Include="ASP\StatsProcessor\BackendAward.cs" />
     <Compile Include="Web\ASP\Pages\SnapshotPost.cs" />
     <Compile Include="Web\ASP\Pages\GetMapInfo.cs" />
@@ -272,8 +303,6 @@
     <Compile Include="Forms\ASP\GameResultForm.Designer.cs">
       <DependentUpon>GameResultForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Gamespy\Bf2Available.cs" />
-    <Compile Include="Gamespy\TcpClientStream.cs" />
     <Compile Include="Database\StatsDatabase.cs" />
     <Compile Include="Delegates.cs" />
     <Compile Include="Forms\Gamespy\AccountEditForm.cs">
@@ -336,8 +365,6 @@
       <DependentUpon>AccountListForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Gamespy\GamespyUtils.cs" />
-    <Compile Include="Gamespy\Gpcm\GpcmClient.cs" />
-    <Compile Include="Gamespy\Gpcm\GpcmServer.cs" />
     <Compile Include="Gamespy\Gpsp\GpspClient.cs" />
     <Compile Include="Gamespy\Gpsp\GpspServer.cs" />
     <Compile Include="Forms\MedalData\MedalDataEditor.cs">
@@ -387,6 +414,13 @@
     <Compile Include="Forms\S2hmsForm.Designer.cs">
       <DependentUpon>S2hmsForm.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="ASP\BackendAwards.xml" />
+    <EmbeddedResource Include="Forms\Gamespy\GamespyConfigForm.resx">
+      <DependentUpon>GamespyConfigForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HostsFileTestForm.resx">
+      <DependentUpon>HostsFileTestForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\Ai\AIDefault.ai" />
     <None Include="Ip2nation.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -407,13 +441,13 @@
       <DependentUpon>PlayerEditForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Utilities\Crc16.cs" />
-    <Compile Include="Utilities\Sql.cs" />
+    <Compile Include="Utilities\SqlFile.cs" />
     <Compile Include="Utilities\Tipsy.cs" />
     <Compile Include="Utilities\Notify.cs" />
     <Compile Include="Utilities\HostsFile.cs" />
     <Compile Include="Utilities\KeyValueItem.cs" />
     <Compile Include="Logging\LogMessage.cs" />
-    <Compile Include="Logging\LogWritter.cs" />
+    <Compile Include="Logging\LogWriter.cs" />
     <Compile Include="Forms\ASP\PlayerSearchForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -422,7 +456,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Gamespy\LoginServer.cs" />
+    <Compile Include="Gamespy\GamespyEmulator.cs" />
     <Compile Include="BF2\ServerSettings.cs" />
     <Compile Include="Forms\ASP\SnapshotViewForm.cs">
       <SubType>Form</SubType>
@@ -446,6 +480,7 @@
     </EmbeddedResource>
     <None Include="Resources\question_button.png" />
     <None Include="Resources\Password_dots.png" />
+    <None Include="Resources\GamespyIcon.png" />
     <Content Include="SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -455,6 +490,8 @@
     <EmbeddedResource Include="Web\Bf2Stats\RankData.xml" />
     <None Include="Resources\Logo.png" />
     <None Include="Resources\BF2S_logo.png" />
+    <EmbeddedResource Include="SQL\Stats\Mysql_1.3.2_update.sql" />
+    <EmbeddedResource Include="SQL\Stats\Mysql_1.3.4_update.sql" />
     <Content Include="Web\Bf2Stats\Cache\Placeholder.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

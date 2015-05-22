@@ -2,31 +2,30 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using BF2Statistics.Database;
+using System.Linq;
+using BF2Statistics.Net;
+using System.Threading;
 
 namespace BF2Statistics.Gamespy
 {
     public class GpspClient : IDisposable
     {
         /// <summary>
+        /// A unqie identifier for this connection
+        /// </summary>
+        public int ConnectionId { get; protected set; }
+
+        /// <summary>
         /// Indicates whether this object is disposed
         /// </summary>
         public bool Disposed { get; protected set; }
 
         /// <summary>
-        /// Connection TcpClient Stream
+        /// The clients socket network stream
         /// </summary>
-        private TcpClientStream Stream;
-
-        /// <summary>
-        /// The Tcp Client
-        /// </summary>
-        private TcpClient Client;
-
-        /// <summary>
-        /// The TcpClient's Endpoint
-        /// </summary>
-        private EndPoint ClientEP;
+        public GamespyTcpStream Stream { get; protected set; }
 
         /// <summary>
         /// Event fired when the connection is closed
@@ -34,23 +33,39 @@ namespace BF2Statistics.Gamespy
         public static event GpspConnectionClosed OnDisconnect;
 
         /// <summary>
+        /// This int is used to create a unique session ID for connections.
+        /// It gets incremented by for every session
+        /// </summary>
+        private static int SessionsCreated = 0;
+
+        /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="client"></param>
-        public GpspClient(TcpClient client)
+        public GpspClient(GamespyTcpStream client)
         {
             // Set disposed to false!
             this.Disposed = false;
 
-            // Set the client variable
-            this.Client = client;
-            this.ClientEP = client.Client.RemoteEndPoint;
-            //LoginServer.Log("[GPSP] Client Connected: {0}", ClientEP);
+            // Generate a unique name for this connection
+            this.ConnectionId = Interlocked.Increment(ref SessionsCreated);
 
             // Init a new client stream class
-            Stream = new TcpClientStream(client);
-            Stream.OnDisconnect += Stream_OnDisconnect;
-            Stream.DataReceived += Stream_DataReceived;
+            Stream = client;
+            Stream.OnDisconnect += () => Dispose();
+            Stream.DataReceived += (message) =>
+            {
+                // Read client message, and parse it into key value pairs
+                string[] recieved = message.TrimStart('\\').Split('\\');
+                switch (recieved[0])
+                {
+                    case "nicks":
+                        SendNicks(ConvertToKeyValue(recieved));
+                        break;
+                    case "check":
+                        SendCheck(ConvertToKeyValue(recieved));
+                        break;
+                }
+            };
         }
 
         /// <summary>
@@ -62,125 +77,123 @@ namespace BF2Statistics.Gamespy
                 this.Dispose();
         }
 
+        public void Dispose()
+        {
+            // Only dispose once
+            if (Disposed) return;
+            Dispose(false);
+        }
+
         /// <summary>
         /// Dispose method to be called by the server
         /// </summary>
-        public void Dispose()
+        public void Dispose(bool DisposeEventArgs = false)
         {
+            // Only dispose once
+            if (Disposed) return;
+
+            // Preapare to be unloaded from memory
+            Disposed = true;
+
             // If connection is still alive, disconnect user
-            if (Client.Client.IsConnected())
-            {
-                Stream.IsClosing = true;
-                Client.Close();
-            }
+            if (!Stream.SocketClosed)
+                Stream.Close(DisposeEventArgs);
 
             // Call disconnect event
             if (OnDisconnect != null)
                 OnDisconnect(this);
-
-            // Preapare to be unloaded from memory
-            this.Disposed = true;
-
-            // Log
-            //LoginServer.Log("[GPSP] Client Disconnected: {0}", ClientEP);
         }
 
         /// <summary>
-        /// ECallback for when when the client stream is disconnected
+        /// This method is requested by the client when logging in to fetch all the account
+        /// names that have the specified email address and password combination
         /// </summary>
-        protected void Stream_OnDisconnect()
+        /// <param name="recvData"></param>
+        private void SendNicks(Dictionary<string, string> recvData)
         {
-            Dispose();
-        }
-
-        /// <summary>
-        /// Callback for when a message has been recieved by the connected client
-        /// </summary>
-        public void Stream_DataReceived(string message)
-        {
-            // Parse input message
-            string[] recv = message.Split('\\');
-            if (recv.Length == 1)
-                return;
-
-            switch (recv[1])
+            // Make sure we have the needed data
+            if (!recvData.ContainsKey("email") || (!recvData.ContainsKey("pass") && !recvData.ContainsKey("passenc")))
             {
-                case "nicks":
-                    SendGPSP(recv);
-                    break;
-                case "check":
-                    SendCheck(recv);
-                    break;
+                Stream.SendAsync(@"\error\\err\0\fatal\\errmsg\Invalid Query!\id\1\final\");
+                return;
             }
-        }
 
-        /// <summary>
-        /// This method is requested by the client whenever an accounts existance needs validated
-        /// </summary>
-        /// <param name="recv"></param>
-        private void SendGPSP(string[] recv)
-        {
             // Try to get user data from database
-            Dictionary<string, object> ClientData;
             try
             {
+                // Get our password from the provided query
+                string password = (recvData.ContainsKey("pass"))
+                    ? recvData["pass"]
+                    : GamespyUtils.DecodePassword(recvData["passenc"]);
+
+                // Fetch accounts
                 using (GamespyDatabase Db = new GamespyDatabase())
                 {
-                    ClientData = Db.GetUser(GetParameterValue(recv, "email"), GetParameterValue(recv, "pass"));
-                    if (ClientData == null)
-                    {
-                        Stream.Send("\\nr\\0\\ndone\\\\final\\");
-                        return;
-                    }
+                    var Clients = Db.GetUsersByEmailPass(recvData["email"], password.GetMD5Hash(false));
+                    StringBuilder Response = new StringBuilder(@"\nr\" + Clients.Count);
+                    for (int i = 0; i < Clients.Count; i++)
+                        Response.AppendFormat(@"\nick\{0}\uniquenick\{0}", Clients[i]["name"]);
+                    
+                    Response.Append(@"\ndone\\final\");
+                    Stream.SendAsync(Response.ToString());
                 }
             }
             catch
             {
-                Dispose();
-                return;
+                Stream.SendAsync(@"\error\\err\551\fatal\\errmsg\Unable to get any associated profiles.\id\1\final\");
             }
-
-            Stream.Send("\\nr\\1\\nick\\{0}\\uniquenick\\{0}\\ndone\\\\final\\", ClientData["name"]);
         }
 
         /// <summary>
         /// This is the primary method for fetching an accounts BF2 PID
         /// </summary>
-        /// <param name="recv"></param>
-        private void SendCheck(string[] recv)
+        /// <param name="recvData"></param>
+        private void SendCheck(Dictionary<string, string> recvData)
         {
+            // Make sure we have the needed data
+            if (!recvData.ContainsKey("nick"))
+            {
+                Stream.SendAsync(@"\error\\err\0\fatal\\errmsg\Invalid Query!\id\1\final\");
+                return;
+            }
+
+            // Try to get user data from database
             try
             {
                 using (GamespyDatabase Db = new GamespyDatabase())
                 {
-                    Stream.Send("\\cur\\0\\pid\\{0}\\final\\", Db.GetPID(GetParameterValue(recv, "nick")));
+                    int pid = Db.GetPlayerId(recvData["nick"]);
+                    if(pid == 0)
+                        Stream.SendAsync(@"\error\\err\265\fatal\\errmsg\Username [{0}] doesn't exist!\id\1\final\", recvData["nick"]);
+                    else
+                        Stream.SendAsync(@"\cur\0\pid\{0}\final\", pid);
                 }
             }
             catch
             {
-                Dispose();
-                return;
+                Stream.SendAsync(@"\error\\err\265\fatal\\errmsg\Database service is Offline!\id\1\final\");
             }
         }
 
         /// <summary>
-        /// A simple method of getting the value of the passed parameter key,
-        /// from the returned array of data from the client
+        /// Converts a recived parameter array from the client string to a keyValue pair dictionary
         /// </summary>
         /// <param name="parts">The array of data from the client</param>
-        /// <param name="parameter">The parameter</param>
-        /// <returns>The value of the paramenter key</returns>
-        private string GetParameterValue(string[] parts, string parameter)
+        /// <returns></returns>
+        private static Dictionary<string, string> ConvertToKeyValue(string[] parts)
         {
-            bool next = false;
-            foreach (string part in parts)
+            Dictionary<string, string> Data = new Dictionary<string, string>();
+            try
             {
-                if (next)
-                    return part;
-                else if (part == parameter)
-                    next = true;
+                for (int i = 0; i < parts.Length; i += 2)
+                {
+                    if (!Data.ContainsKey(parts[i]))
+                        Data.Add(parts[i], parts[i + 1]);
+                }
             }
-            return "";
+            catch (IndexOutOfRangeException) { }
+
+            return Data;
         }
     }
 }

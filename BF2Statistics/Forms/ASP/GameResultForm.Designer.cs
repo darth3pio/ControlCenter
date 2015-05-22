@@ -49,36 +49,38 @@
             this.KillColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DeathsColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.RoundDataTab = new System.Windows.Forms.TabPage();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.label12 = new System.Windows.Forms.Label();
-            this.label13 = new System.Windows.Forms.Label();
-            this.label14 = new System.Windows.Forms.Label();
-            this.label15 = new System.Windows.Forms.Label();
-            this.label16 = new System.Windows.Forms.Label();
-            this.MapNameLabel = new System.Windows.Forms.Label();
-            this.ModLabel = new System.Windows.Forms.Label();
-            this.GameModeLabel = new System.Windows.Forms.Label();
-            this.KillsLabel = new System.Windows.Forms.Label();
-            this.DeathsLabel = new System.Windows.Forms.Label();
-            this.StartTimeLabel = new System.Windows.Forms.Label();
-            this.EndTimeLabel = new System.Windows.Forms.Label();
-            this.RoundTimeLabel = new System.Windows.Forms.Label();
-            this.ServerNameLabel = new System.Windows.Forms.Label();
-            this.ServerPortLabel = new System.Windows.Forms.Label();
-            this.TotalPlayersLabel = new System.Windows.Forms.Label();
-            this.Team1PlayersLabel = new System.Windows.Forms.Label();
-            this.Team2PlayersLabel = new System.Windows.Forms.Label();
-            this.EorPlayers1Label = new System.Windows.Forms.Label();
             this.EorPlayers2Label = new System.Windows.Forms.Label();
+            this.EorPlayers1Label = new System.Windows.Forms.Label();
+            this.Team2PlayersLabel = new System.Windows.Forms.Label();
+            this.Team1PlayersLabel = new System.Windows.Forms.Label();
+            this.TotalPlayersLabel = new System.Windows.Forms.Label();
+            this.ServerPortLabel = new System.Windows.Forms.Label();
+            this.ServerNameLabel = new System.Windows.Forms.Label();
+            this.RoundTimeLabel = new System.Windows.Forms.Label();
+            this.EndTimeLabel = new System.Windows.Forms.Label();
+            this.StartTimeLabel = new System.Windows.Forms.Label();
+            this.DeathsLabel = new System.Windows.Forms.Label();
+            this.KillsLabel = new System.Windows.Forms.Label();
+            this.GameModeLabel = new System.Windows.Forms.Label();
+            this.ModLabel = new System.Windows.Forms.Label();
+            this.MapNameLabel = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.RoundProcLabel = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.ScoreboardTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ArmyFlag2)).BeginInit();
@@ -302,6 +304,8 @@
             // RoundDataTab
             // 
             this.RoundDataTab.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.RoundDataTab.Controls.Add(this.RoundProcLabel);
+            this.RoundDataTab.Controls.Add(this.label2);
             this.RoundDataTab.Controls.Add(this.EorPlayers2Label);
             this.RoundDataTab.Controls.Add(this.EorPlayers1Label);
             this.RoundDataTab.Controls.Add(this.Team2PlayersLabel);
@@ -339,257 +343,14 @@
             this.RoundDataTab.TabIndex = 1;
             this.RoundDataTab.Text = "Round Data";
             // 
-            // label1
+            // EorPlayers2Label
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(35, 45);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(62, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Map Name:";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(35, 249);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(95, 13);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "Total Round Time:";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(35, 199);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(93, 13);
-            this.label4.TabIndex = 3;
-            this.label4.Text = "Round Start Time:";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(35, 224);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(90, 13);
-            this.label5.TabIndex = 4;
-            this.label5.Text = "Round End Time:";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(361, 131);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(110, 13);
-            this.label6.TabIndex = 5;
-            this.label6.Text = "Total Team 1 Players:";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(361, 158);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(110, 13);
-            this.label7.TabIndex = 6;
-            this.label7.Text = "Total Team 2 Players:";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(361, 185);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(152, 13);
-            this.label8.TabIndex = 7;
-            this.label8.Text = "End of Round Team 1 Players:";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(361, 212);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(152, 13);
-            this.label9.TabIndex = 8;
-            this.label9.Text = "End of Round Team 2 Players:";
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(361, 45);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(72, 13);
-            this.label10.TabIndex = 9;
-            this.label10.Text = "Server Name:";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(361, 67);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(63, 13);
-            this.label11.TabIndex = 10;
-            this.label11.Text = "Server Port:";
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(35, 132);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(63, 13);
-            this.label12.TabIndex = 11;
-            this.label12.Text = "Round Kills:";
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(35, 155);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(79, 13);
-            this.label13.TabIndex = 12;
-            this.label13.Text = "Round Deaths:";
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(35, 68);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(62, 13);
-            this.label14.TabIndex = 13;
-            this.label14.Text = "Game Mod:";
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(35, 91);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(68, 13);
-            this.label15.TabIndex = 14;
-            this.label15.Text = "Game Mode:";
-            // 
-            // label16
-            // 
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(361, 104);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(126, 13);
-            this.label16.TabIndex = 15;
-            this.label16.Text = "Total Players Connected:";
-            // 
-            // MapNameLabel
-            // 
-            this.MapNameLabel.AutoSize = true;
-            this.MapNameLabel.Location = new System.Drawing.Point(152, 45);
-            this.MapNameLabel.Name = "MapNameLabel";
-            this.MapNameLabel.Size = new System.Drawing.Size(35, 13);
-            this.MapNameLabel.TabIndex = 16;
-            this.MapNameLabel.Text = "Name";
-            // 
-            // ModLabel
-            // 
-            this.ModLabel.AutoSize = true;
-            this.ModLabel.Location = new System.Drawing.Point(152, 68);
-            this.ModLabel.Name = "ModLabel";
-            this.ModLabel.Size = new System.Drawing.Size(22, 13);
-            this.ModLabel.TabIndex = 17;
-            this.ModLabel.Text = "bf2";
-            // 
-            // GameModeLabel
-            // 
-            this.GameModeLabel.AutoSize = true;
-            this.GameModeLabel.Location = new System.Drawing.Point(152, 91);
-            this.GameModeLabel.Name = "GameModeLabel";
-            this.GameModeLabel.Size = new System.Drawing.Size(32, 13);
-            this.GameModeLabel.TabIndex = 18;
-            this.GameModeLabel.Text = "Coop";
-            // 
-            // KillsLabel
-            // 
-            this.KillsLabel.AutoSize = true;
-            this.KillsLabel.Location = new System.Drawing.Point(152, 132);
-            this.KillsLabel.Name = "KillsLabel";
-            this.KillsLabel.Size = new System.Drawing.Size(13, 13);
-            this.KillsLabel.TabIndex = 19;
-            this.KillsLabel.Text = "0";
-            // 
-            // DeathsLabel
-            // 
-            this.DeathsLabel.AutoSize = true;
-            this.DeathsLabel.Location = new System.Drawing.Point(152, 155);
-            this.DeathsLabel.Name = "DeathsLabel";
-            this.DeathsLabel.Size = new System.Drawing.Size(13, 13);
-            this.DeathsLabel.TabIndex = 20;
-            this.DeathsLabel.Text = "0";
-            // 
-            // StartTimeLabel
-            // 
-            this.StartTimeLabel.AutoSize = true;
-            this.StartTimeLabel.Location = new System.Drawing.Point(152, 199);
-            this.StartTimeLabel.Name = "StartTimeLabel";
-            this.StartTimeLabel.Size = new System.Drawing.Size(56, 13);
-            this.StartTimeLabel.TabIndex = 21;
-            this.StartTimeLabel.Text = "Date Here";
-            // 
-            // EndTimeLabel
-            // 
-            this.EndTimeLabel.AutoSize = true;
-            this.EndTimeLabel.Location = new System.Drawing.Point(152, 224);
-            this.EndTimeLabel.Name = "EndTimeLabel";
-            this.EndTimeLabel.Size = new System.Drawing.Size(56, 13);
-            this.EndTimeLabel.TabIndex = 22;
-            this.EndTimeLabel.Text = "Date Here";
-            // 
-            // RoundTimeLabel
-            // 
-            this.RoundTimeLabel.AutoSize = true;
-            this.RoundTimeLabel.Location = new System.Drawing.Point(152, 249);
-            this.RoundTimeLabel.Name = "RoundTimeLabel";
-            this.RoundTimeLabel.Size = new System.Drawing.Size(83, 13);
-            this.RoundTimeLabel.TabIndex = 23;
-            this.RoundTimeLabel.Text = "Some Timespan";
-            // 
-            // ServerNameLabel
-            // 
-            this.ServerNameLabel.AutoSize = true;
-            this.ServerNameLabel.Location = new System.Drawing.Point(543, 45);
-            this.ServerNameLabel.Name = "ServerNameLabel";
-            this.ServerNameLabel.Size = new System.Drawing.Size(69, 13);
-            this.ServerNameLabel.TabIndex = 24;
-            this.ServerNameLabel.Text = "Server Name";
-            // 
-            // ServerPortLabel
-            // 
-            this.ServerPortLabel.AutoSize = true;
-            this.ServerPortLabel.Location = new System.Drawing.Point(543, 67);
-            this.ServerPortLabel.Name = "ServerPortLabel";
-            this.ServerPortLabel.Size = new System.Drawing.Size(60, 13);
-            this.ServerPortLabel.TabIndex = 25;
-            this.ServerPortLabel.Text = "Server Port";
-            // 
-            // TotalPlayersLabel
-            // 
-            this.TotalPlayersLabel.AutoSize = true;
-            this.TotalPlayersLabel.Location = new System.Drawing.Point(543, 104);
-            this.TotalPlayersLabel.Name = "TotalPlayersLabel";
-            this.TotalPlayersLabel.Size = new System.Drawing.Size(13, 13);
-            this.TotalPlayersLabel.TabIndex = 26;
-            this.TotalPlayersLabel.Text = "0";
-            // 
-            // Team1PlayersLabel
-            // 
-            this.Team1PlayersLabel.AutoSize = true;
-            this.Team1PlayersLabel.Location = new System.Drawing.Point(543, 131);
-            this.Team1PlayersLabel.Name = "Team1PlayersLabel";
-            this.Team1PlayersLabel.Size = new System.Drawing.Size(13, 13);
-            this.Team1PlayersLabel.TabIndex = 27;
-            this.Team1PlayersLabel.Text = "0";
-            // 
-            // Team2PlayersLabel
-            // 
-            this.Team2PlayersLabel.AutoSize = true;
-            this.Team2PlayersLabel.Location = new System.Drawing.Point(543, 158);
-            this.Team2PlayersLabel.Name = "Team2PlayersLabel";
-            this.Team2PlayersLabel.Size = new System.Drawing.Size(13, 13);
-            this.Team2PlayersLabel.TabIndex = 28;
-            this.Team2PlayersLabel.Text = "0";
+            this.EorPlayers2Label.AutoSize = true;
+            this.EorPlayers2Label.Location = new System.Drawing.Point(543, 212);
+            this.EorPlayers2Label.Name = "EorPlayers2Label";
+            this.EorPlayers2Label.Size = new System.Drawing.Size(13, 13);
+            this.EorPlayers2Label.TabIndex = 30;
+            this.EorPlayers2Label.Text = "0";
             // 
             // EorPlayers1Label
             // 
@@ -600,14 +361,275 @@
             this.EorPlayers1Label.TabIndex = 29;
             this.EorPlayers1Label.Text = "0";
             // 
-            // EorPlayers2Label
+            // Team2PlayersLabel
             // 
-            this.EorPlayers2Label.AutoSize = true;
-            this.EorPlayers2Label.Location = new System.Drawing.Point(543, 212);
-            this.EorPlayers2Label.Name = "EorPlayers2Label";
-            this.EorPlayers2Label.Size = new System.Drawing.Size(13, 13);
-            this.EorPlayers2Label.TabIndex = 30;
-            this.EorPlayers2Label.Text = "0";
+            this.Team2PlayersLabel.AutoSize = true;
+            this.Team2PlayersLabel.Location = new System.Drawing.Point(543, 158);
+            this.Team2PlayersLabel.Name = "Team2PlayersLabel";
+            this.Team2PlayersLabel.Size = new System.Drawing.Size(13, 13);
+            this.Team2PlayersLabel.TabIndex = 28;
+            this.Team2PlayersLabel.Text = "0";
+            // 
+            // Team1PlayersLabel
+            // 
+            this.Team1PlayersLabel.AutoSize = true;
+            this.Team1PlayersLabel.Location = new System.Drawing.Point(543, 131);
+            this.Team1PlayersLabel.Name = "Team1PlayersLabel";
+            this.Team1PlayersLabel.Size = new System.Drawing.Size(13, 13);
+            this.Team1PlayersLabel.TabIndex = 27;
+            this.Team1PlayersLabel.Text = "0";
+            // 
+            // TotalPlayersLabel
+            // 
+            this.TotalPlayersLabel.AutoSize = true;
+            this.TotalPlayersLabel.Location = new System.Drawing.Point(543, 104);
+            this.TotalPlayersLabel.Name = "TotalPlayersLabel";
+            this.TotalPlayersLabel.Size = new System.Drawing.Size(13, 13);
+            this.TotalPlayersLabel.TabIndex = 26;
+            this.TotalPlayersLabel.Text = "0";
+            // 
+            // ServerPortLabel
+            // 
+            this.ServerPortLabel.AutoSize = true;
+            this.ServerPortLabel.Location = new System.Drawing.Point(543, 67);
+            this.ServerPortLabel.Name = "ServerPortLabel";
+            this.ServerPortLabel.Size = new System.Drawing.Size(60, 13);
+            this.ServerPortLabel.TabIndex = 25;
+            this.ServerPortLabel.Text = "Server Port";
+            // 
+            // ServerNameLabel
+            // 
+            this.ServerNameLabel.AutoSize = true;
+            this.ServerNameLabel.Location = new System.Drawing.Point(543, 45);
+            this.ServerNameLabel.Name = "ServerNameLabel";
+            this.ServerNameLabel.Size = new System.Drawing.Size(69, 13);
+            this.ServerNameLabel.TabIndex = 24;
+            this.ServerNameLabel.Text = "Server Name";
+            // 
+            // RoundTimeLabel
+            // 
+            this.RoundTimeLabel.AutoSize = true;
+            this.RoundTimeLabel.Location = new System.Drawing.Point(152, 249);
+            this.RoundTimeLabel.Name = "RoundTimeLabel";
+            this.RoundTimeLabel.Size = new System.Drawing.Size(83, 13);
+            this.RoundTimeLabel.TabIndex = 23;
+            this.RoundTimeLabel.Text = "Some Timespan";
+            // 
+            // EndTimeLabel
+            // 
+            this.EndTimeLabel.AutoSize = true;
+            this.EndTimeLabel.Location = new System.Drawing.Point(152, 224);
+            this.EndTimeLabel.Name = "EndTimeLabel";
+            this.EndTimeLabel.Size = new System.Drawing.Size(56, 13);
+            this.EndTimeLabel.TabIndex = 22;
+            this.EndTimeLabel.Text = "Date Here";
+            // 
+            // StartTimeLabel
+            // 
+            this.StartTimeLabel.AutoSize = true;
+            this.StartTimeLabel.Location = new System.Drawing.Point(152, 199);
+            this.StartTimeLabel.Name = "StartTimeLabel";
+            this.StartTimeLabel.Size = new System.Drawing.Size(56, 13);
+            this.StartTimeLabel.TabIndex = 21;
+            this.StartTimeLabel.Text = "Date Here";
+            // 
+            // DeathsLabel
+            // 
+            this.DeathsLabel.AutoSize = true;
+            this.DeathsLabel.Location = new System.Drawing.Point(152, 155);
+            this.DeathsLabel.Name = "DeathsLabel";
+            this.DeathsLabel.Size = new System.Drawing.Size(13, 13);
+            this.DeathsLabel.TabIndex = 20;
+            this.DeathsLabel.Text = "0";
+            // 
+            // KillsLabel
+            // 
+            this.KillsLabel.AutoSize = true;
+            this.KillsLabel.Location = new System.Drawing.Point(152, 132);
+            this.KillsLabel.Name = "KillsLabel";
+            this.KillsLabel.Size = new System.Drawing.Size(13, 13);
+            this.KillsLabel.TabIndex = 19;
+            this.KillsLabel.Text = "0";
+            // 
+            // GameModeLabel
+            // 
+            this.GameModeLabel.AutoSize = true;
+            this.GameModeLabel.Location = new System.Drawing.Point(152, 91);
+            this.GameModeLabel.Name = "GameModeLabel";
+            this.GameModeLabel.Size = new System.Drawing.Size(32, 13);
+            this.GameModeLabel.TabIndex = 18;
+            this.GameModeLabel.Text = "Coop";
+            // 
+            // ModLabel
+            // 
+            this.ModLabel.AutoSize = true;
+            this.ModLabel.Location = new System.Drawing.Point(152, 68);
+            this.ModLabel.Name = "ModLabel";
+            this.ModLabel.Size = new System.Drawing.Size(22, 13);
+            this.ModLabel.TabIndex = 17;
+            this.ModLabel.Text = "bf2";
+            // 
+            // MapNameLabel
+            // 
+            this.MapNameLabel.AutoSize = true;
+            this.MapNameLabel.Location = new System.Drawing.Point(152, 45);
+            this.MapNameLabel.Name = "MapNameLabel";
+            this.MapNameLabel.Size = new System.Drawing.Size(35, 13);
+            this.MapNameLabel.TabIndex = 16;
+            this.MapNameLabel.Text = "Name";
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(361, 104);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(126, 13);
+            this.label16.TabIndex = 15;
+            this.label16.Text = "Total Players Connected:";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(35, 91);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(68, 13);
+            this.label15.TabIndex = 14;
+            this.label15.Text = "Game Mode:";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(35, 68);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(62, 13);
+            this.label14.TabIndex = 13;
+            this.label14.Text = "Game Mod:";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(35, 155);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(79, 13);
+            this.label13.TabIndex = 12;
+            this.label13.Text = "Round Deaths:";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(35, 132);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(63, 13);
+            this.label12.TabIndex = 11;
+            this.label12.Text = "Round Kills:";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(361, 67);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(63, 13);
+            this.label11.TabIndex = 10;
+            this.label11.Text = "Server Port:";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(361, 45);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(72, 13);
+            this.label10.TabIndex = 9;
+            this.label10.Text = "Server Name:";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(361, 212);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(152, 13);
+            this.label9.TabIndex = 8;
+            this.label9.Text = "End of Round Team 2 Players:";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(361, 185);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(152, 13);
+            this.label8.TabIndex = 7;
+            this.label8.Text = "End of Round Team 1 Players:";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(361, 158);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(110, 13);
+            this.label7.TabIndex = 6;
+            this.label7.Text = "Total Team 2 Players:";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(361, 131);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(110, 13);
+            this.label6.TabIndex = 5;
+            this.label6.Text = "Total Team 1 Players:";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(35, 224);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(90, 13);
+            this.label5.TabIndex = 4;
+            this.label5.Text = "Round End Time:";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(35, 199);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(93, 13);
+            this.label4.TabIndex = 3;
+            this.label4.Text = "Round Start Time:";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(35, 249);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(95, 13);
+            this.label3.TabIndex = 2;
+            this.label3.Text = "Total Round Time:";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(35, 45);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(62, 13);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Map Name:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(361, 249);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(121, 13);
+            this.label2.TabIndex = 31;
+            this.label2.Text = "Round Data Processed:";
+            // 
+            // RoundProcLabel
+            // 
+            this.RoundProcLabel.AutoSize = true;
+            this.RoundProcLabel.Location = new System.Drawing.Point(543, 249);
+            this.RoundProcLabel.Name = "RoundProcLabel";
+            this.RoundProcLabel.Size = new System.Drawing.Size(32, 13);
+            this.RoundProcLabel.TabIndex = 32;
+            this.RoundProcLabel.Text = "False";
             // 
             // GameResultForm
             // 
@@ -689,5 +711,7 @@
         private System.Windows.Forms.Label Team2PlayersLabel;
         private System.Windows.Forms.Label EorPlayers2Label;
         private System.Windows.Forms.Label EorPlayers1Label;
+        private System.Windows.Forms.Label RoundProcLabel;
+        private System.Windows.Forms.Label label2;
     }
 }

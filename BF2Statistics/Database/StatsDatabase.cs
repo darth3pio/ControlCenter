@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Data.Common;
+using BF2Statistics.Utilities;
 
 namespace BF2Statistics.Database
 {
@@ -10,72 +12,91 @@ namespace BF2Statistics.Database
     public class StatsDatabase : DatabaseDriver, IDisposable
     {
         /// <summary>
-        /// An array of Stats specific table names
+        /// Indicates the most up to date database table version
         /// </summary>
-        public static readonly string[] StatsTables = new string[]
-        {
-            "army",
-            "awards",
-            "kills",
-            "kits",
-            "maps",
-            "mapinfo",
-            "player",
-            "player_history",
-            "round_history",
-            "servers",
-            "unlocks",
-            "vehicles",
-            "weapons",
-        };
+        public static readonly Version LatestVersion = new Version(2, 2, 0);
 
         /// <summary>
-        /// An array of Player Table names
+        /// Indicates the current Database tables version
         /// </summary>
-        public static readonly string[] PlayerTables = new string[]
-        {
-            "army",
-            "awards",
-            "kills",
-            "kits",
-            "maps",
-            "player",
-            "player_history",
-            "unlocks",
-            "vehicles",
-            "weapons",
-        };
+        public Version Version { get; protected set; }
+
+        /// <summary>
+        /// An array of all table versions that we can migrate from
+        /// if updating from an old database tables version
+        /// </summary>
+        public static readonly Version[] VersionList = {
+                new Version(1, 3, 0),
+                new Version(1, 3, 2),
+                new Version(1, 3, 4),
+                new Version(1, 4, 0),
+                new Version(1, 4, 2),
+                new Version(1, 4, 5),
+                new Version(1, 5, 0),
+                LatestVersion // Always last
+            };
 
         /// <summary>
         /// Indicates whether the SQL tables exist in this database
         /// </summary>
-        public bool IsInstalled { get; protected set; }
+        public bool TablesExist
+        {
+            get { return Version.Major > 0; }
+        }
+
+        /// <summary>
+        /// Indicates whether the user should be notified to update the database
+        /// </summary>
+        public bool NeedsUpdated
+        {
+            get { return Version.CompareTo(LatestVersion) < 0; }
+        }
+
+        /// <summary>
+        /// An array of all Stats specific table names
+        /// </summary>
+        public static readonly string[] StatsTables = {
+                "army",
+                "awards",
+                "kills",
+                "kits",
+                "maps",
+                "mapinfo",
+                "player",
+                "player_history",
+                "round_history",
+                "servers",
+                "unlocks",
+                "vehicles",
+                "weapons"
+            };
+
+        /// <summary>
+        /// An array of Table names that contain only player data
+        /// </summary>
+        public static readonly string[] PlayerTables = {
+                "army",
+                "awards",
+                "kills",
+                "kits",
+                "maps",
+                "player",
+                "player_history",
+                "unlocks",
+                "vehicles",
+                "weapons"
+            };
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public StatsDatabase():  
-            base(
-                MainForm.Config.StatsDBEngine, 
-                MainForm.Config.StatsDBConnectionString
-            )
+        public StatsDatabase() : base(MainForm.Config.StatsDBEngine, MainForm.Config.StatsDBConnectionString)
         {
-
             // Try and Reconnect
             try
             {
-                Connect();
-
-                // Try and get database version
-                try
-                {
-                    IsInstalled = (base.Query("SELECT dbver FROM _version LIMIT 1").Count > 0);
-                }
-                catch
-                {
-                    // Table doesnt contain a _version table, then we arent installed
-                    IsInstalled = false;
-                }
+                base.Connect();
+                GetTablesVersion();
             }
             catch (Exception)
             {
@@ -97,6 +118,29 @@ namespace BF2Statistics.Database
         {
             if (!IsDisposed)
                 base.Dispose();
+        }
+
+        /// <summary>
+        /// Fetches the current tables version
+        /// </summary>
+        /// <remarks>
+        ///     We have this in a seperate method because the table migration fetches the the 
+        ///     version everytime an update is applied
+        /// </remarks>
+        protected void GetTablesVersion()
+        {
+            // Try and get database version
+            try
+            {
+                string ver = base.ExecuteScalar("SELECT dbver FROM _version LIMIT 1").ToString();
+                Version = Version.Parse(ver);
+            }
+            catch
+            {
+                // Table doesnt contain a _version table, then we arent installed
+                Version = new Version(0, 0);
+                //throw;
+            }
         }
 
         #region Player Methods
@@ -198,7 +242,7 @@ namespace BF2Statistics.Database
         /// </summary>
         public void CreateSqlTables()
         {
-            if (IsInstalled)
+            if (TablesExist)
                 return;
 
             if (base.DatabaseEngine == DatabaseEngine.Mysql)
@@ -251,7 +295,7 @@ namespace BF2Statistics.Database
 
             // Gets Table Queries
             string[] SQL = Utils.GetResourceFileLines("BF2Statistics.SQL.MySQL.Stats.sql");
-            List<string> Queries = Utilities.Sql.ExtractQueries(SQL);
+            List<string> Queries = SqlFile.ExtractQueries(SQL);
 
             // Start Transaction
             using (DbTransaction Transaction = BeginTransaction())
@@ -280,7 +324,7 @@ namespace BF2Statistics.Database
             // WE STILL INSTALL ip2Nation DATA to stay compatible with the web ASP
             TaskForm.UpdateStatus("Inserting Ip2Nation Data");
             SQL = Utils.GetResourceFileLines("BF2Statistics.SQL.Ip2nation.sql");
-            Queries = Utilities.Sql.ExtractQueries(SQL);
+            Queries = SqlFile.ExtractQueries(SQL);
 
             // Insert Ip2Nation data
             using (DbTransaction Transaction = BeginTransaction())
@@ -306,6 +350,70 @@ namespace BF2Statistics.Database
                     if (!TaskFormWasOpen)
                         TaskForm.CloseForm();
                 }
+            }
+        }
+
+        /// <summary>
+        /// If there is any table updates that need to be applied, calling this method will apply
+        /// each update until the current database version is up to date
+        /// </summary>
+        public void MigrateTables()
+        {
+            MigrateTables(LatestVersion);
+        }
+
+        /// <summary>
+        /// If there is any table updates that need to be applied, calling this method will apply
+        /// each update until the specifed update version
+        /// </summary>
+        public void MigrateTables(Version ToVersion)
+        {
+            // If we dont need updated, what are we doing here?
+            if (ToVersion.CompareTo(LatestVersion) < 0) return;
+
+            // Make sure version is valid
+            if (!VersionList.Contains(ToVersion))
+                throw new ArgumentException("Supplied version does not exist as one of the migratable versions", "ToVersion");
+
+            // Get our start and stop indexies
+            int start = Array.IndexOf(VersionList, Version);
+            int end = Array.IndexOf(VersionList, ToVersion);
+
+            // Loop until we are at the specifed version
+            for (int i = start; i <= end; i++)
+            {
+                // Apply updates till we reach the version we want
+                using (DbTransaction Transaction = base.BeginTransaction())
+                {
+                    try
+                    {
+                        // Get our version string
+                        Version V = VersionList[i];
+
+                        // Gets Table Queries
+                        string ResourcePath = "BF2Statistics.SQL.Stats." + base.DatabaseEngine.ToString() + "_" + V.ToString() + "_update.sql";
+                        List<string> Queries = SqlFile.ExtractQueries(Utils.GetResourceFileLines(ResourcePath));
+
+                        // Delete old version data
+                        base.Execute("DELETE FROM _version");
+
+                        // Insert rows
+                        foreach (string Query in Queries)
+                            base.Execute(Query);
+
+                        // Insert New Data
+                        base.Execute("INSERT INTO _version(dbver, dbdate) VALUES (@P0, @P1)", V.ToString(), DateTime.UtcNow.ToUnixTimestamp());
+                        Transaction.Commit();
+                    }
+                    catch
+                    {
+                        Transaction.Rollback();
+                        throw;
+                    }
+                }
+
+                // Set new version
+                GetTablesVersion();
             }
         }
     }

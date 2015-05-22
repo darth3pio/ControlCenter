@@ -9,6 +9,7 @@ using BF2Statistics.Database;
 using BF2Statistics.Logging;
 using BF2Statistics.Web.ASP;
 using System.Linq;
+using BF2Statistics.ASP.StatsProcessor;
 
 namespace BF2Statistics.Web
 {
@@ -27,12 +28,12 @@ namespace BF2Statistics.Web
         /// <summary>
         /// The StatsDebug.log file
         /// </summary>
-        public static LogWritter AspStatsLog { get; protected set; }
+        public static LogWriter AspStatsLog { get; protected set; }
 
         /// <summary>
         /// THe Http Server Access log
         /// </summary>
-        public static LogWritter HttpAccessLog { get; protected set; }
+        public static LogWriter HttpAccessLog { get; protected set; }
 
         /// <summary>
         /// A List of local IP addresses for this machine
@@ -113,8 +114,8 @@ namespace BF2Statistics.Web
         static HttpServer()
         {
             // Create our Server and Access logs
-            AspStatsLog = new LogWritter(Path.Combine(Program.RootPath, "Logs", "AspServer.log"));
-            HttpAccessLog = new LogWritter(Path.Combine(Program.RootPath, "Logs", "AspAccess.log"), true);
+            AspStatsLog = new LogWriter(Path.Combine(Program.RootPath, "Logs", "AspServer.log"));
+            HttpAccessLog = new LogWriter(Path.Combine(Program.RootPath, "Logs", "AspAccess.log"), true);
 
             // Get a list of all our local IP addresses
             LocalIPs = new List<IPAddress>(Dns.GetHostAddresses(Dns.GetHostName()));
@@ -136,7 +137,7 @@ namespace BF2Statistics.Web
                 // Try to connect to the database
                 using (StatsDatabase Database = new StatsDatabase())  
                 {
-                    if (!Database.IsInstalled)
+                    if (!Database.TablesExist)
                     {
                         string message = "In order to use the Private Stats feature of this program, we need to setup a database. "
                             + "You may choose to do this later by clicking \"Cancel\". Would you like to setup the database now?";
@@ -165,8 +166,9 @@ namespace BF2Statistics.Web
                     }
                 }
 
-                // Load XML stat files
+                // Load XML stats and awards files
                 Bf2Stats.StatsData.Load();
+                BackendAwardData.BuildAwardData();
 
                 // Start the Listener and accept new connections
                 try

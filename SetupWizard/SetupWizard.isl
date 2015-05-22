@@ -4127,7 +4127,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>ISTheme</td><td>InstallShield Blue.theme</td></row>
 		<row><td>ISUSLock</td><td>{B5186B57-8B12-441E-A452-138234BA97D0}</td></row>
 		<row><td>ISUSSignature</td><td>{4B5BF65E-A8E4-47DE-B799-ED987816BFFF}</td></row>
-		<row><td>ISVisitedViews</td><td>viewAssistant,viewSetupTypes,viewUpgradePaths,viewUpdateService,viewProject,viewAppFiles,viewFeatureFiles,viewObjects,viewDependencies,viewFileExtensions,viewSQLServer,viewShortcuts,viewRelease,viewSystemSearch,viewInstallScriptStd,viewCustomActions,viewSupportFiles</td></row>
+		<row><td>ISVisitedViews</td><td>viewAssistant,viewSetupTypes,viewUpgradePaths,viewUpdateService,viewProject,viewAppFiles,viewFeatureFiles,viewObjects,viewDependencies,viewFileExtensions,viewSQLServer,viewShortcuts,viewRelease,viewSystemSearch,viewInstallScriptStd,viewCustomActions,viewSupportFiles,viewRealSetupDesign,viewSetupDesign</td></row>
 		<row><td>Limited</td><td>1</td></row>
 		<row><td>LockPermissionMode</td><td>1</td></row>
 		<row><td>MsiExecCmdLineOptions</td><td/></row>
@@ -4185,6 +4185,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 	<table name="LaunchCondition">
 		<col key="yes" def="s255">Condition</col>
 		<col def="l255">Description</col>
+		<row><td>(Not Version9X) And (Not VersionNT=400) And (Not VersionNT=500) And (Not VersionNT=501) And (Not VersionNT=502) And (Not (VersionNT=600 And Not (MsiNTProductType=1))) And (Not (VersionNT=601 And Not (MsiNTProductType=1))) And (Not VersionNT=602)</td><td>##IDPROP_EXPRESS_LAUNCH_CONDITION_OS##</td></row>
 		<row><td>DOTNETVERSION45FULL&gt;="#1"</td><td>##IDPROP_EXPRESS_LAUNCH_CONDITION_DOTNETVERSION45FULL##</td></row>
 	</table>
 
@@ -4502,7 +4503,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
 		<row><td>ProductCode</td><td>{159EC11B-5886-4180-A0DA-2C7E3B2BA2D0}</td><td/></row>
 		<row><td>ProductName</td><td>BF2Statistics Control Center</td><td/></row>
-		<row><td>ProductVersion</td><td>2.0.2</td><td/></row>
+		<row><td>ProductVersion</td><td>2.1.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>

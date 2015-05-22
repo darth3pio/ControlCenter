@@ -111,7 +111,7 @@ namespace BF2Statistics.ASP.StatsProcessor
         /// <summary>
         /// A list of players that were killed by this player [VictimPid => KillCount]
         /// </summary>
-        public Dictionary<string, string> Victims { get; protected set; }
+        public Dictionary<int, int> Victims { get; protected set; }
 
         /// <summary>
         /// An object containing the player's statistical round data
@@ -150,10 +150,10 @@ namespace BF2Statistics.ASP.StatsProcessor
         /// </summary>
         /// <param name="PlayerData">The snapshot player data</param>
         /// <param name="PlayerKillData">The snapshot player kill data</param>
-        public Player(Dictionary<string, string> PlayerData, Dictionary<string, string> PlayerKillData)
+        public Player(Dictionary<string, string> PlayerData, Dictionary<int, int> PlayerKillData)
         {
             // Set internal dictionary data
-            this.Victims = new Dictionary<string, string>(PlayerKillData);
+            this.Victims = new Dictionary<int, int>(PlayerKillData);
 
             // Set Internal Variables
             this.Pid = Int32.Parse(PlayerData["pID"]);
@@ -291,8 +291,9 @@ namespace BF2Statistics.ASP.StatsProcessor
             // Extract player awards
             foreach (KeyValuePair<string, string> Item in PlayerData)
             {
-                if (AwardData.Awards.ContainsKey(Item.Key))
-                    this.EarnedAwards.Add(AwardData.Awards[Item.Key], Int32.Parse(Item.Value));
+                // Make sure that the award given exists in the Awards List
+                if (BackendAwardData.Awards.ContainsKey(Item.Key))
+                    this.EarnedAwards.Add(BackendAwardData.Awards[Item.Key], Int32.Parse(Item.Value));
             }
         }
 

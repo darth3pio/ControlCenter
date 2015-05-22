@@ -21,22 +21,6 @@ namespace BF2Statistics.Database
         public DbConnection Connection { get; protected set; }
 
         /// <summary>
-        /// Returns whether the Database connection is open
-        /// </summary>
-        public bool IsConnected
-        {
-            get { return (Connection.State == ConnectionState.Open); }
-        }
-
-        /// <summary>
-        /// Returns the current conenction state of the database
-        /// </summary>
-        public ConnectionState State
-        {
-            get { return Connection.State; }
-        }
-
-        /// <summary>
         /// Gets the number of queries ran by this instance
         /// </summary>
         public int NumQueries = 0;
@@ -225,7 +209,7 @@ namespace BF2Statistics.Database
                             NiceDictionary<string, object> Row = new NiceDictionary<string, object>(Reader.FieldCount);
                             for (int i = 0; i < Reader.FieldCount; ++i)
                                 Row.Add(Reader.GetName(i), Reader.GetValue(i));
-
+                            
                             Rows.Add(Row);
                         }
                     }

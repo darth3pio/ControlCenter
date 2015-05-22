@@ -38,7 +38,7 @@
             this.LaunchEmuBtn = new System.Windows.Forms.Button();
             this.groupBox24 = new System.Windows.Forms.GroupBox();
             this.LoginStatusDesc = new System.Windows.Forms.Label();
-            this.LoginStatusPic = new System.Windows.Forms.PictureBox();
+            this.GamespyStatusPic = new System.Windows.Forms.PictureBox();
             this.AspStatusDesc = new System.Windows.Forms.Label();
             this.AspStatusPic = new System.Windows.Forms.PictureBox();
             this.HostsStatusDesc = new System.Windows.Forms.Label();
@@ -88,10 +88,12 @@
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
-            this.CreateAcctBtn = new System.Windows.Forms.Button();
+            this.ManageGpDbBtn = new System.Windows.Forms.Button();
             this.EditAcctBtn = new System.Windows.Forms.Button();
             this.EditGamespyConfigBtn = new System.Windows.Forms.Button();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.ServerListSize = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
             this.StartLoginserverBtn = new System.Windows.Forms.Button();
             this.label16 = new System.Windows.Forms.Label();
             this.labelPeakClients = new System.Windows.Forms.Label();
@@ -155,8 +157,11 @@
             this.groupBox20 = new System.Windows.Forms.GroupBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.HostsDiagnosticsBtn = new System.Windows.Forms.Button();
             this.Bf2AaGroupBox = new System.Windows.Forms.GroupBox();
-            this.Bf2aCheckbox = new System.Windows.Forms.CheckBox();
+            this.HostsLockStatus = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
+            this.HostsLockCheckbox = new System.Windows.Forms.CheckBox();
             this.LogWindow = new System.Windows.Forms.GroupBox();
             this.LogBox = new System.Windows.Forms.TextBox();
             this.RedirectButton = new System.Windows.Forms.Button();
@@ -187,7 +192,7 @@
             this.groupBox1.SuspendLayout();
             this.groupBox16.SuspendLayout();
             this.groupBox24.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.LoginStatusPic)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.GamespyStatusPic)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AspStatusPic)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.HostsStatusPic)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.StatsStatusPic)).BeginInit();
@@ -297,14 +302,14 @@
             this.LaunchEmuBtn.Name = "LaunchEmuBtn";
             this.LaunchEmuBtn.Size = new System.Drawing.Size(128, 40);
             this.LaunchEmuBtn.TabIndex = 23;
-            this.LaunchEmuBtn.Text = "Start Login Server";
+            this.LaunchEmuBtn.Text = "Start Gamespy Server";
             this.LaunchEmuBtn.UseVisualStyleBackColor = true;
             this.LaunchEmuBtn.Click += new System.EventHandler(this.LaunchEmuBtn_Click);
             // 
             // groupBox24
             // 
             this.groupBox24.Controls.Add(this.LoginStatusDesc);
-            this.groupBox24.Controls.Add(this.LoginStatusPic);
+            this.groupBox24.Controls.Add(this.GamespyStatusPic);
             this.groupBox24.Controls.Add(this.AspStatusDesc);
             this.groupBox24.Controls.Add(this.AspStatusPic);
             this.groupBox24.Controls.Add(this.HostsStatusDesc);
@@ -325,21 +330,21 @@
             this.LoginStatusDesc.AutoSize = true;
             this.LoginStatusDesc.Location = new System.Drawing.Point(49, 94);
             this.LoginStatusDesc.Name = "LoginStatusDesc";
-            this.LoginStatusDesc.Size = new System.Drawing.Size(120, 13);
+            this.LoginStatusDesc.Size = new System.Drawing.Size(138, 13);
             this.LoginStatusDesc.TabIndex = 8;
-            this.LoginStatusDesc.Text = "Login Emulator Running";
+            this.LoginStatusDesc.Text = "Gamespy Emulator Running";
             this.LoginStatusDesc.DoubleClick += new System.EventHandler(this.LoginStatusDesc_DoubleClick);
             // 
-            // LoginStatusPic
+            // GamespyStatusPic
             // 
-            this.LoginStatusPic.Image = global::BF2Statistics.Properties.Resources.error;
-            this.LoginStatusPic.Location = new System.Drawing.Point(18, 89);
-            this.LoginStatusPic.Name = "LoginStatusPic";
-            this.LoginStatusPic.Size = new System.Drawing.Size(25, 24);
-            this.LoginStatusPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-            this.LoginStatusPic.TabIndex = 7;
-            this.LoginStatusPic.TabStop = false;
-            this.LoginStatusPic.DoubleClick += new System.EventHandler(this.LoginStatusDesc_DoubleClick);
+            this.GamespyStatusPic.Image = global::BF2Statistics.Properties.Resources.error;
+            this.GamespyStatusPic.Location = new System.Drawing.Point(18, 89);
+            this.GamespyStatusPic.Name = "GamespyStatusPic";
+            this.GamespyStatusPic.Size = new System.Drawing.Size(25, 24);
+            this.GamespyStatusPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.GamespyStatusPic.TabIndex = 7;
+            this.GamespyStatusPic.TabStop = false;
+            this.GamespyStatusPic.DoubleClick += new System.EventHandler(this.LoginStatusDesc_DoubleClick);
             // 
             // AspStatusDesc
             // 
@@ -844,7 +849,7 @@
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Size = new System.Drawing.Size(582, 338);
             this.tabPage3.TabIndex = 3;
-            this.tabPage3.Text = "Login Emulator";
+            this.tabPage3.Text = "Gamespy Emulator";
             // 
             // groupBox6
             // 
@@ -859,7 +864,7 @@
             // 
             // groupBox9
             // 
-            this.groupBox9.Controls.Add(this.CreateAcctBtn);
+            this.groupBox9.Controls.Add(this.ManageGpDbBtn);
             this.groupBox9.Controls.Add(this.EditAcctBtn);
             this.groupBox9.Controls.Add(this.EditGamespyConfigBtn);
             this.groupBox9.Location = new System.Drawing.Point(10, 189);
@@ -869,16 +874,15 @@
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "Options";
             // 
-            // CreateAcctBtn
+            // ManageGpDbBtn
             // 
-            this.CreateAcctBtn.Enabled = false;
-            this.CreateAcctBtn.Location = new System.Drawing.Point(65, 53);
-            this.CreateAcctBtn.Name = "CreateAcctBtn";
-            this.CreateAcctBtn.Size = new System.Drawing.Size(140, 28);
-            this.CreateAcctBtn.TabIndex = 24;
-            this.CreateAcctBtn.Text = "Create Account";
-            this.CreateAcctBtn.UseVisualStyleBackColor = true;
-            this.CreateAcctBtn.Click += new System.EventHandler(this.CreateAcctBtn_Click);
+            this.ManageGpDbBtn.Location = new System.Drawing.Point(65, 53);
+            this.ManageGpDbBtn.Name = "ManageGpDbBtn";
+            this.ManageGpDbBtn.Size = new System.Drawing.Size(140, 28);
+            this.ManageGpDbBtn.TabIndex = 24;
+            this.ManageGpDbBtn.Text = "Edit Database Config";
+            this.ManageGpDbBtn.UseVisualStyleBackColor = true;
+            this.ManageGpDbBtn.Click += new System.EventHandler(this.ManageGpDbBtn_Click);
             // 
             // EditAcctBtn
             // 
@@ -903,6 +907,8 @@
             // 
             // groupBox7
             // 
+            this.groupBox7.Controls.Add(this.ServerListSize);
+            this.groupBox7.Controls.Add(this.label21);
             this.groupBox7.Controls.Add(this.StartLoginserverBtn);
             this.groupBox7.Controls.Add(this.label16);
             this.groupBox7.Controls.Add(this.labelPeakClients);
@@ -918,29 +924,47 @@
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Status";
             // 
+            // ServerListSize
+            // 
+            this.ServerListSize.AutoSize = true;
+            this.ServerListSize.Location = new System.Drawing.Point(165, 84);
+            this.ServerListSize.Name = "ServerListSize";
+            this.ServerListSize.Size = new System.Drawing.Size(13, 13);
+            this.ServerListSize.TabIndex = 32;
+            this.ServerListSize.Text = "0";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(25, 84);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(109, 13);
+            this.label21.TabIndex = 31;
+            this.label21.Text = "Servers in Online List:";
+            // 
             // StartLoginserverBtn
             // 
             this.StartLoginserverBtn.Location = new System.Drawing.Point(60, 117);
             this.StartLoginserverBtn.Name = "StartLoginserverBtn";
             this.StartLoginserverBtn.Size = new System.Drawing.Size(150, 28);
             this.StartLoginserverBtn.TabIndex = 29;
-            this.StartLoginserverBtn.Text = "Start Login Server";
+            this.StartLoginserverBtn.Text = "Start Gamespy Server";
             this.StartLoginserverBtn.UseVisualStyleBackColor = true;
             this.StartLoginserverBtn.Click += new System.EventHandler(this.StartLoginserverBtn_Click);
             // 
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(25, 68);
+            this.label16.Location = new System.Drawing.Point(25, 64);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(124, 13);
+            this.label16.Size = new System.Drawing.Size(122, 13);
             this.label16.TabIndex = 14;
-            this.label16.Text = "Peak Connected Clients:";
+            this.label16.Text = "Peak Logged in Players:";
             // 
             // labelPeakClients
             // 
             this.labelPeakClients.AutoSize = true;
-            this.labelPeakClients.Location = new System.Drawing.Point(165, 68);
+            this.labelPeakClients.Location = new System.Drawing.Point(165, 64);
             this.labelPeakClients.Name = "labelPeakClients";
             this.labelPeakClients.Size = new System.Drawing.Size(13, 13);
             this.labelPeakClients.TabIndex = 13;
@@ -949,11 +973,11 @@
             // label18
             // 
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(25, 46);
+            this.label18.Location = new System.Drawing.Point(25, 44);
             this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(96, 13);
+            this.label18.Size = new System.Drawing.Size(95, 13);
             this.label18.TabIndex = 12;
-            this.label18.Text = "Connected Clients:";
+            this.label18.Text = "Players Logged In:";
             // 
             // LoginStatusLabel
             // 
@@ -971,14 +995,14 @@
             this.label17.AutoSize = true;
             this.label17.Location = new System.Drawing.Point(25, 24);
             this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(109, 13);
+            this.label17.Size = new System.Drawing.Size(127, 13);
             this.label17.TabIndex = 10;
-            this.label17.Text = "Login Server Status:  ";
+            this.label17.Text = "Gamespy Server Status:  ";
             // 
             // ClientCountLabel
             // 
             this.ClientCountLabel.AutoSize = true;
-            this.ClientCountLabel.Location = new System.Drawing.Point(165, 46);
+            this.ClientCountLabel.Location = new System.Drawing.Point(165, 44);
             this.ClientCountLabel.Name = "ClientCountLabel";
             this.ClientCountLabel.Size = new System.Drawing.Size(13, 13);
             this.ClientCountLabel.TabIndex = 9;
@@ -1013,7 +1037,7 @@
             this.groupBox8.Size = new System.Drawing.Size(270, 295);
             this.groupBox8.TabIndex = 17;
             this.groupBox8.TabStop = false;
-            this.groupBox8.Text = "Connected Clients";
+            this.groupBox8.Text = "Logged In Players";
             // 
             // RefreshChkBox
             // 
@@ -1570,6 +1594,7 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.HostsDiagnosticsBtn);
             this.groupBox4.Controls.Add(this.Bf2AaGroupBox);
             this.groupBox4.Controls.Add(this.LogWindow);
             this.groupBox4.Controls.Add(this.RedirectButton);
@@ -1581,35 +1606,69 @@
             this.groupBox4.TabIndex = 1;
             this.groupBox4.TabStop = false;
             // 
+            // HostsDiagnosticsBtn
+            // 
+            this.HostsDiagnosticsBtn.Enabled = false;
+            this.HostsDiagnosticsBtn.Location = new System.Drawing.Point(342, 280);
+            this.HostsDiagnosticsBtn.Name = "HostsDiagnosticsBtn";
+            this.HostsDiagnosticsBtn.Size = new System.Drawing.Size(160, 27);
+            this.HostsDiagnosticsBtn.TabIndex = 15;
+            this.HostsDiagnosticsBtn.Text = "Run Diagnostics";
+            this.HostsDiagnosticsBtn.UseVisualStyleBackColor = true;
+            this.HostsDiagnosticsBtn.Click += new System.EventHandler(this.HostsDiagnosticsBtn_Click);
+            // 
             // Bf2AaGroupBox
             // 
-            this.Bf2AaGroupBox.Controls.Add(this.Bf2aCheckbox);
-            this.Bf2AaGroupBox.Location = new System.Drawing.Point(21, 212);
+            this.Bf2AaGroupBox.Controls.Add(this.HostsLockStatus);
+            this.Bf2AaGroupBox.Controls.Add(this.label20);
+            this.Bf2AaGroupBox.Controls.Add(this.HostsLockCheckbox);
+            this.Bf2AaGroupBox.Location = new System.Drawing.Point(21, 190);
             this.Bf2AaGroupBox.Name = "Bf2AaGroupBox";
-            this.Bf2AaGroupBox.Size = new System.Drawing.Size(260, 50);
+            this.Bf2AaGroupBox.Size = new System.Drawing.Size(260, 117);
             this.Bf2AaGroupBox.TabIndex = 14;
             this.Bf2AaGroupBox.TabStop = false;
-            this.Bf2AaGroupBox.Text = "BF2 Gamepsy Available";
+            this.Bf2AaGroupBox.Text = "Hosts File Security";
             // 
-            // Bf2aCheckbox
+            // HostsLockStatus
             // 
-            this.Bf2aCheckbox.AutoSize = true;
-            this.Bf2aCheckbox.Checked = true;
-            this.Bf2aCheckbox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.Bf2aCheckbox.Enabled = false;
-            this.Bf2aCheckbox.Location = new System.Drawing.Point(10, 19);
-            this.Bf2aCheckbox.Name = "Bf2aCheckbox";
-            this.Bf2aCheckbox.Size = new System.Drawing.Size(234, 17);
-            this.Bf2aCheckbox.TabIndex = 0;
-            this.Bf2aCheckbox.Text = "Enable Local Bf2 Gamepsy Available Server";
-            this.Bf2aCheckbox.UseVisualStyleBackColor = true;
+            this.HostsLockStatus.AutoSize = true;
+            this.HostsLockStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.HostsLockStatus.ForeColor = System.Drawing.Color.Red;
+            this.HostsLockStatus.Location = new System.Drawing.Point(166, 25);
+            this.HostsLockStatus.Name = "HostsLockStatus";
+            this.HostsLockStatus.Size = new System.Drawing.Size(65, 13);
+            this.HostsLockStatus.TabIndex = 2;
+            this.HostsLockStatus.Text = "UnLocked";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(10, 53);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(234, 52);
+            this.label20.TabIndex = 1;
+            this.label20.Text = "Battlefield 2 will check the hosts file for gamespy\r\nredirects, and prevent emula" +
+    "tors from working.\r\nBy locking the hosts file, it prevents Battlefield 2\r\nfrom d" +
+    "etecting any redirects.";
+            // 
+            // HostsLockCheckbox
+            // 
+            this.HostsLockCheckbox.AutoSize = true;
+            this.HostsLockCheckbox.Checked = true;
+            this.HostsLockCheckbox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.HostsLockCheckbox.Location = new System.Drawing.Point(13, 24);
+            this.HostsLockCheckbox.Name = "HostsLockCheckbox";
+            this.HostsLockCheckbox.Size = new System.Drawing.Size(162, 17);
+            this.HostsLockCheckbox.TabIndex = 0;
+            this.HostsLockCheckbox.Text = "Lock HOSTS file? Currently: ";
+            this.HostsLockCheckbox.UseVisualStyleBackColor = true;
             // 
             // LogWindow
             // 
             this.LogWindow.Controls.Add(this.LogBox);
             this.LogWindow.Location = new System.Drawing.Point(289, 22);
             this.LogWindow.Name = "LogWindow";
-            this.LogWindow.Size = new System.Drawing.Size(260, 190);
+            this.LogWindow.Size = new System.Drawing.Size(260, 200);
             this.LogWindow.TabIndex = 13;
             this.LogWindow.TabStop = false;
             this.LogWindow.Text = "Status";
@@ -1624,12 +1683,12 @@
             this.LogBox.Multiline = true;
             this.LogBox.Name = "LogBox";
             this.LogBox.ReadOnly = true;
-            this.LogBox.Size = new System.Drawing.Size(250, 165);
+            this.LogBox.Size = new System.Drawing.Size(250, 170);
             this.LogBox.TabIndex = 8;
             // 
             // RedirectButton
             // 
-            this.RedirectButton.Location = new System.Drawing.Point(289, 222);
+            this.RedirectButton.Location = new System.Drawing.Point(289, 228);
             this.RedirectButton.Name = "RedirectButton";
             this.RedirectButton.Size = new System.Drawing.Size(260, 40);
             this.RedirectButton.TabIndex = 12;
@@ -1642,12 +1701,12 @@
             this.GpcmGroupBox.Controls.Add(this.label2);
             this.GpcmGroupBox.Controls.Add(this.GpcmCheckbox);
             this.GpcmGroupBox.Controls.Add(this.GpcmAddress);
-            this.GpcmGroupBox.Location = new System.Drawing.Point(21, 118);
+            this.GpcmGroupBox.Location = new System.Drawing.Point(21, 106);
             this.GpcmGroupBox.Name = "GpcmGroupBox";
             this.GpcmGroupBox.Size = new System.Drawing.Size(260, 78);
             this.GpcmGroupBox.TabIndex = 11;
             this.GpcmGroupBox.TabStop = false;
-            this.GpcmGroupBox.Text = "Gamespy Login Server";
+            this.GpcmGroupBox.Text = "Gamespy Master / Login Servers";
             // 
             // label2
             // 
@@ -1663,9 +1722,9 @@
             this.GpcmCheckbox.AutoSize = true;
             this.GpcmCheckbox.Location = new System.Drawing.Point(10, 19);
             this.GpcmCheckbox.Name = "GpcmCheckbox";
-            this.GpcmCheckbox.Size = new System.Drawing.Size(134, 17);
+            this.GpcmCheckbox.Size = new System.Drawing.Size(190, 17);
             this.GpcmCheckbox.TabIndex = 0;
-            this.GpcmCheckbox.Text = "Redirect Login Servers";
+            this.GpcmCheckbox.Text = "Redirect Master and Login Servers";
             this.GpcmCheckbox.UseVisualStyleBackColor = true;
             // 
             // GpcmAddress
@@ -1845,7 +1904,7 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(300, 13);
             this.textBox1.TabIndex = 5;
-            this.textBox1.Text = "Battlefield 2 Statistics Control Center v2.0.2";
+            this.textBox1.Text = "Battlefield 2 Statistics Control Center v2.1.0 Beta";
             // 
             // NotificationIcon
             // 
@@ -1884,7 +1943,7 @@
             this.groupBox16.ResumeLayout(false);
             this.groupBox24.ResumeLayout(false);
             this.groupBox24.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.LoginStatusPic)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.GamespyStatusPic)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.AspStatusPic)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.HostsStatusPic)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.StatsStatusPic)).EndInit();
@@ -1971,8 +2030,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.CheckBox Bf2webCheckbox;
         private System.Windows.Forms.TextBox Bf2webAddress;
-        private System.Windows.Forms.GroupBox Bf2AaGroupBox;
-        private System.Windows.Forms.CheckBox Bf2aCheckbox;
         private System.Windows.Forms.GroupBox groupBox6;
         private System.Windows.Forms.GroupBox groupBox7;
         private System.Windows.Forms.GroupBox groupBox8;
@@ -2000,7 +2057,7 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.RichTextBox MapSizeBox;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Button CreateAcctBtn;
+        private System.Windows.Forms.Button ManageGpDbBtn;
         private System.Windows.Forms.Label ClientCountLabel;
         private System.Windows.Forms.GroupBox groupBox16;
         private System.Windows.Forms.Button LaunchEmuBtn;
@@ -2040,7 +2097,7 @@
         private System.Windows.Forms.PictureBox ServerStatusPic;
         private System.Windows.Forms.Button StartAspServerBtn;
         private System.Windows.Forms.Label LoginStatusDesc;
-        private System.Windows.Forms.PictureBox LoginStatusPic;
+        private System.Windows.Forms.PictureBox GamespyStatusPic;
         private System.Windows.Forms.GroupBox groupBox25;
         private System.Windows.Forms.GroupBox groupBox26;
         private System.Windows.Forms.Label label9;
@@ -2099,6 +2156,13 @@
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.CheckBox RefreshChkBox;
         private System.Windows.Forms.PictureBox ModStatusPic;
+        private System.Windows.Forms.GroupBox Bf2AaGroupBox;
+        private System.Windows.Forms.Label ServerListSize;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.Button HostsDiagnosticsBtn;
+        private System.Windows.Forms.CheckBox HostsLockCheckbox;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label HostsLockStatus;
     }
 }
 

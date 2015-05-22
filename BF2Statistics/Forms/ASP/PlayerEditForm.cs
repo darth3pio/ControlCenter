@@ -90,7 +90,7 @@ namespace BF2Statistics
 
             // Joined Label
             int Joind = Int32.Parse(Player["joined"].ToString());
-            DateTime D = DateTime.UtcNow.ToDateTime(Joind);
+            DateTime D = DateTime.UtcNow.FromUnixTimestamp(Joind);
             LabelJoined.Text = String.Concat(D.ToString("yyyy-MM-dd HH:mm"), " GMT");
             Tipsy.SetToolTip(LabelJoined, String.Concat(D.ToLocalTime().ToString("yyyy-MM-dd HH:mm"), " Local Time."));
 
@@ -145,14 +145,22 @@ namespace BF2Statistics
                 using (StatsDatabase Driver = new StatsDatabase())
                 using (DbTransaction T = Driver.BeginTransaction())
                 {
-                    // Perform queries
-                    Driver.Execute("DELETE FROM unlocks WHERE id = " + Pid);
-                    Driver.Execute("UPDATE player SET usedunlocks = 0 WHERE id = " + Pid);
-                    Driver.Execute(Query.ToString());
-                    T.Commit();
+                    try
+                    {
+                        // Perform queries
+                        Driver.Execute("DELETE FROM unlocks WHERE id = " + Pid);
+                        Driver.Execute("UPDATE player SET usedunlocks = 0 WHERE id = " + Pid);
+                        Driver.Execute(Query.ToString());
+                        T.Commit();
 
-                    // Notify user
-                    Notify.Show("Player Unlocks Have Been Reset", "This player will be able to select his new unlocks upon logging in.", AlertType.Success);
+                        // Notify user
+                        Notify.Show("Player Unlocks Have Been Reset", "This player will be able to select his new unlocks upon logging in.", AlertType.Success);
+                    }
+                    catch
+                    {
+                        T.Rollback();
+                        throw;
+                    }
                 }
             }
             catch (DbConnectException Ex)

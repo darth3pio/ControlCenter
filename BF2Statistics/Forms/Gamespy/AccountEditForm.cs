@@ -32,11 +32,10 @@ namespace BF2Statistics
                 Dictionary<string, object> User = Database.GetUser(AccountId);
                 PlayerID.Value = AccountId = Int32.Parse(User["id"].ToString());
                 AccountNick.Text = User["name"].ToString();
-                AccountPass.Text = User["password"].ToString();
                 AccountEmail.Text = User["email"].ToString();
 
                 // Disable options if user is online
-                if (LoginServer.IsPlayerConnected(AccountId))
+                if (GamespyEmulator.IsPlayerConnected(AccountId))
                 {
                     SatusLabel.Text = "Online (IP: " + User["lastip"].ToString() + ")";
                     UpdateBtn.Enabled = false;
@@ -58,7 +57,7 @@ namespace BF2Statistics
         private void GpcmClient_OnDisconnect(object sender)
         {
             GpcmClient Client = (GpcmClient)sender;
-            if (Client.ClientPID == AccountId)
+            if (Client.PlayerId == AccountId)
             {
                 // Since we are in a different thread, Invoke
                 Invoke(new Action( () =>
@@ -79,12 +78,12 @@ namespace BF2Statistics
         private void GpcmClient_OnSuccessfulLogin(object sender)
         {
             GpcmClient Client = (GpcmClient)sender;
-            if (Client.ClientPID == AccountId)
+            if (Client.PlayerId == AccountId)
             {
                 // Since we are in a different thread, Invoke
                 Invoke(new Action( () =>
                 {
-                    SatusLabel.Text = "Online (IP: " + Client.IpAddress.ToString() + ")";
+                    SatusLabel.Text = "Online (IP: " + Client.RemoteEndPoint.Address.ToString() + ")";
                     UpdateBtn.Enabled = false;
                     DeleteBtn.Enabled = false;
                     DisconnectBtn.Enabled = true;
@@ -107,11 +106,6 @@ namespace BF2Statistics
                 if (AccountNick.Text.Trim().Length < 3)
                 {
                     MessageBox.Show("Please enter a valid account name", "Error");
-                    return;
-                }
-                else if (AccountPass.Text.Trim().Length < 3)
-                {
-                    MessageBox.Show("Please enter a valid account password", "Error");
                     return;
                 }
                 else if (!Validator.IsValidEmail(AccountEmail.Text))
@@ -168,7 +162,7 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void DisconnectBtn_Click(object sender, EventArgs e)
         {
-            LoginServer.ForceLogout(AccountId);
+            GamespyEmulator.ForceLogout(AccountId);
         }
 
         /// <summary>

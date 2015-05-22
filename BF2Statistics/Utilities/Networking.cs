@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 
 namespace BF2Statistics.Utilities
 {
@@ -93,6 +95,53 @@ namespace BF2Statistics.Utilities
             catch { }
 
             return false;
+        }
+
+        /// <summary>
+        /// Returns whether the supplied IP Address in on the local Lan network
+        /// </summary>
+        /// <remarks>http://stackoverflow.com/questions/7232287/check-if-ip-is-in-lan-behind-firewalls-and-routers</remarks>
+        /// <param name="address"></param>
+        /// <returns></returns>
+        public static bool IsLanIP(IPAddress address)
+        {
+            var interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (var iface in interfaces)
+            {
+                var properties = iface.GetIPProperties();
+                foreach (var ifAddr in properties.UnicastAddresses)
+                {
+                    if (ifAddr.IPv4Mask != null &&
+                        ifAddr.Address.AddressFamily == AddressFamily.InterNetwork &&
+                        CheckMask(ifAddr.Address, ifAddr.IPv4Mask, address))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        private static bool CheckMask(IPAddress address, IPAddress mask, IPAddress target)
+        {
+            if (mask == null)
+                return false;
+
+            byte[] ba = address.GetAddressBytes();
+            byte[] bm = mask.GetAddressBytes();
+            byte[] bb = target.GetAddressBytes();
+
+            if (ba.Length != bm.Length || bm.Length != bb.Length)
+                return false;
+
+            for (var i = 0; i < ba.Length; i++)
+            {
+                int m = bm[i];
+                int a = ba[i] & m;
+                int b = bb[i] & m;
+                if (a != b)
+                    return false;
+            }
+
+            return true;
         }
 
         /// <summary>

@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace BF2Statistics
@@ -26,7 +20,6 @@ namespace BF2Statistics
             IgnoreAi.SelectedIndex = (MainForm.Config.ASP_IgnoreAI) ? 1 : 0;
             MinRoundTime.Value = MainForm.Config.ASP_MinRoundTime;
             MinRoundPlayers.Value = MainForm.Config.ASP_MinRoundPlayers;
-            RankChecking.SelectedIndex = (MainForm.Config.ASP_StatsRankCheck) ? 1 : 0;
             RankTenure.Value = MainForm.Config.ASP_SpecialRankTenure;
             SmocProcessing.SelectedIndex = MainForm.Config.ASP_SmocCheck ? 1 : 0;
             GeneralProcessing.SelectedIndex = MainForm.Config.ASP_GeneralCheck ? 1 : 0;
@@ -48,7 +41,6 @@ namespace BF2Statistics
             MainForm.Config.ASP_IgnoreAI = (IgnoreAi.SelectedIndex == 1);
             MainForm.Config.ASP_MinRoundTime = Int32.Parse(MinRoundTime.Value.ToString());
             MainForm.Config.ASP_MinRoundPlayers = Int32.Parse(MinRoundPlayers.Value.ToString());
-            MainForm.Config.ASP_StatsRankCheck = (RankChecking.SelectedIndex == 1);
             MainForm.Config.ASP_SpecialRankTenure = Int32.Parse(RankTenure.Value.ToString());
             MainForm.Config.ASP_SmocCheck = (SmocProcessing.SelectedIndex == 1);
             MainForm.Config.ASP_GeneralCheck = (GeneralProcessing.SelectedIndex == 1);

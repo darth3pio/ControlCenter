@@ -1,38 +1,37 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using BF2Statistics.Net;
 
 namespace BF2Statistics.Gamespy
 {
-    class GpspServer
+    /// <summary>
+    /// This class emulates the Gamespy Search Provider Server on port 29901.
+    /// This server is responsible for fetching all associates accounts with
+    /// the provided email and password, as well as verifying a player account ID.
+    /// </summary>
+    public class GpspServer : GamespyTcpSocket
     {
         /// <summary>
-        /// Our GPSP Server Listener Socket
+        /// Max number of concurrent open and active connections.
         /// </summary>
-        private TcpListener Listener;
+        /// <remarks>Connections to the Gpsp server are short lived</remarks>
+        public const int MaxConnections = 8;
 
         /// <summary>
-        /// List of connected clients
+        /// A List of sucessfully active connections (ConnId => Client Obj) on the MasterServer TCP line
         /// </summary>
-        public List<GpspClient> Clients = new List<GpspClient>();
+        private static ConcurrentDictionary<int, GpspClient> Clients = new ConcurrentDictionary<int, GpspClient>();
 
-        /// <summary>
-        /// Signifies whether we are shutting down or not
-        /// </summary>
-        private bool isShutingDown = false;
-
-        public GpspServer()
+        public GpspServer() : base(29901, MaxConnections)
         {
-            // Attempt to bind to port 29901
-            Listener = new TcpListener(IPAddress.Any, 29901);
-            Listener.Start();
-
             // Register for disconnect
             GpspClient.OnDisconnect += GpspClient_OnDisconnect;
 
-            // Create a new thread to accept the connection
-            Listener.BeginAcceptTcpClient(AcceptClient, null);
+            // Begin accepting connections
+            base.StartAcceptAsync();
         }
 
         /// <summary>
@@ -40,45 +39,47 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         public void Shutdown()
         {
-            // Stop updating client checks
-            isShutingDown = true;
-            Listener.Stop();
+            // Stop accepting new connections
+            base.IgnoreNewConnections = true;
 
             // Unregister events so we dont get a shit ton of calls
             GpspClient.OnDisconnect -= GpspClient_OnDisconnect;
 
             // Disconnected all connected clients
-            foreach (GpspClient C in Clients)
-                C.Dispose();
+            foreach (GpspClient C in Clients.Values)
+                C.Dispose(true);
 
             // clear clients
             Clients.Clear();
+
+            // Shutdown the listener socket
+            base.ShutdownSocket();
+
+            // Tell the base to dispose all free objects
+            base.Dispose();
         }
 
         /// <summary>
-        /// Accepts a TcpClient
+        /// When a new connection is established, we the parent class are responsible
+        /// for handling the processing
         /// </summary>
-        /// <param name="ar"></param>
-        private void AcceptClient(IAsyncResult ar)
+        /// <param name="Stream">A GamespyTcpStream object that wraps the I/O AsyncEventArgs and socket</param>
+        protected override void ProcessAccept(GamespyTcpStream Stream)
         {
-            bool Accepting = false;
-
-            // End the operation and display the received data on  
-            // the console.
             try
             {
-                TcpClient Client = Listener.EndAcceptTcpClient(ar);
-                Listener.BeginAcceptTcpClient(AcceptClient, null);
-                Accepting = true;
+                // Convert the TcpClient to a MasterClient
+                GpspClient client = new GpspClient(Stream);
+                Clients.TryAdd(client.ConnectionId, client);
 
-                // Process last so there is no delay in accepting connections
-                Clients.Add(new GpspClient(Client));
+                // Begin accepting data now that we are fully connected
+                Stream.BeginReceive();
             }
-            catch { }
-            finally
+            catch (Exception e)
             {
-                if (!Accepting && !isShutingDown)
-                    Listener.BeginAcceptTcpClient(AcceptClient, null);
+                Program.ErrorLog.Write("WARNING: An Error occured at [Gpsp.ProcessAccept] : Generating Exception Log");
+                ExceptionHandler.GenerateExceptionLog(e);
+                base.Release(Stream);
             }
         }
 
@@ -88,7 +89,10 @@ namespace BF2Statistics.Gamespy
         /// <param name="sender">The client object whom is disconnecting</param>
         private void GpspClient_OnDisconnect(GpspClient client)
         {
-            Clients.Remove(client);
+            // Release this stream's AsyncEventArgs to the object pool
+            base.Release(client.Stream);
+            if (Clients.TryRemove(client.ConnectionId, out client) && !client.Disposed)
+                client.Dispose();
         }
     }
 }

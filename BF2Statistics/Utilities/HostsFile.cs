@@ -52,6 +52,11 @@ namespace BF2Statistics
         public static readonly bool CanWrite = false;
 
         /// <summary>
+        /// Specifies whether the HOSTS file is locked
+        /// </summary>
+        public static bool IsLocked { get; protected set; }
+
+        /// <summary>
         /// If CanRead or CanWrite are false, the exception that was thrown
         /// will be stored here
         /// </summary>
@@ -62,6 +67,8 @@ namespace BF2Statistics
         /// </summary>
         static HostsFile()
         {
+            // We dont know?
+            IsLocked = false;
             try
             {
                 // Get the Hosts file object
@@ -189,6 +196,7 @@ namespace BF2Statistics
             try
             {
                 HostFile.SetAccessControl(Security);
+                IsLocked = false;
                 return true;
             }
             catch (Exception e)
@@ -218,6 +226,7 @@ namespace BF2Statistics
             try
             {
                 HostFile.SetAccessControl(Security);
+                IsLocked = true;
                 return true;
             }
             catch (Exception e)

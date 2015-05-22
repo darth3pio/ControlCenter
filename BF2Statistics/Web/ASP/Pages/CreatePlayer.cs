@@ -35,8 +35,7 @@ namespace BF2Statistics.Web.ASP
             // Fetch Player
             string PlayerNick = Client.Request.QueryString["nick"].Replace("%20", " ");
             string CC = (Client.Request.QueryString.ContainsKey("cid")) ? Client.Request.QueryString["cid"] : "";
-            var Rows = Driver.Query("SELECT name FROM player WHERE id=@P0 OR name=@P1", Pid, PlayerNick);
-            if (Rows.Count > 0)
+            if (Driver.ExecuteScalar<int>("SELECT COUNT(*) FROM player WHERE id=@P0 OR name=@P1", Pid, PlayerNick) > 0)
             {
                 Response.WriteResponseStart(false);
                 Response.WriteFreeformLine("Player already Exists!");

@@ -21,7 +21,7 @@ namespace BF2Statistics
         /// <summary>
         /// Specifies the Program Version
         /// </summary>
-        public static readonly Version Version = new Version(2, 0, 2);
+        public static readonly Version Version = new Version(2, 1, 0);
 
         /// <summary>
         /// Specifies the installation directory of this program
@@ -31,7 +31,7 @@ namespace BF2Statistics
         /// <summary>
         /// The program wide error log file
         /// </summary>
-        public static LogWritter ErrorLog;
+        public static LogWriter ErrorLog;
 
         /// <summary>
         /// Returns whether this application is running in administrator mode.
@@ -60,7 +60,7 @@ namespace BF2Statistics
             AppDomain.CurrentDomain.UnhandledException += ExceptionHandler.OnUnhandledException;
 
             // Create Error Log Writter object
-            ErrorLog = new LogWritter(Path.Combine(Application.StartupPath, "Logs", "Error.log"));
+            ErrorLog = new LogWriter(Path.Combine(Application.StartupPath, "Logs", "Error.log"));
 
             // We only allow 1 instance of this application to run at a time, to prevent all kinds of issues with sockets and such
             // A Mutex will allow us to easily require 1 instance

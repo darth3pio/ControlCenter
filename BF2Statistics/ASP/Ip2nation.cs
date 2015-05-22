@@ -11,6 +11,9 @@ namespace BF2Statistics.ASP
 {
     class Ip2nation
     {
+        /// <summary>
+        /// The connection string to our Ip2Nation sqlite database
+        /// </summary>
         protected static string ConnectionString;
 
         static Ip2nation()
@@ -83,7 +86,7 @@ namespace BF2Statistics.ASP
                     // Fetch country code from Ip2Nation
                     Driver.Connect();
                     List<Dictionary<string, object>> Rows = Driver.Query(
-                        "SELECT country FROM ip2nationcountries WHERE iso_code_2 = @P0", Code.ToUpper()
+                        "SELECT country FROM ip2nationcountries WHERE iso_code_2 = @P0", Code.ToUpperInvariant()
                     );
 
                     return (Rows.Count == 0) ? Code: Rows[0]["country"].ToString();

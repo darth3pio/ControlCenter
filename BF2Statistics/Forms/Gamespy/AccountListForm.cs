@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.Common;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using BF2Statistics.Gamespy;
 using BF2Statistics.Database;
 using BF2Statistics.Database.QueryBuilder;
 
@@ -62,12 +57,9 @@ namespace BF2Statistics
         {
             // Define initial variables
             int Limit = Int32.Parse(LimitSelect.SelectedItem.ToString());
-            string Like = SearchBox.Text.Replace("'", "").Trim();
-            List<Dictionary<string, object>> Rows;
-            WhereClause Where = null;
-
-            // Start Record
             int Start = (ListPage == 1) ? 0 : (ListPage - 1) * Limit;
+            string Like = SearchBox.Text.Replace("'", "").Trim();
+            WhereClause Where = null;
 
             // Build Query
             using (GamespyDatabase Driver = new GamespyDatabase())
@@ -99,13 +91,14 @@ namespace BF2Statistics
                 foreach (Dictionary<string, object> Row in Driver.QueryReader(Query.BuildCommand()))
                 {
                     DataTable.Rows.Add(new string[] {
-                    Row["id"].ToString(),
-                    Row["name"].ToString(),
-                    Row["email"].ToString(),
-                    Row["country"].ToString(),
-                    ((Row["session"].ToString() == "1") ? "Yes" : "No"),
-                    Row["lastip"].ToString(),
-                });
+                        Row["id"].ToString(),
+                        Row["name"].ToString(),
+                        Row["email"].ToString(),
+                        Row["country"].ToString(),
+                        (Row["session"].ToString() != "0") ? "Yes" : "No",
+                        //(Gamespy.GamespyServer.IsPlayerConnected(Int32.Parse(Row["id"].ToString())) ? "Yes" : "No"),
+                        Row["lastip"].ToString(),
+                    });
                     RowCount++;
                 }
 
@@ -113,17 +106,18 @@ namespace BF2Statistics
                 Query = new SelectQueryBuilder(Driver);
                 Query.SelectCount();
                 Query.SelectFromTable("accounts");
-                if (Where != null)
-                    Query.AddWhere(Where);
-                Rows = Driver.ExecuteReader(Query.BuildCommand());
-                int TotalFilteredRows = Int32.Parse(Rows[0]["count"].ToString());
+                if (Where != null) Query.AddWhere(Where);
+                int TotalFilteredRows = Driver.ExecuteScalar<int>(Query.BuildQuery());
 
-                // Get Total Player Count
-                Query = new SelectQueryBuilder(Driver);
-                Query.SelectCount();
-                Query.SelectFromTable("accounts");
-                Rows = Driver.ExecuteReader(Query.BuildCommand());
-                int TotalRows = Int32.Parse(Rows[0]["count"].ToString());
+                // Get Total Player Count, if the Where clause is null, this will be the same as the Filtered Row Count
+                int TotalRows = TotalFilteredRows;
+                if (Where != null)
+                {
+                    Query = new SelectQueryBuilder(Driver);
+                    Query.SelectCount();
+                    Query.SelectFromTable("accounts");
+                    TotalRows = Driver.ExecuteScalar<int>(Query.BuildQuery());
+                }
 
                 // Stop Count
                 int Stop = (ListPage == 1) ? RowCount : ((ListPage - 1) * Limit) + RowCount;
@@ -320,8 +314,6 @@ namespace BF2Statistics
         /// <summary>
         /// Delete Account menu item click event
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void menuItemDelete_Click(object sender, System.EventArgs e)
         {
             int Id = Int32.Parse(DataTable.SelectedRows[0].Cells[0].Value.ToString());
@@ -340,6 +332,16 @@ namespace BF2Statistics
 
                 BuildList();
             }
+        }
+
+        /// <summary>
+        /// Create Account Meny Item Click Event
+        /// </summary>
+        private void menuItemCreate_Click(object sender, EventArgs e)
+        {
+            CreateAcctForm form = new CreateAcctForm();
+            if (form.ShowDialog() == DialogResult.OK)
+                BuildList();
         }
     }
 }

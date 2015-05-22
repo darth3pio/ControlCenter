@@ -22,5 +22,7 @@ namespace BF2Statistics
 
     public delegate void GpcmConnectionClosed(GpcmClient client);
 
+    public delegate void MstrConnectionClosed(MasterClient client);
+
     public delegate void ServerChangedEvent();
 }

@@ -11,20 +11,38 @@ namespace BF2Statistics.ASP.StatsProcessor
     public abstract class GameResult
     {
         /// <summary>
-        /// The UTC date of when this snapshot was sent to the ASP for processing
+        /// Epoch timestamp of when the Round Started (Python's time.time() function)
         /// </summary>
-        public DateTime Date { get; protected set; }
+        public int RoundStartTime { get; protected set; }
 
         /// <summary>
-        /// The epoch Timestamp of when this snapshot was recieved by the ASP server
-        /// for processing
+        /// Epoch timestamp of when the Round ended (Python's time.time() function)
         /// </summary>
-        public int TimeStamp { get; protected set; }
+        public int RoundEndTime { get; protected set; }
 
         /// <summary>
         /// Returns the timespan of time the round lasted from start to finish
         /// </summary>
-        public TimeSpan RoundTime { get; protected set; }
+        public TimeSpan RoundTime 
+        {
+            get { return TimeSpan.FromSeconds(this.RoundEndTime - this.RoundStartTime); }
+        }
+
+        /// <summary>
+        /// The UTC date of when this round ended
+        /// </summary>
+        public DateTime RoundEndDate 
+        {
+            get { return DateTime.UtcNow.FromUnixTimestamp(this.RoundEndTime); }
+        }
+
+        /// <summary>
+        /// The UTC date of when this round started
+        /// </summary>
+        public DateTime RoundStartDate
+        {
+            get { return DateTime.UtcNow.FromUnixTimestamp(this.RoundStartTime); }
+        }
 
         /// <summary>
         /// Snapshot Server prefix
@@ -60,16 +78,6 @@ namespace BF2Statistics.ASP.StatsProcessor
         /// Map name played this round
         /// </summary>
         public string MapName { get; protected set; }
-
-        /// <summary>
-        /// Epoch timestamp of when the Round Started (Python's time.time() function)
-        /// </summary>
-        public int RoundStart { get; protected set; }
-
-        /// <summary>
-        /// Epoch timestamp of when the Round ended (Python's time.time() function)
-        /// </summary>
-        public int RoundEnd { get; protected set; }
 
         /// <summary>
         /// Total amount of kills from all players in the round

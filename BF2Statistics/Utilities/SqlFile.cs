@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BF2Statistics.Utilities
 {
-    class Sql
+    class SqlFile
     {
         /// <summary>
         /// Takes an array of lines (most likely from an sql file), and extracts the
@@ -29,7 +29,7 @@ namespace BF2Statistics.Utilities
                     {
                         Query.Append(TrimLine);
                         Queries.Add(Query.ToString());
-                        Query = new StringBuilder();
+                        Query.Clear();
                     }
                     else
                         Query.Append(TrimLine);
