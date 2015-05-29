@@ -164,7 +164,7 @@ namespace BF2Statistics.Gamespy
                         base.ReplyAsync(Packet);
                         replied = true;
                     }
-                    else if (Packet.BytesRecieved[0] == 0x03 && MainForm.Config.GamespyEnableServerlist)
+                    else if (Packet.BytesRecieved[0] == 0x03 && Program.Config.GamespyEnableServerlist)
                     {
                         // === this is where server details come in, it starts with 0x03, it happens every 60 seconds or so
                         // If we aren't validated (initial connection), send a challenge key
@@ -185,7 +185,7 @@ namespace BF2Statistics.Gamespy
                             replied = true;
                         }
                     }
-                    else if (Packet.BytesRecieved[0] == 0x01 && MainForm.Config.GamespyEnableServerlist)
+                    else if (Packet.BytesRecieved[0] == 0x01 && Program.Config.GamespyEnableServerlist)
                     {
                         // === this is a challenge response, it starts with 0x01
                         if (Packet.BytesRecieved.Skip(5).SequenceEqual(ServerValidateCode))
@@ -204,7 +204,7 @@ namespace BF2Statistics.Gamespy
                         else
                             DebugLog.Write("Server Challenge Received and FAILED Validation: {0}:{1}", remote.Address, remote.Port);
                     }
-                    else if (Packet.BytesRecieved[0] == 0x08 && MainForm.Config.GamespyEnableServerlist)
+                    else if (Packet.BytesRecieved[0] == 0x08 && Program.Config.GamespyEnableServerlist)
                     {
                         // this is a server ping, it starts with 0x08, it happens every 20 seconds or so
                         string key = String.Format("{0}:{1}", remote.Address, remote.Port);
@@ -257,7 +257,7 @@ namespace BF2Statistics.Gamespy
 
             // Parse our External IP Address
             IPAddress ExtAddress = IPAddress.Loopback;
-            IPAddress.TryParse(MainForm.Config.GamespyExtAddress, out ExtAddress);
+            IPAddress.TryParse(Program.Config.GamespyExtAddress, out ExtAddress);
             bool ExtAddressIsLocal = Networking.IsLanIP(ExtAddress);
 
             // Parse Server address and see if its external or LAN
@@ -265,7 +265,7 @@ namespace BF2Statistics.Gamespy
             bool isLocalServer = Networking.IsLanIP(server.AddressInfo.Address);
 
             // Check to make sure we allow external servers in our list
-            if (!isLocalServer && !MainForm.Config.GamespyAllowExtServers)
+            if (!isLocalServer && !Program.Config.GamespyAllowExtServers)
             {
                 DebugLog.Write("External Server not Allowed: " + key);
                 return false;

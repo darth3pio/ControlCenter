@@ -66,6 +66,9 @@ namespace BF2Statistics
                 catch { }
             }
             catch { }
+
+            // Update Checker
+            UpdateCheckBox.Checked = Program.Config.UpdateCheck;
         }
 
         /// <summary>
@@ -123,9 +126,10 @@ namespace BF2Statistics
             }
 
             // Save config
-            MainForm.Config.ClientPath = ClientPath.Text;
-            MainForm.Config.ServerPath = ServerPath.Text;
-            MainForm.Config.Save();
+            Program.Config.ClientPath = ClientPath.Text;
+            Program.Config.ServerPath = ServerPath.Text;
+            Program.Config.UpdateCheck = UpdateCheckBox.Checked;
+            Program.Config.Save();
 
             // Tell the main form we are OK
             this.DialogResult = DialogResult.OK;

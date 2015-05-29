@@ -224,7 +224,7 @@ namespace BF2Statistics.ASP.StatsProcessor
             Log("Found " + this.Players.Count + " Player(s)...", LogLevel.Notice);
 
             // Make sure we meet the minimum player requirement
-            if (this.Players.Count < MainForm.Config.ASP_MinRoundPlayers)
+            if (this.Players.Count < Program.Config.ASP_MinRoundPlayers)
             {
                 Log("Minimum round Player count does not meet the ASP requirement... Aborting", LogLevel.Warning);
                 throw new Exception("Minimum round Player count does not meet the ASP requirement");
@@ -252,7 +252,7 @@ namespace BF2Statistics.ASP.StatsProcessor
                     foreach (Player Player in this.Players)
                     {
                         // Player meets min round time or are we ignoring AI?
-                        if ((Player.RoundTime < MainForm.Config.ASP_MinRoundTime) || (MainForm.Config.ASP_IgnoreAI && Player.IsAI))
+                        if ((Player.RoundTime < Program.Config.ASP_MinRoundTime) || (Program.Config.ASP_IgnoreAI && Player.IsAI))
                             continue;
 
                         // Parse some player data
@@ -719,7 +719,7 @@ namespace BF2Statistics.ASP.StatsProcessor
                         Log(String.Format("Processing Award Data ({0})", Player.Pid), LogLevel.Notice);
 
                         // Do we require round completion for award processing?
-                        if (Player.CompletedRound || !MainForm.Config.ASP_AwardsReqComplete)
+                        if (Player.CompletedRound || !Program.Config.ASP_AwardsReqComplete)
                         {
                             // Prepare query
                             InsertQuery = new InsertQueryBuilder("awards", Driver);
@@ -864,8 +864,8 @@ namespace BF2Statistics.ASP.StatsProcessor
                     // ********************************
                     // Process Smoc And General Ranks
                     // ********************************
-                    if (MainForm.Config.ASP_SmocCheck) SmocCheck(Driver);
-                    if (MainForm.Config.ASP_GeneralCheck) GenCheck(Driver);
+                    if (Program.Config.ASP_SmocCheck) SmocCheck(Driver);
+                    if (Program.Config.ASP_GeneralCheck) GenCheck(Driver);
 
                     // ********************************
                     // Commit the Transaction and Log
@@ -942,7 +942,7 @@ namespace BF2Statistics.ASP.StatsProcessor
                 if (Rows.Count > 0)
                 {
                     // Check for same and determine if minimum tenure servred
-                    int MinTenure = MainForm.Config.ASP_SpecialRankTenure * 86400;
+                    int MinTenure = Program.Config.ASP_SpecialRankTenure * 86400;
                     int Sid = Int32.Parse(Rows[0]["id"].ToString());
                     int Earned = Int32.Parse(Rows[0]["earned"].ToString());
 
@@ -995,7 +995,7 @@ namespace BF2Statistics.ASP.StatsProcessor
                 if (Rows.Count > 0)
                 {
                     // Check for same and determine if minimum tenure servred
-                    int MinTenure = MainForm.Config.ASP_SpecialRankTenure * 86400;
+                    int MinTenure = Program.Config.ASP_SpecialRankTenure * 86400;
                     int Sid = Int32.Parse(Rows[0]["id"].ToString());
                     int Earned = Int32.Parse(Rows[0]["earned"].ToString());
 
@@ -1060,7 +1060,7 @@ namespace BF2Statistics.ASP.StatsProcessor
         /// <param name="Level"></param>
         private void Log(string Message, LogLevel Level)
         {
-            if ((int)Level > MainForm.Config.ASP_DebugLevel)
+            if ((int)Level > Program.Config.ASP_DebugLevel)
                 return;
 
             string Lvl;

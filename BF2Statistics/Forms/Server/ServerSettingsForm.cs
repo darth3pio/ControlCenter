@@ -382,8 +382,10 @@ namespace BF2Statistics
 
         private void InfoLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            BotCountInfoForm f = new BotCountInfoForm();
-            f.ShowDialog();
+            using (BotCountInfoForm f = new BotCountInfoForm())
+            {
+                f.ShowDialog();
+            }
         }
 
         private void PlayersToStartSlider_ValueChanged(object sender, EventArgs e)

@@ -25,7 +25,6 @@ namespace BF2Statistics
         public EAStatsImportForm()
         {
             InitializeComponent();
-            bWorker = new BackgroundWorker();
         }
 
         /// <summary>
@@ -41,12 +40,34 @@ namespace BF2Statistics
                 return;
             }
 
-            StatsDatabase Database;
-
             // Establist Database connection
             try
             {
-                Database = new StatsDatabase();
+                using (StatsDatabase Database = new StatsDatabase())
+                {
+                    // Make sure the PID doesnt exist already
+                    int Pid = Int32.Parse(PidTextBox.Text);
+                    if (Database.PlayerExists(Pid))
+                    {
+                        MessageBox.Show("The player ID entered already exists.",
+                            "Import Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    // Show Task Form
+                    TaskForm.Show(this, "Import ASP Stats", "Importing ASP Stats...", ProgressBarStyle.Blocks, 13);
+
+                    // Setup the worker
+                    bWorker = new BackgroundWorker();
+                    bWorker.WorkerSupportsCancellation = false;
+                    bWorker.WorkerReportsProgress = true;
+
+                    // Run Worker
+                    bWorker.DoWork += bWorker_ImportEaStats;
+                    bWorker.ProgressChanged += bWorker_ProgressChanged;
+                    bWorker.RunWorkerCompleted += bWorker_RunWorkerCompleted;
+                    bWorker.RunWorkerAsync(PidTextBox.Text);
+                }
             }
             catch (DbConnectException Ex)
             {
@@ -55,28 +76,6 @@ namespace BF2Statistics
                 this.Close();
                 return;
             }
-
-            // Make sure the PID doesnt exist already
-            int Pid = Int32.Parse(PidTextBox.Text);
-            if (Database.PlayerExists(Pid))
-            {
-                MessageBox.Show("The player ID entered already exists.",
-                    "Import Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            // Show Task Form
-            TaskForm.Show(this, "Import ASP Stats", "Importing ASP Stats...", ProgressBarStyle.Blocks, 13);
-
-            // Setup the worker
-            bWorker.WorkerSupportsCancellation = false;
-            bWorker.WorkerReportsProgress = true;
-
-            // Run Worker
-            bWorker.DoWork += new DoWorkEventHandler(bWorker_ImportEaStats);
-            bWorker.ProgressChanged += new ProgressChangedEventHandler(bWorker_ProgressChanged);
-            bWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bWorker_RunWorkerCompleted);
-            bWorker.RunWorkerAsync(PidTextBox.Text);
         }
 
         /// <summary>

@@ -48,7 +48,7 @@ namespace BF2Statistics.ASP
         {
             // Return default config Country Code
             if (IPAddress.IsLoopback(IP) || HttpServer.LocalIPs.Contains(IP))
-                return MainForm.Config.ASP_LocalIpCountryCode;
+                return Program.Config.ASP_LocalIpCountryCode;
 
             try
             {
@@ -63,12 +63,12 @@ namespace BF2Statistics.ASP
                     string CC = (Rows.Count == 0) ? "xx" : Rows[0]["country"].ToString();
 
                     // Fix country!
-                    return (CC == "xx" || CC == "01") ? MainForm.Config.ASP_LocalIpCountryCode : CC;
+                    return (CC == "xx" || CC == "01") ? Program.Config.ASP_LocalIpCountryCode : CC;
                 }
             }
             catch
             {
-                return MainForm.Config.ASP_LocalIpCountryCode;
+                return Program.Config.ASP_LocalIpCountryCode;
             }
         }
 

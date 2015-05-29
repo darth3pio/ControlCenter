@@ -26,7 +26,7 @@ namespace BF2Statistics
         /// <summary>
         /// The User Config object
         /// </summary>
-        public static Settings Config = Settings.Default;
+        protected Settings Config = Settings.Default;
 
         /// <summary>
         /// The instance of this form
@@ -69,9 +69,11 @@ namespace BF2Statistics
         /// </summary>
         public MainForm()
         {
-            // Create Form Controls and Set Instance
-            InitializeComponent();
+            // Set form Instance
             Instance = this;
+
+            // Create Form Controls
+            InitializeComponent();
 
             // Make sure the basic configuration settings are setup by the user,
             // and load the BF2 server and installed mods
@@ -119,7 +121,7 @@ namespace BF2Statistics
             GamespyEmulator.OnClientsUpdate += GamepsyServer_OnUpdate;
             GamespyEmulator.OnServerlistUpdate += (s, e) => BeginInvoke((Action)delegate 
             { 
-                ServerListSize.Text = GamespyEmulator.ServersOnline.ToString(); 
+                ServerListSize.Text = GamespyEmulator.ServerCount.ToString(); 
             });
 
             // Register for BF2 Server events
@@ -140,6 +142,15 @@ namespace BF2Statistics
             Tipsy.SetToolTip(AspStatusPic, "Asp server is currently offline");
             Tipsy.SetToolTip(labelSnapshotsProc, "Processed / Received");
             SysIcon = NotificationIcon;
+
+            // Check for updates last
+            Updater.CheckCompleted += Updater_CheckCompleted;
+            if (Program.Config.UpdateCheck)
+            {
+                UpdateStatusPic.Show();
+                UpdateLabel.Text = "(Checking For Updates...)";
+                Updater.CheckForUpdateAsync();
+            }
         }
 
         #region Startup Methods
@@ -267,9 +278,6 @@ namespace BF2Statistics
                 }
                 else
                     Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are not active.");
-
-                // Force checkbox
-                //HostsLockCheckbox_CheckedChanged(this, EventArgs.Empty);
             }
         }
 
@@ -716,9 +724,11 @@ namespace BF2Statistics
         /// </summary>
         private void ExtraParamBtn_Click(object sender, EventArgs e)
         {
-            ClientParamsForm F = new ClientParamsForm(ParamBox.Text);
-            if (F.ShowDialog() == DialogResult.OK)
-                ParamBox.Text = ClientParamsForm.ParamString;
+            using (ClientParamsForm F = new ClientParamsForm(ParamBox.Text))
+            {
+                if (F.ShowDialog() == DialogResult.OK)
+                    ParamBox.Text = ClientParamsForm.ParamString;
+            }
         }
 
         #endregion Launcher Tab
@@ -804,14 +814,18 @@ namespace BF2Statistics
 
         private void EditGamespyConfigBtn_Click(object sender, EventArgs e)
         {
-            GamespyConfigForm form = new GamespyConfigForm();
-            form.ShowDialog();
+            using (GamespyConfigForm form = new GamespyConfigForm())
+            {
+                form.ShowDialog();
+            }
         }
 
         private void EditAcctBtn_Click(object sender, EventArgs e)
         {
-            AccountListForm Form = new AccountListForm();
-            Form.ShowDialog();
+            using (AccountListForm Form = new AccountListForm())
+            {
+                Form.ShowDialog();
+            }
         }
 
         private void RefreshChkBox_CheckedChanged(object sender, EventArgs e)
@@ -879,9 +893,11 @@ namespace BF2Statistics
         /// </summary>
         private void BF2sConfig_Click(object sender, EventArgs e)
         {
-            BF2sConfig Form = new BF2sConfig();
-            Form.ShowDialog();
-            SetInstallStatus();
+            using (BF2sConfig Form = new BF2sConfig())
+            {
+                Form.ShowDialog();
+                SetInstallStatus();
+            }
         }
 
         /// <summary>
@@ -889,8 +905,10 @@ namespace BF2Statistics
         /// </summary>
         private void BF2sEditMedalDataBtn_Click(object sender, EventArgs e)
         {
-            MedalData.MedalDataEditor Form = new MedalData.MedalDataEditor();
-            Form.ShowDialog();
+            using (MedalData.MedalDataEditor Form = new MedalData.MedalDataEditor())
+            {
+                Form.ShowDialog();
+            }
         }
 
         /// <summary>
@@ -928,9 +946,11 @@ namespace BF2Statistics
                 }
                 catch (Exception E)
                 {
-                    ExceptionForm EForm = new ExceptionForm(E, false);
-                    EForm.Message = "Failed to restore stats python files!";
-                    EForm.Show();
+                    using (ExceptionForm EForm = new ExceptionForm(E, false))
+                    {
+                        EForm.Message = "Failed to restore stats python files!";
+                        EForm.ShowDialog();
+                    }
                 }
                 finally
                 {
@@ -949,11 +969,13 @@ namespace BF2Statistics
         /// </summary>
         private void EditMapListBtn_Click(object sender, EventArgs e)
         {
-            MapList Form = new MapList();
-            Form.ShowDialog();
+            using (MapList Form = new MapList())
+            {
+                Form.ShowDialog();
+            }
 
             // Update maplist
-            ModSelectList_SelectedIndexChanged(this, new EventArgs());
+            ModSelectList_SelectedIndexChanged(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -961,11 +983,13 @@ namespace BF2Statistics
         /// </summary>
         private void RandomMapListBtn_Click(object sender, EventArgs e)
         {
-            RandomizeForm F = new RandomizeForm();
-            F.ShowDialog();
+            using (RandomizeForm F = new RandomizeForm())
+            {
+                F.ShowDialog();
+            }
 
             // Update maplist
-            ModSelectList_SelectedIndexChanged(this, new EventArgs());
+            ModSelectList_SelectedIndexChanged(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -973,12 +997,10 @@ namespace BF2Statistics
         /// </summary>
         private void EditServerSettingsBtn_Click(object sender, EventArgs e)
         {
-            try
+            using (ServerSettingsForm SS = new ServerSettingsForm(GlobalServerSettings.Checked))
             {
-                ServerSettingsForm SS = new ServerSettingsForm(GlobalServerSettings.Checked);
                 SS.ShowDialog();
             }
-            catch { }
         }
 
         /// <summary>
@@ -987,8 +1009,10 @@ namespace BF2Statistics
         private void EditScoreSettingsBtn_Click(object sender, EventArgs e)
         {
             // Show score form
-            ScoreSettings SS = new ScoreSettings();
-            SS.ShowDialog();
+            using (ScoreSettings SS = new ScoreSettings())
+            {
+                SS.ShowDialog();
+            }
         }
 
         #endregion Server Settings Tab
@@ -1060,9 +1084,13 @@ namespace BF2Statistics
                     {
                         try
                         {
-                            UpdateHostFileStatus("- Resolving Hostname: " + text);
-                            BF2Web = Networking.GetIpAddress(text);
-                            UpdateHostFileStatus("- Found IP: " + BF2Web);
+                            // Reslove hostname if we were not provided an IP address
+                            if (!IPAddress.TryParse(text, out BF2Web))
+                            {
+                                UpdateHostFileStatus("- Resolving Hostname: " + text);
+                                BF2Web = Networking.GetIpAddress(text);
+                                UpdateHostFileStatus("- Found IP: " + BF2Web);
+                            }
                         }
                         catch
                         {
@@ -1109,9 +1137,13 @@ namespace BF2Statistics
                     {
                         try
                         {
-                            UpdateHostFileStatus("- Resolving Hostname: " + text2);
-                            GpcmA = Networking.GetIpAddress(text2);
-                            UpdateHostFileStatus("- Found IP: " + GpcmA);
+                            // Reslove hostname if we were not provided an IP address
+                            if (!IPAddress.TryParse(text2, out GpcmA))
+                            {
+                                UpdateHostFileStatus("- Resolving Hostname: " + text2);
+                                GpcmA = Networking.GetIpAddress(text2);
+                                UpdateHostFileStatus("- Found IP: " + GpcmA);
+                            }
                         }
                         catch
                         {
@@ -1192,8 +1224,10 @@ namespace BF2Statistics
 
         private void HostsDiagnosticsBtn_Click(object sender, EventArgs e)
         {
-            HostsFileTestForm f = new HostsFileTestForm();
-            f.ShowDialog();
+            using (HostsFileTestForm f = new HostsFileTestForm())
+            {
+                f.ShowDialog();
+            }
         }
 
         private void HostsLockCheckbox_CheckedChanged(object sender, EventArgs e)
@@ -1670,9 +1704,11 @@ namespace BF2Statistics
         /// </summary>
         private void ViewSnapshotBtn_Click(object sender, EventArgs e)
         {
-            SnapshotViewForm Form = new SnapshotViewForm();
-            Form.ShowDialog();
-            CountSnapshots();
+            using (SnapshotViewForm Form = new SnapshotViewForm())
+            {
+                Form.ShowDialog();
+                CountSnapshots();
+            }
         }
 
         /// <summary>
@@ -1688,8 +1724,10 @@ namespace BF2Statistics
         /// </summary>
         private void EditASPSettingsBtn_Click(object sender, EventArgs e)
         {
-            ASPConfigForm Form = new ASPConfigForm();
-            Form.ShowDialog();
+            using (ASPConfigForm Form = new ASPConfigForm())
+            {
+                Form.ShowDialog();
+            }
         }
 
         /// <summary>
@@ -1697,8 +1735,10 @@ namespace BF2Statistics
         /// </summary>
         private void EditBf2sCloneBtn_Click(object sender, EventArgs e)
         {
-            LeaderboardConfigForm F = new LeaderboardConfigForm();
-            F.ShowDialog();
+            using (LeaderboardConfigForm F = new LeaderboardConfigForm())
+            {
+                F.ShowDialog();
+            }
         }
 
         /// <summary>
@@ -1706,7 +1746,7 @@ namespace BF2Statistics
         /// </summary>
         private void ViewBf2sCloneBtn_Click(object sender, EventArgs e)
         {
-            if (!MainForm.Config.BF2S_Enabled)
+            if (!Program.Config.BF2S_Enabled)
             {
                 DialogResult Res = MessageBox.Show("The Battlefield 2 Leaderboard is currently disabled! Would you like to enable it now?.",
                     "Disabled Leaderboard", MessageBoxButtons.YesNo, MessageBoxIcon.Question
@@ -1714,8 +1754,8 @@ namespace BF2Statistics
 
                 if (Res == DialogResult.Yes)
                 {
-                    MainForm.Config.BF2S_Enabled = true;
-                    MainForm.Config.Save();
+                    Program.Config.BF2S_Enabled = true;
+                    Program.Config.Save();
                     Process.Start("http://localhost/bf2stats");
                 }
 
@@ -1730,8 +1770,10 @@ namespace BF2Statistics
         /// </summary>
         private void EditPlayerBtn_Click(object sender, EventArgs e)
         {
-            PlayerSearchForm Form = new PlayerSearchForm();
-            Form.ShowDialog();
+            using (PlayerSearchForm Form = new PlayerSearchForm())
+            {
+                Form.ShowDialog();
+            }
         }
 
         /// <summary>
@@ -1739,8 +1781,10 @@ namespace BF2Statistics
         /// </summary>
         private void ManageStatsDBBtn_Click(object sender, EventArgs e)
         {
-            ManageStatsDBForm Form = new ManageStatsDBForm();
-            Form.ShowDialog();
+            using (ManageStatsDBForm Form = new ManageStatsDBForm())
+            {
+                Form.ShowDialog();
+            }
         }
 
         #endregion ASP Server
@@ -1825,7 +1869,12 @@ namespace BF2Statistics
         /// </summary>
         private void ChkUpdateBtn_Click(object sender, EventArgs e)
         {
-            Process.Start("https://github.com/BF2Statistics/ControlCenter/releases/latest");
+            // Process.Start("https://github.com/BF2Statistics/ControlCenter/releases/latest");
+            ChkUpdateBtn.Enabled = false;
+            UpdateStatusPic.Show();
+            UpdateLabel.Text = "(Checking For Updates...)";
+            UpdateLabel.ForeColor = Color.Black;
+            Updater.CheckForUpdateAsync();
         }
 
         /// <summary>
@@ -1838,7 +1887,44 @@ namespace BF2Statistics
 
         #endregion About Tab
 
-        #region Closer Methods
+        #region Misc. Form Events
+
+        /// <summary>
+        /// Event fired when an update check has finished
+        /// </summary>
+        private void Updater_CheckCompleted(object sender, EventArgs e)
+        {
+            if (Updater.UpdateAvailable)
+            {
+                // Update the status
+                UpdateLabel.Text = "(Update Available!)";
+                UpdateLabel.ForeColor = Color.Green;
+                UpdateStatusPic.Hide();
+
+                // Ask User
+                DialogResult r = MessageBox.Show(
+                    "An Update for this program is avaiable for download (" + Updater.NewVersion + ")."
+                    + Environment.NewLine.Repeat(1)
+                    + "Would you like to download and install this update now?",
+                    "Update Available",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Information
+                );
+
+                // Apply update
+                if (r == DialogResult.Yes)
+                    Updater.DownloadUpdateAsync();
+            }
+            else
+            {
+                UpdateStatusPic.Hide();
+                UpdateLabel.Text = "(Up to Date)";
+                UpdateLabel.ForeColor = Color.Black;
+            }
+
+            // Re-Enable button
+            ChkUpdateBtn.Enabled = true;
+        }
 
         /// <summary>
         /// Destructor
@@ -1868,6 +1954,6 @@ namespace BF2Statistics
             HostsFile.UnLock();
         }
 
-        #endregion Closer Methods
+        #endregion Misc. Form Events
     }
 }

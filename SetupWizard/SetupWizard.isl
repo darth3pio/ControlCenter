@@ -362,7 +362,6 @@
 		<row><td>ISX_DEFAULTCOMPONENT7</td><td>{17FB79F8-315E-4323-AD79-C7A7689EA10E}</td><td>PROCESSED</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ISX_DEFAULTCOMPONENT8</td><td>{559EBB26-3DED-4266-8C10-02F5DEAAC3A6}</td><td>PYTHON</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ISX_DEFAULTCOMPONENT9</td><td>{E20D8362-FB57-447F-BA13-45CE517611A3}</td><td>RANKED</td><td>2</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>Microsoft.VisualBasic.PowerPacks.Vs.dll</td><td>{2DC21E0B-3EED-4A41-AE03-505639A34AAD}</td><td>INSTALLDIR</td><td>2</td><td/><td>microsoft.visualbasic.powerp</td><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">
@@ -1934,7 +1933,6 @@
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT7</td></row>
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT8</td></row>
 		<row><td>AlwaysInstall</td><td>ISX_DEFAULTCOMPONENT9</td></row>
-		<row><td>AlwaysInstall</td><td>Microsoft.VisualBasic.PowerPacks.Vs.dll</td></row>
 	</table>
 
 	<table name="File">
@@ -1978,7 +1976,6 @@
 		<row><td>ip2nation.db</td><td>ISX_DEFAULTCOMPONENT18</td><td>IP2NAT~1.DB|Ip2nation.db</td><td>0</td><td/><td/><td/><td>1</td><td>D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Ip2nation.db</td><td>1</td><td/></row>
 		<row><td>medal_data.py</td><td>ISX_DEFAULTCOMPONENT17</td><td>MEDAL_~1.PY|medal_data.py</td><td>0</td><td/><td/><td/><td>1</td><td>D:\Programming\Python\BF2Statistics\bf2\stats\medal_data.py</td><td>1</td><td/></row>
 		<row><td>medals.py</td><td>ISX_DEFAULTCOMPONENT17</td><td>medals.py</td><td>0</td><td/><td/><td/><td>1</td><td>D:\Programming\Python\BF2Statistics\bf2\stats\medals.py</td><td>1</td><td/></row>
-		<row><td>microsoft.visualbasic.powerp</td><td>Microsoft.VisualBasic.PowerPacks.Vs.dll</td><td>MICROS~1.DLL|Microsoft.VisualBasic.PowerPacks.Vs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>D:\Programming\C#\Projects\BF2Statistics\Libraries\Microsoft.VisualBasic.PowerPacks.Vs.dll</td><td>1</td><td/></row>
 		<row><td>miniclient.py</td><td>ISX_DEFAULTCOMPONENT17</td><td>MINICL~1.PY|miniclient.py</td><td>0</td><td/><td/><td/><td>1</td><td>D:\Programming\Python\BF2Statistics\bf2\stats\miniclient.py</td><td>1</td><td/></row>
 		<row><td>objectmanager.py</td><td>ISX_DEFAULTCOMPONENT10</td><td>OBJECT~1.PY|ObjectManager.py</td><td>0</td><td/><td/><td/><td>1</td><td>D:\Programming\Python\BF2Server\bf2\ObjectManager.py</td><td>1</td><td/></row>
 		<row><td>objectmanager.py1</td><td>ISX_DEFAULTCOMPONENT9</td><td>OBJECT~1.PY|ObjectManager.py</td><td>0</td><td/><td/><td/><td>1</td><td>D:\Programming\Python\BF2Statistics\bf2\ObjectManager.py</td><td>1</td><td/></row>
@@ -2160,7 +2157,6 @@
 		<row><td>ISX_DEFAULTCOMPONENT7</td><td/><td/><td>_D920DA25_E9E9_400C_AEEF_F929C6AAC118_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ISX_DEFAULTCOMPONENT8</td><td/><td/><td>_77788E69_E3D3_4C13_B4E5_F47966C85540_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ISX_DEFAULTCOMPONENT9</td><td/><td/><td>_2E2D5A18_44A4_4A7F_9AB8_A7F3D887A434_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>Microsoft.VisualBasic.PowerPacks.Vs.dll</td><td/><td/><td>_EDE7C9C9_D862_43C8_ABE5_D63A4AAB4891_FILTER</td><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="ISCustomActionReference">
@@ -4503,7 +4499,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
 		<row><td>ProductCode</td><td>{159EC11B-5886-4180-A0DA-2C7E3B2BA2D0}</td><td/></row>
 		<row><td>ProductName</td><td>BF2Statistics Control Center</td><td/></row>
-		<row><td>ProductVersion</td><td>2.1.0</td><td/></row>
+		<row><td>ProductVersion</td><td>2.1.1</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>

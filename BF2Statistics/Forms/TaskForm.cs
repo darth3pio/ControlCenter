@@ -221,6 +221,16 @@ namespace BF2Statistics
             });
         }
 
+
+        public static void SetBarPercentage(int Percent)
+        {
+            Instance.Invoke((Action)delegate
+            {
+                int val = Instance.progressBar.Value;
+                Instance.progressBar.Increment(Percent - val);
+            });
+        }
+
         #region Non Static
 
         new public void Show()

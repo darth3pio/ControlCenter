@@ -33,10 +33,10 @@ namespace BF2Statistics
             if (Mode == DatabaseMode.Stats)
             {
                 // Fill values for config boxes
-                if (MainForm.Config.StatsDBEngine == "Sqlite")
+                if (Program.Config.StatsDBEngine == "Sqlite")
                 {
                     TypeSelect.SelectedIndex = 0;
-                    SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder(MainForm.Config.StatsDBConnectionString);
+                    SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder(Program.Config.StatsDBConnectionString);
                     if (!String.IsNullOrWhiteSpace(Builder.DataSource))
                         DBName.Text = Path.GetFileNameWithoutExtension(Builder.DataSource);
                     else
@@ -45,7 +45,7 @@ namespace BF2Statistics
                 else
                 {
                     TypeSelect.SelectedIndex = 1;
-                    MySqlConnectionStringBuilder Builder = new MySqlConnectionStringBuilder(MainForm.Config.StatsDBConnectionString);
+                    MySqlConnectionStringBuilder Builder = new MySqlConnectionStringBuilder(Program.Config.StatsDBConnectionString);
                     Hostname.Text = Builder.Server;
                     Port.Value = Builder.Port;
                     Username.Text = Builder.UserID;
@@ -56,10 +56,10 @@ namespace BF2Statistics
             else // === Gamespy === //
             {
                 // Fill values for config boxes
-                if (MainForm.Config.StatsDBEngine == "Sqlite")
+                if (Program.Config.StatsDBEngine == "Sqlite")
                 {
                     TypeSelect.SelectedIndex = 0;
-                    SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder(MainForm.Config.GamespyDBConnectionString);
+                    SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder(Program.Config.GamespyDBConnectionString);
                     if (!String.IsNullOrWhiteSpace(Builder.DataSource))
                         DBName.Text = Path.GetFileNameWithoutExtension(Builder.DataSource);
                     else
@@ -68,7 +68,7 @@ namespace BF2Statistics
                 else
                 {
                     TypeSelect.SelectedIndex = 1;
-                    MySqlConnectionStringBuilder Builder = new MySqlConnectionStringBuilder(MainForm.Config.GamespyDBConnectionString);
+                    MySqlConnectionStringBuilder Builder = new MySqlConnectionStringBuilder(Program.Config.GamespyDBConnectionString);
                     Hostname.Text = Builder.Server;
                     Port.Value = Builder.Port;
                     Username.Text = Builder.UserID;
@@ -118,13 +118,13 @@ namespace BF2Statistics
             // Set config vars based on the database mode
             if (DbMode == DatabaseMode.Stats)
             {
-                MainForm.Config.StatsDBEngine = (TypeSelect.SelectedIndex == 0) ? "Sqlite" : "Mysql";
-                MainForm.Config.StatsDBConnectionString = ConnString;
+                Program.Config.StatsDBEngine = (TypeSelect.SelectedIndex == 0) ? "Sqlite" : "Mysql";
+                Program.Config.StatsDBConnectionString = ConnString;
             }
             else
             {
-                MainForm.Config.GamespyDBEngine = (TypeSelect.SelectedIndex == 0) ? "Sqlite" : "Mysql";
-                MainForm.Config.GamespyDBConnectionString = ConnString;
+                Program.Config.GamespyDBEngine = (TypeSelect.SelectedIndex == 0) ? "Sqlite" : "Mysql";
+                Program.Config.GamespyDBConnectionString = ConnString;
             }
         }
 
@@ -143,7 +143,7 @@ namespace BF2Statistics
         /// </summary>
         private void CancelBtn_Click(object sender, EventArgs e)
         {
-            MainForm.Config.Reload();
+            Program.Config.Reload();
             this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
@@ -207,7 +207,7 @@ namespace BF2Statistics
         private void SaveBtn_Click(object sender, EventArgs e)
         {
             SetConfigSettings();
-            MainForm.Config.Save();
+            Program.Config.Save();
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
@@ -297,7 +297,7 @@ namespace BF2Statistics
                 }
 
                 // No errors, so save the config file
-                MainForm.Config.Save();
+                Program.Config.Save();
 
                 // Close the task form
                 TaskForm.CloseForm();
@@ -324,7 +324,7 @@ namespace BF2Statistics
                 this.Enabled = true;
 
                 // Revert the temporary config settings and show the error to the user
-                MainForm.Config.Reload();
+                Program.Config.Reload();
                 MessageBox.Show(Ex.Message, "Database Installation Error", MessageBoxButtons.OK, MessageBoxIcon.Error,
                     MessageBoxDefaultButton.Button1, (MessageBoxOptions)0x40000 // Force window on top
                 );

@@ -115,14 +115,18 @@ namespace BF2Statistics
 
         public static bool ShowInstallForm()
         {
-            InstallForm IS = new InstallForm();
-            return (IS.ShowDialog() == DialogResult.OK);
+            using (InstallForm IS = new InstallForm())
+            {
+                return (IS.ShowDialog() == DialogResult.OK);
+            }
         }
 
         public static void ShowDatabaseSetupForm(DatabaseMode Mode)
         {
-            DatabaseConfigForm F = new DatabaseConfigForm(Mode);
-            F.ShowDialog();
+            using (DatabaseConfigForm F = new DatabaseConfigForm(Mode))
+            {
+                F.ShowDialog();
+            }
         }
     }
 }

@@ -14,7 +14,7 @@ namespace BF2Statistics
         /// <summary>
         /// Path to the python stats folder
         /// </summary>
-        private string PythonPath = Path.Combine(MainForm.Config.ServerPath, "python", "bf2", "stats");
+        private string PythonPath = Path.Combine(Program.Config.ServerPath, "python", "bf2", "stats");
 
         /// <summary>
         /// Array of medal data files
@@ -73,7 +73,7 @@ namespace BF2Statistics
             // Snapshot prefix
             SnapshotPrefix.Text = StatsPython.Config.SnapshotPrefix;
 
-            // Medal Data
+            // === Medal Data
             // Determine the selected index based on what the config settings says
             int i = 1;
             string selected = StatsPython.Config.MedalDataProfile;
@@ -121,7 +121,7 @@ namespace BF2Statistics
             // Server Mode
             CmServerMode.SelectedIndex = StatsPython.Config.ClanManager.ServerMode;
 
-            // Clan manager array values
+            // === Clan manager array values
 
             // Clan Tag
             CmClanTag.Text = StatsPython.Config.ClanManager.ClanTagRequirement;
@@ -189,7 +189,7 @@ namespace BF2Statistics
             
             // Save File
             StatsPython.Config.Save();
-            MessageBox.Show("Config saved successfully!", "Success", MessageBoxButtons.OK);
+            Notify.Show("Config saved successfully!", "The BF2Statistics config was sucessfully updated");
             this.Close();
         }
 
@@ -271,6 +271,14 @@ namespace BF2Statistics
         private void CloseOnStart(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void XpackMedalsConfigBtn_Click(object sender, EventArgs e)
+        {
+            using (XpackMedalsConfigForm f = new XpackMedalsConfigForm())
+            {
+                f.ShowDialog();
+            }
         }
     }
 }

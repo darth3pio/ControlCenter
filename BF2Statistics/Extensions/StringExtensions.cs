@@ -62,6 +62,22 @@ namespace BF2Statistics
         }
 
         /// <summary>
+        /// Returns the input string at the maximum lenght provided. Excess string length
+        /// will be removed from the end of the string. This method is very similar to using
+        /// String.SubString(0, maxLength), but without an exception being thrown if the lentgh 
+        /// is greater than the length of the string.
+        /// </summary>
+        /// <returns></returns>
+        public static string CutTolength(this string str, int maxLength)
+        {
+            // If input is less then max length, just return the string
+            if (str.Length <= maxLength)
+                return str;
+
+            return str.Substring(0, maxLength);
+        }
+
+        /// <summary>
         /// Returns an Enumeration of this string, split by the specified size
         /// </summary>
         /// <param name="chunkSize">The size of each chunk, in which this string is split by</param>

@@ -40,7 +40,7 @@ namespace BF2Statistics.Database
         /// <summary>
         /// Constructor
         /// </summary>
-        public GamespyDatabase() : base(MainForm.Config.GamespyDBEngine, MainForm.Config.GamespyDBConnectionString)
+        public GamespyDatabase() : base(Program.Config.GamespyDBEngine, Program.Config.GamespyDBConnectionString)
         {
             // Try and Reconnect
             try

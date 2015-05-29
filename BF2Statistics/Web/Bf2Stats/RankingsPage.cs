@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
 using BF2Statistics.Database;
 
 namespace BF2Statistics.Web.Bf2Stats
@@ -11,7 +12,7 @@ namespace BF2Statistics.Web.Bf2Stats
         /// <summary>
         /// The page title
         /// </summary>
-        public string Title = MainForm.Config.BF2S_Title;
+        public string Title = Program.Config.BF2S_Title;
 
         /// <summary>
         /// The HttpClient Object
@@ -64,7 +65,7 @@ namespace BF2Statistics.Web.Bf2Stats
             this.Root = "http://" + this.Client.Request.Url.DnsSafeHost + "/bf2stats";
 
             // Check cache
-            if (MainForm.Config.BF2S_CacheEnabled)
+            if (Program.Config.BF2S_CacheEnabled)
             {
                 CacheFile = new FileInfo(Path.Combine(Program.RootPath, "Web", "Bf2Stats", "Cache", "Rankings.html"));
                 if (!CacheFile.Exists || DateTime.Now.CompareTo(CacheFile.LastWriteTime.AddMinutes(30)) > 0)
@@ -185,7 +186,7 @@ namespace BF2Statistics.Web.Bf2Stats
         /// <returns></returns>
         public string TransformHtml()
         {
-            if (MainForm.Config.BF2S_CacheEnabled)
+            if (Program.Config.BF2S_CacheEnabled)
             {
                 if (this.NeedsCached)
                 {
@@ -218,7 +219,11 @@ namespace BF2Statistics.Web.Bf2Stats
                         using (FileStream Stream = CacheFile.Open(FileMode.Open, FileAccess.Read))
                         using (StreamReader Reader = new StreamReader(Stream))
                         {
-                            return Reader.ReadToEnd();
+                            // Read our page source
+                            string source = Reader.ReadToEnd();
+
+                            // Replace Http Link Addresses to match the request URL, preventing Localhost links with external requests
+                            return Regex.Replace(source, "http://.*/Bf2stats", this.Root, RegexOptions.IgnoreCase);
                         }
                     }
                     catch (Exception e)

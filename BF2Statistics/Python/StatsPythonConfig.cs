@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -43,6 +44,11 @@ namespace BF2Statistics
         /// Gets or sets the Medal Data Profile
         /// </summary>
         public string MedalDataProfile;
+
+        /// <summary>
+        /// Gets or sets the Xpack enabled Medal mods
+        /// </summary>
+        public List<string> XpackMedalMods = new List<string>();
 
         #endregion General Settings
 
@@ -121,7 +127,7 @@ namespace BF2Statistics
         public StatsPythonConfig()
         {
             // Create our file object
-            SettingsFile = new FileInfo(Path.Combine(MainForm.Config.ServerPath, "python", "bf2", "BF2StatisticsConfig.py"));
+            SettingsFile = new FileInfo(Path.Combine(Program.Config.ServerPath, "python", "bf2", "BF2StatisticsConfig.py"));
 
             // Fetch file contents for parsing
             using (Stream Str = SettingsFile.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.Read))
@@ -172,6 +178,18 @@ namespace BF2Statistics
                 throw new Exception("The config key \"medals_custom_data\" was not formated correctly.");
 
             MedalDataProfile = Match.Groups["value"].Value;
+
+            // Xpack Medal Enabled Mods
+            Match = Regex.Match(FileContents, @"medals_xpack_mods = \[(?<value>[A-Za-z0-9_/\s',]*)\]");
+            if (!Match.Success)
+                throw new Exception("The config key \"medals_xpack_mods\" was not formated correctly.");
+
+            // Extract medals mods
+            string[] values = Match.Groups["value"].Value.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string mod in values)
+            {
+                XpackMedalMods.Add(mod.Trim('\'').Replace("mods/", ""));
+            }
 
             // ASP Address
             Match = Regex.Match(FileContents, @"http_backend_addr = '(?<value>.*)'");
@@ -305,6 +323,13 @@ namespace BF2Statistics
             FileContents = Regex.Replace(FileContents, @"'banned',[\s|\t]+([0-9]+)", String.Format("'banned', {0}", ClanManager.MaxBanCount));
             FileContents = Regex.Replace(FileContents, @"'country',[\s|\t]+'([A_Za-z]*)'", String.Format("'country', '{0}'", ClanManager.CountryRequirement));
             FileContents = Regex.Replace(FileContents, @"'rank',[\s|\t]+([0-9]+)", String.Format("'rank', {0}", ClanManager.RankRequirement));
+
+            // Do replacement for Xpack Enabled Mods
+            string val = "";
+            foreach (string mod in XpackMedalMods)
+                val += "'mods/" + mod + "',";
+
+            FileContents = Regex.Replace(FileContents, @"medals_xpack_mods = \[(?<value>[A-Za-z0-9_/\s',]*)\]", "medals_xpack_mods = [" + val.Trim(',') + "]");
 
             // Save File
             using (Stream Str = SettingsFile.Open(FileMode.Truncate, FileAccess.Write))

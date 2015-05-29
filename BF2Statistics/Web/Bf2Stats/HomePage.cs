@@ -8,7 +8,7 @@ namespace BF2Statistics.Web.Bf2Stats
         /// <summary>
         /// The page title
         /// </summary>
-        public string Title = MainForm.Config.BF2S_Title;
+        public string Title = Program.Config.BF2S_Title;
 
         /// <summary>
         /// The HttpClient Object
@@ -33,7 +33,7 @@ namespace BF2Statistics.Web.Bf2Stats
             Client.Response.ContentType = "text/html";
             Players = Database.Query(
                 "SELECT id, name, rank, score, kills, country, time FROM player WHERE score > 0 ORDER BY score DESC LIMIT " 
-                + MainForm.Config.BF2S_LeaderCount
+                + Program.Config.BF2S_LeaderCount
             );
         }
     }

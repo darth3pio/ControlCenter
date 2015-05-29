@@ -40,16 +40,17 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.DescLabel = new System.Windows.Forms.Label();
             this.TitleLabel = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.shapeContainer1 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
             this.lineShape1 = new Microsoft.VisualBasic.PowerPacks.LineShape();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.lineShape2 = new Microsoft.VisualBasic.PowerPacks.LineShape();
-            this.shapeContainer2 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.shapeContainer2 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
+            this.lineShape2 = new Microsoft.VisualBasic.PowerPacks.LineShape();
+            this.UpdateCheckBox = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
-            this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -111,7 +112,7 @@
             // CancelBtn
             // 
             this.CancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.CancelBtn.Location = new System.Drawing.Point(129, 280);
+            this.CancelBtn.Location = new System.Drawing.Point(129, 320);
             this.CancelBtn.Name = "CancelBtn";
             this.CancelBtn.Size = new System.Drawing.Size(100, 29);
             this.CancelBtn.TabIndex = 6;
@@ -120,7 +121,7 @@
             // 
             // SaveBtn
             // 
-            this.SaveBtn.Location = new System.Drawing.Point(235, 280);
+            this.SaveBtn.Location = new System.Drawing.Point(235, 320);
             this.SaveBtn.Name = "SaveBtn";
             this.SaveBtn.Size = new System.Drawing.Size(100, 29);
             this.SaveBtn.TabIndex = 7;
@@ -160,6 +161,16 @@
             this.TitleLabel.TabIndex = 1;
             this.TitleLabel.Text = "BF2Statistics Configuration";
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = global::BF2Statistics.Properties.Resources.Logo;
+            this.pictureBox1.Location = new System.Drawing.Point(398, 12);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(48, 48);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 0;
+            this.pictureBox1.TabStop = false;
+            // 
             // shapeContainer1
             // 
             this.shapeContainer1.Location = new System.Drawing.Point(0, 0);
@@ -183,6 +194,7 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.SystemColors.Window;
+            this.panel2.Controls.Add(this.UpdateCheckBox);
             this.panel2.Controls.Add(this.label3);
             this.panel2.Controls.Add(this.label1);
             this.panel2.Controls.Add(this.label2);
@@ -194,38 +206,8 @@
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel2.Location = new System.Drawing.Point(0, 69);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(464, 198);
+            this.panel2.Size = new System.Drawing.Size(464, 235);
             this.panel2.TabIndex = 10;
-            // 
-            // lineShape2
-            // 
-            this.lineShape2.BorderColor = System.Drawing.SystemColors.InactiveCaption;
-            this.lineShape2.Name = "lineShape2";
-            this.lineShape2.X1 = 0;
-            this.lineShape2.X2 = 466;
-            this.lineShape2.Y1 = 196;
-            this.lineShape2.Y2 = 196;
-            // 
-            // shapeContainer2
-            // 
-            this.shapeContainer2.Location = new System.Drawing.Point(0, 0);
-            this.shapeContainer2.Margin = new System.Windows.Forms.Padding(0);
-            this.shapeContainer2.Name = "shapeContainer2";
-            this.shapeContainer2.Shapes.AddRange(new Microsoft.VisualBasic.PowerPacks.Shape[] {
-            this.lineShape2});
-            this.shapeContainer2.Size = new System.Drawing.Size(464, 198);
-            this.shapeContainer2.TabIndex = 6;
-            this.shapeContainer2.TabStop = false;
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = global::BF2Statistics.Properties.Resources.Logo;
-            this.pictureBox1.Location = new System.Drawing.Point(398, 12);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(48, 48);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
             // 
             // label3
             // 
@@ -236,12 +218,44 @@
             this.label3.TabIndex = 7;
             this.label3.Text = resources.GetString("label3.Text");
             // 
+            // shapeContainer2
+            // 
+            this.shapeContainer2.Location = new System.Drawing.Point(0, 0);
+            this.shapeContainer2.Margin = new System.Windows.Forms.Padding(0);
+            this.shapeContainer2.Name = "shapeContainer2";
+            this.shapeContainer2.Shapes.AddRange(new Microsoft.VisualBasic.PowerPacks.Shape[] {
+            this.lineShape2});
+            this.shapeContainer2.Size = new System.Drawing.Size(464, 235);
+            this.shapeContainer2.TabIndex = 6;
+            this.shapeContainer2.TabStop = false;
+            // 
+            // lineShape2
+            // 
+            this.lineShape2.BorderColor = System.Drawing.SystemColors.InactiveCaption;
+            this.lineShape2.Name = "lineShape2";
+            this.lineShape2.X1 = 0;
+            this.lineShape2.X2 = 466;
+            this.lineShape2.Y1 = 234;
+            this.lineShape2.Y2 = 234;
+            // 
+            // UpdateCheckBox
+            // 
+            this.UpdateCheckBox.AutoSize = true;
+            this.UpdateCheckBox.Checked = true;
+            this.UpdateCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.UpdateCheckBox.Location = new System.Drawing.Point(119, 200);
+            this.UpdateCheckBox.Name = "UpdateCheckBox";
+            this.UpdateCheckBox.Size = new System.Drawing.Size(227, 17);
+            this.UpdateCheckBox.TabIndex = 8;
+            this.UpdateCheckBox.Text = "Enable Program Update Check On Startup";
+            this.UpdateCheckBox.UseVisualStyleBackColor = true;
+            // 
             // InstallForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(464, 322);
+            this.ClientSize = new System.Drawing.Size(464, 362);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.SaveBtn);
@@ -255,9 +269,9 @@
             this.Text = "BF2Statistics Setup";
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -282,5 +296,6 @@
         private Microsoft.VisualBasic.PowerPacks.ShapeContainer shapeContainer2;
         private Microsoft.VisualBasic.PowerPacks.LineShape lineShape2;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.CheckBox UpdateCheckBox;
     }
 }

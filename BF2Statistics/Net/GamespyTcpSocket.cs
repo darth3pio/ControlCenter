@@ -20,14 +20,13 @@ namespace BF2Statistics.Net
     {
         /// <summary>
         /// Max number of concurrent open and active connections. Increasing this number
-        /// will also increase the IO Buffer by <paramref name="BufferSizePerOperation"/> * 2
+        /// will also increase the IO Buffer by <paramref name="BufferSizePerEventArg"/> * 2
         /// </summary>
         protected readonly int MaxNumConnections;
 
         /// <summary>
-        /// The initial size of the concurrent accept pool
-        /// when accepting new connections. High volume of connections
-        /// will increase the pool size if need be
+        /// The initial size of the concurrent accept pool when accepting new connections. 
+        /// High volume of connections will increase the pool size if need be
         /// <remarks>4 should be a pretty good init compacity since accepting a client is pretty fast</remarks>
         /// </summary>
         protected readonly int ConcurrentAcceptPoolSize = 4;
@@ -289,7 +288,7 @@ namespace BF2Statistics.Net
             // Begin accepting a new connection
             StartAcceptAsync();
 
-            // Grab a send receieve object
+            // Grab a send/recieve object
             SocketAsyncEventArgs ReadArgs = SocketReadWritePool.Pop();
             SocketAsyncEventArgs WriteArgs = SocketReadWritePool.Pop();
 

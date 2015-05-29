@@ -71,7 +71,7 @@
 		</div><!-- page 3 -->	
 	</div><!-- page 2 -->
 	<div id="footer"><#
-        if(MainForm.Config.BF2S_CacheEnabled) 
+        if(Program.Config.BF2S_CacheEnabled) 
            this.Write("This page was last updated " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") 
             + ". Next update will be " + DateTime.Now.AddMinutes(30).ToString("yyyy-MM-dd HH:mm:ss") + "<br>");
         #>

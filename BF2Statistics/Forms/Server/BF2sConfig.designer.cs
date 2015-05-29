@@ -47,6 +47,7 @@
             this.label8 = new System.Windows.Forms.Label();
             this.CentralDatabase = new System.Windows.Forms.ComboBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label22 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.RankMode = new System.Windows.Forms.ComboBox();
             this.label11 = new System.Windows.Forms.Label();
@@ -80,6 +81,7 @@
             this.SaveButton = new System.Windows.Forms.Button();
             this.Cancel = new System.Windows.Forms.Button();
             this.Tipsy = new System.Windows.Forms.ToolTip(this.components);
+            this.XpackMedalsConfigBtn = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.AspPort)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -297,6 +299,8 @@
             // groupBox3
             // 
             this.groupBox3.BackColor = System.Drawing.SystemColors.Window;
+            this.groupBox3.Controls.Add(this.XpackMedalsConfigBtn);
+            this.groupBox3.Controls.Add(this.label22);
             this.groupBox3.Controls.Add(this.label12);
             this.groupBox3.Controls.Add(this.RankMode);
             this.groupBox3.Controls.Add(this.label11);
@@ -313,6 +317,15 @@
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Basic Settings";
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(39, 184);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(102, 13);
+            this.label22.TabIndex = 12;
+            this.label22.Text = "Xpack Medal Mods:";
             // 
             // label12
             // 
@@ -717,6 +730,16 @@
             this.Tipsy.InitialDelay = 500;
             this.Tipsy.ReshowDelay = 100;
             // 
+            // XpackMedalsConfigBtn
+            // 
+            this.XpackMedalsConfigBtn.Location = new System.Drawing.Point(147, 180);
+            this.XpackMedalsConfigBtn.Name = "XpackMedalsConfigBtn";
+            this.XpackMedalsConfigBtn.Size = new System.Drawing.Size(146, 21);
+            this.XpackMedalsConfigBtn.TabIndex = 13;
+            this.XpackMedalsConfigBtn.Text = "Configure";
+            this.XpackMedalsConfigBtn.UseVisualStyleBackColor = true;
+            this.XpackMedalsConfigBtn.Click += new System.EventHandler(this.XpackMedalsConfigBtn_Click);
+            // 
             // BF2sConfig
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -807,5 +830,7 @@
         private System.Windows.Forms.NumericUpDown CmKDRatio;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.ComboBox RankMode;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Button XpackMedalsConfigBtn;
     }
 }

@@ -217,7 +217,7 @@ namespace BF2Statistics.Web.Bf2Stats
             
             #line 73 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\RankingsPage.tt"
 
-        if(MainForm.Config.BF2S_CacheEnabled) 
+        if(Program.Config.BF2S_CacheEnabled) 
            this.Write("This page was last updated " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") 
             + ". Next update will be " + DateTime.Now.AddMinutes(30).ToString("yyyy-MM-dd HH:mm:ss") + "<br>");
         

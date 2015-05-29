@@ -115,15 +115,17 @@ namespace BF2Statistics
                 }
                 catch (Exception E)
                 {
-                    ExceptionForm Form = new ExceptionForm(E, true);
-                    Form.Message = "An exception was thrown while trying to import the snapshot."
-                        + "If you click Continue, the application will continue proccessing the remaining "
-                        + "snapshot files. If you click Quit, the operation will be aborted.";
-                    DialogResult Result = Form.ShowDialog();
+                    using (ExceptionForm Form = new ExceptionForm(E, true))
+                    {
+                        Form.Message = "An exception was thrown while trying to import the snapshot."
+                            + "If you click Continue, the application will continue proccessing the remaining "
+                            + "snapshot files. If you click Quit, the operation will be aborted.";
+                        DialogResult Result = Form.ShowDialog();
 
-                    // User Abort
-                    if (Result == DialogResult.Abort)
-                        break;
+                        // User Abort
+                        if (Result == DialogResult.Abort)
+                            break;
+                    }
                 }
                 finally
                 {
@@ -219,8 +221,10 @@ namespace BF2Statistics
 
             // Load up the snapshot, and display the Game Result Window
             Snapshot Snapshot = new Snapshot(File.ReadAllText(_File));
-            GameResultForm F = new GameResultForm(Snapshot as GameResult, Snapshot.IsProcessed);
-            F.ShowDialog();
+            using (GameResultForm F = new GameResultForm(Snapshot as GameResult, Snapshot.IsProcessed))
+            {
+                F.ShowDialog();
+            }
         }
 
         /// <summary>

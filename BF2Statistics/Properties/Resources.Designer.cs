@@ -83,6 +83,16 @@ namespace BF2Statistics.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap BF2_SF_Icon {
+            get {
+                object obj = ResourceManager.GetObject("BF2_SF_Icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap BF2S_logo {
             get {
                 object obj = ResourceManager.GetObject("BF2S_logo", resourceCulture);

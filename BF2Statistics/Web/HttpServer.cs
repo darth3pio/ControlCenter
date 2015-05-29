@@ -305,7 +305,7 @@ namespace BF2Statistics.Web
                 else
                 {
                     // If we dont have BF2S enabled, deny page access
-                    if (!MainForm.Config.BF2S_Enabled)
+                    if (!Program.Config.BF2S_Enabled)
                     {
                         // Set service is unavialable
                         Client.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;

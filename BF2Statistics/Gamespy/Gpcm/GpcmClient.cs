@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 using System.Text;
-using BF2Statistics.Database;
-using BF2Statistics.Utilities;
-using System.Threading.Tasks;
-using BF2Statistics.Gamespy;
-using BF2Statistics.Net;
 using System.Timers;
+using BF2Statistics.ASP;
+using BF2Statistics.Database;
+using BF2Statistics.Net;
+using BF2Statistics.Utilities;
 
 namespace BF2Statistics.Gamespy
 {
@@ -229,21 +228,22 @@ namespace BF2Statistics.Gamespy
                     using (GamespyDatabase Database = new GamespyDatabase())
                         Database.Execute("UPDATE accounts SET session=0 WHERE id=" + PlayerId);
                 }
-                catch { }
+                catch 
+                {
+                    // We could be shutting this server down because of DB connection issues, don't do anything here.
+                }
             }
 
-            // If connection is still alive, disconnect user
-            try
-            {
-                Stream.OnDisconnect -= Stream_OnDisconnect;
-                Stream.DataReceived -= Stream_DataReceived;
-                Stream.Close(code == 9);
-            }
-            catch { }
+            // Unregister for stream events and close the connection
+            Stream.OnDisconnect -= Stream_OnDisconnect;
+            Stream.DataReceived -= Stream_DataReceived;
+            Stream.Close(code == 9);
 
             // Set status and log
-            if (Status != LoginStatus.Disconnected)
-                GamespyEmulator.Log("Client Logout:  {0} - {1} - {2}, Code={3}", PlayerNick, PlayerId, RemoteEndPoint, code);
+            if (code == 1 && Status == LoginStatus.Processing)
+                GpcmServer.Log("Login Timeout:  {0} - {1} - {2}", PlayerNick, PlayerId, RemoteEndPoint);
+            else if (Status != LoginStatus.Disconnected)
+                GpcmServer.Log("Client Logout:  {0} - {1} - {2}, Code={3}", PlayerNick, PlayerId, RemoteEndPoint, code);
 
             // Preapare to be unloaded from memory
             Status = LoginStatus.Disconnected;
@@ -283,7 +283,7 @@ namespace BF2Statistics.Gamespy
                     break;
                 default:
                     Stream.SendAsync(@"\error\\err\0\fatal\\errmsg\Invalid Query!\id\1\final\");
-                    GamespyEmulator.Log("NOTICE: [GpcmClient.Stream.DataReceived] Unkown Message Passed: {0}", message);
+                    GpcmServer.Log("NOTICE: [GpcmClient.Stream_DataReceived] Unkown Message Passed: {0}", message);
                     break;
             }
         }
@@ -378,7 +378,7 @@ namespace BF2Statistics.Gamespy
                         );
 
                         // Log, Update database, and call event
-                        GamespyEmulator.Log("Client Login:   {0} - {1} - {2}", PlayerNick, PlayerId, RemoteEndPoint);
+                        GpcmServer.Log("Client Login:   {0} - {1} - {2}", PlayerNick, PlayerId, RemoteEndPoint);
                         Conn.Execute("UPDATE accounts SET lastip=@P0, session=@P1 WHERE id=@P2", RemoteEndPoint.Address, SessionKey, PlayerId);
 
                         // Update status last, and call success login
@@ -389,7 +389,7 @@ namespace BF2Statistics.Gamespy
                     else
                     {
                         // The proof string failed, so the password provided was incorrect
-                        GamespyEmulator.Log("Failed Login Attempt: {0} - {1} - {2}", PlayerNick, PlayerId, RemoteEndPoint);
+                        GpcmServer.Log("Failed Login Attempt: {0} - {1} - {2}", PlayerNick, PlayerId, RemoteEndPoint);
                         Stream.SendAsync(@"\error\\err\260\fatal\\errmsg\The password provided is incorrect.\id\1\final\");
                         Disconnect(3);
                     }
@@ -440,8 +440,8 @@ namespace BF2Statistics.Gamespy
                     // We need to decode the Gamespy specific encoding for the password
                     string Password = GamespyUtils.DecodePassword(Recv["passwordenc"]);
                     string Cc = (RemoteEndPoint.AddressFamily == AddressFamily.InterNetwork)
-                        ? ASP.Ip2nation.GetCountryCode(RemoteEndPoint.Address)
-                        : MainForm.Config.ASP_LocalIpCountryCode;
+                        ? Ip2nation.GetCountryCode(RemoteEndPoint.Address)
+                        : Program.Config.ASP_LocalIpCountryCode;
 
                     // Attempt to create account. If Pid is 0, then we couldnt create the account
                     if ((PlayerId = Database.CreateUser(Recv["nick"], Password, Recv["email"], Cc)) == 0)
@@ -464,7 +464,7 @@ namespace BF2Statistics.Gamespy
                 else
                 {
                     Stream.SendAsync(@"\error\\err\516\fatal\\errmsg\Error creating account!\id\1\final\");
-                    GamespyEmulator.Log("ERROR: [Gpcm.CreateNewUser] An error occured while trying to create a new User account :: " + e.Message);
+                    GpcmServer.Log("ERROR: [Gpcm.CreateNewUser] An error occured while trying to create a new User account :: " + e.Message);
                 }
 
                 Disconnect(7);

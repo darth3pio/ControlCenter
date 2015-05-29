@@ -57,7 +57,7 @@ namespace BF2Statistics.Web.ASP
             Response.WriteHeaderLine("pid", "nick", "asof");
 
             // Our ourput changes based on the selected Unlocks config setting
-            switch(MainForm.Config.ASP_UnlocksMode)
+            switch(Program.Config.ASP_UnlocksMode)
             {
                 // Player Based - Unlocks are earned
                 case 0:

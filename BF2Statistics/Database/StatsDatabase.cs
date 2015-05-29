@@ -90,7 +90,7 @@ namespace BF2Statistics.Database
         /// <summary>
         /// Constructor
         /// </summary>
-        public StatsDatabase() : base(MainForm.Config.StatsDBEngine, MainForm.Config.StatsDBConnectionString)
+        public StatsDatabase() : base(Program.Config.StatsDBEngine, Program.Config.StatsDBConnectionString)
         {
             // Try and Reconnect
             try

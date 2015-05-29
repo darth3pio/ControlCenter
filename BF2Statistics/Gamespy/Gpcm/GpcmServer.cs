@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using BF2Statistics.Database;
+using BF2Statistics.Logging;
 using BF2Statistics.Net;
 
 namespace BF2Statistics.Gamespy
 {
     /// <summary>
     /// This server emulates the Gamespy Client Manager Server on port 29900.
-    /// This class is responsible for managing the login process.
+    /// This class is responsible for managing the players logged into Battlefield 2.
     /// </summary>
     public class GpcmServer : GamespyTcpSocket
     {
@@ -57,6 +59,11 @@ namespace BF2Statistics.Gamespy
         /// A timer that is used to Poll all connections, and removes dropped connections
         /// </summary>
         public static Timer PollTimer { get; protected set; }
+
+        /// <summary>
+        /// The Login Server Log Writter
+        /// </summary>
+        private static LogWriter Logger = new LogWriter(Path.Combine(Program.RootPath, "Logs", "LoginServer.log"), true);
 
         /// <summary>
         /// An event called everytime a client connects, or disconnects from the server
@@ -166,6 +173,24 @@ namespace BF2Statistics.Gamespy
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// This method is used to store a message in the LoginServer.log file
+        /// </summary>
+        /// <param name="message">The message to be written to the log file</param>
+        public static void Log(string message)
+        {
+            Logger.Write(message);
+        }
+
+        /// <summary>
+        /// This method is used to store a message in the LoginServer.log file
+        /// </summary>
+        /// <param name="message">The message to be written to the log file</param>
+        public static void Log(string message, params object[] items)
+        {
+            Logger.Write(String.Format(message, items));
         }
 
         /// <summary>

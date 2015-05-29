@@ -30,6 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.DebugChkBox = new System.Windows.Forms.CheckBox();
             this.StatusText = new System.Windows.Forms.Label();
             this.StatusPic = new System.Windows.Forms.PictureBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -49,7 +50,6 @@
             this.lineShape1 = new Microsoft.VisualBasic.PowerPacks.LineShape();
             this.CancelBtn = new System.Windows.Forms.Button();
             this.SaveBtn = new System.Windows.Forms.Button();
-            this.DebugChkBox = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.StatusPic)).BeginInit();
@@ -76,6 +76,16 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(467, 208);
             this.panel2.TabIndex = 13;
+            // 
+            // DebugChkBox
+            // 
+            this.DebugChkBox.AutoSize = true;
+            this.DebugChkBox.Location = new System.Drawing.Point(115, 72);
+            this.DebugChkBox.Name = "DebugChkBox";
+            this.DebugChkBox.Size = new System.Drawing.Size(244, 17);
+            this.DebugChkBox.TabIndex = 20;
+            this.DebugChkBox.Text = "Enable Debugging (Logs/GamespyDebug.log)";
+            this.DebugChkBox.UseVisualStyleBackColor = true;
             // 
             // StatusText
             // 
@@ -265,16 +275,6 @@
             this.SaveBtn.Text = "Save";
             this.SaveBtn.UseVisualStyleBackColor = true;
             this.SaveBtn.Click += new System.EventHandler(this.SaveBtn_Click);
-            // 
-            // DebugChkBox
-            // 
-            this.DebugChkBox.AutoSize = true;
-            this.DebugChkBox.Location = new System.Drawing.Point(115, 72);
-            this.DebugChkBox.Name = "DebugChkBox";
-            this.DebugChkBox.Size = new System.Drawing.Size(244, 17);
-            this.DebugChkBox.TabIndex = 20;
-            this.DebugChkBox.Text = "Enable Debugging (Logs/GamespyDebug.log)";
-            this.DebugChkBox.UseVisualStyleBackColor = true;
             // 
             // GamespyConfigForm
             // 

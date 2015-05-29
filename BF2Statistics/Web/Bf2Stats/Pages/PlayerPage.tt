@@ -630,7 +630,7 @@
 						<tr>
 							<td>Next Update</td>
 							<td nowrap="nowrap"><# 
-                                if(MainForm.Config.BF2S_CacheEnabled) 
+                                if(Program.Config.BF2S_CacheEnabled) 
                                     this.Write(DateTime.Now.AddMinutes(30).ToString("yyyy-MM-dd HH:mm:ss"));
                                 else
                                     this.Write(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));

@@ -12,28 +12,25 @@ namespace BF2Statistics.Gamespy
     /// <summary>
     /// This class is used to replicate the Gamespy CD key servers.
     /// All cd keys received are automatically considered valid
+    /// and a positve response is replied to the bf2 server
     /// </summary>
+    /// <remarks>master.gamespy.com:29910</remarks>
     public class CDKeyServer : GamespyUdpSocket
     {
-        /// <summary>
-        /// Debugging for Development
-        /// </summary>
-        private bool Debugging;
-
         /// <summary>
         /// The Debug log (GamespyDebug.log)
         /// </summary>
         private LogWriter DebugLog;
 
+        /// <summary>
+        /// Creates a new instance of CDKeyServer
+        /// </summary>
+        /// <param name="DebugLog">The GamespyDebug.log logwriter object</param>
         public CDKeyServer(LogWriter DebugLog) : base(29910, 4)
         {
             // Debugging
-            Debugging = DebugLog != null;
-            if (Debugging)
-            {
-                this.DebugLog = DebugLog;
-                DebugLog.Write("Bound to UDP port: " + Port);
-            }
+            this.DebugLog = DebugLog;
+            DebugLog.Write("Bound to UDP port: " + Port);
 
             // Start accepting remote connections
             base.StartAcceptAsync();
@@ -64,9 +61,8 @@ namespace BF2Statistics.Gamespy
                     Dictionary<string, string> recv = ConvertToKeyValue(decrypted.Split('\\'));
                     if (recv.ContainsKey("auth") && recv.ContainsKey("resp") && recv.ContainsKey("skey"))
                     {
-                        if (Debugging) DebugLog.Write("CDKey Check Requested from: {0}:{1}", remote.Address, remote.Port);
-
                         // Normally you would check the CD key database for the CD key MD5, but we arent Gamespy, we dont care
+                        DebugLog.Write("CDKey Check Requested from: {0}:{1}", remote.Address, remote.Port);
                         string reply = String.Format(@"\uok\\cd\{0}\skey\{1}", recv["resp"].Substring(0, 32), recv["skey"]);
 
                         // Set new packet contents, and send a reply
@@ -80,7 +76,7 @@ namespace BF2Statistics.Gamespy
                     }
                     else
                     {
-                        if (Debugging) DebugLog.Write("Incomplete or Invalid CDKey Packet Received: " + decrypted);
+                        DebugLog.Write("Incomplete or Invalid CDKey Packet Received: " + decrypted);
                     }
                 }
             }

@@ -205,9 +205,11 @@ namespace BF2Statistics
                 return;
 
             int Id = Int32.Parse(DataTable.Rows[e.RowIndex].Cells[0].Value.ToString());
-            AccountEditForm Form = new AccountEditForm(Id);
-            Form.ShowDialog();
-            BuildList();
+            using (AccountEditForm Form = new AccountEditForm(Id))
+            {
+                Form.ShowDialog();
+                BuildList();
+            }
         }
 
         /// <summary>
@@ -339,9 +341,11 @@ namespace BF2Statistics
         /// </summary>
         private void menuItemCreate_Click(object sender, EventArgs e)
         {
-            CreateAcctForm form = new CreateAcctForm();
-            if (form.ShowDialog() == DialogResult.OK)
-                BuildList();
+            using (CreateAcctForm form = new CreateAcctForm())
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                    BuildList();
+            }
         }
     }
 }

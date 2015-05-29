@@ -109,11 +109,13 @@ namespace BF2Statistics.MedalData
         /// <param name="e"></param>
         private void Hms2SecBtn_Click(object sender, EventArgs e)
         {
-            S2hmsForm Form = new S2hmsForm();
-            Form.SetTime(Int32.Parse(ValueBox.Value.ToString()));
-            if (Form.ShowDialog() == DialogResult.OK)
+            using (S2hmsForm Form = new S2hmsForm())
             {
-                ValueBox.Value = S2hmsForm.LastValue;
+                Form.SetTime(Int32.Parse(ValueBox.Value.ToString()));
+                if (Form.ShowDialog() == DialogResult.OK)
+                {
+                    ValueBox.Value = S2hmsForm.LastValue;
+                }
             }
         }
     }

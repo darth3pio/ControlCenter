@@ -32,7 +32,7 @@ namespace BF2Statistics.Gamespy
         {
             get 
             { 
-                return (IsRunning) ? CmServer.ConnectedClients : new GpcmClient[0]; 
+                return (IsRunning) ? ClientManager.ConnectedClients : new GpcmClient[0]; 
             }
         }
 
@@ -41,14 +41,14 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         public static int NumClientsConencted
         {
-            get { return (IsRunning) ? CmServer.NumClients : 0; }
+            get { return (IsRunning) ? ClientManager.NumClients : 0; }
         }
 
         /// <summary>
         /// The Number of servers that are currently online and actively
         /// reporting to this master server
         /// </summary>
-        public static int ServersOnline
+        public static int ServerCount
         {
             get { return MasterServer.Servers.Count;  }
         }
@@ -56,27 +56,22 @@ namespace BF2Statistics.Gamespy
         /// <summary>
         /// Gamespy Client Manager Server Object
         /// </summary>
-        private static GpcmServer CmServer;
+        private static GpcmServer ClientManager;
 
         /// <summary>
         /// The Gamespy Search Provider Server Object
         /// </summary>
-        private static GpspServer SpServer;
+        private static GpspServer SearchProvider;
 
         /// <summary>
         /// The Gamespy Master Server
         /// </summary>
-        private static MasterServer MstrServer;
+        private static MasterServer MasterServer;
 
         /// <summary>
         /// The Gamespy CDKey server
         /// </summary>
         private static CDKeyServer CDKeyServer;
-
-        /// <summary>
-        /// The Login Server Log Writter
-        /// </summary>
-        private static LogWriter Logger;
 
         /// <summary>
         /// The Gamespy Debug Log
@@ -105,8 +100,7 @@ namespace BF2Statistics.Gamespy
 
         static GamespyEmulator()
         {
-            // Create our log files
-            Logger = new LogWriter(Path.Combine(Program.RootPath, "Logs", "LoginServer.log"), true);
+            // Create our log file
             DebugLog = new LogWriter(Path.Combine(Program.RootPath, "Logs", "GamespyDebug.log"));
 
             // Register for events
@@ -167,8 +161,8 @@ namespace BF2Statistics.Gamespy
             int port = 29900;
 
             // Setup the DebugLog
-            DebugLog.LoggingEnabled = MainForm.Config.GamespyServerDebug;
-            if(MainForm.Config.GamespyServerDebug)
+            DebugLog.LoggingEnabled = Program.Config.GamespyServerDebug;
+            if(Program.Config.GamespyServerDebug)
                 DebugLog.ClearLog();
 
             try 
@@ -178,22 +172,22 @@ namespace BF2Statistics.Gamespy
                 DebugLog.Write("Starting Client Manager");
 
                 // Start the client manager
-                CmServer = new GpcmServer();
+                ClientManager = new GpcmServer();
 
                 // Begin logging
                 DebugLog.Write("Bound to TCP port: " + port);
                 DebugLog.Write("Starting Account Service Provider");
 
-                // Start server provider server
+                // Start search provider server
                 port++;
-                SpServer = new GpspServer();
+                SearchProvider = new GpspServer();
 
                 // Begin logging
                 DebugLog.Write("Bound to TCP port: " + port);
                 DebugLog.Write("Starting Master Server");
 
                 // Start then Master Server
-                MstrServer = new MasterServer(ref port, DebugLog);
+                MasterServer = new MasterServer(ref port, DebugLog);
 
                 // Start CDKey Server
                 port = 29910;
@@ -219,9 +213,9 @@ namespace BF2Statistics.Gamespy
                 }
 
                 // Shutdown all started servers
-                if (CmServer != null && CmServer.IsListening) CmServer.Shutdown();
-                if (SpServer != null && SpServer.IsListening) SpServer.Shutdown();
-                if (MstrServer != null && MstrServer.IsRunning) MstrServer.Shutdown();
+                if (ClientManager != null && ClientManager.IsListening) ClientManager.Shutdown();
+                if (SearchProvider != null && SearchProvider.IsListening) SearchProvider.Shutdown();
+                if (MasterServer != null && MasterServer.IsRunning) MasterServer.Shutdown();
                 // Cdkey server must have throwm the exception at this point, since it starts last
 
                 // Throw excpetion to parent
@@ -234,21 +228,21 @@ namespace BF2Statistics.Gamespy
         }
 
         /// <summary>
-        /// Shutsdown the Login Server listeners and stops accepting new connections
+        /// Shutsdown all of the Gamespy Servers
         /// </summary>
         public static void Shutdown()
         {
             // Shutdown Login Servers
-            CmServer.Shutdown();
-            SpServer.Shutdown();
-            MstrServer.Shutdown();
+            ClientManager.Shutdown();
+            SearchProvider.Shutdown();
+            MasterServer.Shutdown();
             CDKeyServer.Shutdown();
-
-            // Trigger the OnShutdown Event
-            Stopped();
 
             // Update status
             isRunning = false;
+
+            // Trigger the OnShutdown Event
+            Stopped();
         }
 
         /// <summary>
@@ -256,7 +250,7 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         public static bool ForceLogout(int Pid)
         {
-            return (IsRunning) ? CmServer.ForceLogout(Pid) : false;
+            return (IsRunning) ? ClientManager.ForceLogout(Pid) : false;
         }
 
         /// <summary>
@@ -264,25 +258,7 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         public static bool IsPlayerConnected(int Pid)
         {
-            return (IsRunning) ? CmServer.IsConnected(Pid) : false;
-        }
-
-        /// <summary>
-        /// This method is used to store a message in the console.log file
-        /// </summary>
-        /// <param name="message">The message to be written to the log file</param>
-        public static void Log(string message)
-        {
-            Logger.Write(message);
-        }
-
-        /// <summary>
-        /// This method is used to store a message in the console.log file
-        /// </summary>
-        /// <param name="message">The message to be written to the log file</param>
-        public static void Log(string message, params object[] items)
-        {
-            Logger.Write(String.Format(message, items));
+            return (IsRunning) ? ClientManager.IsConnected(Pid) : false;
         }
     }
 }

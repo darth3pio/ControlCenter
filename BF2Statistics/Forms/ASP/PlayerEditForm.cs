@@ -200,9 +200,11 @@ namespace BF2Statistics
                 }
                 catch (Exception E)
                 {
-                    ExceptionForm EForm = new ExceptionForm(E, false);
-                    EForm.Message = "Unable to export player because an exception was thrown!";
-                    EForm.ShowDialog();
+                    using (ExceptionForm EForm = new ExceptionForm(E, false))
+                    {
+                        EForm.Message = "Unable to export player because an exception was thrown!";
+                        EForm.ShowDialog();
+                    }
                 }
             }
         }
@@ -232,9 +234,11 @@ namespace BF2Statistics
                 catch (Exception E)
                 {
                     // Show exception error
-                    ExceptionForm Form = new ExceptionForm(E, false);
-                    Form.Message = String.Format("Failed to remove player from database!{1}{1}Error: {0}", E.Message, Environment.NewLine);
-                    Form.ShowDialog();
+                    using (ExceptionForm Form = new ExceptionForm(E, false))
+                    {
+                        Form.Message = String.Format("Failed to remove player from database!{1}{1}Error: {0}", E.Message, Environment.NewLine);
+                        Form.ShowDialog();
+                    }
                 }
                 finally
                 {
@@ -387,9 +391,11 @@ namespace BF2Statistics
                 catch (Exception E)
                 {
                     // Show exception error
-                    ExceptionForm Form = new ExceptionForm(E, false);
-                    Form.Message = String.Format("Failed to reset player stats!{1}{1}Error: {0}", E.Message, Environment.NewLine);
-                    Form.ShowDialog();
+                    using (ExceptionForm Form = new ExceptionForm(E, false))
+                    {
+                        Form.Message = String.Format("Failed to reset player stats!{1}{1}Error: {0}", E.Message, Environment.NewLine);
+                        Form.ShowDialog();
+                    }
                 }
                 finally
                 {

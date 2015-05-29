@@ -125,17 +125,19 @@ namespace BF2Statistics
                         catch (Exception Ex)
                         {
                             // Show exception error
-                            ExceptionForm Form = new ExceptionForm(Ex, false);
-                            Form.Message = String.Format("Failed to import data into table {0}!{2}{2}Error: {1}", table, Ex.Message, Environment.NewLine);
-                            DialogResult Result = Form.ShowDialog();
+                            using (ExceptionForm Form = new ExceptionForm(Ex, false))
+                            {
+                                Form.Message = String.Format("Failed to import data into table {0}!{2}{2}Error: {1}", table, Ex.Message, Environment.NewLine);
+                                DialogResult Result = Form.ShowDialog();
 
-                            // Rollback!
-                            TaskForm.UpdateStatus("Rolling back stats data");
-                            Transaction.Rollback();
+                                // Rollback!
+                                TaskForm.UpdateStatus("Rolling back stats data");
+                                Transaction.Rollback();
 
-                            // Update message
-                            TaskForm.CloseForm();
-                            return;
+                                // Update message
+                                TaskForm.CloseForm();
+                                return;
+                            }
                         }
                     }
 
@@ -221,10 +223,12 @@ namespace BF2Statistics
                     LoadingForm.CloseForm();
 
                     // Display the Exception Form
-                    ExceptionForm Form = new ExceptionForm(Ex, false);
-                    Form.Message = "An error occured while trying to backup the \"" + Table + "\" table. "
-                        + "The backup operation will now be cancelled.";
-                    DialogResult Result = Form.ShowDialog();
+                    using (ExceptionForm Form = new ExceptionForm(Ex, false))
+                    {
+                        Form.Message = "An error occured while trying to backup the \"" + Table + "\" table. "
+                            + "The backup operation will now be cancelled.";
+                        DialogResult Result = Form.ShowDialog();
+                    }
                     Aborted = true;
 
                     // Try and remove backup folder

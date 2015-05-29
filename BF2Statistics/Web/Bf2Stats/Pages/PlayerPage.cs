@@ -2114,7 +2114,7 @@ namespace BF2Statistics.Web.Bf2Stats
             
             #line 632 "D:\Programming\C#\Projects\BF2Statistics\BF2Statistics\Web\Bf2Stats\Pages\PlayerPage.tt"
  
-                                if(MainForm.Config.BF2S_CacheEnabled) 
+                                if(Program.Config.BF2S_CacheEnabled) 
                                     this.Write(DateTime.Now.AddMinutes(30).ToString("yyyy-MM-dd HH:mm:ss"));
                                 else
                                     this.Write(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));

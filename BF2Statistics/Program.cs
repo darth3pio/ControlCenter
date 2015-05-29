@@ -13,6 +13,7 @@ using System.Security.Principal;
 using System.Threading;
 using System.Windows.Forms;
 using BF2Statistics.Logging;
+using BF2Statistics.Properties;
 
 namespace BF2Statistics
 {
@@ -21,12 +22,17 @@ namespace BF2Statistics
         /// <summary>
         /// Specifies the Program Version
         /// </summary>
-        public static readonly Version Version = new Version(2, 1, 0);
+        public static readonly Version Version = new Version(2, 1, 1);
 
         /// <summary>
         /// Specifies the installation directory of this program
         /// </summary>
         public static readonly string RootPath = Application.StartupPath;
+
+        /// <summary>
+        /// The User Config object
+        /// </summary>
+        public static Settings Config = Settings.Default;
 
         /// <summary>
         /// The program wide error log file

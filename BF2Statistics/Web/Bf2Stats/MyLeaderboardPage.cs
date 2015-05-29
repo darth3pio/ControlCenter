@@ -11,7 +11,7 @@ namespace BF2Statistics.Web.Bf2Stats
         /// <summary>
         /// The page title
         /// </summary>
-        public string Title = MainForm.Config.BF2S_Title;
+        public string Title = Program.Config.BF2S_Title;
 
         /// <summary>
         /// The HttpClient Object

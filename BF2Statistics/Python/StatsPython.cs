@@ -12,12 +12,12 @@ namespace BF2Statistics
         /// <summary>
         /// Defines the Backup Folder path
         /// </summary>
-        protected static string BackupPath = Path.Combine(MainForm.Config.ServerPath, "python", "_backup_");
+        protected static string BackupPath = Path.Combine(Program.Config.ServerPath, "python", "_backup_");
 
         /// <summary>
         /// Defines the Backup Folder path
         /// </summary>
-        protected static string StatsBackupPath = Path.Combine(MainForm.Config.ServerPath, "python", "_bf2statistics_python_");
+        protected static string StatsBackupPath = Path.Combine(Program.Config.ServerPath, "python", "_bf2statistics_python_");
 
         /// <summary>
         /// Indicates whether the server has the ranked python files installed

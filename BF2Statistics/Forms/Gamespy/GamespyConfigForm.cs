@@ -32,20 +32,20 @@ namespace BF2Statistics
             InitializeComponent();
 
             // Load Settings
-            EnableChkBox.Checked = MainForm.Config.GamespyEnableServerlist;
-            AllowExtChkBox.Checked = MainForm.Config.GamespyAllowExtServers;
-            AddressTextBox.Text = MainForm.Config.GamespyExtAddress;
-            DebugChkBox.Checked = MainForm.Config.GamespyServerDebug;
+            EnableChkBox.Checked = Program.Config.GamespyEnableServerlist;
+            AllowExtChkBox.Checked = Program.Config.GamespyAllowExtServers;
+            AddressTextBox.Text = Program.Config.GamespyExtAddress;
+            DebugChkBox.Checked = Program.Config.GamespyServerDebug;
         }
 
         private void SaveBtn_Click(object sender, EventArgs e)
         {
             // Save new settings
-            MainForm.Config.GamespyEnableServerlist = EnableChkBox.Checked;
-            MainForm.Config.GamespyAllowExtServers = AllowExtChkBox.Checked;
-            MainForm.Config.GamespyExtAddress = AddressTextBox.Text;
-            MainForm.Config.GamespyServerDebug = DebugChkBox.Checked;
-            MainForm.Config.Save();
+            Program.Config.GamespyEnableServerlist = EnableChkBox.Checked;
+            Program.Config.GamespyAllowExtServers = AllowExtChkBox.Checked;
+            Program.Config.GamespyExtAddress = AddressTextBox.Text;
+            Program.Config.GamespyServerDebug = DebugChkBox.Checked;
+            Program.Config.Save();
 
             this.DialogResult = DialogResult.OK;
             this.Close();
@@ -58,32 +58,47 @@ namespace BF2Statistics
             StatusPic.Show();
             IPAddress addy = null;
 
-            // Loop through each service and check for our IP
-            for (int i = 0; i < IpServices.Length; i++)
+            // WebClient can sometimes cause the GUI to lock being all slow and such, so task it up
+            await Task.Run(() =>
             {
-                try
+                // Use a web client to fetch our IP Address
+                using (WebClient Web = new WebClient())
                 {
-                    string result = await (new WebClient()).DownloadStringTaskAsync(IpServices[i]);
-                    Match match = Regex.Match(result, @"(?<IpAddress>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})");
-                    if (match.Success && IPAddress.TryParse(match.Groups["IpAddress"].Value, out addy))
+                    // Disable Proxy to prevent slowness
+                    Web.Proxy = null;
+
+                    // Loop through each service and check for our IP
+                    for (int i = 0; i < IpServices.Length; i++)
                     {
-                        StatusText.Text = "Address Fetched Successfully!";
-                        StatusPic.Image = BF2Statistics.Properties.Resources.check;
-                        AddressTextBox.Text = addy.ToString();
-                        break;
+                        try
+                        {
+                            // Attempt to Fetch the IP address from this service
+                            string result = Web.DownloadString(IpServices[i]);
+                            Match match = Regex.Match(result, @"(?<IpAddress>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})");
+                            if (match.Success && IPAddress.TryParse(match.Groups["IpAddress"].Value, out addy))
+                            {
+                                break; // Success, we have an IP so stop here
+                            }
+                        }
+                        catch
+                        {
+                            continue; // Error, Skip to next service
+                        }
                     }
                 }
-                catch
-                {
-                    continue;
-                }
-            }
+            });
 
             // If we were unable to fetch the IP address, then alert the user
-            if(addy == null)
+            if (addy == null)
             {
                 StatusText.Text = "Unable to fetch external address!";
                 StatusPic.Image = BF2Statistics.Properties.Resources.error;
+            }
+            else
+            {
+                StatusText.Text = "Address Fetched Successfully!";
+                StatusPic.Image = BF2Statistics.Properties.Resources.check;
+                AddressTextBox.Text = addy.ToString();
             }
         }
     }

@@ -10,24 +10,24 @@ namespace BF2Statistics
             InitializeComponent();
 
             // Update for 1.7.0 .. to fix an issue with older versions
-            if (MainForm.Config.ASP_DebugLevel == 0)
+            if (Program.Config.ASP_DebugLevel == 0)
             {
-                MainForm.Config.ASP_DebugLevel = 1;
-                MainForm.Config.Save();
+                Program.Config.ASP_DebugLevel = 1;
+                Program.Config.Save();
             }
 
             // Set Form Values
-            IgnoreAi.SelectedIndex = (MainForm.Config.ASP_IgnoreAI) ? 1 : 0;
-            MinRoundTime.Value = MainForm.Config.ASP_MinRoundTime;
-            MinRoundPlayers.Value = MainForm.Config.ASP_MinRoundPlayers;
-            RankTenure.Value = MainForm.Config.ASP_SpecialRankTenure;
-            SmocProcessing.SelectedIndex = MainForm.Config.ASP_SmocCheck ? 1 : 0;
-            GeneralProcessing.SelectedIndex = MainForm.Config.ASP_GeneralCheck ? 1 : 0;
-            AwdRoundComplete.SelectedIndex = MainForm.Config.ASP_AwardsReqComplete ? 1 : 0;
-            AuthGameServers.Lines = MainForm.Config.ASP_GameHosts.Split(',');
-            OfflinePid.Value = MainForm.Config.ASP_DefaultPID;
-            UnlocksOption.SelectedIndex = MainForm.Config.ASP_UnlocksMode;
-            DebugLvl.SelectedIndex = MainForm.Config.ASP_DebugLevel - 1;
+            IgnoreAi.SelectedIndex = (Program.Config.ASP_IgnoreAI) ? 1 : 0;
+            MinRoundTime.Value = Program.Config.ASP_MinRoundTime;
+            MinRoundPlayers.Value = Program.Config.ASP_MinRoundPlayers;
+            RankTenure.Value = Program.Config.ASP_SpecialRankTenure;
+            SmocProcessing.SelectedIndex = Program.Config.ASP_SmocCheck ? 1 : 0;
+            GeneralProcessing.SelectedIndex = Program.Config.ASP_GeneralCheck ? 1 : 0;
+            AwdRoundComplete.SelectedIndex = Program.Config.ASP_AwardsReqComplete ? 1 : 0;
+            AuthGameServers.Lines = Program.Config.ASP_GameHosts.Split(',');
+            OfflinePid.Value = Program.Config.ASP_DefaultPID;
+            UnlocksOption.SelectedIndex = Program.Config.ASP_UnlocksMode;
+            DebugLvl.SelectedIndex = Program.Config.ASP_DebugLevel - 1;
         }
 
         /// <summary>
@@ -38,20 +38,20 @@ namespace BF2Statistics
         private void SaveBtn_Click(object sender, EventArgs e)
         {
             // Set Values
-            MainForm.Config.ASP_IgnoreAI = (IgnoreAi.SelectedIndex == 1);
-            MainForm.Config.ASP_MinRoundTime = Int32.Parse(MinRoundTime.Value.ToString());
-            MainForm.Config.ASP_MinRoundPlayers = Int32.Parse(MinRoundPlayers.Value.ToString());
-            MainForm.Config.ASP_SpecialRankTenure = Int32.Parse(RankTenure.Value.ToString());
-            MainForm.Config.ASP_SmocCheck = (SmocProcessing.SelectedIndex == 1);
-            MainForm.Config.ASP_GeneralCheck = (GeneralProcessing.SelectedIndex == 1);
-            MainForm.Config.ASP_AwardsReqComplete = (AwdRoundComplete.SelectedIndex == 1);
-            MainForm.Config.ASP_GameHosts = String.Join(",", AuthGameServers.Lines);
-            MainForm.Config.ASP_DefaultPID = Int32.Parse(OfflinePid.Value.ToString());
-            MainForm.Config.ASP_UnlocksMode = UnlocksOption.SelectedIndex;
-            MainForm.Config.ASP_DebugLevel = DebugLvl.SelectedIndex + 1;
+            Program.Config.ASP_IgnoreAI = (IgnoreAi.SelectedIndex == 1);
+            Program.Config.ASP_MinRoundTime = Int32.Parse(MinRoundTime.Value.ToString());
+            Program.Config.ASP_MinRoundPlayers = Int32.Parse(MinRoundPlayers.Value.ToString());
+            Program.Config.ASP_SpecialRankTenure = Int32.Parse(RankTenure.Value.ToString());
+            Program.Config.ASP_SmocCheck = (SmocProcessing.SelectedIndex == 1);
+            Program.Config.ASP_GeneralCheck = (GeneralProcessing.SelectedIndex == 1);
+            Program.Config.ASP_AwardsReqComplete = (AwdRoundComplete.SelectedIndex == 1);
+            Program.Config.ASP_GameHosts = String.Join(",", AuthGameServers.Lines);
+            Program.Config.ASP_DefaultPID = Int32.Parse(OfflinePid.Value.ToString());
+            Program.Config.ASP_UnlocksMode = UnlocksOption.SelectedIndex;
+            Program.Config.ASP_DebugLevel = DebugLvl.SelectedIndex + 1;
 
             // Save Config
-            MainForm.Config.Save();
+            Program.Config.Save();
 
             // Close the Form
             this.Close();

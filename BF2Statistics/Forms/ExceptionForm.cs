@@ -128,12 +128,14 @@ namespace BF2Statistics
         /// <param name="e"></param>
         public static void ShowDbConnectError(DbConnectException e)
         {
-            ExceptionForm F = new ExceptionForm(e, true);
-            F.WindowTitle = "Database Connect Error";
-            F.HeaderText = "Database Connect Error";
-            F.Message = "Unable to establish a connection to the database.";
-            F.ImgIcon = Properties.Resources.vistaWarning;
-            F.ShowDialog();
+            using (ExceptionForm F = new ExceptionForm(e, true))
+            {
+                F.WindowTitle = "Database Connect Error";
+                F.HeaderText = "Database Connect Error";
+                F.Message = "Unable to establish a connection to the database.";
+                F.ImgIcon = Properties.Resources.vistaWarning;
+                F.ShowDialog();
+            }
         }
 
         /// <summary>

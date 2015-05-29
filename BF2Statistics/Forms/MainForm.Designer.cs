@@ -187,6 +187,8 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.NotificationIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.UpdateStatusPic = new System.Windows.Forms.PictureBox();
+            this.UpdateLabel = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -233,6 +235,7 @@
             this.groupBox5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.UpdateStatusPic)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -1788,6 +1791,8 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.UpdateLabel);
+            this.groupBox5.Controls.Add(this.UpdateStatusPic);
             this.groupBox5.Controls.Add(this.label19);
             this.groupBox5.Controls.Add(this.ReportBugBtn);
             this.groupBox5.Controls.Add(this.ChkUpdateBtn);
@@ -1904,7 +1909,7 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(300, 13);
             this.textBox1.TabIndex = 5;
-            this.textBox1.Text = "Battlefield 2 Statistics Control Center v2.1.0 Beta";
+            this.textBox1.Text = "Battlefield 2 Statistics Control Center v2.1.1";
             // 
             // NotificationIcon
             // 
@@ -1921,6 +1926,29 @@
             this.pictureBox1.Size = new System.Drawing.Size(586, 80);
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
+            // 
+            // UpdateStatusPic
+            // 
+            this.UpdateStatusPic.BackColor = System.Drawing.Color.Transparent;
+            this.UpdateStatusPic.Image = global::BF2Statistics.Properties.Resources.loading;
+            this.UpdateStatusPic.Location = new System.Drawing.Point(403, 125);
+            this.UpdateStatusPic.Name = "UpdateStatusPic";
+            this.UpdateStatusPic.Size = new System.Drawing.Size(25, 24);
+            this.UpdateStatusPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.UpdateStatusPic.TabIndex = 15;
+            this.UpdateStatusPic.TabStop = false;
+            this.UpdateStatusPic.Visible = false;
+            // 
+            // UpdateLabel
+            // 
+            this.UpdateLabel.AutoSize = true;
+            this.UpdateLabel.BackColor = System.Drawing.Color.Transparent;
+            this.UpdateLabel.ForeColor = System.Drawing.Color.Black;
+            this.UpdateLabel.Location = new System.Drawing.Point(274, 129);
+            this.UpdateLabel.Name = "UpdateLabel";
+            this.UpdateLabel.Size = new System.Drawing.Size(121, 13);
+            this.UpdateLabel.TabIndex = 16;
+            this.UpdateLabel.Text = "                                      ";
             // 
             // MainForm
             // 
@@ -2000,6 +2028,7 @@
             this.groupBox5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.UpdateStatusPic)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -2163,6 +2192,8 @@
         private System.Windows.Forms.CheckBox HostsLockCheckbox;
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.Label HostsLockStatus;
+        private System.Windows.Forms.Label UpdateLabel;
+        private System.Windows.Forms.PictureBox UpdateStatusPic;
     }
 }
 

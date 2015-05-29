@@ -214,8 +214,10 @@ namespace BF2Statistics
                 return;
 
             int Pid = Int32.Parse(DataTable.Rows[e.RowIndex].Cells[1].Value.ToString());
-            PlayerEditForm Form = new PlayerEditForm(Pid);
-            Form.ShowDialog();
+            using (PlayerEditForm Form = new PlayerEditForm(Pid))
+            {
+                Form.ShowDialog();
+            }
             BuildList();
         }
 
@@ -366,9 +368,11 @@ namespace BF2Statistics
                 catch (Exception E)
                 {
                     // Show exception error
-                    ExceptionForm Form = new ExceptionForm(E, false);
-                    Form.Message = String.Format("Failed to remove player from database!{1}{1}Error: {0}", E.Message, Environment.NewLine);
-                    Form.ShowDialog();
+                    using (ExceptionForm Form = new ExceptionForm(E, false))
+                    {
+                        Form.Message = String.Format("Failed to remove player from database!{1}{1}Error: {0}", E.Message, Environment.NewLine);
+                        Form.ShowDialog();
+                    }
                 }
                 finally
                 {
@@ -407,9 +411,11 @@ namespace BF2Statistics
                 }
                 catch (Exception E)
                 {
-                    ExceptionForm EForm = new ExceptionForm(E, false);
-                    EForm.Message = "Unable to export player because an exception was thrown!";
-                    EForm.ShowDialog();
+                    using (ExceptionForm EForm = new ExceptionForm(E, false))
+                    {
+                        EForm.Message = "Unable to export player because an exception was thrown!";
+                        EForm.ShowDialog();
+                    }
                 }
             }
         }
@@ -440,9 +446,11 @@ namespace BF2Statistics
                 }
                 catch (Exception E)
                 {
-                    ExceptionForm EForm = new ExceptionForm(E, false);
-                    EForm.Message = "Unable to import player because an exception was thrown!";
-                    EForm.ShowDialog();
+                    using (ExceptionForm EForm = new ExceptionForm(E, false))
+                    {
+                        EForm.Message = "Unable to import player because an exception was thrown!";
+                        EForm.ShowDialog();
+                    }
                 }
             }
         }
@@ -454,9 +462,11 @@ namespace BF2Statistics
         /// <param name="e"></param>
         private void fromEAStatsServerMenuItem_Click(object sender, EventArgs e)
         {
-            EAStatsImportForm Form = new EAStatsImportForm();
-            Form.ShowDialog();
-            BuildList();
+            using(EAStatsImportForm Form = new EAStatsImportForm())
+            {
+                Form.ShowDialog();
+                BuildList();
+            }
         }
 
         #endregion

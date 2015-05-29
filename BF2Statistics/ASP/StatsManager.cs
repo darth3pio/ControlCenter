@@ -144,9 +144,9 @@ namespace BF2Statistics.ASP
 
             // Loop through all Config allowed game hosts, and determine if the remote host is allowed
             // to post snapshots here
-            if (!String.IsNullOrWhiteSpace(MainForm.Config.ASP_GameHosts))
+            if (!String.IsNullOrWhiteSpace(Program.Config.ASP_GameHosts))
             {
-                string[] Hosts = MainForm.Config.ASP_GameHosts.Split(',');
+                string[] Hosts = Program.Config.ASP_GameHosts.Split(',');
                 foreach (string Host in Hosts)
                 {
                     if (IPAddress.TryParse(Host, out Ip) && Ip.Equals(RemoteIP))

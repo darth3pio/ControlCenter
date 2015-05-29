@@ -16,10 +16,10 @@ namespace BF2Statistics
         {
             InitializeComponent();
 
-            EnableChkBox.Checked = MainForm.Config.BF2S_Enabled;
-            TitleTextBox.Text = MainForm.Config.BF2S_Title;
-            PlayerCount.Value = MainForm.Config.BF2S_LeaderCount;
-            CacheChkBox.Checked = MainForm.Config.BF2S_CacheEnabled;
+            EnableChkBox.Checked = Program.Config.BF2S_Enabled;
+            TitleTextBox.Text = Program.Config.BF2S_Title;
+            PlayerCount.Value = Program.Config.BF2S_LeaderCount;
+            CacheChkBox.Checked = Program.Config.BF2S_CacheEnabled;
         }
 
         private void EnableChkBox_CheckedChanged(object sender, EventArgs e)
@@ -42,11 +42,11 @@ namespace BF2Statistics
             }
 
             // Save the config
-            MainForm.Config.BF2S_Enabled = EnableChkBox.Checked;
-            MainForm.Config.BF2S_Title = TitleTextBox.Text;
-            MainForm.Config.BF2S_LeaderCount = (int) PlayerCount.Value;
-            MainForm.Config.BF2S_CacheEnabled = CacheChkBox.Checked;
-            MainForm.Config.Save();
+            Program.Config.BF2S_Enabled = EnableChkBox.Checked;
+            Program.Config.BF2S_Title = TitleTextBox.Text;
+            Program.Config.BF2S_LeaderCount = (int) PlayerCount.Value;
+            Program.Config.BF2S_CacheEnabled = CacheChkBox.Checked;
+            Program.Config.Save();
             this.Close();
         }
 

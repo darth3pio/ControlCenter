@@ -30,16 +30,18 @@ namespace BF2Statistics
             catch { }
 
             // Display the Exception Form
-            ExceptionForm EForm = new ExceptionForm(t.Exception, true);
-            EForm.Message = "An unhandled exception was thrown while trying to preform the requested task.\r\n"
-                + "If you click Continue, the application will attempt to ignore this error, and continue. "
-                + "If you click Quit, the application will close immediatly.";
-            EForm.TraceLog = FileName;
-            DialogResult Result = EForm.ShowDialog();
+            using (ExceptionForm EForm = new ExceptionForm(t.Exception, true))
+            {
+                EForm.Message = "An unhandled exception was thrown while trying to preform the requested task.\r\n"
+                    + "If you click Continue, the application will attempt to ignore this error, and continue. "
+                    + "If you click Quit, the application will close immediatly.";
+                EForm.TraceLog = FileName;
+                DialogResult Result = EForm.ShowDialog();
 
-            // Kill the form on abort
-            if (Result == DialogResult.Abort)
-                Application.Exit();
+                // Kill the form on abort
+                if (Result == DialogResult.Abort)
+                    Application.Exit();
+            }
         }
 
         /// <summary>
@@ -52,29 +54,30 @@ namespace BF2Statistics
             // Create Trace Log
             string FileName = Path.Combine(Paths.DocumentsFolder, "ExceptionLog_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt");
             Exception Ex = e.ExceptionObject as Exception;
-            ExceptionForm EForm = new ExceptionForm(Ex, false);
+            using (ExceptionForm EForm = new ExceptionForm(Ex, false))
+            {
+                try
+                {
+                    // Try to generate a trace log
+                    GenerateExceptionLog(FileName, Ex);
 
-            try
-            {
-                // Try to generate a trace log
-                GenerateExceptionLog(FileName, Ex);
-
-                // Display the Exception Form
-                EForm.Message = "An unhandled exception was thrown while trying to preform the requested task.\r\n"
-                    + "A trace log was generated under the \"My Documents/BF2Stastistics\" folder, to "
-                    + "assist with debugging, and getting help with this error.";
-                EForm.TraceLog = FileName;
-            }
-            catch
-            {
-                EForm.Message = "An unhandled exception was thrown while trying to preform the requested task.\r\n"
-                    + "A trace log was unable to be generated because that threw another exception :(. The error message "
-                    + "for the trace log was stored in the program error log for debugging purposes.";
-            }
-            finally
-            {
-                EForm.ShowDialog();
-                Application.Exit();
+                    // Display the Exception Form
+                    EForm.Message = "An unhandled exception was thrown while trying to preform the requested task.\r\n"
+                        + "A trace log was generated under the \"My Documents/BF2Stastistics\" folder, to "
+                        + "assist with debugging, and getting help with this error.";
+                    EForm.TraceLog = FileName;
+                }
+                catch
+                {
+                    EForm.Message = "An unhandled exception was thrown while trying to preform the requested task.\r\n"
+                        + "A trace log was unable to be generated because that threw another exception :(. The error message "
+                        + "for the trace log was stored in the program error log for debugging purposes.";
+                }
+                finally
+                {
+                    EForm.ShowDialog();
+                    Application.Exit();
+                }
             }
         }
 

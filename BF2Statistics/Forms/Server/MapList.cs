@@ -47,9 +47,9 @@ namespace BF2Statistics
                 MapListSelect.Items.Add(Map);
 
             // Get Client maps
-            if (!String.IsNullOrEmpty(MainForm.Config.ClientPath))
+            if (!String.IsNullOrEmpty(Program.Config.ClientPath))
             {
-                string P = Path.Combine(MainForm.Config.ClientPath, "mods", Mod.Name, "levels");
+                string P = Path.Combine(Program.Config.ClientPath, "mods", Mod.Name, "levels");
                 if (Directory.Exists(P))
                 {
                     foreach (string Map in Directory.GetDirectories(P))
@@ -242,10 +242,10 @@ namespace BF2Statistics
             // Alot of server files dont contain the map image files, so search the client if we need to
             if (!File.Exists(ImgPath))
             {
-                if (!String.IsNullOrWhiteSpace(MainForm.Config.ClientPath))
+                if (!String.IsNullOrWhiteSpace(Program.Config.ClientPath))
                 {
                     ImgPath = Path.Combine(
-                        MainForm.Config.ClientPath, "mods", MainForm.SelectedMod.Name, "levels", 
+                        Program.Config.ClientPath, "mods", MainForm.SelectedMod.Name, "levels", 
                         SelectedMap.Name, "Info", mode + "_" + size + "_menumap.png"
                     );
 
@@ -277,8 +277,10 @@ namespace BF2Statistics
         {
             if (MapListSelect.SelectedIndex != -1 && MapPictureBox.Image != null)
             {
-                ImageForm F = new ImageForm(MapImage);
-                F.ShowDialog();
+                using (ImageForm F = new ImageForm(MapImage))
+                {
+                    F.ShowDialog();
+                }
             }
         }
 

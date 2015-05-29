@@ -1,4 +1,6 @@
-﻿namespace BF2Statistics
+﻿using System;
+
+namespace BF2Statistics
 {
     static class IntExtensions
     {
@@ -11,6 +13,16 @@
         public static bool InRange(this int input, int LowValue, int HighValue)
         {
             return (input >= LowValue && input <= HighValue);
+        }
+
+        /// <summary>
+        /// Converts this int value to a file size
+        /// </summary>
+        /// <param name="l"></param>
+        /// <returns></returns>
+        public static string ToFileSize(this int l)
+        {
+            return String.Format(new FileSizeFormatProvider(), "{0:fs}", l);
         }
     }
 }

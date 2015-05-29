@@ -582,11 +582,13 @@ namespace BF2Statistics.MedalData
         /// </summary>
         private void NewProfileBtn_Click(object sender, EventArgs e)
         {
-            NewProfilePrompt Form = new NewProfilePrompt();
-            if (Form.ShowDialog() == DialogResult.OK)
+            using (NewProfilePrompt Form = new NewProfilePrompt())
             {
-                LoadProfiles();
-                ProfileSelector.SelectedIndex = Profiles.IndexOf(NewProfilePrompt.LastProfileName);
+                if (Form.ShowDialog() == DialogResult.OK)
+                {
+                    LoadProfiles();
+                    ProfileSelector.SelectedIndex = Profiles.IndexOf(NewProfilePrompt.LastProfileName);
+                }
             }
         }
 
