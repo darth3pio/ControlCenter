@@ -93,7 +93,7 @@
     <Compile Include="Extensions\ByteExtensions.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="Extensions\LongExtensions.cs" />
-    <Compile Include="FileSizeFormatProvider.cs" />
+    <Compile Include="Extensions\FileSizeFormatProvider.cs" />
     <Compile Include="Forms\Gamespy\GamespyConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>

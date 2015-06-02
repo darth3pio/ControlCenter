@@ -188,7 +188,7 @@ namespace BF2Statistics
             string[] values = Match.Groups["value"].Value.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
             foreach (string mod in values)
             {
-                XpackMedalMods.Add(mod.Trim('\'').Replace("mods/", ""));
+                XpackMedalMods.Add(mod.Trim('\'').Replace("mods/", "").ToLowerInvariant());
             }
 
             // ASP Address
@@ -327,7 +327,7 @@ namespace BF2Statistics
             // Do replacement for Xpack Enabled Mods
             string val = "";
             foreach (string mod in XpackMedalMods)
-                val += "'mods/" + mod + "',";
+                val += "'mods/" + mod.ToLowerInvariant() + "',";
 
             FileContents = Regex.Replace(FileContents, @"medals_xpack_mods = \[(?<value>[A-Za-z0-9_/\s',]*)\]", "medals_xpack_mods = [" + val.Trim(',') + "]");
 

@@ -20,7 +20,7 @@ namespace BF2Statistics
         /// <returns></returns>
         public static bool IsOpen
         {
-            get { return (Instance != null && !Instance.IsDisposed); }
+            get { return (Instance != null && !Instance.IsDisposed && Instance.IsHandleCreated); }
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace BF2Statistics
         }
 
         /// <summary>
-        /// Closes the Task dialog
+        /// Closes the Task dialog, and clears the Cancelled event handle subscriptions
         /// </summary>
         public static void CloseForm()
         {
@@ -163,7 +163,7 @@ namespace BF2Statistics
 
             // Remove all cancellation subs
             if (Cancelled != null)
-                Cancelled = null;
+                Cancelled = (CancelEventHandler) Delegate.RemoveAll(Cancelled, Cancelled);
 
             try
             {

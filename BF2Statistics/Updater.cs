@@ -39,7 +39,7 @@ namespace BF2Statistics
                 if (NewVersion == null)
                     return false;
 
-                return Program.Version.CompareTo(NewVersion) < 0;
+                return Program.Version.CompareTo(NewVersion) != 0;
             }
         }
 
@@ -128,16 +128,16 @@ namespace BF2Statistics
             Web.Proxy = null; // Disable proxy because this can cause slowdown on some machines
 
             // Github file location
-            string Fp = NewVersion.ToString() + "/BF2Statistics_ControlCenter_" + NewVersion.ToString() + ".zip";
-            Uri FileLocation = new Uri("https://github.com/BF2Statistics/ControlCenter/releases/download/" + Fp);
+            string Download = "https://github.com/BF2Statistics/ControlCenter/releases/download/{0}/BF2Statistics_ControlCenter_{0}.zip";
+            Uri FileLocation = new Uri(String.Format(Download, NewVersion));
 
             // Path to the Downloaded file
-            UpdateFileLocation = Path.Combine(Paths.DocumentsFolder, "BF2Statistics_ControlCenter_" + NewVersion.ToString() + ".zip");
+            UpdateFileLocation = Path.Combine(Paths.DocumentsFolder, String.Format("BF2Statistics_ControlCenter_{0}.zip", NewVersion));
 
             // Show Task Form
             IsDownloading = true;
             TaskForm.Cancelled += TaskForm_Cancelled;
-            TaskForm.Show(MainForm.Instance, "Downloading Update", "Downloading Update... Please Standby", true, ProgressBarStyle.Blocks, 100);
+            TaskForm.Show(MainForm.Instance, "Downloading Update", "Downloading Update... Please Standby", true);
             TaskForm.UpdateStatus("Preparing the download...");
 
             try
@@ -190,8 +190,13 @@ namespace BF2Statistics
         /// </summary>
         private static void Wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            TaskForm.UpdateStatus(String.Format("Downloaded {0} of {1}", e.BytesReceived.ToFileSize(), e.TotalBytesToReceive.ToFileSize()));
-            TaskForm.SetBarPercentage(e.ProgressPercentage);
+            TaskForm.UpdateStatus(
+                String.Format(
+                    "Downloaded {0} of {1}", 
+                    e.BytesReceived.ToFileSize(), 
+                    e.TotalBytesToReceive.ToFileSize()
+                )
+            );
         }
 
         /// <summary>
@@ -199,7 +204,8 @@ namespace BF2Statistics
         /// </summary>
         private static void Wc_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            // Close task form
+            // Close task form, and unregister for updates
+            TaskForm.Cancelled -= TaskForm_Cancelled;
             TaskForm.CloseForm();
             IsDownloading = false;
 
