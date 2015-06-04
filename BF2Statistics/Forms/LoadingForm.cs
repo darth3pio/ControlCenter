@@ -9,23 +9,12 @@ namespace BF2Statistics
     public partial class LoadingForm : Form
     {
         const int WM_SYSCOMMAND = 0x0112;
-
         const int SC_MOVE = 0xF010;
 
-        const int WS_SYSMENU = 0x80000;
-
         /// <summary>
-        /// Hides the Close, Minimize, and Maximize buttons
+        /// Gets or Sets whether the User is able to move the window
         /// </summary>
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                CreateParams cp = base.CreateParams;
-                cp.Style &= ~WS_SYSMENU;
-                return cp;
-            }
-        }
+        protected bool AllowDrag;
 
         /// <summary>
         /// Our isntance of the update form
@@ -33,17 +22,12 @@ namespace BF2Statistics
         private static LoadingForm Instance;
 
         /// <summary>
-        /// Delegate for cross thread call to close
-        /// </summary>
-        private delegate void CloseDelegate();
-
-        /// <summary>
         /// Main calling method. Opens a new instance of the form, and displays it
         /// </summary>
         /// <param name="Parent">The parent form, that will be used to center this form over</param>
-        /// <param name="IsTopMost">Sets whether this window will be foreced to be the topmost window</param>
+        /// <param name="AllowDrag">Sets whether this window will be allowed to be moved by the user</param>
         /// <param name="WindowTitle">The text in the window title bar</param>
-        public static void ShowScreen(Form Parent, bool IsTopMost = false, string WindowTitle = "Loading... Please Wait")
+        public static void ShowScreen(Form Parent, bool AllowDrag = false, string WindowTitle = "Loading... Please Wait")
         {
             // Make sure it is currently not open and running.
             if (Instance != null && !Instance.IsDisposed)
@@ -52,15 +36,15 @@ namespace BF2Statistics
             // Set window position to center parent
             Instance = new LoadingForm();
             Instance.Text = WindowTitle;
-            Instance.TopMost = IsTopMost;
+            Instance.AllowDrag = AllowDrag;
             double H = Parent.Location.Y + (Parent.Height / 2) - (Instance.Height / 2);
             double W = Parent.Location.X + (Parent.Width / 2) - (Instance.Width / 2);
             Instance.Location = new Point((int)Math.Round(W, 0), (int)Math.Round(H, 0));
 
-            // Run this in a background thread
-            Task.Run(() => Instance.ShowDialog());
+            // Display the Instanced Form
+            Instance.Show(Parent);
 
-            // Loop till handle create
+            // Wait until the Instance form is displayed
             while (!Instance.IsHandleCreated) Thread.Sleep(50);
         }
 
@@ -69,25 +53,19 @@ namespace BF2Statistics
         /// </summary>
         public static void CloseForm()
         {
-            if (Instance != null && !Instance.IsDisposed)
-                Instance.Invoke(new CloseDelegate(LoadingForm.CloseFormInternal));
-        }
+            // No exception here
+            if (Instance == null || Instance.IsDisposed)
+                return;
 
-        /// <summary>
-        /// Threaded method. Runs the form application
-        /// </summary>
-        private static void ShowForm()
-        {
-            Application.Run(Instance);
-        }
-
-        /// <summary>
-        /// Method called from delegate, to close the form
-        /// </summary>
-        private static void CloseFormInternal()
-        {
-            Instance.Close();
-            Instance = null;
+            try
+            {
+                Instance.Invoke((Action)delegate
+                {
+                    Instance.Close();
+                    Instance = null;
+                });
+            }
+            catch { }
         }
 
         private LoadingForm()
@@ -101,13 +79,16 @@ namespace BF2Statistics
         /// <param name="message"></param>
         protected override void WndProc(ref Message message)
         {
-            switch (message.Msg)
+            if (!AllowDrag)
             {
-                case WM_SYSCOMMAND:
-                    int command = message.WParam.ToInt32() & 0xfff0;
-                    if (command == SC_MOVE)
-                        return;
-                    break;
+                switch (message.Msg)
+                {
+                    case WM_SYSCOMMAND:
+                        int command = message.WParam.ToInt32() & 0xfff0;
+                        if (command == SC_MOVE)
+                            return;
+                        break;
+                }
             }
 
             base.WndProc(ref message);

@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using BF2Statistics.ASP;
 using BF2Statistics.Database;
@@ -344,7 +345,7 @@ namespace BF2Statistics
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void deletePlayerMenuItem_Click(object sender, EventArgs e)
+        private async void deletePlayerMenuItem_Click(object sender, EventArgs e)
         {
             // Get players ID and Nick
             int Pid = Int32.Parse(DataTable.SelectedRows[0].Cells[1].Value.ToString());
@@ -362,7 +363,7 @@ namespace BF2Statistics
                 try
                 {
                     TaskForm.Show(this, "Delete Player", "Deleting Player \"" + Name + "\"", false);
-                    Driver.DeletePlayer(Pid, true);
+                    await Task.Run(() => Driver.DeletePlayer(Pid, TaskForm.Progress));
                     BuildList();
                 }
                 catch (Exception E)

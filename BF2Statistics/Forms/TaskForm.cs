@@ -29,6 +29,11 @@ namespace BF2Statistics
         private static TaskForm Instance;
 
         /// <summary>
+        /// A progress object that is used to report progress to the TaskForm and update the GUI
+        /// </summary>
+        public static IProgress<TaskProgressUpdate> Progress;
+
+        /// <summary>
         /// The event that is fired when the Cancel button is pressed
         /// </summary>
         public static event CancelEventHandler Cancelled;
@@ -39,6 +44,43 @@ namespace BF2Statistics
         private TaskForm()
         {
             InitializeComponent();
+
+            // Create our progress updater. We put this inside the form constructor 
+            // to capture the Synchronization Context of this thread
+            Progress = new SyncProgress<TaskProgressUpdate>(e => ProgressChanged(e));
+        }
+
+        /// <summary>
+        /// Updates the TaskForm controls after a Progress.Report() has been recieved
+        /// </summary>
+        /// <param name="e">The TaskProgressUpdate object with the update information</param>
+        private void ProgressChanged(TaskProgressUpdate e)
+        {
+            // Prevent null exception
+            if (!IsOpen) return;
+
+            // Wrap this in an invoke t
+            if (e.HeaderText.Length > 0)
+                labelInstructionText.Text = e.HeaderText;
+
+            // Update message
+            if (e.MessageText.Length > 0)
+                labelContent.Text = e.MessageText;
+
+            // Update window title
+            if (e.WindowTitle.Length > 0)
+                Text = e.WindowTitle;
+
+            // Only increment progress bar if the style is not marguee, and we have progress
+            if (progressBar.Style != ProgressBarStyle.Marquee && e.ProgressPercent > 0)
+            {
+                if (e.IncrementProgress)
+                    progressBar.Increment(e.ProgressPercent);
+                else 
+                    progressBar.ValueFast(e.ProgressPercent);
+
+                progressBar.Update();
+            }
         }
 
         /// <summary>
@@ -115,11 +157,7 @@ namespace BF2Statistics
 
             // Setup progress bar
             if (ProgressBarSteps > 0)
-            {
-                double Percent = (100 / ProgressBarSteps);
-                Instance.progressBar.Step = (int)Math.Round(Percent, 0);
-                Instance.progressBar.Maximum = Instance.progressBar.Step * ProgressBarSteps;
-            }
+                Instance.progressBar.Maximum = ProgressBarSteps;
 
             // Hide Instruction panel if Instruction Text is empty
             if (String.IsNullOrWhiteSpace(InstructionText))
@@ -145,10 +183,10 @@ namespace BF2Statistics
             double W = Parent.Location.X + (Parent.Width / 2) - (Instance.Width / 2);
             Instance.Location = new Point((int)Math.Round(W, 0), (int)Math.Round(H, 0));
 
-            // Run this in a background thread
-            Task.Run(() => Instance.ShowDialog());
+            // Display the Instanced Form
+            Instance.Show(Parent);
 
-            // Loop till handle create
+            // Wait until the Instance form is displayed
             while (!Instance.IsHandleCreated) Thread.Sleep(50);
         }
 
@@ -176,72 +214,7 @@ namespace BF2Statistics
             catch { }
         }
 
-        /// <summary>
-        /// Updates the instruction text on the task dialog
-        /// </summary>
-        /// <param name="Message"></param>
-        public static void UpdateInstructionText(string Message)
-        {
-            if (Instance == null || Instance.IsDisposed)
-                throw new Exception("Invalid Operation. Please use the Show method before calling any operational methods");
-
-            Instance.Invoke((Action)delegate
-            {
-                Instance.labelInstructionText.Text = Message;
-            });
-        }
-
-        /// <summary>
-        /// Updates the detail text above the progress bar
-        /// </summary>
-        /// <param name="Message"></param>
-        public static void UpdateStatus(string Message)
-        {
-            if (Instance == null || Instance.IsDisposed)
-                throw new Exception("Invalid Operation. Please use the Show method before calling any operational methods");
-
-            Instance.Invoke((Action)delegate
-            {
-                Instance.labelContent.Text = Message;
-            });
-        }
-
-        /// <summary>
-        /// Updates the progress bar's value
-        /// </summary>
-        /// <param name="Percent"></param>
-        public static void ProgressBarStep()
-        {
-            if (Instance == null || Instance.IsDisposed)
-                throw new Exception("Invalid Operation. Please use the Show method before calling any operational methods");
-
-            Instance.Invoke((Action)delegate
-            {
-                Instance.progressBar.PerformStep();
-            });
-        }
-
-
-        public static void SetBarPercentage(int Percent)
-        {
-            Instance.Invoke((Action)delegate
-            {
-                int val = Instance.progressBar.Value;
-                Instance.progressBar.Increment(Percent - val);
-            });
-        }
-
         #region Non Static
-
-        new public void Show()
-        {
-            base.Show();
-        }
-
-        new public void Show(IWin32Window owner)
-        {
-            base.Show(owner);
-        }
 
         private void CancelBtn_Click(object sender, EventArgs e)
         {

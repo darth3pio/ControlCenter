@@ -22,12 +22,13 @@ namespace BF2Statistics
             // Add each valid mod found in the servers Mods directory
             for(int i = 0; i < BF2Server.Mods.Count; i++)
             {
-                // get our working mod
+                // Get our current working mod
                 BF2Mod Mod = BF2Server.Mods[i];
 
                 // Bf2 is predefined
                 if (Mod.Name.Equals("bf2", StringComparison.InvariantCultureIgnoreCase))
                 {
+                    checkBox1.Tag = Mod.Name;
                     checkBox1.Checked = StatsPython.Config.XpackMedalMods.Contains(Mod.Name.ToLowerInvariant());
                     continue;
                 }
@@ -35,6 +36,7 @@ namespace BF2Statistics
                 // Xpack is predefined
                 if (Mod.Name.Equals("xpack", StringComparison.InvariantCultureIgnoreCase))
                 {
+                    checkBox2.Tag = Mod.Name;
                     checkBox2.Checked = StatsPython.Config.XpackMedalMods.Contains(Mod.Name.ToLowerInvariant());
                     continue;
                 }
@@ -89,15 +91,15 @@ namespace BF2Statistics
             foreach(Control C in panel2.Controls)
             {
                 // Make sure the check box is visible
-                if(C is CheckBox && (C as CheckBox).Checked)
+                if (C is CheckBox && (C as CheckBox).Checked)
                 {
                     // Get our mod name
-                    string modName = Regex.Match(C.Text, @"\[(?<value>[A-Za-z0-9_\s',]*)\]").Groups["value"].Value;
+                    string modName = C.Tag as String;
                     if (String.IsNullOrWhiteSpace(modName))
                         continue;
 
                     // Add mod
-                    StatsPython.Config.XpackMedalMods.Add(modName);
+                    StatsPython.Config.XpackMedalMods.Add(modName.ToLowerInvariant());
                 }
             }
 

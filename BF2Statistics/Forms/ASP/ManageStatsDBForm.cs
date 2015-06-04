@@ -12,6 +12,7 @@ using System.Data.SqlClient;
 using BF2Statistics.Database;
 using BF2Statistics.Web;
 using FolderSelect;
+using System.Threading.Tasks;
 
 namespace BF2Statistics
 {
@@ -41,7 +42,7 @@ namespace BF2Statistics
         /// <summary>
         /// Imports ASP created BAK files (Mysql Out FILE)
         /// </summary>
-        private void ImportASPBtn_Click(object sender, EventArgs e)
+        private async void ImportASPBtn_Click(object sender, EventArgs e)
         {
             // Open File Select Dialog
             FolderSelectDialog Dialog = new FolderSelectDialog();
@@ -56,17 +57,17 @@ namespace BF2Statistics
                 {
                     // Open the database connection
                     StatsDatabase Database = null;
-                    try
-                    {
+                    try {
                         Database = new StatsDatabase();
-                    }
-                    catch (DbConnectException Ex)
-                    {
-                        ExceptionForm.ShowDbConnectError(Ex);
-                        return;
                     }
                     catch (Exception Ex)
                     {
+                        if (Ex is DbConnectException)
+                        {
+                            ExceptionForm.ShowDbConnectError(Ex as DbConnectException);
+                            return;
+                        }
+
                         MessageBox.Show(
                             "Unable to connect to database\r\n\r\nMessage: " + Ex.Message,
                             "Database Connection Error",
@@ -86,65 +87,15 @@ namespace BF2Statistics
 
                     // Show task dialog
                     TaskForm.Show(this, "Importing Stats", "Importing ASP Stats Bak Files...", false);
-                    TaskForm.UpdateStatus("Removing old stats data");
+                    this.Enabled = false;
 
-                    // Clear old database records
-                    Database.Truncate();
-                    Thread.Sleep(500);
+                    // Don't block the GUI
+                    await Task.Run(() => ImportFromBakup(BakFiles, Database));
 
-                    // Begin transaction
-                    DbTransaction Transaction = Database.BeginTransaction();
-
-                    // import each table
-                    foreach (string file in BakFiles)
-                    {
-                        // Get table name
-                        string table = Path.GetFileNameWithoutExtension(file);
-
-                        // Update progress
-                        TaskForm.UpdateStatus("Processing stats table: " + table);
-
-                        // Import table data
-                        try
-                        {
-                            // Sqlite kinda sucks... no import methods
-                            if (Database.DatabaseEngine == DatabaseEngine.Sqlite)
-                            {
-                                string[] Lines = File.ReadAllLines(file);
-                                foreach (string line in Lines)
-                                {
-                                    string[] Values = line.Split('\t');
-                                    Database.Execute(
-                                        String.Format("INSERT INTO {0} VALUES({1})", table, "\"" + String.Join("\", \"", Values) + "\"")
-                                    );
-                                }
-                            }
-                            else
-                                Database.Execute(String.Format("LOAD DATA LOCAL INFILE '{0}' INTO TABLE {1};", file.Replace('\\', '/'), table));
-                        }
-                        catch (Exception Ex)
-                        {
-                            // Show exception error
-                            using (ExceptionForm Form = new ExceptionForm(Ex, false))
-                            {
-                                Form.Message = String.Format("Failed to import data into table {0}!{2}{2}Error: {1}", table, Ex.Message, Environment.NewLine);
-                                DialogResult Result = Form.ShowDialog();
-
-                                // Rollback!
-                                TaskForm.UpdateStatus("Rolling back stats data");
-                                Transaction.Rollback();
-
-                                // Update message
-                                TaskForm.CloseForm();
-                                return;
-                            }
-                        }
-                    }
-
-                    // Commit the transaction, and alert the user
-                    Transaction.Commit();
-                    TaskForm.CloseForm();
+                    // Alert user and close task form
                     Notify.Show("Stats imported successfully!", "Operation Successful", AlertType.Success);
+                    TaskForm.CloseForm();
+                    this.Enabled = true;
 
                     // Displose Connection
                     Database.Dispose();
@@ -159,6 +110,69 @@ namespace BF2Statistics
                         MessageBoxIcon.Error
                     );
                 }
+            }
+        }
+
+        /// <summary>
+        /// This method imports a list of .Bak files into the database
+        /// </summary>
+        /// <param name="BakFiles">A list of Backfiles to import into the database</param>
+        /// <param name="Database">The opened database connection</param>
+        private void ImportFromBakup(string[] BakFiles, StatsDatabase Database)
+        {
+            // Clear old database records
+            TaskForm.Progress.Report(new TaskProgressUpdate("Removing old stats data"));
+            Database.Truncate();
+
+            // Let the database update itself
+            Thread.Sleep(500);
+
+            // Begin transaction
+            using (DbTransaction Transaction = Database.BeginTransaction())
+            {
+                // import each table
+                foreach (string file in BakFiles)
+                {
+                    // Get table name
+                    string table = Path.GetFileNameWithoutExtension(file);
+                    TaskForm.Progress.Report(new TaskProgressUpdate("Processing stats table: " + table));
+
+                    // Import table data
+                    try
+                    {
+                        // Sqlite kinda sucks... no import methods
+                        if (Database.DatabaseEngine == DatabaseEngine.Sqlite)
+                        {
+                            string[] Lines = File.ReadAllLines(file);
+                            foreach (string line in Lines)
+                            {
+                                string[] Values = line.Split('\t');
+                                Database.Execute(
+                                    String.Format("INSERT INTO {0} VALUES({1})", table, "\"" + String.Join("\", \"", Values) + "\"")
+                                );
+                            }
+                        }
+                        else
+                            Database.Execute(String.Format("LOAD DATA LOCAL INFILE '{0}' INTO TABLE {1};", file.Replace('\\', '/'), table));
+                    }
+                    catch (Exception Ex)
+                    {
+                        // Show exception error
+                        using (ExceptionForm Form = new ExceptionForm(Ex, false))
+                        {
+                            Form.Message = String.Format("Failed to import data into table {0}!{2}{2}Error: {1}", table, Ex.Message, Environment.NewLine);
+                            DialogResult Result = Form.ShowDialog();
+
+                            // Rollback!
+                            TaskForm.Progress.Report(new TaskProgressUpdate("Rolling back stats data"));
+                            Transaction.Rollback();
+                            return;
+                        }
+                    }
+                }
+
+                // Commit the transaction
+                Transaction.Commit();
             }
         }
 

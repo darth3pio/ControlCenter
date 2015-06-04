@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BF2Statistics
 {
-    public partial class RandomizeForm : Form
+    public partial class RandomizeForm : NativeForm
     {
         public RandomizeForm()
         {
@@ -19,7 +21,7 @@ namespace BF2Statistics
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void GenerateBtn_Click(object sender, EventArgs e)
+        private async void GenerateBtn_Click(object sender, EventArgs e)
         {
             // Initialize lists
             List<string> Modes = new List<string>();
@@ -55,57 +57,61 @@ namespace BF2Statistics
 
             // Show loading form
             LoadingForm.ShowScreen(this);
-            this.Enabled = false;
+            SetNativeEnabled(false);
 
-            // Loop through, the number of times the user specified, adding a map
-            for (int i = 0; i < NumOfMapsToAdd; i++)
+            // Don't lockup GUI, run in a new task
+            await Task.Run(() =>
             {
-                // Prevent infinite looping and/or quit if we have reached the map count
-                if (i > 255 || (noDupesBox.Checked && i == MapCount)) 
-                    break;
-
-                // Grab a random map from the levels array
-                try
+                // Loop through, the number of times the user specified, adding a map
+                for (int i = 0; i < NumOfMapsToAdd; i++)
                 {
-                    // Try and load the map... if an exception is thrown, this loop doesnt count
-                    BF2Map Map = Mod.LoadMap((noDupesBox.Checked) ? Mod.Levels[i] : Mod.Levels[Rnd.Next(0, MapCount)]);
+                    // Prevent infinite looping and/or quit if we have reached the map count
+                    if (i > 255 || (noDupesBox.Checked && i == MapCount))
+                        break;
 
-                    // Get the common intersected gamemodes that the map has in common with what the user wants
-                    string[] Common = Map.GameModes.Keys.ToArray();
-                    Common = gModes.Intersect(Common).ToArray();
+                    // Grab a random map from the levels array
+                    try
+                    {
+                        // Try and load the map... if an exception is thrown, this loop doesnt count
+                        BF2Map Map = Mod.LoadMap((noDupesBox.Checked) ? Mod.Levels[i] : Mod.Levels[Rnd.Next(0, MapCount)]);
 
-                    // No common game modes
-                    if(Common.Length == 0)
+                        // Get the common intersected gamemodes that the map has in common with what the user wants
+                        string[] Common = Map.GameModes.Keys.ToArray();
+                        Common = gModes.Intersect(Common).ToArray();
+
+                        // No common game modes
+                        if (Common.Length == 0)
+                        {
+                            NumOfMapsToAdd++;
+                            continue;
+                        }
+
+                        // Get a random gamemode key
+                        string Mode = Common[Rnd.Next(0, Common.Length)];
+
+                        // Get the common map sizes between what the user wants, and what the map supports
+                        Common = Map.GameModes[Mode].Intersect(Sizes).ToArray();
+                        if (Common.Length == 0)
+                        {
+                            // No common sizes, try another map
+                            NumOfMapsToAdd++;
+                            continue;
+                        }
+
+                        // Get a random size, and add the map
+                        string Size = Common[Rnd.Next(0, Common.Length)];
+                        Sb.AppendLine(Map.Name + " " + Mode + " " + Size);
+                    }
+                    catch (InvalidMapException)
                     {
                         NumOfMapsToAdd++;
-                        continue;
                     }
-
-                    // Get a random gamemode key
-                    string Mode = Common[Rnd.Next(0, Common.Length)];
-
-                    // Get the common map sizes between what the user wants, and what the map supports
-                    Common = Map.GameModes[Mode].Intersect(Sizes).ToArray();
-                    if (Common.Length == 0)
-                    {
-                        // No common sizes, try another map
-                        NumOfMapsToAdd++;
-                        continue;
-                    }
-
-                    // Get a random size, and add the map
-                    string Size = Common[Rnd.Next(0, Common.Length)];
-                    Sb.AppendLine(Map.Name + " " + Mode + " " + Size);
                 }
-                catch (InvalidMapException) 
-                {
-                    NumOfMapsToAdd++;
-                }
-            }
+            });
 
             // Add new maplist to the maplist box
             MapListBox.Text = Sb.ToString();
-            this.Enabled = true;
+            SetNativeEnabled(true);
             LoadingForm.CloseForm();
         }
 

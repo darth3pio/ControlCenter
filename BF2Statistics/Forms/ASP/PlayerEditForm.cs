@@ -14,6 +14,7 @@ using BF2Statistics.Web;
 using BF2Statistics.Database;
 using BF2Statistics.Database.QueryBuilder;
 using BF2Statistics.Utilities;
+using System.Threading.Tasks;
 
 namespace BF2Statistics
 {
@@ -212,7 +213,7 @@ namespace BF2Statistics
         /// <summary>
         /// Delete Player Button Click Event
         /// </summary>
-        private void DeletePlayerBtn_Click(object sender, EventArgs e)
+        private async void DeletePlayerBtn_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Are you sure you want to delete player?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
@@ -222,7 +223,7 @@ namespace BF2Statistics
 
                     // Delete the player
                     using (StatsDatabase Driver = new StatsDatabase())
-                        Driver.DeletePlayer(Pid, true);
+                        await Task.Run(() => Driver.DeletePlayer(Pid, TaskForm.Progress));
 
                     Notify.Show("Player Deleted Successfully!", "Operation Successful", AlertType.Success);
                 }
@@ -357,26 +358,30 @@ namespace BF2Statistics
         /// <summary>
         /// Reset stats button click event
         /// </summary>
-        private void ResetStatsBtn_Click(object sender, EventArgs e)
+        private async void ResetStatsBtn_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Are you sure you want to reset players stats?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 try
                 {
                     TaskForm.Show(this, "Reset Player Stats", "Reseting Player \"" + Player["name"] + "\"'s Stats", false);
-
-                    // Delete the players
-                    using (StatsDatabase Driver = new StatsDatabase())
+                    await Task.Run(() =>
                     {
-                        Driver.DeletePlayer(Pid, true);
+                        // Delete the players
+                        using (StatsDatabase Driver = new StatsDatabase())
+                        {
+                            // Delete old player statistics
+                            Driver.DeletePlayer(Pid, TaskForm.Progress);
 
-                        // Insert a new player record
-                        Driver.Execute(
-                            "INSERT INTO player(id, name, country, joined, clantag, permban, isbot) VALUES(@P0, @P1, @P2, @P3, @P4, @P5, @P6)",
-                            Pid, Player["name"], Player["country"], Player["joined"], Player["clantag"], Player["permban"], Player["isbot"]
-                        );
-                    }
+                            // Insert a new player record
+                            Driver.Execute(
+                                "INSERT INTO player(id, name, country, joined, clantag, permban, isbot) VALUES(@P0, @P1, @P2, @P3, @P4, @P5, @P6)",
+                                Pid, Player["name"], Player["country"], Player["joined"], Player["clantag"], Player["permban"], Player["isbot"]
+                            );
+                        }
+                    });
 
+                    // Reload player
                     LoadPlayer();
                     Notify.Show("Player Stats Reset Successfully!", "Operation Successful", AlertType.Success);
                 }

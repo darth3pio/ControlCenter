@@ -100,6 +100,7 @@
     <Compile Include="Forms\Gamespy\GamespyConfigForm.Designer.cs">
       <DependentUpon>GamespyConfigForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\TaskProgressUpdate.cs" />
     <Compile Include="Gamespy\Master\CDKeyServer.cs" />
     <Compile Include="Gamespy\Enctypex.cs" />
     <Compile Include="Gamespy\Master\GameServer.cs" />
@@ -112,6 +113,9 @@
     <Compile Include="Forms\HostsFileTestForm.Designer.cs">
       <DependentUpon>HostsFileTestForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\NativeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Net\BufferDataToken.cs" />
     <Compile Include="Net\BufferManager.cs" />
     <Compile Include="Net\GamespyTcpStream.cs" />
@@ -121,6 +125,8 @@
     <Compile Include="Net\GamespyUdpSocket.cs" />
     <Compile Include="Net\SocketAsyncEventArgsPool.cs" />
     <Compile Include="Net\GamespyTcpSocket.cs" />
+    <Compile Include="Extensions\ProgressBarExtensions.cs" />
+    <Compile Include="Utilities\SyncProgress.cs" />
     <Compile Include="Utilities\ConcurrentEventQueue.cs" />
     <Compile Include="ASP\StatsManager.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
@@ -141,6 +147,9 @@
     <Compile Include="Utilities\NiceDictionary.cs" />
     <Compile Include="SetupManager.cs" />
     <Compile Include="Python\StatsPython.cs" />
+    <Compile Include="Utilities\ProgressDialog.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Utilities\SQLMethods.cs" />
     <Compile Include="Web\Bf2Stats\MyLeaderboardPage.cs" />
     <Compile Include="Web\Bf2Stats\Pages\MyLeaderboardPage.cs">

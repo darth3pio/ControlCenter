@@ -67,6 +67,11 @@ namespace BF2Statistics
                     // Disable Proxy to prevent slowness
                     Web.Proxy = null;
 
+                    // Set headers (Copied from my current Chrome headers)
+                    Web.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36";
+                    Web.Headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";
+                    Web.Headers["Accept-Language"] = "en-US,en;q=0.8";
+
                     // Loop through each service and check for our IP
                     for (int i = 0; i < IpServices.Length; i++)
                     {

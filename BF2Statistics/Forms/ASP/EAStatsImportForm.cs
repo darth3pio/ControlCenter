@@ -55,7 +55,7 @@ namespace BF2Statistics
                     }
 
                     // Show Task Form
-                    TaskForm.Show(this, "Import ASP Stats", "Importing ASP Stats...", ProgressBarStyle.Blocks, 13);
+                    TaskForm.Show(this, "Import ASP Stats", "Importing ASP Stats...", false, ProgressBarStyle.Blocks, 13);
 
                     // Setup the worker
                     bWorker = new BackgroundWorker();
@@ -64,7 +64,10 @@ namespace BF2Statistics
 
                     // Run Worker
                     bWorker.DoWork += bWorker_ImportEaStats;
-                    bWorker.ProgressChanged += bWorker_ProgressChanged;
+                    bWorker.ProgressChanged += (s, ea) =>
+                    {
+                        TaskForm.Progress.Report(new TaskProgressUpdate(ea.UserState.ToString(), ea.ProgressPercentage));
+                    };
                     bWorker.RunWorkerCompleted += bWorker_RunWorkerCompleted;
                     bWorker.RunWorkerAsync(PidTextBox.Text);
                 }
@@ -372,15 +375,6 @@ namespace BF2Statistics
 
             Notify.Show("Player Imported Successfully!", "All the players stats and awards are now available on the server.", AlertType.Success);
             this.Close();
-        }
-
-        /// <summary>
-        /// Updates the Task Form Progress
-        /// </summary>
-        private void bWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            TaskForm.ProgressBarStep();
-            TaskForm.UpdateStatus(e.UserState.ToString());
         }
     }
 }

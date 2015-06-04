@@ -169,11 +169,8 @@ namespace BF2Statistics.Database
         /// Removes a player, based on pid, from the stats database
         /// </summary>
         /// <param name="Pid">The players Id</param>
-        /// <param name="TaskFormOpen">
-        ///     If true, the task form status message will be updated as progress is made.
-        ///     You are still responsible for opening and closing the task form!
-        /// </param>
-        public void DeletePlayer(int Pid, bool TaskFormOpen)
+        /// <param name="TaskProgress">The progress object to report to.</param>
+        public void DeletePlayer(int Pid, IProgress<TaskProgressUpdate> TaskProgress = null)
         {
             using (DbTransaction Transaction = BeginTransaction())
             {
@@ -182,8 +179,8 @@ namespace BF2Statistics.Database
                     // Remove the player from each player table
                     foreach (string Table in PlayerTables)
                     {
-                        if (TaskFormOpen)
-                            TaskForm.UpdateStatus("Removing player from \"" + Table + "\" table...");
+                        if (TaskProgress != null)
+                            TaskProgress.Report(new TaskProgressUpdate("Removing player from \"" + Table + "\" table..."));
 
                         if (Table == "kills")
                             base.Execute(String.Format("DELETE FROM {0} WHERE attacker={1} OR victim={1}", Table, Pid));
@@ -192,8 +189,8 @@ namespace BF2Statistics.Database
                     }
 
                     // Commit Transaction
-                    if (TaskFormOpen)
-                        TaskForm.UpdateStatus("Committing Transaction");
+                    if (TaskProgress != null)
+                        TaskProgress.Report(new TaskProgressUpdate("Committing Transaction"));
                     Transaction.Commit();
                 }
                 catch (Exception)
@@ -240,31 +237,29 @@ namespace BF2Statistics.Database
         /// <summary>
         /// Tells the Database to install the Stats tables into the database
         /// </summary>
-        public void CreateSqlTables()
+        public void CreateSqlTables(IProgress<TaskProgressUpdate> TaskProgress = null)
         {
             if (TablesExist)
                 return;
 
             if (base.DatabaseEngine == DatabaseEngine.Mysql)
-                CreateMysqlTables();
+                CreateMysqlTables(TaskProgress);
             else
-                CreateSqliteTables();
+                CreateSqliteTables(TaskProgress);
         }
 
         /// <summary>
         /// On a new Sqlite database, this method will create the default tables
         /// </summary>
-        private void CreateSqliteTables()
+        private void CreateSqliteTables(IProgress<TaskProgressUpdate> TaskProgress)
         {
             // Show Progress Form
-            bool TaskFormWasOpen = TaskForm.IsOpen;
-            if(!TaskFormWasOpen)
-                TaskForm.Show(MainForm.Instance, "Create Database", "Creating Bf2Stats SQLite Database...", false);
+            if (TaskProgress != null)
+                TaskProgress.Report(new TaskProgressUpdate("Creating Stats Tables", "Creating Bf2Stats SQLite Database..."));
 
             try
             {
                 // Create Tables
-                TaskForm.UpdateStatus("Creating Stats Tables");
                 string SQL = Utils.GetResourceAsString("BF2Statistics.SQL.SQLite.Stats.sql");
                 base.Execute(SQL);
             }
@@ -272,26 +267,16 @@ namespace BF2Statistics.Database
             {
                 throw;
             }
-            finally
-            {
-                // Close update progress form
-                if (!TaskFormWasOpen)
-                    TaskForm.CloseForm();
-            }
         }
 
         /// <summary>
         /// On a new Mysql database, this method will create the default tables
         /// </summary>
-        private void CreateMysqlTables()
+        private void CreateMysqlTables(IProgress<TaskProgressUpdate> TaskProgress)
         {
             // Show Progress Form
-            bool TaskFormWasOpen = TaskForm.IsOpen;
-            if (!TaskFormWasOpen)
-                TaskForm.Show(MainForm.Instance, "Create Database", "Creating Bf2Stats Mysql Tables...", false);
-
-            // Update status
-            TaskForm.UpdateStatus("Creating Stats Tables");
+            if (TaskProgress != null)
+                TaskProgress.Report(new TaskProgressUpdate("Creating Stats Tables", "Creating Bf2Stats Mysql Tables..."));
 
             // Gets Table Queries
             string[] SQL = Utils.GetResourceFileLines("BF2Statistics.SQL.MySQL.Stats.sql");
@@ -313,16 +298,15 @@ namespace BF2Statistics.Database
                 catch
                 {
                     Transaction.Rollback();
-                    if (!TaskFormWasOpen)
-                        TaskForm.CloseForm();
-
                     throw;
                 }
             }
 
             // Update status
+            if (TaskProgress != null)
+                TaskProgress.Report(new TaskProgressUpdate("Inserting Ip2Nation Data"));
+
             // WE STILL INSTALL ip2Nation DATA to stay compatible with the web ASP
-            TaskForm.UpdateStatus("Inserting Ip2Nation Data");
             SQL = Utils.GetResourceFileLines("BF2Statistics.SQL.Ip2nation.sql");
             Queries = SqlFile.ExtractQueries(SQL);
 
@@ -343,12 +327,6 @@ namespace BF2Statistics.Database
                 {
                     Transaction.Rollback();
                     throw;
-                }
-                finally
-                {
-                    // Close update progress form
-                    if (!TaskFormWasOpen)
-                        TaskForm.CloseForm();
                 }
             }
         }

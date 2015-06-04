@@ -21,7 +21,7 @@ namespace BF2Statistics
     /// <summary>
     /// This form represents the Main GUI window of the application
     /// </summary>
-    public partial class MainForm : Form
+    public partial class MainForm : NativeForm
     {
         /// <summary>
         /// The User Config object
@@ -435,7 +435,7 @@ namespace BF2Statistics
                     }
 
                     // Loopback for the Retry Button
-                CheckAsp:
+                    CheckAsp:
                     {
                         try
                         {
@@ -492,8 +492,8 @@ namespace BF2Statistics
                 try
                 {
                     // prevent button spam
-                    this.Enabled = false;
                     LoadingForm.ShowScreen(this);
+                    SetNativeEnabled(false);
                     ClientProcess.Kill();
                 }
                 catch (Exception E)
@@ -517,7 +517,7 @@ namespace BF2Statistics
                 LaunchClientBtn.Text = "Play Battlefield 2";
                 LaunchClientBtn.Enabled = true;
                 ClientProcess = null;
-                this.Enabled = true;
+                SetNativeEnabled(true);
                 LoadingForm.CloseForm();
             });
         }
@@ -607,8 +607,8 @@ namespace BF2Statistics
                 try
                 {
                     // Prevent button spam
-                    this.Enabled = false;
                     LoadingForm.ShowScreen(this);
+                    SetNativeEnabled(false);
                     BF2Server.Stop();
                 }
                 catch (Exception E)
@@ -650,7 +650,7 @@ namespace BF2Statistics
                 LaunchServerBtn.Text = "Launch Server";
                 BF2sRestoreBtn.Enabled = true;
                 BF2sInstallBtn.Enabled = true;
-                this.Enabled = true;
+                SetNativeEnabled(true);
                 LoadingForm.CloseForm();
             });
         }
@@ -853,39 +853,36 @@ namespace BF2Statistics
         /// file is located in the "python/bf2" directory, and either installs or removes the
         /// bf2statistics python
         /// </summary>
-        private void InstallButton_Click(object sender, EventArgs e)
+        private async void InstallButton_Click(object sender, EventArgs e)
         {
-            // Lock the console to prevent errors!
-            this.Enabled = false;
-            LoadingForm.ShowScreen(this);
+            // Display the LoadingForm. This is a Modal so the mainform is locked
+            LoadingForm.ShowScreen(this, true);
+            SetNativeEnabled(false);
 
-            // Put this in a task incase the HDD is being slow (busy)
-            Task.Run(() =>
+            // Install or Remove files
+            try
             {
-                try
+                // Put this in a task incase the HDD is being slow (busy)
+                await Task.Run(() =>
                 {
                     if (!StatsPython.Installed)
                         StatsPython.BackupAndInstall();
                     else
                         StatsPython.RemoveAndRestore();
-                }
-                catch (Exception E)
-                {
-                    Program.ErrorLog.Write("ERROR: [BF2sPythonInstall] " + E.Message);
-                    throw;
-                }
-                finally
-                {
-                    // WE are cross threaded right now, so invoke
-                    Invoke((Action)delegate
-                    {
-                        // Unlock now that we are done
-                        SetInstallStatus();
-                        this.Enabled = true;
-                        LoadingForm.CloseForm();
-                    });
-                }
-            });
+                });
+            }
+            catch (Exception E)
+            {
+                Program.ErrorLog.Write("ERROR: [BF2sPythonInstall] " + E.Message);
+                throw;
+            }
+            finally
+            {
+                // Unlock now that we are done
+                SetInstallStatus();
+                SetNativeEnabled(true);
+                LoadingForm.CloseForm();
+            }
         }
 
         /// <summary>
@@ -1410,14 +1407,14 @@ namespace BF2Statistics
 
                     // Lock form and show loading screen
                     LoadingForm.ShowScreen(this);
-                    this.Enabled = false;
+                    SetNativeEnabled(false);
 
                     // Undo the redirects
                     UndoRedirects();
 
                     // Close loading form and allow user to access form again
                     LoadingForm.CloseForm();
-                    this.Enabled = true;
+                    SetNativeEnabled(true);
                 });
             }, TaskContinuationOptions.OnlyOnCanceled);
         }
@@ -1503,9 +1500,6 @@ namespace BF2Statistics
                 LogBox.Refresh();
             }
         }
-
-        [DllImport("dnsapi.dll", EntryPoint = "DnsFlushResolverCache")]
-        private static extern UInt32 DnsFlushResolverCache();
 
         #endregion Hosts File Redirect
 
@@ -1955,5 +1949,12 @@ namespace BF2Statistics
         }
 
         #endregion Misc. Form Events
+
+        #region COM methods
+
+        [DllImport("dnsapi.dll", EntryPoint = "DnsFlushResolverCache")]
+        private static extern UInt32 DnsFlushResolverCache();
+
+        #endregion
     }
 }

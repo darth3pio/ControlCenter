@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.SQLite;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using BF2Statistics.Database;
@@ -17,7 +18,7 @@ namespace BF2Statistics
         Gamespy
     }
 
-    public partial class DatabaseConfigForm : Form
+    public partial class DatabaseConfigForm : NativeForm
     {
         /// <summary>
         /// The database type we are working with (Stats or Gamespy)
@@ -153,9 +154,6 @@ namespace BF2Statistics
         /// </summary>
         private async void TestBtn_Click(object sender, EventArgs e)
         {
-            // Disable console
-            this.Enabled = false;
-
             // Build Connection String
             MySqlConnectionStringBuilder Builder = new MySqlConnectionStringBuilder();
             Builder.Server = Hostname.Text;
@@ -169,6 +167,7 @@ namespace BF2Statistics
             {
                 // Show loading form
                 LoadingForm.ShowScreen(this, true, "Connecting to MySQL Database...");
+                SetNativeEnabled(false);
 
                 // Dont lock up the program
                 await Task.Run(() =>
@@ -191,7 +190,7 @@ namespace BF2Statistics
             finally
             {
                 LoadingForm.CloseForm();
-                this.Enabled = true;
+                SetNativeEnabled(true);
             }
 
             // Show success after loading form has been called to close
@@ -223,7 +222,7 @@ namespace BF2Statistics
         /// <summary>
         /// Event fired when the next button is clicked
         /// </summary>
-        private void NextBtn_Click(object sender, EventArgs e)
+        private async void NextBtn_Click(object sender, EventArgs e)
         {
             // Disable this form
             this.Enabled = false;
@@ -268,7 +267,7 @@ namespace BF2Statistics
                                 return;
 
                             TaskForm.Show(this, "Create Database", "Creating Stats Tables", false);
-                            Db.CreateSqlTables();
+                            await Task.Run(() => Db.CreateSqlTables(TaskForm.Progress));
                         }
                     }
                 }
@@ -291,7 +290,7 @@ namespace BF2Statistics
                                 return;
 
                             TaskForm.Show(this, "Create Database", "Creating Gamespy Tables", false);
-                            Db.CreateSqlTables();
+                            await Task.Run(() => Db.CreateSqlTables());
                         }
                     }
                 }

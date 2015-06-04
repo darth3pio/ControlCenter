@@ -6,6 +6,9 @@ using System.Linq;
 
 namespace BF2Statistics
 {
+    /// <summary>
+    /// This class represents the current selected BF2 Dedicated server installation.
+    /// </summary>
     public class BF2Server
     {
         /// <summary>
@@ -19,8 +22,13 @@ namespace BF2Statistics
         public static string PythonPath { get; protected set; }
 
         /// <summary>
-        /// Contains a list of all the found mod folders located in the "mods" directory
+        /// Contains a list of all the found (and valid) mod folders located in the "mods" directory
         /// </summary>
+        /// <remarks>
+        ///     Only mods that are considered valid make it into this list. In order for a mod
+        ///     to be considered valid, it must contain a populated "mod.desc" file, a "settings/maplist.con" 
+        ///     file, and a levels folder.
+        /// </remarks>
         public static List<BF2Mod> Mods { get; protected set; }
 
         /// <summary>

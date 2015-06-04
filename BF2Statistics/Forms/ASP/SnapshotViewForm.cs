@@ -53,10 +53,10 @@ namespace BF2Statistics
 
             // Disable this form, and show the TaskForm
             this.Enabled = false;
-            TaskForm.Show(this, "Importing Snapshots", "Importing Snapshots", true, ProgressBarStyle.Blocks, Files.Count);
+            TaskForm.Show(this, "Importing Snapshots", "Importing Snapshots", true, ProgressBarStyle.Continuous, Files.Count);
             TaskForm.Cancelled += (s, ev) =>
             {
-                TaskForm.UpdateStatus("Cancelling....");
+                TaskForm.Progress.Report(new TaskProgressUpdate("Cancelling...."));
                 ImportTaskSource.Cancel();
             };
 
@@ -65,10 +65,7 @@ namespace BF2Statistics
             CancellationToken CancelToken = ImportTaskSource.Token;
 
             // Wrap in a Task so we dont lock the GUI
-            await Task.Factory.StartNew(() => ImportSnaphotFiles(Files, CancelToken), CancelToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-
-            // Let progress bar update to 100%
-            TaskForm.UpdateStatus("Done! Cleaning up...");
+            await Task.Run(() => ImportSnaphotFiles(Files, CancelToken), CancelToken);
 
             // Update the snapshots found close task form
             BuildList();
@@ -93,6 +90,9 @@ namespace BF2Statistics
                          orderby date, time ascending
                          select _File;
 
+            // Number of snapshots we have processed
+            int processed = 0;
+
             // Do Work
             foreach (string SnapshotFile in Sorted)
             {
@@ -104,7 +104,7 @@ namespace BF2Statistics
                 try
                 {
                     // Update status and run snapshot
-                    TaskForm.UpdateStatus(String.Format("Processing: \"{0}\"", SnapshotFile));
+                    TaskForm.Progress.Report(new TaskProgressUpdate(String.Format("Processing: \"{0}\"", SnapshotFile)));
                     Snapshot Snapshot = new Snapshot(File.ReadAllText(Path.Combine(Paths.SnapshotTempPath, SnapshotFile)));
 
                     // Do snapshot
@@ -127,12 +127,15 @@ namespace BF2Statistics
                             break;
                     }
                 }
-                finally
-                {
-                    // Whether we failed or succeeded, we are finished with this step
-                    TaskForm.ProgressBarStep();
-                }
+                
+                // Whether we failed or succeeded, we are finished with this step 
+                // and should move the progress bar 1 step
+                TaskForm.Progress.Report(new TaskProgressUpdate(++processed));
             }
+
+            // Let progress bar update to 100%
+            TaskForm.Progress.Report(new TaskProgressUpdate("Done! Cleaning up..."));
+            Thread.Sleep(250);
         }
 
         /// <summary>
