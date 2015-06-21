@@ -126,7 +126,7 @@ namespace BF2Statistics.Gamespy
                     + "You may choose to do this later by clicking \"Cancel\". Would you like to setup the database now?";
                     DialogResult R = MessageBox.Show(message, "Gamespy Database Setup", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (R == DialogResult.Yes)
-                        SetupManager.ShowDatabaseSetupForm(DatabaseMode.Gamespy);
+                        SetupManager.ShowDatabaseSetupForm(DatabaseMode.Gamespy, MainForm.Instance);
 
                     // Call the stoOnShutdown event to Re-enable the main forms buttons
                     Stopped();

@@ -101,12 +101,21 @@
       <DependentUpon>GamespyConfigForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\TaskProgressUpdate.cs" />
-    <Compile Include="Gamespy\Master\CDKeyServer.cs" />
+    <Compile Include="Forms\GamespyRedirectForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\GamespyRedirectForm.Designer.cs">
+      <DependentUpon>GamespyRedirectForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Gamespy\Redirector\HostsFileAbstract.cs" />
+    <Compile Include="Gamespy\Redirector\HostsFileIcs.cs" />
+    <Compile Include="Gamespy\Redirector\RedirectMode.cs" />
+    <Compile Include="Gamespy\Servers\Master\CDKeyServer.cs" />
     <Compile Include="Gamespy\Enctypex.cs" />
-    <Compile Include="Gamespy\Master\GameServer.cs" />
-    <Compile Include="Gamespy\Master\MasterClient.cs" />
-    <Compile Include="Gamespy\Master\MasterServer.cs" />
-    <Compile Include="Gamespy\Master\ServerListRetrieveSocket.cs" />
+    <Compile Include="Gamespy\Servers\Master\GameServer.cs" />
+    <Compile Include="Gamespy\Servers\Master\MasterClient.cs" />
+    <Compile Include="Gamespy\Servers\Master\MasterServer.cs" />
+    <Compile Include="Gamespy\Servers\Master\ServerListRetrieveSocket.cs" />
     <Compile Include="Forms\HostsFileTestForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -119,13 +128,17 @@
     <Compile Include="Net\BufferDataToken.cs" />
     <Compile Include="Net\BufferManager.cs" />
     <Compile Include="Net\GamespyTcpStream.cs" />
-    <Compile Include="Gamespy\Gpcm\GpcmServer.cs" />
-    <Compile Include="Gamespy\Gpcm\GpcmClient.cs" />
+    <Compile Include="Gamespy\Servers\Gpcm\GpcmServer.cs" />
+    <Compile Include="Gamespy\Servers\Gpcm\GpcmClient.cs" />
     <Compile Include="Net\GamespyUdpPacket.cs" />
     <Compile Include="Net\GamespyUdpSocket.cs" />
     <Compile Include="Net\SocketAsyncEventArgsPool.cs" />
     <Compile Include="Net\GamespyTcpSocket.cs" />
     <Compile Include="Extensions\ProgressBarExtensions.cs" />
+    <Compile Include="PageControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Gamespy\Redirector\Redirector.cs" />
     <Compile Include="Utilities\SyncProgress.cs" />
     <Compile Include="Utilities\ConcurrentEventQueue.cs" />
     <Compile Include="ASP\StatsManager.cs" />
@@ -380,8 +393,8 @@
       <DependentUpon>AccountListForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Gamespy\GamespyUtils.cs" />
-    <Compile Include="Gamespy\Gpsp\GpspClient.cs" />
-    <Compile Include="Gamespy\Gpsp\GpspServer.cs" />
+    <Compile Include="Gamespy\Servers\Gpsp\GpspClient.cs" />
+    <Compile Include="Gamespy\Servers\Gpsp\GpspServer.cs" />
     <Compile Include="Forms\MedalData\MedalDataEditor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -436,6 +449,9 @@
       <DependentUpon>XpackMedalsConfigForm.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="ASP\BackendAwards.xml" />
+    <EmbeddedResource Include="Forms\GamespyRedirectForm.resx">
+      <DependentUpon>GamespyRedirectForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Gamespy\GamespyConfigForm.resx">
       <DependentUpon>GamespyConfigForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -468,7 +484,7 @@
     <Compile Include="Utilities\SqlFile.cs" />
     <Compile Include="Utilities\Tipsy.cs" />
     <Compile Include="Utilities\Notify.cs" />
-    <Compile Include="Utilities\HostsFile.cs" />
+    <Compile Include="Gamespy\Redirector\HostsFile.cs" />
     <Compile Include="Utilities\KeyValueItem.cs" />
     <Compile Include="Logging\LogMessage.cs" />
     <Compile Include="Logging\LogWriter.cs" />

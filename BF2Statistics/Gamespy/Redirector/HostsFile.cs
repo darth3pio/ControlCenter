@@ -13,7 +13,7 @@ namespace BF2Statistics
         /// <summary>
         /// Direct Filepath to the hosts file
         /// </summary>
-        public static readonly string FilePath = Path.Combine(Environment.SystemDirectory, "drivers", "etc", "hosts");
+        public static string FilePath = Path.Combine(Environment.SystemDirectory, "drivers", "etc", "hosts");
 
         /// <summary>
         /// Hosts file security object

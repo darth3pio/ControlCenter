@@ -116,5 +116,8 @@
     <Setting Name="UpdateCheck" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="RedirectMode" Type="BF2Statistics.RedirectMode" Scope="Application">
+      <Value Profile="(Default)">HostsIcsFile</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

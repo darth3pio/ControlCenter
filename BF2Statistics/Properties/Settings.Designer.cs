@@ -478,5 +478,14 @@ namespace BF2Statistics.Properties {
                 this["UpdateCheck"] = value;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("HostsIcsFile")]
+        public global::BF2Statistics.RedirectMode RedirectMode {
+            get {
+                return ((global::BF2Statistics.RedirectMode)(this["RedirectMode"]));
+            }
+        }
     }
 }

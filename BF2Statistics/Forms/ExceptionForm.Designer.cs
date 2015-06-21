@@ -93,8 +93,8 @@
             // 
             // labelContent
             // 
-            this.labelContent.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.labelContent.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.labelContent.AutoSize = true;
             this.labelContent.Location = new System.Drawing.Point(50, 1);
             this.labelContent.MaximumSize = new System.Drawing.Size(380, 0);
@@ -200,10 +200,11 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(450, 28);
+            this.MinimumSize = new System.Drawing.Size(450, 38);
             this.Name = "ExceptionForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Application Error";
+            this.TopMost = true;
             this.panelMain.ResumeLayout(false);
             this.panelMain.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ErrorIcon)).EndInit();

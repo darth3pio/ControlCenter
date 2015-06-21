@@ -143,7 +143,7 @@ namespace BF2Statistics.Web
                             + "You may choose to do this later by clicking \"Cancel\". Would you like to setup the database now?";
                         DialogResult R = MessageBox.Show(message, "Stats Database Setup", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (R == DialogResult.Yes)
-                            SetupManager.ShowDatabaseSetupForm(DatabaseMode.Stats);
+                            SetupManager.ShowDatabaseSetupForm(DatabaseMode.Stats, MainForm.Instance);
 
                         // Call the stopped event to Re-enable the main forms buttons
                         Stopped(null, EventArgs.Empty);

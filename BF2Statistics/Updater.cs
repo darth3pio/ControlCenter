@@ -82,7 +82,7 @@ namespace BF2Statistics
                     using (Web = new WebClient())
                     {
                         // Simulate some headers, Github throws a fit otherwise
-                        Web.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36";
+                        Web.Headers["User-Agent"] = "BF2Statistics Control Center v" + Program.Version;
                         Web.Headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";
                         Web.Headers["Accept-Language"] = "en-US,en;q=0.8";
                         Web.Proxy = null; // Disable proxy because this can cause slowdown on some machines
@@ -122,7 +122,7 @@ namespace BF2Statistics
 
             // Simulate some headers, Github throws a fit otherwise
             Web = new WebClient();
-            Web.Headers["User-Agent"] = "Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.6) Gecko/20100625 Firefox/3.6.6 (.NET CLR 3.5.30729)";
+            Web.Headers["User-Agent"] = "BF2Statistics Control Center v" + Program.Version;
             Web.Headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";
             Web.Headers["Accept-Language"] = "en-US,en;q=0.8";
             Web.Proxy = null; // Disable proxy because this can cause slowdown on some machines

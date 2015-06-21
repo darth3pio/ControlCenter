@@ -746,7 +746,7 @@
             this.FileMoniter.Name = "FileMoniter";
             this.FileMoniter.Size = new System.Drawing.Size(80, 17);
             this.FileMoniter.TabIndex = 9;
-            this.FileMoniter.Text = "File Moniter";
+            this.FileMoniter.Text = "File Monitor";
             this.FileMoniter.UseVisualStyleBackColor = true;
             // 
             // ForceAiBots
@@ -1932,7 +1932,7 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(300, 13);
             this.textBox1.TabIndex = 5;
-            this.textBox1.Text = "Battlefield 2 Statistics Control Center v2.1.3";
+            this.textBox1.Text = "Battlefield 2 Statistics Control Center v2.1.4";
             // 
             // NotificationIcon
             // 

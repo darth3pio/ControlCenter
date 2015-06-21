@@ -97,7 +97,7 @@ namespace BF2Statistics
                     return true;
 
                 // Show Stats DB
-                ShowDatabaseSetupForm(DatabaseMode.Stats);
+                ShowDatabaseSetupForm(DatabaseMode.Stats, null);
 
                 message = "In order to use the Gamespy Login Emulation feature of this program, we need to setup a database. "
                     + "You may choose to do this later by clicking \"Cancel\". Would you like to setup the database now?";
@@ -107,12 +107,16 @@ namespace BF2Statistics
                 if (R == DialogResult.No)
                     return true;
 
-                ShowDatabaseSetupForm(DatabaseMode.Gamespy);
+                ShowDatabaseSetupForm(DatabaseMode.Gamespy, null);
             }
 
             return true;
         }
 
+        /// <summary>
+        /// Displays the Install / Program configuration form
+        /// </summary>
+        /// <returns>Returns whether the config was saved, false otherwise</returns>
         public static bool ShowInstallForm()
         {
             using (InstallForm IS = new InstallForm())
@@ -121,11 +125,22 @@ namespace BF2Statistics
             }
         }
 
-        public static void ShowDatabaseSetupForm(DatabaseMode Mode)
+        /// <summary>
+        /// Displays the Database configuration form for the selected database type (Stats or Gamespy)
+        /// </summary>
+        /// <param name="Mode">The database type</param>
+        /// <param name="Parent">The parent window to Dialog over</param>
+        public static void ShowDatabaseSetupForm(DatabaseMode Mode, Form Parent = null)
         {
+            // Try and get the active form
+            if (Parent == null) Parent = Form.ActiveForm;
+
             using (DatabaseConfigForm F = new DatabaseConfigForm(Mode))
             {
-                F.ShowDialog();
+                if (Parent != null && Parent.IsHandleCreated && !Parent.InvokeRequired)
+                    F.ShowDialog(Parent);
+                else
+                    F.ShowDialog();
             }
         }
     }

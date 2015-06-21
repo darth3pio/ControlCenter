@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -809,7 +808,7 @@ namespace BF2Statistics
 
         private void ManageGpDbBtn_Click(object sender, EventArgs e)
         {
-            SetupManager.ShowDatabaseSetupForm(DatabaseMode.Gamespy);
+            SetupManager.ShowDatabaseSetupForm(DatabaseMode.Gamespy, this);
         }
 
         private void EditGamespyConfigBtn_Click(object sender, EventArgs e)
@@ -1710,7 +1709,7 @@ namespace BF2Statistics
         /// </summary>
         private void EditASPDatabaseBtn_Click(object sender, EventArgs e)
         {
-            SetupManager.ShowDatabaseSetupForm(DatabaseMode.Stats);
+            SetupManager.ShowDatabaseSetupForm(DatabaseMode.Stats, this);
         }
 
         /// <summary>
