@@ -8,7 +8,7 @@ using FreeImageAPI;
 
 namespace BF2Statistics
 {
-    public partial class MapList : Form
+    public partial class MapListForm : Form
     {
         /// <summary>
         /// An array of map names found in the clients "levels" folder
@@ -33,7 +33,7 @@ namespace BF2Statistics
         /// <summary>
         /// Constructor
         /// </summary>
-        public MapList()
+        public MapListForm()
         {
             InitializeComponent();
             this.Text = MainForm.SelectedMod.Title + " Map List Editor";
@@ -58,7 +58,7 @@ namespace BF2Statistics
             }
 
             // Get the current maplist and display it
-            MapListBox.Lines = Mod.MapList;
+            MapListBox.Lines = Mod.MapList.Entries.Select(e => e.ToString()).ToArray();   
         }
 
         #region Events
@@ -325,8 +325,25 @@ namespace BF2Statistics
                 return;
             }
 
+            // Append the prefix to each map line
+            BF2Mod Mod = MainForm.SelectedMod;
+
+            // Clear out old Junk, and add new
+            Mod.MapList.Entries.Clear();
+            for (int i = 0; i < MapListBox.Lines.Length; i++)
+            {
+                // Validate that the line was not tampered with
+                if(!Mod.MapList.AddFromString(MapListBox.Lines[i]))
+                {
+                    MessageBox.Show(
+                        "Error parsing map entry on line " + i + ". Operation aborted.", 
+                        "Save Error", MessageBoxButtons.OK, MessageBoxIcon.Warning
+                    );
+                }
+            }
+
             // Save and close
-            MainForm.SelectedMod.MapList = MapListBox.Lines;
+            Mod.MapList.SaveToFile(Mod.MaplistFilePath);
             this.Close();
         }
 

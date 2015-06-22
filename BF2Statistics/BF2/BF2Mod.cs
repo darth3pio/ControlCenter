@@ -43,30 +43,12 @@ namespace BF2Statistics
         /// <summary>
         /// The full path to the maplist.con file
         /// </summary>
-        protected string MaplistFile;
-
-        /// <summary>
-        /// Holds the current maplist privatly
-        /// </summary>
-        private string[] _mapList;
+        public string MaplistFilePath { get; protected set; }
 
         /// <summary>
         /// Gets or Sets the contents of the maplist.con file.
-        /// Using proper maplist.con file format is a MUST!
         /// </summary>
-        public string[] MapList 
-        {
-            get { return _mapList; }
-            set
-            {
-                // Check to make sure we arent setting the same value
-                if (!_mapList.SequenceEqual(value))
-                {
-                    _mapList = value;
-                    File.WriteAllLines(MaplistFile, value);
-                }
-            }
-        }
+        public MapList MapList { get; protected set; }
 
         /// <summary>
         /// Holds the Server Settings object privatly
@@ -103,7 +85,7 @@ namespace BF2Statistics
             this.Name = ModName;
             this.RootPath = Path.Combine(ModsPath, ModName);
             this.LevelsPath = Path.Combine(RootPath, "levels");
-            this.MaplistFile = Path.Combine(RootPath, "settings", "maplist.con");
+            this.MaplistFilePath = Path.Combine(RootPath, "settings", "maplist.con");
             string DescFile = Path.Combine(ModsPath, ModName, "mod.desc");
 
             // Make sure we have a mod description file
@@ -121,7 +103,7 @@ namespace BF2Statistics
             }
 
             // Make sure we have a maplist!
-            if (!File.Exists(MaplistFile))
+            if (!File.Exists(MaplistFilePath))
             {
                 Program.ErrorLog.Write("NOTICE: Mod \"" + ModName + "\" Does not contain a maplist.con file");
                 throw new InvalidModException("Mod \"" + ModName + "\" does not contain a maplist.con file");
@@ -154,7 +136,7 @@ namespace BF2Statistics
             LoadedLevels = new Dictionary<string, BF2Map>();
 
             // Load the maplist
-            _mapList = File.ReadAllLines(MaplistFile);
+            MapList = new MapList(MaplistFilePath);
         }
 
         /// <summary>
@@ -175,41 +157,6 @@ namespace BF2Statistics
             BF2Map Map = new BF2Map(Name, LevelsPath);
             LoadedLevels.Add(Name, Map);
             return Map;
-        }
-
-        /// <summary>
-        /// Fetches the first map to be played when the server starts
-        /// </summary>
-        /// <param name="MapName"></param>
-        /// <param name="Gamemode"></param>
-        /// <param name="Size"></param>
-        public void GetNextMapToBePlayed(out string MapName, out string Gamemode, out string Size)
-        {
-            // Make sure our maplist isnt empty
-            if (_mapList.Length == 0)
-                goto None;
-
-            // Parse the 1st line of the con file
-            Match M = Regex.Match(_mapList[0],
-                @"^maplist.append[\s|\t]+([""]*)(?<Mapname>[a-z0-9_]+)([""]*)[\s|\t]+([""]*)gpm_(?<Gamemode>[a-z]+)([""]*)[\s|\t]+(?<Size>[0-9]+)", 
-                RegexOptions.IgnoreCase
-            );
-
-            if (M.Success)
-            {
-                MapName = M.Groups["Mapname"].ToString();
-                Gamemode = M.Groups["Gamemode"].ToString();
-                Size = M.Groups["Size"].ToString();
-                return;
-            }
-
-            // Our goto if our maplist is empty, or the maplist.con cant be parsed correctly
-            None:
-            {
-                MapName = "";
-                Gamemode = "";
-                Size = "";
-            }
         }
 
         /// <summary>

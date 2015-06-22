@@ -39,6 +39,7 @@
             this.AutoLogin = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.ProfileSelect = new System.Windows.Forms.ComboBox();
             this.AccountPass = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
@@ -55,7 +56,6 @@
             this.DisableSwiff = new System.Windows.Forms.CheckBox();
             this.CancelBtn = new System.Windows.Forms.Button();
             this.SaveBtn = new System.Windows.Forms.Button();
-            this.ProfileSelect = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -177,6 +177,15 @@
             this.groupBox2.TabIndex = 12;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Login Settings";
+            // 
+            // ProfileSelect
+            // 
+            this.ProfileSelect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ProfileSelect.FormattingEnabled = true;
+            this.ProfileSelect.Location = new System.Drawing.Point(90, 67);
+            this.ProfileSelect.Name = "ProfileSelect";
+            this.ProfileSelect.Size = new System.Drawing.Size(121, 21);
+            this.ProfileSelect.TabIndex = 14;
             // 
             // AccountPass
             // 
@@ -348,15 +357,6 @@
             this.SaveBtn.UseVisualStyleBackColor = true;
             this.SaveBtn.Click += new System.EventHandler(this.SaveBtn_Click);
             // 
-            // ProfileSelect
-            // 
-            this.ProfileSelect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ProfileSelect.FormattingEnabled = true;
-            this.ProfileSelect.Location = new System.Drawing.Point(90, 67);
-            this.ProfileSelect.Name = "ProfileSelect";
-            this.ProfileSelect.Size = new System.Drawing.Size(121, 21);
-            this.ProfileSelect.TabIndex = 14;
-            // 
             // ClientParamsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -374,7 +374,7 @@
             this.MinimizeBox = false;
             this.Name = "ClientParamsForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Battlefield 2 Client Params";
+            this.Text = "Battlefield 2 Client Launch Parameters";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);

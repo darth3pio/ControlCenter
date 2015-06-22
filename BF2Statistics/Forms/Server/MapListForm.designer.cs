@@ -1,6 +1,6 @@
 ﻿namespace BF2Statistics
 {
-    partial class MapList
+    partial class MapListForm
     {
         /// <summary>
         /// Required designer variable.

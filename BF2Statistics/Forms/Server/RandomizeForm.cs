@@ -141,12 +141,15 @@ namespace BF2Statistics
             }
 
             // Append the prefix to each map line
-            string[] Lines = new string[Len];
+            MapList List = MainForm.SelectedMod.MapList;
+
+            // Clear out old Junk, and add new
+            List.Entries.Clear();
             for (int i = 0; i < Len; i++)
-                Lines[i] = "mapList.append " + MapListBox.Lines[i];
+                List.AddFromString("mapList.append " + MapListBox.Lines[i]);
 
             // Save and close
-            MainForm.SelectedMod.MapList = Lines;
+            List.SaveToFile(MainForm.SelectedMod.MaplistFilePath);
             this.Close();
         }
     }

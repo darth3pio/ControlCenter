@@ -30,53 +30,34 @@ namespace BF2Statistics
             InitializeComponent();
             this.DbMode = Mode;
 
-            // === Stats
-            if (Mode == DatabaseMode.Stats)
-            {
-                // Fill values for config boxes
-                if (Program.Config.StatsDBEngine == "Sqlite")
-                {
-                    TypeSelect.SelectedIndex = 0;
-                    SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder(Program.Config.StatsDBConnectionString);
-                    if (!String.IsNullOrWhiteSpace(Builder.DataSource))
-                        DBName.Text = Path.GetFileNameWithoutExtension(Builder.DataSource);
-                    else
-                        DBName.Text = "bf2stats";
-                }
-                else
-                {
-                    TypeSelect.SelectedIndex = 1;
-                    MySqlConnectionStringBuilder Builder = new MySqlConnectionStringBuilder(Program.Config.StatsDBConnectionString);
-                    Hostname.Text = Builder.Server;
-                    Port.Value = Builder.Port;
-                    Username.Text = Builder.UserID;
-                    Password.Text = Builder.Password;
-                    DBName.Text = Builder.Database;
-                }
-            }
-            else // === Gamespy === //
-            {
-                // Fill values for config boxes
-                if (Program.Config.StatsDBEngine == "Sqlite")
-                {
-                    TypeSelect.SelectedIndex = 0;
-                    SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder(Program.Config.GamespyDBConnectionString);
-                    if (!String.IsNullOrWhiteSpace(Builder.DataSource))
-                        DBName.Text = Path.GetFileNameWithoutExtension(Builder.DataSource);
-                    else
-                        DBName.Text = "gamespy";
-                }
-                else
-                {
-                    TypeSelect.SelectedIndex = 1;
-                    MySqlConnectionStringBuilder Builder = new MySqlConnectionStringBuilder(Program.Config.GamespyDBConnectionString);
-                    Hostname.Text = Builder.Server;
-                    Port.Value = Builder.Port;
-                    Username.Text = Builder.UserID;
-                    Password.Text = Builder.Password;
-                    DBName.Text = Builder.Database;
-                }
+            // Our connection string temp variable
+            string ConnString = (Mode == DatabaseMode.Stats) ? Program.Config.StatsDBConnectionString : Program.Config.GamespyDBConnectionString;
+            string Engine = (Mode == DatabaseMode.Stats) ? Program.Config.StatsDBEngine : Program.Config.GamespyDBEngine;
 
+            // Fill values for config boxes
+            if (Engine == "Sqlite")
+            {
+                TypeSelect.SelectedIndex = 0;
+                SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder(ConnString);
+                if (!String.IsNullOrWhiteSpace(Builder.DataSource))
+                    DBName.Text = Path.GetFileNameWithoutExtension(Builder.DataSource);
+                else
+                    DBName.Text = (Mode == DatabaseMode.Stats) ? "bf2stats" : "gamespy";
+            }
+            else
+            {
+                TypeSelect.SelectedIndex = 1;
+                MySqlConnectionStringBuilder Builder = new MySqlConnectionStringBuilder(ConnString);
+                Hostname.Text = Builder.Server;
+                Port.Value = Builder.Port;
+                Username.Text = Builder.UserID;
+                Password.Text = Builder.Password;
+                DBName.Text = Builder.Database;
+            }
+
+            // === Gamespy Texts
+            if (Mode == DatabaseMode.Gamespy)
+            {
                 // Set header texts
                 TitleLabel.Text = "Gamespy Database Configuration";
                 DescLabel.Text = "Which database should gamespy accounts be saved to?";
@@ -228,9 +209,6 @@ namespace BF2Statistics
             this.Enabled = false;
             string Message1 = "";
 
-            // Temporarily set settings
-            SetConfigSettings();
-
             // Initiate the Task Form
             if (TypeSelect.SelectedIndex == 1)
             {
@@ -243,57 +221,67 @@ namespace BF2Statistics
                 Message1 = "Successfully Created the SQLite Database! We will attempt to create the necessary tables into the specified database. Continue?";
             }
 
+            // Temporarily set settings
+            SetConfigSettings();
+
             // Try and install the SQL
             try
             {
                 bool PreviousInstall = true;
 
-                if (DbMode == DatabaseMode.Stats)
+                // Run in a seperate thread, dont wanna lock up the GUI thread
+                await Task.Run(() =>
                 {
-                    using (StatsDatabase Db = new StatsDatabase())
+                    // Switch mode
+                    if (DbMode == DatabaseMode.Stats)
                     {
-                        if (!Db.TablesExist)
+                        // Open up the database connetion
+                        using (StatsDatabase Db = new StatsDatabase())
                         {
-                            PreviousInstall = false;
+                            // We only have work to do if the tables are not installed
+                            if (!Db.TablesExist)
+                            {
+                                PreviousInstall = false;
 
-                            // Verify that the user wants to install DB tables
-                            TaskForm.CloseForm();
-                            DialogResult Res = MessageBox.Show(Message1, "Verify Installation", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                                MessageBoxDefaultButton.Button1, (MessageBoxOptions)0x40000 // Force window on top
-                            );
+                                // Verify that the user wants to install DB tables
+                                DialogResult Res = MessageBox.Show(Message1, "Verify Installation", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                                    MessageBoxDefaultButton.Button1, (MessageBoxOptions)0x40000 // Force window on top
+                                );
 
-                            // If we dont want to install tables, back out!
-                            if (Res == DialogResult.No)
-                                return;
+                                // If we dont want to install tables, back out!
+                                if (Res == DialogResult.No) return;
 
-                            TaskForm.Show(this, "Create Database", "Creating Stats Tables", false);
-                            await Task.Run(() => Db.CreateSqlTables(TaskForm.Progress));
+                                // Create our tables
+                                TaskForm.Progress.Report(new TaskProgressUpdate("Creating Stats Tables"));
+                                Db.CreateSqlTables(TaskForm.Progress);
+                            }
                         }
                     }
-                }
-                else
-                {
-                    using (GamespyDatabase Db = new GamespyDatabase())
+                    else // Gamespy Mode
                     {
-                        if (!Db.TablesExist)
+                        // Open up the database connetion
+                        using (GamespyDatabase Db = new GamespyDatabase())
                         {
-                            PreviousInstall = false;
+                            // We only have work to do if the tables are not installed
+                            if (!Db.TablesExist)
+                            {
+                                PreviousInstall = false;
 
-                            // Verify that the user wants to install DB tables
-                            TaskForm.CloseForm();
-                            DialogResult Res = MessageBox.Show(Message1, "Verify Installation", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                                MessageBoxDefaultButton.Button1, (MessageBoxOptions)0x40000 // Force window on top
-                            );
+                                // Verify that the user wants to install DB tables
+                                DialogResult Res = MessageBox.Show(Message1, "Verify Installation", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                                    MessageBoxDefaultButton.Button1, (MessageBoxOptions)0x40000 // Force window on top
+                                );
 
-                            // If we dont want to install tables, back out!
-                            if (Res == DialogResult.No)
-                                return;
+                                // If we dont want to install tables, back out!
+                                if (Res == DialogResult.No)  return;
 
-                            TaskForm.Show(this, "Create Database", "Creating Gamespy Tables", false);
-                            await Task.Run(() => Db.CreateSqlTables());
+                                // Create our tables
+                                TaskForm.Progress.Report(new TaskProgressUpdate("Creating Gamespy Tables"));
+                                Db.CreateSqlTables();
+                            }
                         }
                     }
-                }
+                });
 
                 // No errors, so save the config file
                 Program.Config.Save();

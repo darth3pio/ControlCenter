@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -480,7 +481,7 @@ namespace BF2Statistics
 
                 // Hook into the proccess so we know when its running, and register a closing event
                 ClientProcess.EnableRaisingEvents = true;
-                ClientProcess.Exited += new EventHandler(BF2Client_Exited);
+                ClientProcess.Exited += BF2Client_Exited;
 
                 // Update button
                 LaunchClientBtn.Enabled = true;
@@ -659,23 +660,29 @@ namespace BF2Statistics
         /// </summary>
         private void ModSelectList_SelectedIndexChanged(object sender, EventArgs e)
         {
+            // Grab our selected mod
             SelectedMod = (BF2Mod)ModSelectList.SelectedItem;
-            string Mapname, Type, Size;
-            SelectedMod.GetNextMapToBePlayed(out Mapname, out Type, out Size);
+            MapListEntry Entry = SelectedMod.MapList.Entries.FirstOrDefault();
 
-            // Make sure we have a next map :S
-            if (!String.IsNullOrEmpty(Mapname))
+            // Make sure we dont have an empty MapList
+            if (Entry == default(MapListEntry) || String.IsNullOrWhiteSpace(Entry.MapName))
             {
-                // First, try and load the map descriptor file
+                FirstMapBox.Text = "";
+                MapModeBox.Text = "";
+                MapSizeBox.Text = "";
+            }
+            else
+            {
                 try
                 {
-                    FirstMapBox.Text = SelectedMod.LoadMap(Mapname).Title;
+                    // First, try and load the map descriptor file
+                    FirstMapBox.Text = SelectedMod.LoadMap(Entry.MapName).Title;
                 }
                 catch
                 {
                     // If we cant load the map, lets parse the name the best we can
                     // First, convert mapname into an array, and capitalize each word
-                    string[] Parts = Mapname.Split('_');
+                    string[] Parts = Entry.MapName.Split('_');
                     for (int i = 0; i < Parts.Length; i++)
                     {
                         // Ignore empty parts
@@ -696,26 +703,26 @@ namespace BF2Statistics
                     // Set map name
                     FirstMapBox.Text = MapParts.ToString();
                 }
-            }
 
-            // Convert gametype
-            switch (Type)
-            {
-                case "coop":
-                    MapModeBox.Text = "Coop";
-                    break;
-                case "cq":
-                    MapModeBox.Text = "Conquest";
-                    break;
-                case "sp1":
-                case "sp2":
-                case "sp3":
-                    MapModeBox.Text = "SinglePlayer";
-                    break;
-            }
+                // Convert gametype
+                switch (Entry.GameMode)
+                {
+                    case "coop":
+                        MapModeBox.Text = "Coop";
+                        break;
+                    case "cq":
+                        MapModeBox.Text = "Conquest";
+                        break;
+                    case "sp1":
+                    case "sp2":
+                    case "sp3":
+                        MapModeBox.Text = "SinglePlayer";
+                        break;
+                }
 
-            // Set mapsize
-            MapSizeBox.Text = Size;
+                // Set mapsize
+                MapSizeBox.Text = Entry.MapSize.ToString();
+            }
         }
 
         /// <summary>
@@ -965,7 +972,7 @@ namespace BF2Statistics
         /// </summary>
         private void EditMapListBtn_Click(object sender, EventArgs e)
         {
-            using (MapList Form = new MapList())
+            using (MapListForm Form = new MapListForm())
             {
                 Form.ShowDialog();
             }

@@ -125,6 +125,8 @@
     <Compile Include="Forms\NativeForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="BF2\MapListEntry.cs" />
+    <Compile Include="BF2\MapList.cs" />
     <Compile Include="Net\BufferDataToken.cs" />
     <Compile Include="Net\BufferManager.cs" />
     <Compile Include="Net\GamespyTcpStream.cs" />
@@ -368,11 +370,11 @@
     <Compile Include="Forms\InstallForm.Designer.cs">
       <DependentUpon>InstallForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Server\MapList.cs">
+    <Compile Include="Forms\Server\MapListForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Server\MapList.designer.cs">
-      <DependentUpon>MapList.cs</DependentUpon>
+    <Compile Include="Forms\Server\MapListForm.designer.cs">
+      <DependentUpon>MapListForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Server\ScoreSettings.cs">
       <SubType>Form</SubType>
@@ -602,8 +604,8 @@
     <EmbeddedResource Include="Forms\Server\ImageForm.resx">
       <DependentUpon>ImageForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Server\MapList.resx">
-      <DependentUpon>MapList.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\Server\MapListForm.resx">
+      <DependentUpon>MapListForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Server\RandomizeForm.resx">
       <DependentUpon>RandomizeForm.cs</DependentUpon>
