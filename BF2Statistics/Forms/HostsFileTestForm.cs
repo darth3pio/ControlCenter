@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using BF2Statistics.Properties;
 using BF2Statistics.Utilities;
+using BF2Statistics.Net;
 
 namespace BF2Statistics
 {
@@ -55,7 +56,7 @@ namespace BF2Statistics
                     return;
 
                 // Make sure this service exists in the hosts file
-                if (!HostsFile.HasEntry(Services[i]))
+                if (i < 4 && Redirector.GamespyServerAddress == null || Redirector.StatsServerAddress == null)
                 {
                     SetStatus(i, "Skipped", Resources.question_button, "Entry not found in HOSTS file. Assumed redirect was not desired by user");
                     continue;
@@ -67,30 +68,37 @@ namespace BF2Statistics
                 // Ping server to get the IP address in the dns cache
                 try
                 {
-                    IPAddress HostsIp = IPAddress.Parse(HostsFile.Get(Services[i]));
-                    IPAddress[] Entries = Dns.GetHostAddresses(Services[i]);
+                    IPAddress HostsIp = (i == 4) ? Redirector.StatsServerAddress : Redirector.GamespyServerAddress;
+                    DnsCacheResult Result = new DnsCacheResult(Services[i], HostsIp);
+
+                    // Update Gamespy Redirector Cache
+                    Redirector.DnsCacheReport.AddOrUpdate(Result);
+
+                    // Throw bad result
+                    if (Result.IsFaulted)
+                    {
+                        // No such hosts is known?
+                        if (Result.Error.InnerException != null)
+                            SetStatus(i, "Error Occured", Resources.error, Result.Error.InnerException.Message);
+                        else
+                            SetStatus(i, "Error Occured", Resources.error, Result.Error.Message);
+                    }
 
                     // Check for cancel before setting a form value
                     if (TaskSource.IsCancellationRequested)
                         return;
 
                     // Verify correct address 
-                    if (Entries.Contains(HostsIp))
+                    if (Result.GotExpectedResult)
                         SetStatus(i, HostsIp.ToString(), Resources.check);
                     else
-                        SetStatus(i, Entries[0].ToString(), Resources.warning, "Address expected: " + HostsIp.ToString());
+                        SetStatus(i, Result.ResultAddresses[0].ToString(), Resources.warning, "Address expected: " + HostsIp.ToString());
                 }
-                catch(Exception e)
+                catch
                 {
                     // Check for cancel before setting a form value
                     if (TaskSource.IsCancellationRequested)
                         return;
-
-                    // No such hosts is known?
-                    if(e.InnerException != null)
-                        SetStatus(i, "Error Occured", Resources.error, e.InnerException.Message);
-                    else
-                        SetStatus(i, "Error Occured", Resources.error, e.Message);
                 }
             }
 
@@ -113,7 +121,7 @@ namespace BF2Statistics
             if (!IsHandleCreated) return;
 
             // Invoke this in the thread that created the handle
-            BeginInvoke((Action)delegate
+            Invoke((Action)delegate
             {
                 switch (i)
                 {
@@ -144,6 +152,9 @@ namespace BF2Statistics
                         break;
                 }
             });
+
+            // Let Gui Update
+            Thread.Sleep(100);
         }
 
         /// <summary>

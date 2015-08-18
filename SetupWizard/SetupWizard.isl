@@ -2776,7 +2776,7 @@
 		<col def="I2">Encoded</col>
 		<col def="S0">Comment</col>
 		<col def="I4">TimeStamp</col>
-		<row><td>COMPANY_NAME</td><td>1033</td><td>BF2Statistics</td><td>0</td><td/><td>-123483379</td></row>
+		<row><td>COMPANY_NAME</td><td>1033</td><td>BF2Statistics</td><td>0</td><td/><td>-1809606164</td></row>
 		<row><td>DN_AlwaysInstall</td><td>1033</td><td>Always Install</td><td>0</td><td/><td>-526134062</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_COLOR</td><td>1033</td><td>The color settings of your system are not adequate for running [ProductName].</td><td>0</td><td/><td>-526134062</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_OS</td><td>1033</td><td>The operating system is not adequate for running [ProductName].</td><td>0</td><td/><td>-526134062</td></row>
@@ -3877,8 +3877,8 @@
 		<row><td>IDS__TargetReq_DESC_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>-526134062</td></row>
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>-526134062</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>-526134062</td></row>
-		<row><td>ID_STRING1</td><td>1033</td><td>http://www.BF2Statistics.com</td><td>0</td><td/><td>-123483379</td></row>
-		<row><td>ID_STRING2</td><td>1033</td><td>BF2Statistics</td><td>0</td><td/><td>-123483379</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>http://www.BF2Statistics.com</td><td>0</td><td/><td>-1809606164</td></row>
+		<row><td>ID_STRING2</td><td>1033</td><td>BF2Statistics</td><td>0</td><td/><td>-1809606164</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>BF2 Statistics Control Center</td><td>0</td><td/><td>-526132173</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>http://www.bf2statistics.com/resources/bf2statistics-control-center.1/updates</td><td>0</td><td/><td>589527728</td></row>
 		<row><td>IIDS_UITEXT_FeatureUninstalled</td><td>1033</td><td>This feature will remain uninstalled.</td><td>0</td><td/><td>-526134062</td></row>
@@ -4124,7 +4124,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>ISTheme</td><td>InstallShield Blue.theme</td></row>
 		<row><td>ISUSLock</td><td>{B5186B57-8B12-441E-A452-138234BA97D0}</td></row>
 		<row><td>ISUSSignature</td><td>{4B5BF65E-A8E4-47DE-B799-ED987816BFFF}</td></row>
-		<row><td>ISVisitedViews</td><td>viewAssistant,viewSetupTypes,viewUpgradePaths,viewUpdateService,viewProject,viewAppFiles,viewFeatureFiles,viewObjects,viewDependencies,viewFileExtensions,viewSQLServer,viewShortcuts,viewRelease,viewSystemSearch,viewInstallScriptStd,viewCustomActions,viewSupportFiles,viewRealSetupDesign,viewSetupDesign,viewISToday</td></row>
+		<row><td>ISVisitedViews</td><td>viewAssistant,viewSetupTypes,viewUpgradePaths,viewUpdateService,viewProject,viewAppFiles,viewFeatureFiles,viewObjects,viewDependencies,viewFileExtensions,viewSQLServer,viewShortcuts,viewRelease,viewSystemSearch,viewInstallScriptStd,viewCustomActions,viewSupportFiles,viewRealSetupDesign,viewSetupDesign,viewISToday,viewDesignPatches</td></row>
 		<row><td>Limited</td><td>1</td></row>
 		<row><td>LockPermissionMode</td><td>1</td></row>
 		<row><td>MsiExecCmdLineOptions</td><td/></row>
@@ -4498,9 +4498,9 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKAPPPOOLS</td><td>##IDS_PROGMSG_IIS_ROLLBACKAPPPOOLS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
-		<row><td>ProductCode</td><td>{1502DEAE-BD55-4874-9B82-0E451E45A823}</td><td/></row>
+		<row><td>ProductCode</td><td>{18A3069F-1AB8-4D99-B781-F494FAE5A674}</td><td/></row>
 		<row><td>ProductName</td><td>BF2Statistics Control Center</td><td/></row>
-		<row><td>ProductVersion</td><td>2.1.5</td><td/></row>
+		<row><td>ProductVersion</td><td>2.2.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -4788,7 +4788,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="s72">ActionProperty</col>
 		<col def="S72">ISDisplayName</col>
 		<row><td>{00000000-0000-0000-0000-000000000000}</td><td>***ALL_VERSIONS***</td><td></td><td></td><td>2</td><td/><td>ISFOUNDNEWERPRODUCTVERSION</td><td>ISPreventDowngrade</td></row>
-		<row><td>{72A4AFA3-2750-49AC-8FC4-AD9ED5CFFD84}</td><td></td><td>2.1.4</td><td></td><td>768</td><td/><td>ISACTIONPROP1</td><td>NewUpgradeEntry1</td></row>
+		<row><td>{72A4AFA3-2750-49AC-8FC4-AD9ED5CFFD84}</td><td></td><td>2.1.5</td><td></td><td>768</td><td/><td>ISACTIONPROP1</td><td>NewUpgradeEntry1</td></row>
 	</table>
 
 	<table name="Verb">

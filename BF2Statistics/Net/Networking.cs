@@ -5,8 +5,9 @@ using System.Text;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
-namespace BF2Statistics.Utilities
+namespace BF2Statistics.Net
 {
     static class Networking
     {
@@ -63,6 +64,20 @@ namespace BF2Statistics.Utilities
                 Ip = null;
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Asnychronously validates a hostname to an IPAddress
+        /// </summary>
+        /// <param name="address">The hostname to validate</param>
+        /// <param name="expectedAddress">The expected Ip Address</param>
+        /// <returns>Returns a bool indicating whether the hostname matches the specified address</returns>
+        public static Task<DnsCacheResult> ValidateAddressAsync(string address, IPAddress expectedAddress)
+        {
+            return Task.Run<DnsCacheResult>(() =>
+            {
+                return new DnsCacheResult(address, expectedAddress);
+            });
         }
 
         /// <summary>

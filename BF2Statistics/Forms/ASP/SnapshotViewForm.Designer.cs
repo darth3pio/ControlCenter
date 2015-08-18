@@ -32,6 +32,8 @@
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SnapshotView = new System.Windows.Forms.ListView();
+            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ImportBtn = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.SelectAllBtn = new System.Windows.Forms.Button();
@@ -44,6 +46,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.DeleteBtn = new System.Windows.Forms.Button();
             this.ServerOfflineWarning = new System.Windows.Forms.Label();
+            this.linkLabelFilter = new System.Windows.Forms.LinkLabel();
             this.MenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -54,15 +57,17 @@
             // 
             // columnHeader2
             // 
-            this.columnHeader2.Text = "Snapshot";
-            this.columnHeader2.Width = 500;
+            this.columnHeader2.Text = "Map Name";
+            this.columnHeader2.Width = 250;
             // 
             // SnapshotView
             // 
             this.SnapshotView.CheckBoxes = true;
             this.SnapshotView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
-            this.columnHeader2});
+            this.columnHeader2,
+            this.columnHeader3,
+            this.columnHeader4});
             this.SnapshotView.FullRowSelect = true;
             this.SnapshotView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.SnapshotView.Location = new System.Drawing.Point(6, 127);
@@ -73,6 +78,16 @@
             this.SnapshotView.UseCompatibleStateImageBehavior = false;
             this.SnapshotView.View = System.Windows.Forms.View.Details;
             this.SnapshotView.MouseClick += new System.Windows.Forms.MouseEventHandler(this.SnapshotView_MouseClick);
+            // 
+            // columnHeader3
+            // 
+            this.columnHeader3.Text = "Server Prefix";
+            this.columnHeader3.Width = 83;
+            // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = "Date";
+            this.columnHeader4.Width = 150;
             // 
             // ImportBtn
             // 
@@ -94,7 +109,7 @@
             this.textBox1.Size = new System.Drawing.Size(575, 35);
             this.textBox1.TabIndex = 2;
             this.textBox1.Text = "Below is a list of  snapshots that have not been imported into the database. You " +
-                "can select which snapshots you wish to try and import below";
+    "can select which snapshots you wish to try and import below";
             // 
             // SelectAllBtn
             // 
@@ -188,7 +203,18 @@
             this.ServerOfflineWarning.Size = new System.Drawing.Size(481, 13);
             this.ServerOfflineWarning.TabIndex = 11;
             this.ServerOfflineWarning.Text = "The ASP webserver is offline. You will be unable to import Snapshots until the AS" +
-                "P server is enabled.";
+    "P server is enabled.";
+            // 
+            // linkLabelFilter
+            // 
+            this.linkLabelFilter.AutoSize = true;
+            this.linkLabelFilter.Location = new System.Drawing.Point(494, 106);
+            this.linkLabelFilter.Name = "linkLabelFilter";
+            this.linkLabelFilter.Size = new System.Drawing.Size(88, 13);
+            this.linkLabelFilter.TabIndex = 12;
+            this.linkLabelFilter.TabStop = true;
+            this.linkLabelFilter.Text = "<< Apply Filter >>";
+            this.linkLabelFilter.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelFilter_LinkClicked);
             // 
             // SnapshotViewForm
             // 
@@ -196,6 +222,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(594, 432);
+            this.Controls.Add(this.linkLabelFilter);
             this.Controls.Add(this.ServerOfflineWarning);
             this.Controls.Add(this.DeleteBtn);
             this.Controls.Add(this.label2);
@@ -211,7 +238,7 @@
             this.MinimizeBox = false;
             this.Name = "SnapshotViewForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Snapshot Data";
+            this.Text = "Snapshots";
             this.MenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -235,6 +262,9 @@
         private System.Windows.Forms.ToolStripMenuItem MoveSnapshotMenuItem;
         private System.Windows.Forms.Button DeleteBtn;
         private System.Windows.Forms.Label ServerOfflineWarning;
+        private System.Windows.Forms.LinkLabel linkLabelFilter;
+        private System.Windows.Forms.ColumnHeader columnHeader3;
+        private System.Windows.Forms.ColumnHeader columnHeader4;
 
     }
 }

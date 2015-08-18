@@ -183,6 +183,16 @@ namespace BF2Statistics.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap GamespyBanner1 {
+            get {
+                object obj = ResourceManager.GetObject("GamespyBanner1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap GamespyIcon {
             get {
                 object obj = ResourceManager.GetObject("GamespyIcon", resourceCulture);

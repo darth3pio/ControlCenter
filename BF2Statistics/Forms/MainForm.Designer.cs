@@ -157,22 +157,27 @@
             this.groupBox20 = new System.Windows.Forms.GroupBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.HostsDiagnosticsBtn = new System.Windows.Forms.Button();
-            this.Bf2AaGroupBox = new System.Windows.Forms.GroupBox();
+            this.groupBox31 = new System.Windows.Forms.GroupBox();
+            this.GStatus = new System.Windows.Forms.PictureBox();
+            this.GSAddress1 = new System.Windows.Forms.Label();
+            this.GSAddress2 = new System.Windows.Forms.Label();
+            this.groupBox19 = new System.Windows.Forms.GroupBox();
+            this.SStatus = new System.Windows.Forms.PictureBox();
+            this.SSAddress1 = new System.Windows.Forms.Label();
+            this.SSAddress2 = new System.Windows.Forms.Label();
+            this.groupBox11 = new System.Windows.Forms.GroupBox();
+            this.DiagnosticsBtn = new System.Windows.Forms.Button();
+            this.label24 = new System.Windows.Forms.Label();
+            this.labelRedirectStatus = new System.Windows.Forms.Label();
+            this.label26 = new System.Windows.Forms.Label();
+            this.labelRedirectMode = new System.Windows.Forms.Label();
+            this.shapeContainer4 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
+            this.lineShape4 = new Microsoft.VisualBasic.PowerPacks.LineShape();
+            this.RedirectButton = new System.Windows.Forms.Button();
+            this.HostsSecGroupBox = new System.Windows.Forms.GroupBox();
             this.HostsLockStatus = new System.Windows.Forms.Label();
             this.label20 = new System.Windows.Forms.Label();
             this.HostsLockCheckbox = new System.Windows.Forms.CheckBox();
-            this.LogWindow = new System.Windows.Forms.GroupBox();
-            this.LogBox = new System.Windows.Forms.TextBox();
-            this.RedirectButton = new System.Windows.Forms.Button();
-            this.GpcmGroupBox = new System.Windows.Forms.GroupBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.GpcmCheckbox = new System.Windows.Forms.CheckBox();
-            this.GpcmAddress = new System.Windows.Forms.TextBox();
-            this.BF2webGroupBox = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.Bf2webCheckbox = new System.Windows.Forms.CheckBox();
-            this.Bf2webAddress = new System.Windows.Forms.TextBox();
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.UpdateLabel = new System.Windows.Forms.Label();
@@ -227,10 +232,12 @@
             this.groupBox21.SuspendLayout();
             this.tabPage4.SuspendLayout();
             this.groupBox4.SuspendLayout();
-            this.Bf2AaGroupBox.SuspendLayout();
-            this.LogWindow.SuspendLayout();
-            this.GpcmGroupBox.SuspendLayout();
-            this.BF2webGroupBox.SuspendLayout();
+            this.groupBox31.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.GStatus)).BeginInit();
+            this.groupBox19.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.SStatus)).BeginInit();
+            this.groupBox11.SuspendLayout();
+            this.HostsSecGroupBox.SuspendLayout();
             this.tabPage6.SuspendLayout();
             this.groupBox5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.UpdateStatusPic)).BeginInit();
@@ -375,9 +382,9 @@
             this.HostsStatusDesc.AutoSize = true;
             this.HostsStatusDesc.Location = new System.Drawing.Point(49, 23);
             this.HostsStatusDesc.Name = "HostsStatusDesc";
-            this.HostsStatusDesc.Size = new System.Drawing.Size(139, 13);
+            this.HostsStatusDesc.Size = new System.Drawing.Size(132, 13);
             this.HostsStatusDesc.TabIndex = 6;
-            this.HostsStatusDesc.Text = "HOSTS File Redirect Active\r\n";
+            this.HostsStatusDesc.Text = "Gamespy Redirects Active\r\n";
             this.HostsStatusDesc.DoubleClick += new System.EventHandler(this.HostsFileStatusLabel_DoubleClick);
             // 
             // ServerStatusDesc
@@ -1593,44 +1600,207 @@
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Size = new System.Drawing.Size(582, 338);
             this.tabPage4.TabIndex = 2;
-            this.tabPage4.Text = "Hosts File Redirects";
+            this.tabPage4.Text = "Gamespy Redirects";
             // 
             // groupBox4
             // 
-            this.groupBox4.Controls.Add(this.HostsDiagnosticsBtn);
-            this.groupBox4.Controls.Add(this.Bf2AaGroupBox);
-            this.groupBox4.Controls.Add(this.LogWindow);
+            this.groupBox4.Controls.Add(this.groupBox31);
+            this.groupBox4.Controls.Add(this.groupBox19);
+            this.groupBox4.Controls.Add(this.groupBox11);
             this.groupBox4.Controls.Add(this.RedirectButton);
-            this.groupBox4.Controls.Add(this.GpcmGroupBox);
-            this.groupBox4.Controls.Add(this.BF2webGroupBox);
+            this.groupBox4.Controls.Add(this.HostsSecGroupBox);
             this.groupBox4.Location = new System.Drawing.Point(4, 7);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(570, 325);
             this.groupBox4.TabIndex = 1;
             this.groupBox4.TabStop = false;
             // 
-            // HostsDiagnosticsBtn
+            // groupBox31
             // 
-            this.HostsDiagnosticsBtn.Enabled = false;
-            this.HostsDiagnosticsBtn.Location = new System.Drawing.Point(342, 280);
-            this.HostsDiagnosticsBtn.Name = "HostsDiagnosticsBtn";
-            this.HostsDiagnosticsBtn.Size = new System.Drawing.Size(160, 27);
-            this.HostsDiagnosticsBtn.TabIndex = 15;
-            this.HostsDiagnosticsBtn.Text = "Run Diagnostics";
-            this.HostsDiagnosticsBtn.UseVisualStyleBackColor = true;
-            this.HostsDiagnosticsBtn.Click += new System.EventHandler(this.HostsDiagnosticsBtn_Click);
+            this.groupBox31.Controls.Add(this.GStatus);
+            this.groupBox31.Controls.Add(this.GSAddress1);
+            this.groupBox31.Controls.Add(this.GSAddress2);
+            this.groupBox31.Location = new System.Drawing.Point(23, 207);
+            this.groupBox31.Name = "groupBox31";
+            this.groupBox31.Size = new System.Drawing.Size(525, 45);
+            this.groupBox31.TabIndex = 22;
+            this.groupBox31.TabStop = false;
+            this.groupBox31.Text = "Gamespy Servers";
             // 
-            // Bf2AaGroupBox
+            // GStatus
             // 
-            this.Bf2AaGroupBox.Controls.Add(this.HostsLockStatus);
-            this.Bf2AaGroupBox.Controls.Add(this.label20);
-            this.Bf2AaGroupBox.Controls.Add(this.HostsLockCheckbox);
-            this.Bf2AaGroupBox.Location = new System.Drawing.Point(21, 190);
-            this.Bf2AaGroupBox.Name = "Bf2AaGroupBox";
-            this.Bf2AaGroupBox.Size = new System.Drawing.Size(260, 117);
-            this.Bf2AaGroupBox.TabIndex = 14;
-            this.Bf2AaGroupBox.TabStop = false;
-            this.Bf2AaGroupBox.Text = "Hosts File Security";
+            this.GStatus.Image = global::BF2Statistics.Properties.Resources.loading;
+            this.GStatus.Location = new System.Drawing.Point(484, 15);
+            this.GStatus.Name = "GStatus";
+            this.GStatus.Size = new System.Drawing.Size(25, 24);
+            this.GStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.GStatus.TabIndex = 8;
+            this.GStatus.TabStop = false;
+            // 
+            // GSAddress1
+            // 
+            this.GSAddress1.AutoSize = true;
+            this.GSAddress1.Location = new System.Drawing.Point(15, 22);
+            this.GSAddress1.Name = "GSAddress1";
+            this.GSAddress1.Size = new System.Drawing.Size(54, 13);
+            this.GSAddress1.TabIndex = 6;
+            this.GSAddress1.Text = "Loading...";
+            // 
+            // GSAddress2
+            // 
+            this.GSAddress2.AutoSize = true;
+            this.GSAddress2.Location = new System.Drawing.Point(218, 22);
+            this.GSAddress2.Name = "GSAddress2";
+            this.GSAddress2.Size = new System.Drawing.Size(54, 13);
+            this.GSAddress2.TabIndex = 7;
+            this.GSAddress2.Text = "Loading...";
+            // 
+            // groupBox19
+            // 
+            this.groupBox19.Controls.Add(this.SStatus);
+            this.groupBox19.Controls.Add(this.SSAddress1);
+            this.groupBox19.Controls.Add(this.SSAddress2);
+            this.groupBox19.Location = new System.Drawing.Point(23, 151);
+            this.groupBox19.Name = "groupBox19";
+            this.groupBox19.Size = new System.Drawing.Size(525, 45);
+            this.groupBox19.TabIndex = 21;
+            this.groupBox19.TabStop = false;
+            this.groupBox19.Text = "Battlefield 2 Stats  Server";
+            // 
+            // SStatus
+            // 
+            this.SStatus.Image = global::BF2Statistics.Properties.Resources.loading;
+            this.SStatus.Location = new System.Drawing.Point(484, 11);
+            this.SStatus.Name = "SStatus";
+            this.SStatus.Size = new System.Drawing.Size(25, 24);
+            this.SStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.SStatus.TabIndex = 8;
+            this.SStatus.TabStop = false;
+            // 
+            // SSAddress1
+            // 
+            this.SSAddress1.AutoSize = true;
+            this.SSAddress1.Location = new System.Drawing.Point(15, 22);
+            this.SSAddress1.Name = "SSAddress1";
+            this.SSAddress1.Size = new System.Drawing.Size(54, 13);
+            this.SSAddress1.TabIndex = 6;
+            this.SSAddress1.Text = "Loading...";
+            // 
+            // SSAddress2
+            // 
+            this.SSAddress2.AutoSize = true;
+            this.SSAddress2.Location = new System.Drawing.Point(218, 22);
+            this.SSAddress2.Name = "SSAddress2";
+            this.SSAddress2.Size = new System.Drawing.Size(54, 13);
+            this.SSAddress2.TabIndex = 7;
+            this.SSAddress2.Text = "Loading...";
+            // 
+            // groupBox11
+            // 
+            this.groupBox11.Controls.Add(this.DiagnosticsBtn);
+            this.groupBox11.Controls.Add(this.label24);
+            this.groupBox11.Controls.Add(this.labelRedirectStatus);
+            this.groupBox11.Controls.Add(this.label26);
+            this.groupBox11.Controls.Add(this.labelRedirectMode);
+            this.groupBox11.Controls.Add(this.shapeContainer4);
+            this.groupBox11.Location = new System.Drawing.Point(21, 19);
+            this.groupBox11.Name = "groupBox11";
+            this.groupBox11.Size = new System.Drawing.Size(260, 117);
+            this.groupBox11.TabIndex = 20;
+            this.groupBox11.TabStop = false;
+            this.groupBox11.Text = "Status";
+            // 
+            // DiagnosticsBtn
+            // 
+            this.DiagnosticsBtn.Enabled = false;
+            this.DiagnosticsBtn.Location = new System.Drawing.Point(54, 80);
+            this.DiagnosticsBtn.Name = "DiagnosticsBtn";
+            this.DiagnosticsBtn.Size = new System.Drawing.Size(160, 27);
+            this.DiagnosticsBtn.TabIndex = 15;
+            this.DiagnosticsBtn.Text = "Verify DNS Cache";
+            this.DiagnosticsBtn.UseVisualStyleBackColor = true;
+            this.DiagnosticsBtn.Click += new System.EventHandler(this.HostsDiagnosticsBtn_Click);
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(24, 44);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(80, 13);
+            this.label24.TabIndex = 12;
+            this.label24.Text = "Redirect Mode:";
+            // 
+            // labelRedirectStatus
+            // 
+            this.labelRedirectStatus.AutoSize = true;
+            this.labelRedirectStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelRedirectStatus.ForeColor = System.Drawing.SystemColors.ControlDark;
+            this.labelRedirectStatus.Location = new System.Drawing.Point(164, 24);
+            this.labelRedirectStatus.Name = "labelRedirectStatus";
+            this.labelRedirectStatus.Size = new System.Drawing.Size(56, 13);
+            this.labelRedirectStatus.TabIndex = 11;
+            this.labelRedirectStatus.Text = "Disabled";
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(24, 24);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(89, 13);
+            this.label26.TabIndex = 10;
+            this.label26.Text = "Redirect Status:  ";
+            // 
+            // labelRedirectMode
+            // 
+            this.labelRedirectMode.AutoSize = true;
+            this.labelRedirectMode.Location = new System.Drawing.Point(164, 44);
+            this.labelRedirectMode.Name = "labelRedirectMode";
+            this.labelRedirectMode.Size = new System.Drawing.Size(81, 13);
+            this.labelRedirectMode.TabIndex = 9;
+            this.labelRedirectMode.Text = "System HOSTS";
+            // 
+            // shapeContainer4
+            // 
+            this.shapeContainer4.Location = new System.Drawing.Point(3, 16);
+            this.shapeContainer4.Margin = new System.Windows.Forms.Padding(0);
+            this.shapeContainer4.Name = "shapeContainer4";
+            this.shapeContainer4.Shapes.AddRange(new Microsoft.VisualBasic.PowerPacks.Shape[] {
+            this.lineShape4});
+            this.shapeContainer4.Size = new System.Drawing.Size(254, 98);
+            this.shapeContainer4.TabIndex = 30;
+            this.shapeContainer4.TabStop = false;
+            // 
+            // lineShape4
+            // 
+            this.lineShape4.BorderColor = System.Drawing.SystemColors.InactiveCaption;
+            this.lineShape4.Name = "lineShape3";
+            this.lineShape4.X1 = 14;
+            this.lineShape4.X2 = 240;
+            this.lineShape4.Y1 = 55;
+            this.lineShape4.Y2 = 55;
+            // 
+            // RedirectButton
+            // 
+            this.RedirectButton.Location = new System.Drawing.Point(155, 271);
+            this.RedirectButton.Name = "RedirectButton";
+            this.RedirectButton.Size = new System.Drawing.Size(260, 36);
+            this.RedirectButton.TabIndex = 12;
+            this.RedirectButton.Text = "Configure Gamespy Redirects";
+            this.RedirectButton.UseVisualStyleBackColor = true;
+            this.RedirectButton.Click += new System.EventHandler(this.RedirectButton_Click);
+            // 
+            // HostsSecGroupBox
+            // 
+            this.HostsSecGroupBox.Controls.Add(this.HostsLockStatus);
+            this.HostsSecGroupBox.Controls.Add(this.label20);
+            this.HostsSecGroupBox.Controls.Add(this.HostsLockCheckbox);
+            this.HostsSecGroupBox.Enabled = false;
+            this.HostsSecGroupBox.Location = new System.Drawing.Point(289, 19);
+            this.HostsSecGroupBox.Name = "HostsSecGroupBox";
+            this.HostsSecGroupBox.Size = new System.Drawing.Size(260, 117);
+            this.HostsSecGroupBox.TabIndex = 14;
+            this.HostsSecGroupBox.TabStop = false;
+            this.HostsSecGroupBox.Text = "Hosts File Security";
             // 
             // HostsLockStatus
             // 
@@ -1665,119 +1835,6 @@
             this.HostsLockCheckbox.TabIndex = 0;
             this.HostsLockCheckbox.Text = "Lock HOSTS file? Currently: ";
             this.HostsLockCheckbox.UseVisualStyleBackColor = true;
-            // 
-            // LogWindow
-            // 
-            this.LogWindow.Controls.Add(this.LogBox);
-            this.LogWindow.Location = new System.Drawing.Point(289, 22);
-            this.LogWindow.Name = "LogWindow";
-            this.LogWindow.Size = new System.Drawing.Size(260, 200);
-            this.LogWindow.TabIndex = 13;
-            this.LogWindow.TabStop = false;
-            this.LogWindow.Text = "Status";
-            // 
-            // LogBox
-            // 
-            this.LogBox.BackColor = System.Drawing.SystemColors.Control;
-            this.LogBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.LogBox.Cursor = System.Windows.Forms.Cursors.Arrow;
-            this.LogBox.Enabled = false;
-            this.LogBox.Location = new System.Drawing.Point(5, 15);
-            this.LogBox.Multiline = true;
-            this.LogBox.Name = "LogBox";
-            this.LogBox.ReadOnly = true;
-            this.LogBox.Size = new System.Drawing.Size(250, 170);
-            this.LogBox.TabIndex = 8;
-            // 
-            // RedirectButton
-            // 
-            this.RedirectButton.Location = new System.Drawing.Point(289, 228);
-            this.RedirectButton.Name = "RedirectButton";
-            this.RedirectButton.Size = new System.Drawing.Size(260, 40);
-            this.RedirectButton.TabIndex = 12;
-            this.RedirectButton.Text = "Begin HOSTS Redirect";
-            this.RedirectButton.UseVisualStyleBackColor = true;
-            this.RedirectButton.Click += new System.EventHandler(this.RedirectButton_Click);
-            // 
-            // GpcmGroupBox
-            // 
-            this.GpcmGroupBox.Controls.Add(this.label2);
-            this.GpcmGroupBox.Controls.Add(this.GpcmCheckbox);
-            this.GpcmGroupBox.Controls.Add(this.GpcmAddress);
-            this.GpcmGroupBox.Location = new System.Drawing.Point(21, 106);
-            this.GpcmGroupBox.Name = "GpcmGroupBox";
-            this.GpcmGroupBox.Size = new System.Drawing.Size(260, 78);
-            this.GpcmGroupBox.TabIndex = 11;
-            this.GpcmGroupBox.TabStop = false;
-            this.GpcmGroupBox.Text = "Gamespy Master / Login Servers";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(10, 43);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(86, 13);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "Hostname or IP: ";
-            // 
-            // GpcmCheckbox
-            // 
-            this.GpcmCheckbox.AutoSize = true;
-            this.GpcmCheckbox.Location = new System.Drawing.Point(10, 19);
-            this.GpcmCheckbox.Name = "GpcmCheckbox";
-            this.GpcmCheckbox.Size = new System.Drawing.Size(190, 17);
-            this.GpcmCheckbox.TabIndex = 0;
-            this.GpcmCheckbox.Text = "Redirect Master and Login Servers";
-            this.GpcmCheckbox.UseVisualStyleBackColor = true;
-            // 
-            // GpcmAddress
-            // 
-            this.GpcmAddress.Location = new System.Drawing.Point(97, 42);
-            this.GpcmAddress.MaxLength = 100;
-            this.GpcmAddress.Name = "GpcmAddress";
-            this.GpcmAddress.Size = new System.Drawing.Size(145, 20);
-            this.GpcmAddress.TabIndex = 2;
-            this.GpcmAddress.Text = "localhost";
-            // 
-            // BF2webGroupBox
-            // 
-            this.BF2webGroupBox.Controls.Add(this.label1);
-            this.BF2webGroupBox.Controls.Add(this.Bf2webCheckbox);
-            this.BF2webGroupBox.Controls.Add(this.Bf2webAddress);
-            this.BF2webGroupBox.Location = new System.Drawing.Point(21, 22);
-            this.BF2webGroupBox.Name = "BF2webGroupBox";
-            this.BF2webGroupBox.Size = new System.Drawing.Size(260, 78);
-            this.BF2webGroupBox.TabIndex = 10;
-            this.BF2webGroupBox.TabStop = false;
-            this.BF2webGroupBox.Text = "BF2 Stats Server";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(10, 43);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(86, 13);
-            this.label1.TabIndex = 3;
-            this.label1.Text = "Hostname or IP: ";
-            // 
-            // Bf2webCheckbox
-            // 
-            this.Bf2webCheckbox.AutoSize = true;
-            this.Bf2webCheckbox.Location = new System.Drawing.Point(10, 19);
-            this.Bf2webCheckbox.Name = "Bf2webCheckbox";
-            this.Bf2webCheckbox.Size = new System.Drawing.Size(245, 17);
-            this.Bf2webCheckbox.TabIndex = 0;
-            this.Bf2webCheckbox.Text = "Redirect BF2web.Gamespy.com (Stats Server)";
-            this.Bf2webCheckbox.UseVisualStyleBackColor = true;
-            // 
-            // Bf2webAddress
-            // 
-            this.Bf2webAddress.Location = new System.Drawing.Point(97, 42);
-            this.Bf2webAddress.MaxLength = 100;
-            this.Bf2webAddress.Name = "Bf2webAddress";
-            this.Bf2webAddress.Size = new System.Drawing.Size(145, 20);
-            this.Bf2webAddress.TabIndex = 2;
-            this.Bf2webAddress.Text = "localhost";
             // 
             // tabPage6
             // 
@@ -1932,7 +1989,7 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(300, 13);
             this.textBox1.TabIndex = 5;
-            this.textBox1.Text = "Battlefield 2 Statistics Control Center v2.1.5";
+            this.textBox1.Text = "Battlefield 2 Statistics Control Center v2.2.0";
             // 
             // NotificationIcon
             // 
@@ -2015,14 +2072,16 @@
             this.groupBox21.ResumeLayout(false);
             this.tabPage4.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
-            this.Bf2AaGroupBox.ResumeLayout(false);
-            this.Bf2AaGroupBox.PerformLayout();
-            this.LogWindow.ResumeLayout(false);
-            this.LogWindow.PerformLayout();
-            this.GpcmGroupBox.ResumeLayout(false);
-            this.GpcmGroupBox.PerformLayout();
-            this.BF2webGroupBox.ResumeLayout(false);
-            this.BF2webGroupBox.PerformLayout();
+            this.groupBox31.ResumeLayout(false);
+            this.groupBox31.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.GStatus)).EndInit();
+            this.groupBox19.ResumeLayout(false);
+            this.groupBox19.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.SStatus)).EndInit();
+            this.groupBox11.ResumeLayout(false);
+            this.groupBox11.PerformLayout();
+            this.HostsSecGroupBox.ResumeLayout(false);
+            this.HostsSecGroupBox.PerformLayout();
             this.tabPage6.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
@@ -2048,17 +2107,7 @@
         private System.Windows.Forms.Button LaunchClientBtn;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.GroupBox LogWindow;
-        private System.Windows.Forms.TextBox LogBox;
         private System.Windows.Forms.Button RedirectButton;
-        private System.Windows.Forms.GroupBox GpcmGroupBox;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.CheckBox GpcmCheckbox;
-        private System.Windows.Forms.TextBox GpcmAddress;
-        private System.Windows.Forms.GroupBox BF2webGroupBox;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.CheckBox Bf2webCheckbox;
-        private System.Windows.Forms.TextBox Bf2webAddress;
         private System.Windows.Forms.GroupBox groupBox6;
         private System.Windows.Forms.GroupBox groupBox7;
         private System.Windows.Forms.GroupBox groupBox8;
@@ -2185,15 +2234,30 @@
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.CheckBox RefreshChkBox;
         private System.Windows.Forms.PictureBox ModStatusPic;
-        private System.Windows.Forms.GroupBox Bf2AaGroupBox;
+        private System.Windows.Forms.GroupBox HostsSecGroupBox;
         private System.Windows.Forms.Label ServerListSize;
         private System.Windows.Forms.Label label21;
-        private System.Windows.Forms.Button HostsDiagnosticsBtn;
+        private System.Windows.Forms.Button DiagnosticsBtn;
         private System.Windows.Forms.CheckBox HostsLockCheckbox;
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.Label HostsLockStatus;
         private System.Windows.Forms.Label UpdateLabel;
         private System.Windows.Forms.PictureBox UpdateStatusPic;
+        private System.Windows.Forms.GroupBox groupBox11;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.Label labelRedirectStatus;
+        private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.Label labelRedirectMode;
+        private Microsoft.VisualBasic.PowerPacks.ShapeContainer shapeContainer4;
+        private Microsoft.VisualBasic.PowerPacks.LineShape lineShape4;
+        private System.Windows.Forms.GroupBox groupBox19;
+        private System.Windows.Forms.PictureBox SStatus;
+        private System.Windows.Forms.Label SSAddress1;
+        private System.Windows.Forms.Label SSAddress2;
+        private System.Windows.Forms.GroupBox groupBox31;
+        private System.Windows.Forms.PictureBox GStatus;
+        private System.Windows.Forms.Label GSAddress1;
+        private System.Windows.Forms.Label GSAddress2;
     }
 }
 

@@ -69,6 +69,10 @@
     <Reference Include="MySql.Data, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libraries\Json.Net\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.SQLite, Version=1.0.94.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
@@ -77,7 +81,6 @@
     </Reference>
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -89,6 +92,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ASP\Ip2nation.cs" />
+    <Compile Include="ASP\StatsProcessor\SnapshotMode.cs" />
     <Compile Include="Extensions\BoolExtensions.cs" />
     <Compile Include="Extensions\ByteExtensions.cs" />
     <Compile Include="Extensions\ListExtensions.cs" />
@@ -107,9 +111,15 @@
     <Compile Include="Forms\GamespyRedirectForm.Designer.cs">
       <DependentUpon>GamespyRedirectForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Gamespy\Redirector\HostsFileAbstract.cs" />
+    <Compile Include="Controls\MyGroupBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Net\DnsCacheResult.cs" />
+    <Compile Include="Gamespy\Redirector\GamespyDnsReport.cs" />
+    <Compile Include="Gamespy\Redirector\HostsFile.cs" />
     <Compile Include="Gamespy\Redirector\HostsFileIcs.cs" />
     <Compile Include="Gamespy\Redirector\RedirectMode.cs" />
+    <Compile Include="Gamespy\Redirector\SysHostsFile.cs" />
     <Compile Include="Gamespy\Servers\Master\CDKeyServer.cs" />
     <Compile Include="Gamespy\Enctypex.cs" />
     <Compile Include="Gamespy\Servers\Master\GameServer.cs" />
@@ -129,18 +139,28 @@
     <Compile Include="BF2\MapList.cs" />
     <Compile Include="Net\BufferDataToken.cs" />
     <Compile Include="Net\BufferManager.cs" />
-    <Compile Include="Net\GamespyTcpStream.cs" />
+    <Compile Include="Gamespy\Net\GamespyTcpStream.cs" />
     <Compile Include="Gamespy\Servers\Gpcm\GpcmServer.cs" />
     <Compile Include="Gamespy\Servers\Gpcm\GpcmClient.cs" />
-    <Compile Include="Net\GamespyUdpPacket.cs" />
-    <Compile Include="Net\GamespyUdpSocket.cs" />
+    <Compile Include="Gamespy\Net\GamespyUdpPacket.cs" />
+    <Compile Include="Gamespy\Net\GamespyUdpSocket.cs" />
     <Compile Include="Net\SocketAsyncEventArgsPool.cs" />
-    <Compile Include="Net\GamespyTcpSocket.cs" />
+    <Compile Include="Gamespy\Net\GamespyTcpSocket.cs" />
     <Compile Include="Extensions\ProgressBarExtensions.cs" />
-    <Compile Include="PageControl.cs">
+    <Compile Include="Controls\PageControl.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Gamespy\Redirector\Redirector.cs" />
+    <Compile Include="Forms\ASP\SnapshotFilterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ASP\SnapshotFilterForm.Designer.cs">
+      <DependentUpon>SnapshotFilterForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Updater\GitHubAsset.cs" />
+    <Compile Include="Updater\GitHubRelease.cs" />
+    <Compile Include="Updater\GitHubUser.cs" />
+    <Compile Include="Utilities\TaskStep.cs" />
     <Compile Include="Utilities\SyncProgress.cs" />
     <Compile Include="Utilities\ConcurrentEventQueue.cs" />
     <Compile Include="ASP\StatsManager.cs" />
@@ -162,7 +182,7 @@
     <Compile Include="Utilities\NiceDictionary.cs" />
     <Compile Include="SetupManager.cs" />
     <Compile Include="Python\StatsPython.cs" />
-    <Compile Include="Utilities\ProgressDialog.cs">
+    <Compile Include="Controls\ProgressDialog.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Utilities\SQLMethods.cs" />
@@ -467,8 +487,8 @@
     <None Include="Ip2nation.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Compile Include="Updater.cs" />
-    <Compile Include="Utilities\Networking.cs" />
+    <Compile Include="Updater\ProgramUpdater.cs" />
+    <Compile Include="Net\Networking.cs" />
     <Compile Include="Paths.cs" />
     <Compile Include="Forms\TaskForm.cs">
       <SubType>Form</SubType>
@@ -486,7 +506,6 @@
     <Compile Include="Utilities\SqlFile.cs" />
     <Compile Include="Utilities\Tipsy.cs" />
     <Compile Include="Utilities\Notify.cs" />
-    <Compile Include="Gamespy\Redirector\HostsFile.cs" />
     <Compile Include="Utilities\KeyValueItem.cs" />
     <Compile Include="Logging\LogMessage.cs" />
     <Compile Include="Logging\LogWriter.cs" />
@@ -524,9 +543,14 @@
     <None Include="Resources\Password_dots.png" />
     <None Include="Resources\GamespyIcon.png" />
     <None Include="Resources\BF2_SF_Icon.png" />
+    <None Include="Resources\GamespyBanner.jpg" />
+    <None Include="Resources\GamespyBanner1.jpg" />
     <Content Include="SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="Forms\ASP\SnapshotFilterForm.resx">
+      <DependentUpon>SnapshotFilterForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Web\Bf2Stats\TheaterData.xml" />
     <EmbeddedResource Include="Web\Bf2Stats\MapData.xml" />
     <EmbeddedResource Include="Web\Bf2Stats\ArmyData.xml" />

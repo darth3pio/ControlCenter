@@ -9,24 +9,23 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using BF2Statistics.Net;
 using BF2Statistics.Properties;
 using BF2Statistics.Utilities;
 
 namespace BF2Statistics
 {
-    public enum StepDirection { Forward, Backwards }
-
     public partial class GamespyRedirectForm : Form
     {
+        /// <summary>
+        /// The amount of milliseconds to delay the display of the Error tab when an error occurs
+        /// </summary>
+        const int ERRORPAGE_DELAY = 1500;
+
         /// <summary>
         /// The current step of the form's progress
         /// </summary>
         protected int Step = 0;
-
-        /// <summary>
-        /// Gets or Sets the direction of the last step
-        /// </summary>
-        protected StepDirection Direction;
 
         /// <summary>
         /// The list of services we are verifying on the Diagnostic tab
@@ -42,21 +41,49 @@ namespace BF2Statistics
         /// <summary>
         /// The IPAddress of the Stats Server
         /// </summary>
-        private IPAddress StatsServerAddress = IPAddress.Loopback;
+        private IPAddress StatsServerAddress = null;
 
         /// <summary>
         /// The IPAddress of the Gamespy Server
         /// </summary>
-        private IPAddress GamespyServerAddress = IPAddress.Loopback;
+        private IPAddress GamespyServerAddress = null;
 
         /// <summary>
-        /// The result of the Diagnostic
+        /// The current selected redirect mode
         /// </summary>
-        protected bool DiagnosticResult = false;
+        private RedirectMode SelectedMode;
 
+        /// <summary>
+        /// The TaskStep object if a step from applying redirects fails
+        /// </summary>
+        private TaskStep FailedStep;
+
+        /// <summary>
+        /// Creates a new instance of GamespyRedirectForm
+        /// </summary>
         public GamespyRedirectForm()
         {
+            // Create Form Controls
             InitializeComponent();
+
+            // Force the description box to fill with text
+            IcsRadio.Checked = false;
+            switch (Program.Config.RedirectMode)
+            {
+                case RedirectMode.HostsIcsFile:
+                    IcsRadio.Checked = true;
+                    break;
+                case RedirectMode.HostsFile:
+                    HostsRadio.Checked = true;
+                    break;
+                case RedirectMode.DnsServer:
+                    DnsRadio.Checked = true;
+                    break;
+            }
+
+            // Load previous settings
+            Bf2webAddress.Text = Program.Config.LastStatsServerAddress;
+            GamespyAddress.Text = Program.Config.LastLoginServerAddress;
 
             // Register for Events
             pageControl1.SelectedIndexChanged += (s, e) => AfterSelectProcessing();
@@ -86,28 +113,48 @@ namespace BF2Statistics
                     PrevBtn.Enabled = NextBtn.Enabled = true;
                     break;
                 case "tabPageVerifyHosts":
-                    IsErrorFree = await VerifyHosts();
-                    if (IsErrorFree)
-                        NextBtn.Enabled = true;
-                    break;
                 case "tabPageVerifyIcs":
-                    IsErrorFree = await VerifyIcs();
+                    // Create new progress
+                    SyncProgress<TaskStep> Myprogress = new SyncProgress<TaskStep>(RedirectStatusUpdate);
+
+                    // Apply redirects
+                    IsErrorFree = await Redirector.ApplyRedirectsAsync(Myprogress);
                     if (IsErrorFree)
+                    {
                         NextBtn.Enabled = true;
+                    }
+                    else
+                    {
+                        // Remove redirect if there are errors
+                        await Task.Delay(ERRORPAGE_DELAY);
+                        ShowHostsErrorPage();
+                    }
                     break;
                 case "tabPageDiagnostic":
                     // Run in a new thread of course
-                    await Task.Run(() => VerifyDnsCache());
+                    bool DiagnosticResult = await Task.Run<bool>(() => VerifyDnsCache());
 
                     // Switch page
                     if (DiagnosticResult)
+                    {
                         NextBtn.Enabled = true;
+                    }
+                    else
+                    {
+                        // Remove redirect if there are errors
+                        Redirector.RemoveRedirects();
+                        await Task.Delay(ERRORPAGE_DELAY);
+
+                        // Show Error Page
+                        ShowDnsErrorPage();
+                    }
                     break;
                 case "tabPageSuccess":
                     PrevBtn.Visible = false;
                     CancelBtn.Visible = false;
                     NextBtn.Text = "Finish";
                     NextBtn.Enabled = true;
+                    NextBtn.Location = CancelBtn.Location;
                     return;
                 case "tabPageError":
                     break;
@@ -117,41 +164,6 @@ namespace BF2Statistics
             if (pageControl1.SelectedTab != tabPageSelect)
                 PrevBtn.Enabled = true;
         }
-
-        #region Host Verification Tasks
-
-        private Task<bool> VerifyIcs()
-        {
-            return Task.Run(() =>
-            {
-                for (int i = 8; i < 13; i++ )
-                {
-                    SetHostStatus(i, "", Resources.loading);
-                    Thread.Sleep(1000);
-                    SetHostStatus(i, "Success", Resources.check);
-                }
-
-                return true;
-            });
-        }
-
-
-        private Task<bool> VerifyHosts()
-        {
-            return Task.Run(() =>
-            {
-                for (int i = 1; i < 8; i++)
-                {
-                    SetHostStatus(i, "", Resources.loading);
-                    Thread.Sleep(1000);
-                    SetHostStatus(i, "Success", Resources.check);
-                }
-
-                return true;
-            });
-        }
-
-        #endregion
 
         #region Main Button Events
 
@@ -180,9 +192,6 @@ namespace BF2Statistics
             // Make sure we have a change before changing our index
             if (Step == pageControl1.SelectedIndex)
                 return;
-
-            // Set the new direction
-            Direction = StepDirection.Backwards;
 
             // Set the new index
             pageControl1.SelectedIndex = Step;
@@ -226,9 +235,19 @@ namespace BF2Statistics
                         Step = pageControl1.TabPages.IndexOf(tabPageVerifyHosts);
                     else
                         Step = pageControl1.TabPages.IndexOf(tabPageDiagnostic);
+
+                    // Set new redirect options
+                    Redirector.SetRedirectMode(SelectedMode);
+                    Redirector.StatsServerAddress = StatsServerAddress;
+                    Redirector.GamespyServerAddress = GamespyServerAddress;
                     break;
                 case "tabPageVerifyIcs":
                 case "tabPageVerifyHosts":
+                    // Reset diag page
+                    Status1.Image = Status2.Image = Status4.Image = Status5.Image = null;
+                    Address1.Text = Address2.Text = Address4.Text = Address5.Text = "Queued";
+
+                    // Get our next page index
                     Step = pageControl1.TabPages.IndexOf(tabPageDiagnostic);
                     break;
                 case "tabPageDiagnostic":
@@ -245,9 +264,6 @@ namespace BF2Statistics
             // Make sure we have a change before changing our index
             if (Step == pageControl1.SelectedIndex)
                 return;
-
-            // Set direction
-            Direction = StepDirection.Forward;
 
             // Set the new index
             pageControl1.SelectedIndex = Step;
@@ -273,8 +289,13 @@ namespace BF2Statistics
         /// <returns>returns whether the provided hostnames were valid and an IP address could be fetched</returns>
         private Task<bool> GetRedirectAddressesAsync()
         {
+            // Get our user input
             string Bf2Web = Bf2webAddress.Text.Trim().ToLower();
-            string Gamespy = GpcmAddress.Text.Trim().ToLower();
+            string Gamespy = GamespyAddress.Text.Trim().ToLower();
+
+            // Reset values
+            StatsServerAddress = null;
+            GamespyServerAddress = null;
 
             // Return this processing task to be awaited on
             return Task.Run<bool>(() =>
@@ -338,13 +359,51 @@ namespace BF2Statistics
         #region Diagnostics
 
         /// <summary>
-        /// This method ping's the gamepsy services and verifies that the HOSTS
-        /// file redirects are working correctly
+        /// This method ping's the gamepsy services and verifies that the Redirect
+        /// services are working. This method effectivly replaces the <see cref="Redirector.VerifyDNSCache()"/>
+        /// method.
         /// </summary>
-        protected void VerifyDnsCache()
+        protected bool VerifyDnsCache()
         {
             // Set default as success
-            DiagnosticResult = true;
+            bool DiagnosticResult = true;
+
+            // Set the System.Net DNS Cache refresh timeout to 1 millisecond
+            ServicePointManager.DnsRefreshTimeout = 1;
+
+            // If using System Hosts, Wait 10 seconds to allow the Windows DNS Client to catch up
+            if (SelectedMode == RedirectMode.HostsFile)
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    // Get second count
+                    int o = 10 - i;
+
+                    // Make sure form wasn't cancelled
+                    if (!IsHandleCreated) return false;
+
+                    // Tell the main form thread to update the second count
+                    Invoke((Action)delegate
+                    {
+                        labelDnsText.Text = "Verifying DNS Cache Settings in " + o + " seconds...";
+                    });
+
+                    // Wait one
+                    Thread.Sleep(1000);
+                }
+
+                // Make sure form wasn't cancelled
+                if (!IsHandleCreated) return false;
+
+                // Fix header to display no time
+                Invoke((Action)delegate
+                {
+                    labelDnsText.Text = "Verifying DNS Cache Settings";
+                });
+            }
+
+            // Clear Old Entries
+            Redirector.DnsCacheReport.Entries.Clear();
 
             // Loop through each service
             for (int i = 0; i < Services.Length; i++)
@@ -358,18 +417,37 @@ namespace BF2Statistics
 
                 // Prepare for next service
                 SetStatus(i, "Checking, Please Wait...", Resources.loading);
-                Thread.Sleep(500);
+                Thread.Sleep(300);
 
                 // Ping server to get the IP address in the dns cache
                 try
                 {
                     IPAddress HostsIp = (i == 3) ? StatsServerAddress : GamespyServerAddress;
-                    IPAddress[] Entries = Dns.GetHostAddresses(Services[i]);
+                    DnsCacheResult Result = new DnsCacheResult(Services[i], HostsIp);
+
+                    // Update Gamespy Redirector Cache
+                    Redirector.DnsCacheReport.AddOrUpdate(Result);
+
+                    // Throw bad result
+                    if (Result.IsFaulted)
+                    {
+                        // No such hosts is known?
+                        if (Result.Error.InnerException != null)
+                            SetStatus(i, "Error Occured", Resources.error, Result.Error.InnerException.Message);
+                        else
+                            SetStatus(i, "Error Occured", Resources.error, Result.Error.Message);
+
+                        // Flag error
+                        DiagnosticResult = false;
+                        continue;
+                    }
 
                     // Verify correct address 
-                    if (!Entries.Contains(HostsIp))
+                    if (!Result.GotExpectedResult)
                     {
-                        SetStatus(i, Entries[0].ToString(), Resources.warning, "Address expected: " + HostsIp.ToString());
+                        SetStatus(i, Result.ResultAddresses[0].ToString(), Resources.warning, "Address expected: " + HostsIp.ToString());
+
+                        // Flag error
                         DiagnosticResult = false;
                     }
                     else
@@ -382,8 +460,13 @@ namespace BF2Statistics
                         SetStatus(i, "Error Occured", Resources.error, e.InnerException.Message);
                     else
                         SetStatus(i, "Error Occured", Resources.error, e.Message);
+
+                    // Flag error
+                    DiagnosticResult = false;
                 }
             }
+
+            return DiagnosticResult;
         }
 
         /// <summary>
@@ -430,30 +513,163 @@ namespace BF2Statistics
 
         #endregion
 
+        #region Hosts Files
+
+        /// <summary>
+        /// Updates the Verify Hosts(ics) tab UI steps with status icons
+        /// </summary>
+        /// <remarks> Callback method for the Redirector.ApplyRedirectsAsync Method's IProgress.</remarks>
+        /// <param name="Step"></param>
+        private void RedirectStatusUpdate(TaskStep Step)
+        {
+            // Get the picture box number
+            int PicId = (SelectedMode == RedirectMode.HostsFile) ? 0 : 6;
+            PicId += Step.StepId;
+
+            // Update the status on the GUI
+            if (Step.IsFaulted)
+            {
+                SetHostStatus(PicId, Step.Description, Resources.cross);
+
+                // Set Internal
+                FailedStep = Step;
+            }
+            else
+            {
+                SetHostStatus(PicId, Step.Description, Resources.check);
+
+                // Set loading icon of the next step
+                if (PicId < 11)
+                    SetHostStatus(++PicId, "", Resources.loading);
+            }
+        }
+
+        /// <summary>
+        /// Fills in the details of a Hosts(Ics) tab progress step on the GUI
+        /// </summary>
+        /// <param name="i">The picturebox id</param>
+        /// <param name="ImgText">The tooltip message for this step image</param>
+        /// <param name="Img">The image to set</param>
         private void SetHostStatus(int i, string ImgText, Bitmap Img)
         {
             // Prevent exception
             if (!IsHandleCreated) return;
 
-            // Invoke this in the thread that created the handle
-            Invoke((Action)delegate
-            {
-                Control[] cons = this.Controls.Find("pictureBox" + i, true);
-                PictureBox pic = cons[0] as PictureBox;
+            // Fetch the picture box for this step
+            Control[] cons = this.Controls.Find("pictureBox" + i, true);
+            PictureBox pic = cons[0] as PictureBox;
 
-                pic.Image = Img;
+            // Set the new image
+            pic.Image = Img;
 
-                if (!String.IsNullOrWhiteSpace(ImgText))
-                    Tipsy.SetToolTip(pic, ImgText);
-            });
+            // Set the tooltip for the image control if we have one
+            if (!String.IsNullOrWhiteSpace(ImgText))
+                Tipsy.SetToolTip(pic, ImgText);
         }
 
-        /// <summary>
-        /// Event fired when the form begins to close
-        /// </summary>
-        private void GamespyRedirectForm_FormClosing(object sender, FormClosingEventArgs e)
+        #endregion Hosts Files
+
+        #region Error Pages
+
+        private void ShowHostsErrorPage()
         {
-            
+            // Set title
+            textErrLabel.Text = FailedStep.Description;
+
+            // Set detail text based on step
+            switch (FailedStep.StepId)
+            {
+                case 0:
+                    // Unlock
+                case 1:
+                    // Read
+                case 2:
+                    // Write
+                case 4:
+                    // Save Changes
+                    textErrDetails.Text = "Please make sure this program is being ran as an administrator, or "
+                        + "modify your HOSTS file permissions allowing this program to read/modify it.";
+                    break;
+                case 5:
+                    textErrDetails.Text = FailedStep.Error.Message ?? "";
+                    break;
+            }
+
+            // Get page index
+            Step = pageControl1.TabPages.IndexOf(tabPageError);
+
+            // Set the new index
+            pageControl1.SelectedIndex = Step;
         }
+
+        private void ShowDnsErrorPage()
+        {
+            // Set generic description
+            textErrLabel.Text = "Failed to resolve the Gamespy entries in the Windows DNS Cache";
+
+            // Set details text
+            switch (Redirector.RedirectMethod)
+            {
+                case RedirectMode.DnsServer:
+                    textErrDetails.Text = "The Windows Dns Server settings appear to be improperly configured. "
+                      + "Please double check your internet adapter settings, and try again. If you are using an "
+                      + "installed DNS software, ensure that it is running and the redirects are properly configured within it.";
+                    break;
+                case RedirectMode.HostsFile:
+                    textErrDetails.Text = "It appears that the privilages set on the HOSTS file are too strict for Windows to open. "
+                      + "Read permissions must be removed to prevent Battlefield 2 from detecting the Gamespy redirects. It may be a "
+                      + "better option to try one of the other two redirect options.";
+                    break;
+                case RedirectMode.HostsIcsFile:
+                    textErrDetails.Text = "The Hosts.ics file does not seem to be affecting the Windows DNS Client. Please make "
+                      + "sure that you have Internet Connection Sharing enabled on your PC, as well as the DNS Client windows feature "
+                      + "in the Control Panel.";
+                    break;
+            }
+
+            // Get page index
+            Step = pageControl1.TabPages.IndexOf(tabPageError);
+
+            // Set the new index
+            pageControl1.SelectedIndex = Step;
+        }
+
+        #endregion Error Pages
+
+        #region Radio Events
+
+        private void IcsRadio_CheckedChanged(object sender, EventArgs e)
+        {
+            // If we arent selected, return
+            if (!IcsRadio.Checked) return;
+
+            SelectedMode = RedirectMode.HostsIcsFile;
+            descTextBox.Text = "Enabling this option will create and use the hosts.ics file. This is a better option "
+                + "then using the system HOSTS file because Battlefield 2 will not check the hosts.ics file  for gamespy redirects";
+        }
+
+        private void HostsRadio_CheckedChanged(object sender, EventArgs e)
+        {
+            // If we arent selected, return
+            if (!HostsRadio.Checked) return;
+
+            SelectedMode = RedirectMode.HostsFile;
+            descTextBox.Text = "By enabling this option, this program will attempt to store the Gamespy redirects inside the system HOSTS file. "
+                + "Battlefield 2 will check the hosts file for Gamespy redirects, so we must also remove READ permissions to prevent this. "
+                + "This option should be used as a last resort, since removing READ permissions from the HOSTS file can cause Windows DNS server "
+                + "to undo the gamespy redirects when it refreshes itself.";
+        }
+
+        private void DnsRadio_CheckedChanged(object sender, EventArgs e)
+        {
+            // If we arent selected, return
+            if (!DnsRadio.Checked) return;
+
+            SelectedMode = RedirectMode.DnsServer;
+            descTextBox.Text = "This option is for advanced users that have setup a DNS server on their machine to automatically redirect "
+                + "Gamespy services to a configured Ip address.";
+        }
+
+        #endregion Radio Events
     }
 }

@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Timers;
 using BF2Statistics.ASP;
+using BF2Statistics.Gamespy.Net;
 using BF2Statistics.Logging;
 using BF2Statistics.Net;
 using BF2Statistics.Utilities;

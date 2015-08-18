@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BF2Statistics.Gamespy.Net;
 using BF2Statistics.Logging;
 using BF2Statistics.Net;
 

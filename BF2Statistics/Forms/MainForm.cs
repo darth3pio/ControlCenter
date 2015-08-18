@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using BF2Statistics.ASP;
 using BF2Statistics.Gamespy;
+using BF2Statistics.Gamespy.Redirector;
+using BF2Statistics.Net;
 using BF2Statistics.Properties;
 using BF2Statistics.Utilities;
 using BF2Statistics.Web;
@@ -49,22 +51,6 @@ namespace BF2Statistics
         private Process ClientProcess;
 
         /// <summary>
-        /// Indicates whether the hosts file redirects are active for the gamespy servers
-        /// </summary>
-        public static bool RedirectsEnabled { get; protected set; }
-
-        /// <summary>
-        /// The task object that is uesd to rebuild the DNS cache
-        /// </summary>
-        private Task HostTask;
-
-        /// <summary>
-        /// The cancellation token used to cancel the HostTask if the user
-        /// undo's the redirects while the HostTask is still running
-        /// </summary>
-        private CancellationTokenSource HostTaskSource;
-
-        /// <summary>
         /// Constructor. Initializes and Displays the Applications main GUI
         /// </summary>
         public MainForm()
@@ -87,10 +73,7 @@ namespace BF2Statistics
             LoadModList();
 
             // Set BF2Statistics Python Install / Ranked Status
-            SetInstallStatus();
-
-            // Try to access the hosts file when the form is showed
-            this.Shown += (s, e) => DoHOSTSCheck();
+            CheckPythonStatus();
 
             // Load Cross Session Settings
             ParamBox.Text = Config.ClientParams;
@@ -99,8 +82,6 @@ namespace BF2Statistics
             MinimizeConsole.Checked = Config.MinimizeServerConsole;
             ForceAiBots.Checked = Config.ServerForceAi;
             FileMoniter.Checked = Config.ServerFileMoniter;
-            GpcmAddress.Text = (!String.IsNullOrWhiteSpace(Config.LastLoginServerAddress)) ? Config.LastLoginServerAddress : "localhost";
-            Bf2webAddress.Text = (!String.IsNullOrWhiteSpace(Config.LastStatsServerAddress)) ? Config.LastStatsServerAddress : "localhost";
             labelTotalWebRequests.Text = Config.TotalASPRequests.ToString();
             HostsLockCheckbox.Checked = Config.LockHostsFile;
             HostsLockCheckbox.CheckedChanged += HostsLockCheckbox_CheckedChanged;
@@ -129,10 +110,6 @@ namespace BF2Statistics
             BF2Server.Exited += BF2Server_Exited;
             BF2Server.ServerPathChanged += LoadModList;
 
-            // Since we werent registered for Bf2Server events before, do this here
-            if (BF2Server.IsRunning)
-                this.Shown += (s, e) => BF2Server_Started();
-
             // Add administrator title to program title bar if in Admin mode
             if (Program.IsAdministrator)
                 this.Text += " (Administrator)";
@@ -144,13 +121,27 @@ namespace BF2Statistics
             SysIcon = NotificationIcon;
 
             // Check for updates last
-            Updater.CheckCompleted += Updater_CheckCompleted;
+            ProgramUpdater.CheckCompleted += Updater_CheckCompleted;
             if (Program.Config.UpdateCheck)
             {
                 UpdateStatusPic.Show();
                 UpdateLabel.Text = "(Checking For Updates...)";
-                Updater.CheckForUpdateAsync();
+                ProgramUpdater.CheckForUpdateAsync();
             }
+
+            // Once the form is shown, asynchronously load the redirect service
+            this.Shown += async (s, e) =>
+            {
+                // Since we werent registered for Bf2Server events before, do this here
+                if (BF2Server.IsRunning)
+                    BF2Server_Started();
+
+                // Initialize the Gamespy Redirection Service
+                bool AllSystemsGo = await Redirector.Initialize();
+
+                // Check
+                CheckRedirectService();
+            };
         }
 
         #region Startup Methods
@@ -158,7 +149,7 @@ namespace BF2Statistics
         /// <summary>
         /// This method sets the Install status if the BF2s python files
         /// </summary>
-        private void SetInstallStatus()
+        private void CheckPythonStatus()
         {
             // Cross Threaded Crap
             if (StatsPython.Installed)
@@ -169,16 +160,30 @@ namespace BF2Statistics
                 BF2sConfigBtn.Enabled = true;
                 BF2sEditMedalDataBtn.Enabled = true;
 
-                // Updated status based on Ranked Mode Status
-                if (StatsPython.Config.StatsEnabled)
+                // ----------------------------------------------------------
+                // Try and access the stats pthon config file
+                // This will throw an exception if a config key is missing, or
+                // is improperly formated. Missing keys could be a result of an
+                // update to the files
+                // ----------------------------------------------------------
+                try
                 {
-                    StatsStatusPic.Image = Resources.check;
-                    Tipsy.SetToolTip(StatsStatusPic, "BF2 Server Stats are Enabled (Ranked)");
+                    // Updated status based on Ranked Mode Status
+                    if (StatsPython.Config.StatsEnabled)
+                    {
+                        StatsStatusPic.Image = Resources.check;
+                        Tipsy.SetToolTip(StatsStatusPic, "BF2 Server Stats are Enabled (Ranked)");
+                    }
+                    else
+                    {
+                        StatsStatusPic.Image = Resources.error;
+                        Tipsy.SetToolTip(StatsStatusPic, "BF2 Server Stats are Disabled (Non-Ranked)");
+                    }
                 }
-                else
+                catch (Exception)
                 {
-                    StatsStatusPic.Image = Resources.error;
-                    Tipsy.SetToolTip(StatsStatusPic, "BF2 Server Stats are Disabled (Non-Ranked)");
+                    StatsStatusPic.Image = Resources.warning;
+                    Tipsy.SetToolTip(StatsStatusPic, "Failed to load Stats Python Config");
                 }
             }
             else
@@ -224,60 +229,158 @@ namespace BF2Statistics
         }
 
         /// <summary>
-        /// Checks the HOSTS file on startup, detecting existing redirects to the bf2web.gamespy
-        /// or gpcm/gpsp.gamespy urls
+        /// Fills the Gamespy Redirects tab with the associated
+        /// information from the Redirector
         /// </summary>
-        private void DoHOSTSCheck()
+        private void CheckRedirectService()
         {
-            if (!HostsFile.CanRead)
+            // Main Tab Status pic
+            HostsStatusPic.Image = Resources.loading;
+
+            // Set Redirect Mode Text
+            HostsSecGroupBox.Enabled = false;
+            switch (Redirector.RedirectMethod)
             {
-                HostsStatusPic.Image = Resources.warning;
-                Tipsy.SetToolTip(HostsStatusPic, "Unable to read hosts file");
+                case RedirectMode.DnsServer: labelRedirectMode.Text = "Dns Server"; break;
+                case RedirectMode.HostsIcsFile: labelRedirectMode.Text = "Hosts Ics FIle"; break;
+                case RedirectMode.HostsFile:
+                    HostsLockStatus.Text = (SysHostsFile.IsLocked) ? "Locked" : "UnLocked";
+                    HostsLockStatus.ForeColor = (SysHostsFile.IsLocked) ? Color.Green : Color.Red;
+                    HostsSecGroupBox.Enabled = true;
+                    labelRedirectMode.Text = "System HOSTS";
+                    break;
             }
-            else if (!HostsFile.CanWrite)
+
+            // Set Launcher resource status image
+            if (Redirector.RedirectsEnabled)
             {
-                HostsStatusPic.Image = Resources.warning;
-                Tipsy.SetToolTip(HostsStatusPic, "Unable to write to hosts file");
+                // Sets the Status box information
+                labelRedirectStatus.Text = "Enabled";
+                labelRedirectStatus.ForeColor = Color.LimeGreen;
+                RedirectButton.Text = "Disable Redirects";
+
+                // Stats Address Boxes
+                SSAddress1.Text = "Loading...";
+                SSAddress2.Text = "Loading...";
+                SStatus.Image = Resources.loading;
+
+                // Gamespy Address Boxes
+                GSAddress1.Text = "Loading...";
+                GSAddress2.Text = "Loading...";
+                GStatus.Image = Resources.loading;
+
+                // Update the cache status
+                UpdateCacheStatus();
             }
             else
             {
-                bool MatchFound = false;
+                // Status Window
+                HostsStatusPic.Image = Resources.error;
+                labelRedirectStatus.Text = "Disabled";
+                labelRedirectStatus.ForeColor = SystemColors.ControlDark;
+                RedirectButton.Text = "Configure Gamespy Redirects";
 
-                // Login server redirect
-                if (HostsFile.HasEntry("gpcm.gamespy.com"))
+                // Reset Lock Status
+                HostsLockStatus.Text = "UnLocked";
+                HostsLockStatus.ForeColor = Color.Red;
+
+                // Resets Stats Address Boxes
+                SSAddress1.Text = "Disabled";
+                SSAddress2.Text = "";
+                SStatus.Image = Resources.error;
+
+                // Resets Gamespy Address Boxes
+                GSAddress1.Text = "Disabled";
+                GSAddress2.Text = "";
+                GStatus.Image = Resources.error;
+            }
+
+            // Enable button
+            DiagnosticsBtn.Enabled = Redirector.RedirectsEnabled;
+        }
+
+        /// <summary>
+        /// Updates the Cache Address Verification section of the redirects tab with
+        /// the latest cache information report
+        /// </summary>
+        private void UpdateCacheStatus()
+        {
+            // Stop drawing the gamespy redirect section until we are ready
+            groupBox31.SuspendLayout();
+            bool GsIsFaulted = false;
+
+            // Resets Stats Address Boxes
+            if (Redirector.StatsServerAddress == null)
+            {
+                SSAddress1.Text = "Disabled";
+                SSAddress2.Text = "";
+                SStatus.Image = Resources.error;
+            }
+
+            // Resets Gamespy Address Boxes
+            if (Redirector.GamespyServerAddress == null)
+            {
+                GSAddress1.Text = "Disabled";
+                GSAddress2.Text = "";
+                GStatus.Image = Resources.error;
+            }
+
+            // Check Stats
+            foreach (DnsCacheResult Res in Redirector.DnsCacheReport.Entries.Values)
+            {
+                // Simplify this. If we got what we wanted, just display the supplied address
+                string addy = (Res.GotExpectedResult || Res.IsFaulted) 
+                    ? Res.ExpectedAddress.ToString() 
+                    : Res.ResultAddresses[0].ToString();
+
+                // Stats Server
+                if (Res.HostName == Redirector.Bf2StatsHost)
                 {
-                    MatchFound = true;
-                    GpcmCheckbox.Checked = true;
-                    if (String.IsNullOrWhiteSpace(Config.LastLoginServerAddress))
-                        GpcmAddress.Text = HostsFile.Get("gpcm.gamespy.com");
-                }
+                    if (Res.IsFaulted)
+                    {
+                        SSAddress1.Text = "Unable to fetch the stats server address from the Windows DNS Cache";
+                        SSAddress2.Text = "";
+                        SStatus.Image = Resources.error;
+                        continue;
+                    }
 
-                // Stat server redirect
-                if (HostsFile.HasEntry("bf2web.gamespy.com"))
+                    SSAddress1.Text = "Configured Address: " + Res.ExpectedAddress;
+                    SSAddress2.Text = "Found Address: " + addy;
+                    SStatus.Image = Res.GotExpectedResult ? Resources.check : Resources.warning;
+                }
+                else // Gamespy Server
                 {
-                    MatchFound = true;
-                    Bf2webCheckbox.Checked = true;
-                    if (String.IsNullOrWhiteSpace(Config.LastStatsServerAddress))
-                        Bf2webAddress.Text = HostsFile.Get("bf2web.gamespy.com");
+                    // Quit if we have faulted
+                    if (GsIsFaulted) continue;
+                    GsIsFaulted = (Res.GotExpectedResult == false || Res.IsFaulted);
+
+                    if (Res.IsFaulted)
+                    {
+                        GSAddress1.Text = "Unable to fetch one of the Gamespy server addresses from the Windows DNS Cache";
+                        GSAddress2.Text = "";
+                        GStatus.Image = Resources.error;
+                        continue;
+                    }
+
+                    GSAddress1.Text = "Configured Address: " + Res.ExpectedAddress;
+                    GSAddress2.Text = "Found Address: " + addy;
+                    GStatus.Image = Res.GotExpectedResult ? Resources.check : Resources.warning;
                 }
+            }
 
-                // Did we find any matches?
-                if (MatchFound)
-                {
-                    Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are currently active.");
-                    UpdateHostFileStatus("- Found old redirect data in HOSTS file.");
-                    RedirectsEnabled = true;
-                    HostsStatusPic.Image = Resources.loading;
-                    LockGroups();
+            // Update changes
+            groupBox31.ResumeLayout();
 
-                    RedirectButton.Enabled = true;
-                    RedirectButton.Text = "Remove HOSTS Redirect";
-
-                    // Refresh DNS cache with just the HOSTS file entries
-                    RebuildDNSCacheAsync(false);
-                }
-                else
-                    Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are not active.");
+            // Update Hosts Status Pic
+            if (Redirector.DnsCacheReport.ErrorFree)
+            {
+                HostsStatusPic.Image = Resources.check;
+                Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are active and working");
+            }
+            else
+            {
+                HostsStatusPic.Image = Resources.warning;
+                Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are NOT working");
             }
         }
 
@@ -394,35 +497,41 @@ namespace BF2Statistics
                 }
 
                 // Test the ASP stats service here if redirects are enabled. 
-                if (RedirectsEnabled && HostsFile.HasEntry("bf2web.gamespy.com"))
+                if (Redirector.RedirectsEnabled && Redirector.StatsServerAddress != null)
                 {
-                    IPAddress foundIp = null;
+                    DnsCacheResult Result;
 
                     // First things first, we fecth the IP address from the DNS cache of our stats server
                     try
                     {
-                        // If we are unable to fecth any IP address at all, that means HOSTS file isnt working
-                        if (!Networking.TryGetIpAddress("bf2web.gamespy.com", out foundIp))
-                            throw new Exception(
-                                "Failed to obtain the IP address for the ASP stats server from Windows DNS. Most likely the HOSTS "
-                                + "file cannot be read by windows (permissions too strict for system)"
+                        // Fetch the address
+                        Result = await Networking.ValidateAddressAsync("bf2web.gamespy.com", Redirector.StatsServerAddress);
+                        if (!Result.GotExpectedResult)
+                        {
+                            MessageBox.Show(
+                                "Redirect IP address does not match the IP address found by Windows DNS."
+                                + Environment.NewLine.Repeat(1)
+                                + "Expected: " + Result.ExpectedAddress + "; Found: " + Result.ResultAddresses[0]
+                                + Environment.NewLine + "This error can be caused if the HOSTS file cannot be read by windows "
+                                + "(Ex: permissions too strict for System)",
+                                "Stats Redirect Error",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Warning
                             );
 
-                        // Hosts file doesnt match whats been found in the cache
-                        if (!foundIp.Equals(IPAddress.Parse(HostsFile.Get("bf2web.gamespy.com"))))
-                            throw new Exception(
-                                "HOSTS file IP address does not match the IP address found by Windows DNS."
-                                + Environment.NewLine
-                                + "Expected: " + HostsFile.Get("bf2web.gamespy.com") + "; Found: " + foundIp.ToString()
-                                + Environment.NewLine + "This error can be caused if the HOSTS file cannot be read by windows "
-                                + "(Ex: permissions too strict for System)"
-                            );
+                            // Unlock Btn
+                            LaunchClientBtn.Enabled = true;
+                            return;
+                        }
                     }
                     catch (Exception Ex)
                     {
                         // ALert user
                         MessageBox.Show(
-                            Ex.Message + Environment.NewLine.Repeat(1)
+                            "Failed to obtain an IP address for the ASP stats server from Windows DNS: "
+                            + Environment.NewLine.Repeat(1)
+                            + Ex.Message 
+                            + Environment.NewLine.Repeat(1)
                             + "You may choose to ignore this message and continue, but note that stats may not be working correctly in the BFHQ.",
                             "Stats Redirect Error",
                             MessageBoxButtons.OK,
@@ -440,7 +549,7 @@ namespace BF2Statistics
                         try
                         {
                             // Check ASP service
-                            await Task.Run(() => StatsManager.ValidateASPService("http://" + foundIp));
+                            await Task.Run(() => StatsManager.ValidateASPService("http://" + Result.ResultAddresses[0]));
                         }
                         catch (Exception Ex)
                         {
@@ -449,7 +558,7 @@ namespace BF2Statistics
                                 "There was an error trying to validate The ASP Stats server defined in your HOSTS file."
                                 + Environment.NewLine.Repeat(1)
                                 + "Error Message: " + Ex.Message + Environment.NewLine
-                                + "Server Address: " + foundIp
+                                + "Server Address: " + Result.ResultAddresses[0]
                                 + Environment.NewLine.Repeat(1)
                                 + "You may choose to ignore this message and continue, but note that stats will not be working correctly in the BFHQ.",
                                 "Stats Server Verification",
@@ -656,26 +765,27 @@ namespace BF2Statistics
         }
 
         /// <summary>
-        /// Event fired when the selected mod changes
+        /// Event fired when the selected mod changes. When fired, this method fills in the
+        /// "Next Map to be Played" area of the GUI.
         /// </summary>
         private void ModSelectList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // Grab our selected mod
-            SelectedMod = (BF2Mod)ModSelectList.SelectedItem;
+            // Reset form texts
+            FirstMapBox.Text = MapModeBox.Text = MapSizeBox.Text = "";
+
+            // Set our new selected mod variable
+            SelectedMod = ModSelectList.SelectedItem as BF2Mod;
+
+            // Grab the first map to be played from the maplist.con
             MapListEntry Entry = SelectedMod.MapList.Entries.FirstOrDefault();
 
-            // Make sure we dont have an empty MapList
-            if (Entry == default(MapListEntry) || String.IsNullOrWhiteSpace(Entry.MapName))
+            // Make sure we dont have an empty MapList file, or a bad Map Name
+            if (Entry != default(MapListEntry) && !String.IsNullOrWhiteSpace(Entry.MapName))
             {
-                FirstMapBox.Text = "";
-                MapModeBox.Text = "";
-                MapSizeBox.Text = "";
-            }
-            else
-            {
+                // Fill the Map Name field
                 try
                 {
-                    // First, try and load the map descriptor file
+                    // Try and load the map descriptor file, so we can fetch the real name of the map
                     FirstMapBox.Text = SelectedMod.LoadMap(Entry.MapName).Title;
                 }
                 catch
@@ -794,7 +904,7 @@ namespace BF2Statistics
         {
             // DO processing in this thread
             int PeakClients = Int32.Parse(labelPeakClients.Text);
-            int Connected = GamespyEmulator.NumClientsConencted;
+            int Connected = GamespyEmulator.NumClientsConnected;
             if (PeakClients < Connected)
                 PeakClients = Connected;
 
@@ -885,7 +995,7 @@ namespace BF2Statistics
             finally
             {
                 // Unlock now that we are done
-                SetInstallStatus();
+                CheckPythonStatus();
                 SetNativeEnabled(true);
                 LoadingForm.CloseForm();
             }
@@ -899,7 +1009,7 @@ namespace BF2Statistics
             using (BF2sConfig Form = new BF2sConfig())
             {
                 Form.ShowDialog();
-                SetInstallStatus();
+                CheckPythonStatus();
             }
         }
 
@@ -1027,212 +1137,38 @@ namespace BF2Statistics
         /// </summary>
         private void RedirectButton_Click(object sender, EventArgs e)
         {
-            // Clear the output window
-            LogBox.Clear();
-
-            // Show exception message on button push if we cant read or write
-            if (!HostsFile.CanRead)
-            {
-                string message = "Unable to READ the HOST file! Please make sure this program is being ran as an administrator, or "
-                    + "modify your HOSTS file permissions, allowing this program to read/modify it.";
-                MessageBox.Show(message, "Hosts file Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-            else if (!HostsFile.CanWrite)
-            {
-                string message = "HOSTS file is not WRITABLE! Please make sure this program is being ran as an administrator, or "
-                    + "modify your HOSTS file permissions, allowing this program to read/modify it.";
-                MessageBox.Show(message, "Hosts file Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-
-
             // If we do not have a redirect in the hosts file...
-            else if (!RedirectsEnabled)
+            if (!Redirector.RedirectsEnabled)
             {
-                // Make sure we are going to redirect something...
-                if (!Bf2webCheckbox.Checked && !GpcmCheckbox.Checked)
+                using (GamespyRedirectForm F = new GamespyRedirectForm())
                 {
-                    MessageBox.Show(
-                        "Please select at least 1 redirect option",
-                        "Select an Option", MessageBoxButtons.OK, MessageBoxIcon.Information
-                    );
-                    return;
-                }
-
-                // Lock button and groupboxes
-                LockGroups();
-
-                // First, lets determine what the user wants to redirect
-                if (Bf2webCheckbox.Checked)
-                {
-                    // Make sure we have a valid IP address in the address box!
-                    string text = Bf2webAddress.Text.Trim().ToLower();
-                    if (text.Length < 8)
-                    {
-                        MessageBox.Show(
-                            "You must enter an IP address or Hostname in the Address box!",
-                            "Invalid Address", MessageBoxButtons.OK, MessageBoxIcon.Warning
-                        );
-                        UnlockGroups();
-                        Bf2webAddress.Focus();
-                        return;
-                    }
-
-                    // Convert Localhost to the Loopback Address
-                    IPAddress BF2Web;
-                    if (text == "localhost")
-                    {
-                        BF2Web = IPAddress.Loopback;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            // Reslove hostname if we were not provided an IP address
-                            if (!IPAddress.TryParse(text, out BF2Web))
-                            {
-                                UpdateHostFileStatus("- Resolving Hostname: " + text);
-                                BF2Web = Networking.GetIpAddress(text);
-                                UpdateHostFileStatus("- Found IP: " + BF2Web);
-                            }
-                        }
-                        catch
-                        {
-                            MessageBox.Show(
-                                "Stats server redirect address is invalid, or doesnt exist. Please enter a valid, and existing IPv4/6 or Hostname.",
-                                "Invalid Address", MessageBoxButtons.OK, MessageBoxIcon.Warning
-                            );
-
-                            UpdateHostFileStatus("- Failed to Resolve Hostname!");
-                            UnlockGroups();
-                            return;
-                        }
-                    }
-
-                    // Append line, and update status
-                    HostsFile.Set("bf2web.gamespy.com", BF2Web.ToString());
-                    Config.LastStatsServerAddress = Bf2webAddress.Text.Trim();
-                    UpdateHostFileStatus("- Adding bf2web.gamespy.com redirect to hosts file");
-                }
-
-                // First, lets determine what the user wants to redirect
-                if (GpcmCheckbox.Checked)
-                {
-                    // Make sure we have a valid IP address in the address box!
-                    string text2 = GpcmAddress.Text.Trim().ToLower();
-                    if (text2.Length < 8)
-                    {
-                        MessageBox.Show(
-                            "You must enter an IP address or Hostname in the Address box!",
-                            "Invalid Address", MessageBoxButtons.OK, MessageBoxIcon.Warning
-                        );
-                        UnlockGroups();
-                        GpcmAddress.Focus();
-                        return;
-                    }
-
-                    // Convert Localhost to the Loopback Address
-                    IPAddress GpcmA;
-                    if (text2 == "localhost")
-                    {
-                        GpcmA = IPAddress.Loopback;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            // Reslove hostname if we were not provided an IP address
-                            if (!IPAddress.TryParse(text2, out GpcmA))
-                            {
-                                UpdateHostFileStatus("- Resolving Hostname: " + text2);
-                                GpcmA = Networking.GetIpAddress(text2);
-                                UpdateHostFileStatus("- Found IP: " + GpcmA);
-                            }
-                        }
-                        catch
-                        {
-                            MessageBox.Show(
-                                "Login Server redirect address is invalid, or doesnt exist. Please enter a valid, and existing IPv4/6 or Hostname.",
-                                "Invalid Address", MessageBoxButtons.OK, MessageBoxIcon.Warning
-                            );
-
-                            UpdateHostFileStatus("- Failed to Resolve Hostname!");
-                            UnlockGroups();
-                            return;
-                        }
-                    }
-
-                    // Update status
-                    UpdateHostFileStatus("- Adding gamespy redirects to hosts file");
-
-                    // Append lines to hosts file
-                    HostsFile.Set("gpcm.gamespy.com", GpcmA.ToString());
-                    HostsFile.Set("gpsp.gamespy.com", GpcmA.ToString());
-                    HostsFile.Set("motd.gamespy.com", GpcmA.ToString());
-                    HostsFile.Set("master.gamespy.com", GpcmA.ToString());
-                    HostsFile.Set("gamestats.gamespy.com", GpcmA.ToString());
-                    HostsFile.Set("battlefield2.ms14.gamespy.com", GpcmA.ToString());
-                    HostsFile.Set("battlefield2.master.gamespy.com", GpcmA.ToString());
-                    HostsFile.Set("battlefield2.available.gamespy.com", GpcmA.ToString());
-                    Config.LastLoginServerAddress = GpcmAddress.Text.Trim();
-                }
-
-                // Save last used addresses
-                Config.Save();
-
-                // Write the lines to the hosts file
-                UpdateHostFileStatus("- Writting to hosts file... ", false);
-                try
-                {
-                    // Save lines to hosts file
-                    HostsFile.Save();
-                    UpdateHostFileStatus("Success!");
-
-                    // Set form data
-                    RedirectsEnabled = true;
-                    HostsStatusPic.Image = Resources.loading;
-                    RedirectButton.Text = "Remove HOSTS Redirect";
-                    RedirectButton.Enabled = true;
-
-                    // Rebuilds the DNS cache async
-                    RebuildDNSCacheAsync();
-                }
-                catch
-                {
-                    UpdateHostFileStatus("Failed!");
-                    UnlockGroups();
-                    MessageBox.Show(
-                        "Unable to WRITE to HOSTS file! Please make sure to replace your HOSTS file with " +
-                        "the one provided in the release package, or remove your current permissions from the HOSTS file. " +
-                        "It may also help to run this program as an administrator.",
-                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning
-                    );
-                    HostsLockCheckbox.Enabled = true;
+                    F.ShowDialog();
                 }
             }
             else
             {
-                // Lock the button
-                RedirectButton.Enabled = true;
-
-                // Stop worker if its busy
-                if (HostTask != null && HostTask.Status == TaskStatus.Running)
-                {
-                    HostTaskSource.Cancel();
-                    return;
-                }
-
-                UndoRedirects();
+                Redirector.RemoveRedirects();
             }
+
+            // Re check the redirects status
+            CheckRedirectService();
         }
 
+        /// <summary>
+        /// Event fired when the Run Diagnostics button is pushed on the Redirects Tab
+        /// </summary>
         private void HostsDiagnosticsBtn_Click(object sender, EventArgs e)
         {
             using (HostsFileTestForm f = new HostsFileTestForm())
             {
                 f.ShowDialog();
+                UpdateCacheStatus();
             }
         }
 
+        /// <summary>
+        /// Event fired when the Lock/Unlock hosts file checkbox is modified
+        /// </summary>
         private void HostsLockCheckbox_CheckedChanged(object sender, EventArgs e)
         {
             // Save config
@@ -1240,16 +1176,19 @@ namespace BF2Statistics
             Config.Save();
 
             // We only do something if redirects are enabled
-            if (RedirectsEnabled)
+            if (Redirector.RedirectsEnabled)
             {
+                // Grab our hosts file
+                SysHostsFile hFile = Redirector.HostsFileSys;
+
                 // Lock or unlock the file
-                if (HostsLockCheckbox.Checked && !HostsFile.IsLocked)
+                if (HostsLockCheckbox.Checked && !SysHostsFile.IsLocked)
                 {
                     // Attempt to lock the hosts file
-                    if (!HostsFile.Lock())
+                    if (!hFile.Lock())
                     {
                         MessageBox.Show(
-                            "Unable to lock the HOSTS file! Reason: " + HostsFile.LastException.Message,
+                            "Unable to lock the HOSTS file! Reason: " + hFile.LastException.Message,
                             "Hosts File Error", MessageBoxButtons.OK, MessageBoxIcon.Error
                         );
                         return;
@@ -1261,13 +1200,13 @@ namespace BF2Statistics
                     HostsStatusPic.Image = Resources.check;
                     Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are currently active.");
                 }
-                else if (!HostsLockCheckbox.Checked && HostsFile.IsLocked)
+                else if (!HostsLockCheckbox.Checked && SysHostsFile.IsLocked)
                 {
                     // Attempt to unlock the hosts file
-                    if (!HostsFile.UnLock())
+                    if (!hFile.UnLock())
                     {
                         MessageBox.Show(
-                            "Unable to unlock the HOSTS file! Reason: " + HostsFile.LastException.Message,
+                            "Unable to unlock the HOSTS file! Reason: " + hFile.LastException.Message,
                             "Hosts File Error", MessageBoxButtons.OK, MessageBoxIcon.Error
                         );
                         return;
@@ -1280,231 +1219,7 @@ namespace BF2Statistics
                     Tipsy.SetToolTip(HostsStatusPic, "HOSTS file is unlocked, Redirects will not work!");
                 }
             }
-        }
 
-        /// <summary>
-        /// Method is used to unlock the input fields
-        /// </summary>
-        private void UnlockGroups()
-        {
-            RedirectButton.Enabled = true;
-            GpcmGroupBox.Enabled = true;
-            BF2webGroupBox.Enabled = true;
-        }
-
-        /// <summary>
-        /// Method is used to lock the input fields while redirect is active
-        /// </summary>
-        private void LockGroups()
-        {
-            RedirectButton.Enabled = false;
-            GpcmGroupBox.Enabled = false;
-            BF2webGroupBox.Enabled = false;
-        }
-
-        /// <summary>
-        /// Preforms the pings required to fill the dns cache, and locks the HOSTS file.
-        /// The reason we ping, is because once the HOSTS file is locked, any request
-        /// made to a url (when the DNS cache is empty), will skip the hosts file, because 
-        /// it cant be read. If we ping first, then the DNS cache fills up with the IP 
-        /// addresses in the hosts file.
-        /// </summary>
-        private void RebuildDNSCacheAsync(bool FlushDnsCache = true)
-        {
-            // Create a new Cancellation token sequence
-            HostTaskSource = new CancellationTokenSource();
-            CancellationToken CancelToken = HostTaskSource.Token;
-
-            // Lock hosts file lock
-            HostsLockCheckbox.Enabled = false;
-
-            // Run as a task in a different thread
-            HostTask = Task.Run(async () =>
-            {
-                try
-                {
-                    if (FlushDnsCache)
-                    {
-                        // Flush DNS Cache
-                        UpdateHostFileStatus("- Rebuilding DNS Cache... ", false);
-                        DnsFlushResolverCache();
-                    }
-                    else
-                    {
-                        UpdateHostFileStatus("- Refreshing DNS HOSTS File Entries... ", false);
-                    }
-
-                    // Dispose of the ping object correctly
-                        // Rebuild the DNS cache with the hosts file redirects
-                        foreach (KeyValuePair<String, String> IP in HostsFile.GetLines())
-                        {
-                            // Quit on cancel
-                            if (CancelToken.IsCancellationRequested)
-                                return;
-
-                            try
-                            {
-                                // Ping server to get the IP address in the dns cache
-                                await Dns.GetHostAddressesAsync(IP.Key);
-                            }
-                            catch
-                            {
-                                continue;
-                            }
-                        }
-
-                    // Update status window
-                    UpdateHostFileStatus("Done");
-
-                    // Wait for DNS cache to catch up
-                    await Task.Delay(1000);
-
-                    // Lock the hosts file
-                    if (HostsLockCheckbox.Checked)
-                    {
-                        UpdateHostFileStatus("- Locking HOSTS file");
-                        HostsFile.Lock();
-                    }
-
-                    UpdateHostFileStatus("- All Done!");
-                    Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are currently active.");
-                    BeginInvoke((Action)delegate
-                    {
-                        HostsStatusPic.Image = Resources.check;
-                        HostsDiagnosticsBtn.Enabled = true;
-
-                        // Set hosts file locked status
-                        if(HostsFile.IsLocked)
-                        {
-                            HostsLockStatus.Text = "Locked";
-                            HostsLockStatus.ForeColor = Color.Green;
-                        }
-                        else
-                        {
-                            HostsLockStatus.Text = "UnLocked";
-                            HostsLockStatus.ForeColor = Color.Red;
-                        }
-                        HostsLockCheckbox.Enabled = true;
-                    });
-                }
-                catch(Exception e)
-                {
-                    // Execute on the main thread
-                    BeginInvoke((Action)delegate
-                    {
-                        // Update status window
-                        UpdateHostFileStatus("Error!");
-                        HostsStatusPic.Image = Resources.warning;
-                        HostsLockCheckbox.Enabled = true;
-                        Tipsy.SetToolTip(HostsStatusPic, e.Message);
-                    });
-                }
-
-            }, CancelToken)
-
-            // Runs if cancelled
-            .ContinueWith((Action<Task>)delegate
-            {
-                // Execute on the main thread
-                BeginInvoke((Action)delegate
-                {
-                    // Update status window
-                    UpdateHostFileStatus("Cancelled!");
-
-                    // Lock form and show loading screen
-                    LoadingForm.ShowScreen(this);
-                    SetNativeEnabled(false);
-
-                    // Undo the redirects
-                    UndoRedirects();
-
-                    // Close loading form and allow user to access form again
-                    LoadingForm.CloseForm();
-                    SetNativeEnabled(true);
-                });
-            }, TaskContinuationOptions.OnlyOnCanceled);
-        }
-
-        /// <summary>
-        /// Removes HOSTS file redirects.
-        /// </summary>
-        private void UndoRedirects()
-        {
-            // Tell the writter to restore the HOSTS file to its
-            // original state
-            UpdateHostFileStatus("- Unlocking HOSTS file");
-            HostsFile.UnLock();
-
-            // Restore the original hosts file contents
-            UpdateHostFileStatus("- Restoring HOSTS file... ", false);
-            try
-            {
-                HostsFile.Remove("bf2web.gamespy.com");
-                HostsFile.Remove("gpcm.gamespy.com");
-                HostsFile.Remove("gpsp.gamespy.com");
-                HostsFile.Remove("motd.gamespy.com");
-                HostsFile.Remove("master.gamespy.com");
-                HostsFile.Remove("gamestats.gamespy.com");
-                HostsFile.Remove("battlefield2.ms14.gamespy.com");
-                HostsFile.Remove("battlefield2.master.gamespy.com");
-                HostsFile.Remove("battlefield2.available.gamespy.com");
-                HostsFile.Save();
-                UpdateHostFileStatus("Success!");
-            }
-            catch
-            {
-                UpdateHostFileStatus("Failed!");
-                MessageBox.Show(
-                    "Unable to RESTORE to HOSTS file! Unfortunatly this error can only be fixed by manually removing the HOSTS file,"
-                    + " and replacing it with a new one :( . If possible, you may also try changing the permissions yourself.",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error
-                );
-            }
-
-            // Flush the DNS!
-            UpdateHostFileStatus("- Flushing DNS Cache");
-            DnsFlushResolverCache();
-
-            // Update status
-            UpdateHostFileStatus("- All Done!");
-            Tipsy.SetToolTip(HostsStatusPic, "Gamespy redirects are NOT active.");
-
-            // Reset form data
-            RedirectsEnabled = false;
-            HostsStatusPic.Image = Resources.error;
-            RedirectButton.Text = "Begin HOSTS Redirect";
-            HostsDiagnosticsBtn.Enabled = false;
-            HostsLockStatus.Text = "UnLocked";
-            HostsLockStatus.ForeColor = Color.Red;
-            UnlockGroups();
-        }
-
-        /// <summary>
-        /// Adds a new line to the "status" window on the GUI
-        /// </summary>
-        /// <param name="message">The message to print</param>
-        /// <param name="newLine">Add a new line for the next message?</param>
-        public void UpdateHostFileStatus(string message, bool newLine = true)
-        {
-            // Add new line
-            if (newLine) message = message + Environment.NewLine;
-
-            // Ask if we need invoke to prevent an exception at startup 
-            // because window handle wasnt created yet.
-            if (InvokeRequired)
-            {
-                // Invoke the logbox update
-                Invoke((MethodInvoker)delegate
-                {
-                    LogBox.Text += message;
-                    LogBox.Refresh();
-                });
-            }
-            else
-            {
-                LogBox.Text += message;
-                LogBox.Refresh();
-            }
         }
 
         #endregion Hosts File Redirect
@@ -1874,7 +1589,7 @@ namespace BF2Statistics
             UpdateStatusPic.Show();
             UpdateLabel.Text = "(Checking For Updates...)";
             UpdateLabel.ForeColor = Color.Black;
-            Updater.CheckForUpdateAsync();
+            ProgramUpdater.CheckForUpdateAsync();
         }
 
         /// <summary>
@@ -1894,7 +1609,7 @@ namespace BF2Statistics
         /// </summary>
         private void Updater_CheckCompleted(object sender, EventArgs e)
         {
-            if (Updater.UpdateAvailable)
+            if (ProgramUpdater.UpdateAvailable)
             {
                 // Update the status
                 UpdateLabel.Text = "(Update Available!)";
@@ -1903,7 +1618,7 @@ namespace BF2Statistics
 
                 // Ask User
                 DialogResult r = MessageBox.Show(
-                    "An Update for this program is avaiable for download (" + Updater.NewVersion + ")."
+                    "An Update for this program is avaiable for download (" + ProgramUpdater.NewVersion + ")."
                     + Environment.NewLine.Repeat(1)
                     + "Would you like to download and install this update now?",
                     "Update Available",
@@ -1913,7 +1628,7 @@ namespace BF2Statistics
 
                 // Apply update
                 if (r == DialogResult.Yes)
-                    Updater.DownloadUpdateAsync();
+                    ProgramUpdater.DownloadUpdateAsync();
             }
             else
             {
@@ -1929,8 +1644,6 @@ namespace BF2Statistics
         /// <summary>
         /// Destructor
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             // Save Cross Session Settings
@@ -1942,6 +1655,10 @@ namespace BF2Statistics
             Config.ServerFileMoniter = FileMoniter.Checked;
             Config.Save();
 
+            // Unlock the hosts file
+            if (Redirector.RedirectsEnabled && Redirector.RedirectMethod == RedirectMode.HostsFile)
+                Redirector.HostsFileSys.UnLock();
+
             // Shutdown login servers
             if (GamespyEmulator.IsRunning)
                 GamespyEmulator.Shutdown();
@@ -1949,18 +1666,8 @@ namespace BF2Statistics
             // Shutdown ASP Server
             if (HttpServer.IsRunning)
                 HttpServer.Stop();
-
-            // Unlock the hosts file
-            HostsFile.UnLock();
         }
 
         #endregion Misc. Form Events
-
-        #region COM methods
-
-        [DllImport("dnsapi.dll", EntryPoint = "DnsFlushResolverCache")]
-        private static extern UInt32 DnsFlushResolverCache();
-
-        #endregion
     }
 }

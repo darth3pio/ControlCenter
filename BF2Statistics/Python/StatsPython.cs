@@ -10,6 +10,11 @@ namespace BF2Statistics
     class StatsPython
     {
         /// <summary>
+        /// The latest release version of the stats python
+        /// </summary>
+        public static readonly Version LatestVersion = new Version(2, 3, 0);
+
+        /// <summary>
         /// Defines the Backup Folder path
         /// </summary>
         protected static string BackupPath = Path.Combine(Program.Config.ServerPath, "python", "_backup_");

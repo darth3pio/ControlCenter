@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using BF2Statistics.Net;
 
-namespace BF2Statistics.Net
+namespace BF2Statistics.Gamespy.Net
 {
     /// <summary>
     /// This object is used as a Network Stream wrapper for Gamespy TCP protocol,

@@ -1,29 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Security.AccessControl;
 using System.Security.Principal;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace BF2Statistics
 {
-    class HostsFile
+    public abstract class HostsFile
     {
         /// <summary>
-        /// Direct Filepath to the hosts file
+        /// The fileinfo object for the HostsFile
         /// </summary>
-        public static string FilePath = Path.Combine(Environment.SystemDirectory, "drivers", "etc", "hosts");
+        protected FileInfo HostFile;
+
+        /// <summary>
+        /// Each line of the hosts file stored in a list. ALl redirects are removed
+        /// from this list before being stored here.
+        /// </summary>
+        public List<string> OrigContents = new List<string>();
+
+        /// <summary>
+        /// A list of "hostname" => "IPAddress" in the hosts file.
+        /// </summary>
+        protected Dictionary<string, IPAddress> Entries = new Dictionary<string, IPAddress>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Hosts file security object
         /// </summary>
-        protected static FileSecurity Security;
-
-        /// <summary>
-        /// The fileinfo object for the HostsFile
-        /// </summary>
-        protected static FileInfo HostFile;
+        protected FileSecurity Security;
 
         /// <summary>
         /// The windows permission that represents everyone
@@ -31,119 +40,130 @@ namespace BF2Statistics
         protected static SecurityIdentifier WorldSid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
 
         /// <summary>
-        /// Each line of the hosts file stored in a list. ALl redirects are removed
-        /// from this list before being stored here.
-        /// </summary>
-        public static List<string> OrigContents = new List<string>();
-
-        /// <summary>
-        /// A list of "hostname" => "IPAddress" in the hosts file.
-        /// </summary>
-        protected static Dictionary<string, string> Entries = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
-        /// <summary>
         /// Returns whether the HOSTS file can be read from
         /// </summary>
-        public static readonly bool CanRead = false;
+        public bool CanRead { get; protected set; }
 
         /// <summary>
         /// Returns whether the HOSTS file can be written to
         /// </summary>
-        public static readonly bool CanWrite = false;
-
-        /// <summary>
-        /// Specifies whether the HOSTS file is locked
-        /// </summary>
-        public static bool IsLocked { get; protected set; }
+        public bool CanWrite { get; protected set; }
 
         /// <summary>
         /// If CanRead or CanWrite are false, the exception that was thrown
         /// will be stored here
         /// </summary>
-        public static Exception LastException { get; protected set; }
+        public Exception LastException { get; protected set; }
+
+        public HostsFile()
+        {
+            CanRead = CanWrite = false;
+        }
 
         /// <summary>
-        /// Constructor
+        /// Sets a domain name with an IP in the hosts file
         /// </summary>
-        static HostsFile()
+        /// <param name="Domain">The domain name</param>
+        /// <param name="Ip">The IP address</param>
+        public void Set(string Domain, IPAddress Ip)
         {
-            // We dont know?
-            IsLocked = false;
-            try
-            {
-                // Get the Hosts file object
-                HostFile = new FileInfo(FilePath);
+            if (Entries.ContainsKey(Domain))
+                Entries[Domain] = Ip;
+            else
+                Entries.Add(Domain, Ip);
+        }
 
-                // If HOSTS file is readonly, remove that attribute!
-                if (HostFile.IsReadOnly)
-                {
-                    try
-                    {
-                        HostFile.IsReadOnly = false;
-                    }
-                    catch (Exception e)
-                    {
-                        Program.ErrorLog.Write("HOSTS file is READONLY, Attribute cannot be removed: " + e.Message);
-                        LastException = e;
-                        return;
-                    }
-                }
-            }
-            catch (Exception e)
+        /// <summary>
+        /// Removes a domain name from the hosts file
+        /// </summary>
+        /// <param name="Domain">The domain name</param>
+        public bool Remove(string Domain)
+        {
+            if (Entries.ContainsKey(Domain))
             {
-                Program.ErrorLog.Write("Program cannot access HOSTS file in any way: " + e.Message);
-                LastException = e;
-                return; 
+                Entries.Remove(Domain);
+                return true;
             }
 
-            // Try to get the Access Control for the hosts file
-            try
+            return false;
+        }
+
+        /// <summary>
+        /// Removes all of the specified domain names from the hosts file
+        /// </summary>
+        /// <param name="Domains"></param>
+        public bool RemoveAll(IEnumerable<string> Domains)
+        {
+            bool Return = false;
+            foreach (string host in Domains)
             {
-                Security = HostFile.GetAccessControl();
-            }
-            catch (Exception e)
-            {
-                Program.ErrorLog.Write("Unable to get HOSTS file Access Control: " + e.Message);
-                LastException = e;
-                return;
+                if (Entries.Remove(host))
+                    Return = true;
             }
 
-            // Make sure we can read the file amd write to it!
-            try 
-            {
-                // Unlock hosts file
-                if (!UnLock())
-                    return;
+            return Return;
+        }
 
-                // Get the hosts file contents
-                using (StreamReader Rdr = new StreamReader(HostFile.OpenRead()))
-                {
-                    while(!Rdr.EndOfStream)
-                        OrigContents.Add(Rdr.ReadLine());
-                }
-                
-                CanRead = true;
-            }
-            catch (Exception e) 
-            {
-                Program.ErrorLog.Write("Unable to READ the HOSTS file: " + e.Message);
-                LastException = e;
-                return;
-            }
+        /// <summary>
+        /// Returns whether the hostsfile contains the specified domain name
+        /// </summary>
+        /// <param name="Domain">The domain name</param>
+        /// <returns></returns>
+        public bool HasEntry(string Domain)
+        {
+            return Entries.ContainsKey(Domain);
+        }
 
-            // Check that we can write to the hosts file
-            try
+        /// <summary>
+        /// Returns whether the hostsfile contains any of the domain names provided
+        /// </summary>
+        /// <param name="Domains">An array of domain names to check for</param>
+        /// <returns></returns>
+        public bool HasAnyEntry(IEnumerable<string> Domains)
+        {
+            foreach(string domain in Domains)
             {
-                using (FileStream Stream = HostFile.OpenWrite())
-                    CanWrite = true;
-            }
-            catch(Exception e)
-            {
-                Program.ErrorLog.Write("Unable to WRITE to the HOSTS file: " + e.Message);
-                LastException = e;
-                return;
+                if (Entries.ContainsKey(domain))
+                    return true;
             }
 
+            return false;
+        }
+
+        /// <summary>
+        /// Returns the IP address for the provided domain name
+        /// </summary>
+        /// <param name="Domain">The domain name</param>
+        /// <returns></returns>
+        public IPAddress Get(string Domain)
+        {
+            return Entries[Domain];
+        }
+
+        /// <summary>
+        /// Saves all currently set domains and IPs to the hosts file
+        /// </summary>
+        public void Save()
+        {
+            using (FileStream Str = HostFile.Open(FileMode.Truncate, FileAccess.Write, FileShare.Read))
+            using (StreamWriter Writer = new StreamWriter(Str))
+            {
+                foreach (KeyValuePair<String, IPAddress> line in Entries)
+                    Writer.WriteLine(String.Format("{0}\t{1}", line.Value, line.Key));
+            }
+        }
+
+        /// <summary>
+        /// Returns a list of all current hosts file lines
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<string, IPAddress> GetLines()
+        {
+            return Entries;
+        }
+
+        protected void ParseEntries()
+        {
             // Parse hosts file lines
             foreach (string line in OrigContents)
             {
@@ -164,7 +184,11 @@ namespace BF2Statistics
                 {
                     string hostname = M.Groups["hostname"].Value.ToLower();
                     if (!Entries.ContainsKey(hostname))
-                        Entries.Add(hostname, M.Groups["address"].Value);
+                    {
+                        IPAddress addy = null;
+                        if (IPAddress.TryParse(M.Groups["address"].Value, out addy))
+                            Entries.Add(hostname, addy);
+                    }
                 }
             }
 
@@ -172,149 +196,8 @@ namespace BF2Statistics
             if (!Entries.ContainsKey("localhost"))
             {
                 OrigContents.Add("127.0.0.1\tlocalhost");
-                Entries.Add("localhost", IPAddress.Loopback.ToString());
-                File.WriteAllLines(FilePath, OrigContents);
+                Entries.Add("localhost", IPAddress.Loopback);
             }
-        }
-
-        /// <summary>
-        /// Removes the "Deny" read permissions, and adds the "Allow" read permission
-        /// on the HOSTS file. If the Hosts file cannot be unlocked, the exception error
-        /// will be logged in the App error log
-        /// </summary>
-        public static bool UnLock()
-        {
-            // Make sure we have a security object
-            if (Security == null)
-                return false;
-
-            // Allow ReadData
-            Security.RemoveAccessRule(new FileSystemAccessRule(WorldSid, FileSystemRights.ReadData, AccessControlType.Deny));
-            Security.AddAccessRule(new FileSystemAccessRule(WorldSid, FileSystemRights.ReadData, AccessControlType.Allow));
-
-            // Try and set the new access control
-            try
-            {
-                HostFile.SetAccessControl(Security);
-                IsLocked = false;
-                return true;
-            }
-            catch (Exception e)
-            {
-                Program.ErrorLog.Write("Unable to REMOVE the Readonly rule on Hosts File: " + e.Message);
-                LastException = e;
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Removes the "Allow" read permissions, and adds the "Deny" read permission
-        /// on the HOSTS file. If the Hosts file cannot be locked, the exception error
-        /// will be logged in the App error log
-        /// </summary>
-        public static bool Lock()
-        {
-            // Make sure we have a security object
-            if (Security == null)
-                return false;
-
-            // Donot allow Read for the Everyone Sid. This prevents the BF2 client from reading the hosts file
-            Security.RemoveAccessRule(new FileSystemAccessRule(WorldSid, FileSystemRights.ReadData, AccessControlType.Allow));
-            Security.AddAccessRule(new FileSystemAccessRule(WorldSid, FileSystemRights.ReadData, AccessControlType.Deny));
-
-            // Try and set the new access control
-            try
-            {
-                HostFile.SetAccessControl(Security);
-                IsLocked = true;
-                return true;
-            }
-            catch (Exception e)
-            {
-                Program.ErrorLog.Write("Unable to REMOVE the Readonly rule on Hosts File: " + e.Message);
-                LastException = e;
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Sets a domain name with an IP in the hosts file
-        /// </summary>
-        /// <param name="Domain">The domain name</param>
-        /// <param name="Ip">The IP address</param>
-        public static void Set(string Domain, string Ip)
-        {
-            // Throw exception if there was one!
-            if (LastException != null) throw LastException;
-
-            if (Entries.ContainsKey(Domain))
-                Entries[Domain] = Ip;
-            else
-                Entries.Add(Domain, Ip);
-        }
-
-        /// <summary>
-        /// Removes a domain name from the hosts file
-        /// </summary>
-        /// <param name="Domain">The domain name</param>
-        public static void Remove(string Domain)
-        {
-            // Throw exception if there was one!
-            if (LastException != null) throw LastException;
-
-            if (Entries.ContainsKey(Domain))
-                Entries.Remove(Domain);
-        }
-
-        /// <summary>
-        /// Returns whether the hostsfile contains a domain name
-        /// </summary>
-        /// <param name="Domain">The domain name</param>
-        /// <returns></returns>
-        public static bool HasEntry(string Domain)
-        {
-            // Throw exception if there was one!
-            if (LastException != null) throw LastException;
-            return Entries.ContainsKey(Domain);
-        }
-
-        /// <summary>
-        /// Returns the IP address for the provided domain name
-        /// </summary>
-        /// <param name="Domain">The domain name</param>
-        /// <returns></returns>
-        public static string Get(string Domain)
-        {
-            // Throw exception if there was one!
-            if (LastException != null) throw LastException;
-            return Entries[Domain];
-        }
-
-        /// <summary>
-        /// Saves all currently set domains and IPs to the hosts file
-        /// </summary>
-        public static void Save()
-        {
-            // Throw exception if there was one!
-            if (LastException != null) throw LastException;
-
-            // Convert the dictionary of lines to a list of lines
-            List<string> lns = new List<string>();
-            foreach (KeyValuePair<String, String> line in Entries)
-                lns.Add(String.Format("{0}\t{1}", line.Value, line.Key));
-
-            File.WriteAllLines(FilePath, lns);
-        }
-
-        /// <summary>
-        /// Returns a list of all current hosts file lines
-        /// </summary>
-        /// <returns></returns>
-        public static Dictionary<string, string> GetLines()
-        {
-            // Throw exception if there was one!
-            if (LastException != null) throw LastException;
-            return Entries;
         }
     }
 }

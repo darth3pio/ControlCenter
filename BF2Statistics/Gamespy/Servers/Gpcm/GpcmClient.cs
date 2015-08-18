@@ -7,6 +7,7 @@ using System.Text;
 using System.Timers;
 using BF2Statistics.ASP;
 using BF2Statistics.Database;
+using BF2Statistics.Gamespy.Net;
 using BF2Statistics.Net;
 using BF2Statistics.Utilities;
 

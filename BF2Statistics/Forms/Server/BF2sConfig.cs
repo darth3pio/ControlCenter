@@ -51,8 +51,8 @@ namespace BF2Statistics
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning
                     );
 
-                this.Load += new EventHandler(CloseOnStart);
-                return;
+                // Close this form
+                this.Load += (s, ev) => Close();
             }
         }
 

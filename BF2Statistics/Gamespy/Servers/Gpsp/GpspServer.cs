@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using BF2Statistics.Gamespy.Net;
 using BF2Statistics.Net;
 
 namespace BF2Statistics.Gamespy

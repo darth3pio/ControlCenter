@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using BF2Statistics.Database;
+using BF2Statistics.Net;
 
-namespace BF2Statistics.Net
+namespace BF2Statistics.Gamespy.Net
 {
     /// <summary>
     /// This class represents a high performance Async Tcp Socket wrapper

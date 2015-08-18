@@ -4,7 +4,7 @@ using System.Data.SQLite;
 using System.IO;
 using System.Net;
 using BF2Statistics.Database;
-using BF2Statistics.Utilities;
+using BF2Statistics.Net;
 using BF2Statistics.Web;
 
 namespace BF2Statistics.ASP

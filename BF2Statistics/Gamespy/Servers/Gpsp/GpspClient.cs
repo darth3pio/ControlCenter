@@ -7,6 +7,7 @@ using BF2Statistics.Database;
 using System.Linq;
 using BF2Statistics.Net;
 using System.Threading;
+using BF2Statistics.Gamespy.Net;
 
 namespace BF2Statistics.Gamespy
 {

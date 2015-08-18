@@ -27,7 +27,7 @@ namespace BF2Statistics.ASP.StatsProcessor
         /// <summary>
         /// Is this a central update snapshot?
         /// </summary>
-        public bool IsCentralUpdate { get; protected set; }
+        public SnapshotMode SnapshotMode = SnapshotMode.FullSync;
 
         /// <summary>
         /// Indicates whether or not this game data is already processed into the database
@@ -64,10 +64,16 @@ namespace BF2Statistics.ASP.StatsProcessor
             if (Data.Length < 36 || Data.Length % 2 != 0)
                 throw new InvalidDataException("Snapshot does not contain at least 36 elements, or contains an odd number of elements");
 
-            // Assign server name and prefix, and determine if we are central update. the "cdb_update" variable must be the LAST sector in snapshot
+            // Assign server name and prefix
             this.ServerPrefix = Data[0];
             this.ServerName = Data[1];
-            this.IsCentralUpdate = (Data[Data.Length - 2] == "cdb_update" && Data[Data.Length - 1] != "0");
+
+            // Determine if we are central update. the "cdb_update" variable must be the LAST sector in snapshot
+            int Mode;
+            if (Data[Data.Length - 2] == "cdb_update" && Int32.TryParse(Data[Data.Length - 1], out Mode) && Mode.InRange(1, 2))
+            {
+                this.SnapshotMode = (Mode == 2) ? SnapshotMode.Minimal : SnapshotMode.FullSync;
+            }
 
             // Setup our data dictionary's. We use NiceDictionary so we can easily determine missing keys in the log file
             NiceDictionary<string, string> StandardData = new NiceDictionary<string, string>(16);
@@ -230,6 +236,10 @@ namespace BF2Statistics.ASP.StatsProcessor
                 throw new Exception("Minimum round Player count does not meet the ASP requirement");
             }
 
+            // CDB update
+            if (this.SnapshotMode == SnapshotMode.Minimal)
+                Log("Snapshot mode set to CentralDatabase.Minimal. Rank and Award data will be ingnored", LogLevel.Notice);
+
             // Setup some variables
             Stopwatch Clock = new Stopwatch();
             List<Dictionary<string, object>> Rows;
@@ -269,6 +279,10 @@ namespace BF2Statistics.ASP.StatsProcessor
                         {
                             // === New Player === //
                             Log(String.Format("Adding NEW Player ({0})", Player.Pid), LogLevel.Notice);
+
+                            // We dont save rank data on CentralDatabase.Minimal
+                            if (this.SnapshotMode == SnapshotMode.Minimal)
+                                Player.SetRank(0);
 
                             // Build insert data
                             InsertQuery = new InsertQueryBuilder("player", Driver);
@@ -353,7 +367,12 @@ namespace BF2Statistics.ASP.StatsProcessor
                             // while being fetched in the python (yay single threading!), and the players stats are reset
                             // during that round.
                             int DbRank = Int32.Parse(Rows[0]["rank"].ToString());
-                            if (DbRank > Player.Rank && DbRank != 11 && DbRank != 21)
+                            if (this.SnapshotMode == SnapshotMode.Minimal)
+                            {
+                                // On CDB mode, always use database rank
+                                Player.SetRank(DbRank);
+                            }
+                            else if (DbRank > Player.Rank && DbRank != 11 && DbRank != 21)
                             {
                                 // Fail-safe in-case rank data was not obtained and reset to '0' in-game.
                                 Player.SetRank(DbRank);
@@ -712,6 +731,8 @@ namespace BF2Statistics.ASP.StatsProcessor
                             UpdateQuery.Execute();
                         }
 
+                        // Quit here on central database Min mode, since award data isnt allowed
+                        if (this.SnapshotMode == SnapshotMode.Minimal) continue;
 
                         // ********************************
                         // Process Player Awards Data

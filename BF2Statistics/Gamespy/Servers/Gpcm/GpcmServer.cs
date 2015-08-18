@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using BF2Statistics.Database;
+using BF2Statistics.Gamespy.Net;
 using BF2Statistics.Logging;
 using BF2Statistics.Net;
 

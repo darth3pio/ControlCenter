@@ -1,28 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
-using System.Runtime.Serialization.Json;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml;
-using System.Xml.Linq;
+using BF2Statistics.Updater;
+using Newtonsoft.Json;
 
 namespace BF2Statistics
 {
     /// <summary>
     /// Auto updater for the BF2Statistics control center
     /// </summary>
-    public class Updater
+    public static class ProgramUpdater
     {
         /// <summary>
         /// Path to the Versions file
         /// </summary>
-        public static readonly Uri Url = new Uri("https://api.github.com/repos/BF2Statistics/ControlCenter/releases");
+        public static readonly Uri Url = new Uri("https://api.github.com/repos/BF2Statistics/ControlCenter/releases?per_page=5");
 
         /// <summary>
         /// The new updated version
@@ -51,19 +50,19 @@ namespace BF2Statistics
         /// <summary>
         /// Indicates whether we are currently downloading an update
         /// </summary>
-        protected static bool IsDownloading = false;
+        private static bool IsDownloading = false;
 
         /// <summary>
         /// The webclient used to make the requests to github
         /// </summary>
-        protected static WebClient Web;
+        private static WebClient Web;
 
         /// <summary>
         /// Specifies the path to the new update archive on the client PC
         /// </summary>
-        public static string UpdateFileLocation { get; protected set; }
+        public static string UpdateFileLocation { get; private set; }
 
-        static Updater()
+        static ProgramUpdater()
         {
             // By pass SSL Cert checks
             ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
@@ -88,15 +87,16 @@ namespace BF2Statistics
                         Web.Proxy = null; // Disable proxy because this can cause slowdown on some machines
 
                         // Download file
-                        string V = Web.DownloadString(Url);
+                        string json = Web.DownloadString(Url);
 
-                        // Parse the Json Response
-                        var jsonReader = JsonReaderWriterFactory.CreateJsonReader(Encoding.UTF8.GetBytes(V), new XmlDictionaryReaderQuotas());
-                        XDocument root = XDocument.Load(jsonReader);
-                        XElement ele = root.Descendants().FirstOrDefault(x => x.Name == "tag_name");
+                        // Use our Json.Net library to convert our API string into an object
+                        List<GitHubRelease> Releases = JsonConvert.DeserializeObject<List<GitHubRelease>>(json)
+                            .Where(x => x.PreRelease == false && x.Draft == false && x.Assets.Count > 0)
+                            .OrderByDescending(x => x.Published).ToList();
 
                         // Parse version
-                        Version.TryParse(ele.Value, out NewVersion);
+                        if (Releases.Count > 0)
+                            Version.TryParse(Releases[0].TagName, out NewVersion);
                     }
                 });
             }

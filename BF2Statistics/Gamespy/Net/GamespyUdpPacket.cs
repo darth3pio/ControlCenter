@@ -4,8 +4,9 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using BF2Statistics.Net;
 
-namespace BF2Statistics.Net
+namespace BF2Statistics.Gamespy.Net
 {
     /// <summary>
     /// This class represents a packet recieved from and/or to be sent to

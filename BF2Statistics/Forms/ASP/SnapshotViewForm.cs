@@ -32,16 +32,116 @@ namespace BF2Statistics
         }
 
         /// <summary>
+        /// Builds a list of SnapshotFile objects found within the specified file path
+        /// </summary>
+        /// <param name="FilePath"></param>
+        /// <returns></returns>
+        private List<SnapshotFile> GetSnapshotFileInfos(string FilePath)
+        {
+            List<SnapshotFile> Files = new List<SnapshotFile>();
+
+            // Grab all files with the .txt extension
+            foreach (string File in Directory.EnumerateFiles(FilePath, "*.txt"))
+            {
+                try
+                {
+                    // Get filename
+                    string fileName = Path.GetFileName(File);
+
+                    // Check Formatting
+                    if (!fileName.Contains('-') || !fileName.Contains('_'))
+                        continue;
+
+                    // Create new snapshot file into
+                    Files.Add(new SnapshotFile(fileName));
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+
+            return Files;
+        }
+
+        /// <summary>
+        /// Builds the snapshot file list, based on the snapshot files found within
+        /// the Temp and Processed folders
+        /// </summary>
+        private void BuildList(string MapName = "", string Prefix = "", DateTime? StartDate = null, DateTime? EndDate = null)
+        {
+            // Remove old junk from the list
+            SnapshotView.Items.Clear();
+            SnapshotView.SuspendLayout();
+
+            // Define what we are filtering
+            bool filterMap = !String.IsNullOrWhiteSpace(MapName);
+            bool filterPrefix = !String.IsNullOrWhiteSpace(Prefix);
+            bool filterDate = (EndDate != null && StartDate != null);
+
+            try
+            {
+                // Add each found snapshot to the snapshot view
+                string path = (ViewSelect.SelectedIndex == 0) ? Paths.SnapshotTempPath : Paths.SnapshotProcPath;
+                foreach (SnapshotFile file in GetSnapshotFileInfos(path).OrderByDescending(o => o.ProcessedDate))
+                {
+                    // Filtering of Mapname
+                    if (filterMap && !MapName.Equals(file.MapName, StringComparison.InvariantCultureIgnoreCase))
+                        continue;
+
+                    // Filtering of Server Prefix
+                    if (filterPrefix && !Prefix.Equals(file.ServerPrefix, StringComparison.InvariantCultureIgnoreCase))
+                        continue;
+
+                    // Filtering of Dates
+                    if (filterDate && (file.ProcessedDate >= EndDate || file.ProcessedDate <= StartDate))
+                        continue;
+
+                    // Add item
+                    ListViewItem Row = new ListViewItem();
+                    Row.Tag = file;
+                    Row.SubItems.Add(file.MapName);
+                    Row.SubItems.Add(file.ServerPrefix);
+                    Row.SubItems.Add(file.ProcessedDate.ToString());
+                    SnapshotView.Items.Add(Row);
+                }
+
+                // If we have no items, disable a few things...
+                if (SnapshotView.Items.Count == 0)
+                {
+                    ImportBtn.Enabled = false;
+                    SnapshotView.CheckBoxes = false;
+
+                    ListViewItem Row = new ListViewItem();
+                    Row.Tag = String.Empty;
+                    Row.SubItems.Add(String.Format("There are no {0}processed snapshots!", (ViewSelect.SelectedIndex == 0) ? "un" : ""));
+                    Row.SubItems.Add("");
+                    Row.SubItems.Add("");
+                    SnapshotView.Items.Add(Row);
+                }
+                else
+                    SnapshotView.CheckBoxes = true;
+            }
+            catch
+            {
+
+            }
+
+            SnapshotView.ResumeLayout();
+            SnapshotView.Update();
+        }
+
+        /// <summary>
         /// Event is fired when the Import Button is clicked
         /// </summary>
         private async void ImportBtn_Click(object sender, EventArgs e)
         {
             // List of files to process
-            List<string> Files = new List<string>();
+            List<SnapshotFile> Files = new List<SnapshotFile>();
             foreach (ListViewItem I in SnapshotView.Items)
             {
                 if (I.Checked)
-                    Files.Add(I.SubItems[1].Text);
+                    Files.Add(I.Tag as SnapshotFile);
             }
 
             // Make sure we have a snapshot selected
@@ -80,38 +180,40 @@ namespace BF2Statistics
         /// </summary>
         /// <param name="Files">List of snapshot file paths to import</param>
         /// <param name="CancelToken">Cancellation token, to cancel the import</param>
-        private void ImportSnaphotFiles(List<string> Files, CancellationToken CancelToken)
+        private void ImportSnaphotFiles(List<SnapshotFile> Files, CancellationToken CancelToken)
         {
-            // Order snapshots by timestamp
-            var Sorted = from _File in Files
-                         let parts = _File.Split('_')
-                         let date = int.Parse(parts[parts.Length - 2])
-                         let time = int.Parse(parts[parts.Length - 1].Replace(".txt", ""))
-                         orderby date, time ascending
-                         select _File;
-
             // Number of snapshots we have processed
             int processed = 0;
 
             // Do Work
-            foreach (string SnapshotFile in Sorted)
+            foreach (SnapshotFile SnapshotFile in Files)
             {
                 // If we have a cancelation request
                 if (CancelToken.IsCancellationRequested)
                     break;
+
+                // Make sure we arent processing twice
+                if (SnapshotFile.IsProcessed)
+                    continue;
 
                 // Process the snapshot
                 try
                 {
                     // Update status and run snapshot
                     TaskForm.Progress.Report(new TaskProgressUpdate(String.Format("Processing: \"{0}\"", SnapshotFile)));
-                    Snapshot Snapshot = new Snapshot(File.ReadAllText(Path.Combine(Paths.SnapshotTempPath, SnapshotFile)));
+                    Snapshot Snapshot = new Snapshot(File.ReadAllText(SnapshotFile.FilePath));
 
-                    // Do snapshot
-                    Snapshot.ProcessData();
+                    // Avoid processing exception
+                    if (Snapshot.IsProcessed)
+                        continue;
+                    else // Do snapshot
+                        Snapshot.ProcessData();
 
                     // Move the Temp snapshot to the Processed folder
-                    File.Move(Path.Combine(Paths.SnapshotTempPath, SnapshotFile), Path.Combine(Paths.SnapshotProcPath, SnapshotFile));
+                    File.Move(
+                        Path.Combine(Paths.SnapshotTempPath, SnapshotFile.FileName), 
+                        Path.Combine(Paths.SnapshotProcPath, SnapshotFile.FileName)
+                    );
                 }
                 catch (Exception E)
                 {
@@ -136,42 +238,7 @@ namespace BF2Statistics
             // Let progress bar update to 100%
             TaskForm.Progress.Report(new TaskProgressUpdate("Done! Cleaning up..."));
             Thread.Sleep(250);
-        }
-
-        /// <summary>
-        /// Builds the snapshot file list, based on the snapshot files found within
-        /// the Temp and Processed folders
-        /// </summary>
-        private void BuildList()
-        {
-            SnapshotView.Items.Clear();
-
-            // Add each found snapshot to the snapshot view
-            string path = (ViewSelect.SelectedIndex == 0) ? Paths.SnapshotTempPath : Paths.SnapshotProcPath;
-            foreach (string File in Directory.EnumerateFiles(path, "*.txt"))
-            {
-                ListViewItem Row = new ListViewItem();
-                Row.Tag = Path.GetFileName(File);
-                Row.SubItems.Add(Path.GetFileName(File));
-                SnapshotView.Items.Add(Row);
-            }
-
-            // If we have no items, disable a few things...
-            if (SnapshotView.Items.Count == 0)
-            {
-                ImportBtn.Enabled = false;
-                SnapshotView.CheckBoxes = false;
-
-                ListViewItem Row = new ListViewItem();
-                Row.Tag = String.Empty;
-                Row.SubItems.Add(String.Format("There are no {0}processed snapshots!", (ViewSelect.SelectedIndex == 1) ? "un" : ""));
-                SnapshotView.Items.Add(Row);
-            }
-            else
-                SnapshotView.CheckBoxes = true;
-
-            SnapshotView.Update();
-        }
+        } 
 
         /// <summary>
         /// Event fired when the Select All button is clicked
@@ -212,22 +279,20 @@ namespace BF2Statistics
         /// </summary>
         private void Details_MenuItem_Click(object sender, EventArgs e)
         {
-            // Get our snapshot file name
-            string Name = SnapshotView.SelectedItems[0].Tag.ToString();
-            if (String.IsNullOrEmpty(Name))
-                return;
-
-            // Parse date of snapshot, and build the file file location
-            string _File = (ViewSelect.SelectedIndex == 0) 
-                ? Path.Combine(Paths.SnapshotTempPath, Name) 
-                : Path.Combine(Paths.SnapshotProcPath, Name);
-
-            // Load up the snapshot, and display the Game Result Window
-            Snapshot Snapshot = new Snapshot(File.ReadAllText(_File));
-            using (GameResultForm F = new GameResultForm(Snapshot as GameResult, Snapshot.IsProcessed))
+            try
             {
-                F.ShowDialog();
+                // Get our snapshot file name
+                SnapshotFile sFile = SnapshotView.SelectedItems[0].Tag as SnapshotFile;
+                if (sFile == null) return;
+
+                // Load up the snapshot, and display the Game Result Window
+                Snapshot Snapshot = new Snapshot(File.ReadAllText(sFile.FilePath));
+                using (GameResultForm F = new GameResultForm(Snapshot as GameResult, Snapshot.IsProcessed))
+                {
+                    F.ShowDialog();
+                }
             }
+            catch { }
         }
 
         /// <summary>
@@ -267,23 +332,22 @@ namespace BF2Statistics
         private void MoveSnapshotMenuItem_Click(object sender, EventArgs e)
         {
             // Get our snapshot file name
-            string FileName = SnapshotView.SelectedItems[0].Tag.ToString();
-            if (String.IsNullOrEmpty(FileName))
-                return;
+            SnapshotFile sFile = SnapshotView.SelectedItems[0].Tag as SnapshotFile;
+            if (sFile == null) return;
 
             // Move the selected snapshot to the opposite folder
             if (ViewSelect.SelectedIndex == 0)
             {
                 File.Move(
-                    Path.Combine(Paths.SnapshotTempPath, FileName), 
-                    Path.Combine(Paths.SnapshotProcPath, FileName)
+                    Path.Combine(Paths.SnapshotTempPath, sFile.FileName), 
+                    Path.Combine(Paths.SnapshotProcPath, sFile.FileName)
                 );
             }
             else
             {
                 File.Move(
-                    Path.Combine(Paths.SnapshotProcPath, FileName), 
-                    Path.Combine(Paths.SnapshotTempPath, FileName)
+                    Path.Combine(Paths.SnapshotProcPath, sFile.FileName),
+                    Path.Combine(Paths.SnapshotTempPath, sFile.FileName)
                 );
             }
 
@@ -298,11 +362,11 @@ namespace BF2Statistics
         private void DeleteBtn_Click(object sender, EventArgs e)
         {
             // List of files to process
-            List<string> Files = new List<string>();
+            List<SnapshotFile> Files = new List<SnapshotFile>();
             foreach (ListViewItem I in SnapshotView.Items)
             {
                 if (I.Checked)
-                    Files.Add(I.SubItems[1].Text);
+                    Files.Add(I.Tag as SnapshotFile);
             }
 
             // Make sure we have a snapshot selected
@@ -313,6 +377,7 @@ namespace BF2Statistics
             }
             else
             {
+                // Comfirm
                 DialogResult Res = MessageBox.Show("Are you sure you want to delete these snapshots? This process cannot be reversed!", 
                     "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question
                 );
@@ -320,16 +385,90 @@ namespace BF2Statistics
                 if (Res == DialogResult.No)
                     return;
 
-                foreach (string Name in Files)
-                {
-                    string fName = (ViewSelect.SelectedIndex == 0)
-                        ? Path.Combine(Paths.SnapshotTempPath, Name)
-                        : Path.Combine(Paths.SnapshotProcPath, Name);
+                // Delete each snapshot file
+                foreach (SnapshotFile sFile in Files)
+                    File.Delete(sFile.FilePath);
 
-                    File.Delete(fName);
-                }
-
+                // Rebuild the list
                 BuildList();
+            }
+        }
+
+        private void linkLabelFilter_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            using (SnapshotFilterForm f = new SnapshotFilterForm())
+            {
+                if (f.ShowDialog() == DialogResult.OK)
+                {
+                    // Apply filtering
+                    BuildList(f.MapNameBox.Text, f.PrefixBox.Text, f.StartDateTime.Value, f.EndDateTime.Value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// This class represents a snapshot file
+        /// </summary>
+        internal class SnapshotFile
+        {
+            /// <summary>
+            /// Indicates whether this snapshot file exists in the Processed folder
+            /// </summary>
+            public bool IsProcessed
+            {
+                get
+                {
+                    string filePath = Path.Combine(Paths.SnapshotProcPath, FileName);
+                    return File.Exists(filePath);
+                }
+            }
+
+            /// <summary>
+            /// Gets the full file path to this file
+            /// </summary>
+            public string FilePath
+            {
+                get
+                {
+                    string path = (IsProcessed) ? Paths.SnapshotProcPath : Paths.SnapshotTempPath;
+                    return Path.Combine(path, FileName);
+                }
+            }
+
+            /// <summary>
+            /// Gets the filename of this snapshot file
+            /// </summary>
+            public string FileName { get; protected set; }
+
+            /// <summary>
+            /// Gets the Map name for this snapshot file
+            /// </summary>
+            public string MapName { get; protected set; }
+
+            /// <summary>
+            /// Gets the Server Prefix for this snapshot file
+            /// </summary>
+            public string ServerPrefix { get; protected set; }
+
+            /// <summary>
+            /// Gets the local time for when this snapshot file was saved by the server
+            /// </summary>
+            public DateTime ProcessedDate { get; protected set; }
+            
+            public SnapshotFile(string fileName)
+            {
+                // Seperate Server prefix from the snapshot data
+                string[] data = Path.GetFileNameWithoutExtension(fileName).Split('-'); // Prefix-MapData
+
+                // Parse Map data
+                string[] parts = data[1].Split('_');
+                string date = parts[parts.Length - 2] + "_" + parts[parts.Length - 1];
+
+                // Create new snapshot file into
+                FileName = fileName;
+                ServerPrefix = data[0];
+                MapName = String.Join("_", parts, 0, parts.Length - 2);
+                ProcessedDate = DateTime.ParseExact(date, "yyyyMMdd_HHmm", CultureInfo.InvariantCulture);
             }
         }
     }

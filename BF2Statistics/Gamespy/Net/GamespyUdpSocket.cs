@@ -6,8 +6,9 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BF2Statistics.Net;
 
-namespace BF2Statistics.Net
+namespace BF2Statistics.Gamespy.Net
 {
     /// <summary>
     /// Like the GamespyTcpSocket, this class represents a high perfomance

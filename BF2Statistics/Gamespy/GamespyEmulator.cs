@@ -39,7 +39,7 @@ namespace BF2Statistics.Gamespy
         /// <summary>
         /// Returns the number of connected players that are logged in
         /// </summary>
-        public static int NumClientsConencted
+        public static int NumClientsConnected
         {
             get { return (IsRunning) ? ClientManager.NumClients : 0; }
         }
@@ -162,7 +162,7 @@ namespace BF2Statistics.Gamespy
 
             // Setup the DebugLog
             DebugLog.LoggingEnabled = Program.Config.GamespyServerDebug;
-            if(Program.Config.GamespyServerDebug)
+            if (Program.Config.GamespyServerDebug)
                 DebugLog.ClearLog();
 
             try 

@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using BF2Statistics.Gamespy.Net;
 using BF2Statistics.Net;
 
 namespace BF2Statistics.Gamespy
