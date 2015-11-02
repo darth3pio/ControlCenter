@@ -65,6 +65,11 @@ namespace BF2Statistics.Gamespy.Net
         /// </summary>
         public bool IsDisposed { get; protected set; }
 
+        /// <summary>
+        /// Creates a new UDP socket for handling Gamespy Protocol
+        /// </summary>
+        /// <param name="Port">The port this socket will be bound to</param>
+        /// <param name="MaxConnections">The maximum number of concurrent connections</param>
         public GamespyUdpSocket(int Port, int MaxConnections)
         {
             // Create our Socket
@@ -85,10 +90,7 @@ namespace BF2Statistics.Gamespy.Net
             SocketReadWritePool = new SocketAsyncEventArgsPool(MaxNumConnections);
 
             // Create our Buffer Manager for IO operations. 
-            BufferManager = new BufferManager(
-                BufferSizePerEvent * MaxNumConnections,
-                BufferSizePerEvent
-            );
+            BufferManager = new BufferManager(MaxNumConnections, BufferSizePerEvent);
 
             // Assign our Connection IO SocketAsyncEventArgs object instances
             for (int i = 0; i < MaxNumConnections; i++)

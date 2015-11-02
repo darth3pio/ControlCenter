@@ -1,7 +1,7 @@
 CREATE TABLE `accounts` (
 	`id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	`name` VARCHAR(20) NOT NULL UNIQUE,
-	`password` VARCHAR(30) NOT NULL,
+	`password` VARCHAR(32) NOT NULL,
 	`email` VARCHAR(50) NOT NULL,
 	`country` VARCHAR(4) NOT NULL,
 	`lastip` VARCHAR(20) DEFAULT NULL,

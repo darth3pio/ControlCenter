@@ -17,12 +17,27 @@ namespace BF2Statistics.ASP.StatsProcessor
     /// Game data sent from the Battlefield 2 server at
     /// the end of a round (Aka: Snapshot data)
     /// </summary>
-    class Snapshot : GameResult
+    public sealed class Snapshot : GameResult
     {
         /// <summary>
-        /// Debug log file
+        /// The StatsDebug.log file writer object
         /// </summary>
-        private static LogWriter DebugLog = new LogWriter(Path.Combine(Program.RootPath, "Logs", "StatsDebug.log"));
+        /// <remarks>Use <paramref name="Snapshot.DebugLog"/> instead of using this directly</remarks>
+        private static LogWriter m_DebugLog;
+
+        /// <summary>
+        /// Fetches a LogWriter object which points to the StatsDebug.log file
+        /// </summary>
+        private LogWriter DebugLog
+        {
+            get 
+            { 
+                if (m_DebugLog == null)
+                    m_DebugLog = new LogWriter(Path.Combine(Program.RootPath, "Logs", "StatsDebug.log"));
+
+                return m_DebugLog;
+            }
+        }
 
         /// <summary>
         /// Is this a central update snapshot?
@@ -32,19 +47,19 @@ namespace BF2Statistics.ASP.StatsProcessor
         /// <summary>
         /// Indicates whether or not this game data is already processed into the database
         /// </summary>
-        public bool IsProcessed { get; protected set; }
+        public bool IsProcessed { get; private set; }
 
         /// <summary>
         /// Returns the Original Data string used to build this snapshot object
         /// </summary>
-        public string DataString { get; protected set; }
+        public string DataString { get; private set; }
 
         /// <summary>
         /// Returns the server IP that posted this snapshot. If no Server
         /// IP is provided (Ex: loading snapshot from a file), then the local
         /// loopback address will be returned instead
         /// </summary>
-        public IPAddress ServerIp { get; protected set; }
+        public IPAddress ServerIp { get; private set; }
 
         /// <summary>
         /// Initializes a new Snapshot, with the specified Date it was Posted
@@ -1107,7 +1122,7 @@ namespace BF2Statistics.ASP.StatsProcessor
             DebugLog.Write(Lvl + Message);
         }
 
-        protected enum LogLevel : int
+        private enum LogLevel : int
         {
             Info = -1,
             Security = 0,

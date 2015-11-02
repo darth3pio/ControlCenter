@@ -7,8 +7,15 @@ using System.Xml;
 
 namespace BF2Statistics.ASP.StatsProcessor
 {
-    class BackendAwardData
+    /// <summary>
+    /// This class is used to contain a definition of all awards for snapshot processing,
+    /// as well as loading the Backend award data from the BackendAwards.xml file
+    /// </summary>
+    public static class BackendAwardData
     {
+        /// <summary>
+        /// A full list of awards that are awarded from the medal_data.py file (StringId => IntId)
+        /// </summary>
         public static readonly Dictionary<string, int> Awards = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase)
         {
             // Badges

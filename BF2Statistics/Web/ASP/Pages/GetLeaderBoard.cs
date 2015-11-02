@@ -7,7 +7,7 @@ namespace BF2Statistics.Web.ASP
     /// <summary>
     /// /ASP/getleaderboard.aspx
     /// </summary>
-    class GetLeaderBoard
+    public sealed class GetLeaderBoard
     {
         private ASPResponse Response;
         private Dictionary<string, string> QueryString;

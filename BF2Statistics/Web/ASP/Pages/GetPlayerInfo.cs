@@ -8,7 +8,7 @@ namespace BF2Statistics.Web.ASP
     /// <summary>
     /// /ASP/getplayerinfo.aspx
     /// </summary>
-    class GetPlayerInfo
+    public sealed class GetPlayerInfo
     {
         /// <summary>
         /// The Resonse Object

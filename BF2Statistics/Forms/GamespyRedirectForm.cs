@@ -25,6 +25,9 @@ namespace BF2Statistics
         /// <summary>
         /// The current step of the form's progress
         /// </summary>
+        /// <remarks>
+        ///   Used to track which page ID we are moving to next
+        /// </remarks>
         protected int Step = 0;
 
         /// <summary>

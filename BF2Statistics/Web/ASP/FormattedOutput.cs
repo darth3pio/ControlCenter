@@ -9,7 +9,7 @@ namespace BF2Statistics.Web.ASP
     /// the official Gamespy ASP Header and Data output for
     /// Awards and player stats,
     /// </summary>
-    class FormattedOutput
+    public class FormattedOutput
     {
         /// <summary>
         /// A list of header columns

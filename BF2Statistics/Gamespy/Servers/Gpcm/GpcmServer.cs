@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using BF2Statistics.Database;
@@ -35,6 +36,21 @@ namespace BF2Statistics.Gamespy
         public const int MaxConnections = 64;
 
         /// <summary>
+        /// Indicates the timeout of when a connecting client will be disconnected
+        /// </summary>
+        public const int Timeout = 15000;
+
+        /// <summary>
+        /// A connection counter, used to create unique connection id's
+        /// </summary>
+        private int ConnectionCounter = 0;
+
+        /// <summary>
+        /// List of processing connections (id => Client Obj)
+        /// </summary>
+        private static ConcurrentDictionary<int, GpcmClient> Processing = new ConcurrentDictionary<int, GpcmClient>();
+
+        /// <summary>
         /// List of sucessfully logged in clients (Pid => Client Obj)
         /// </summary>
         private static ConcurrentDictionary<int, GpcmClient> Clients = new ConcurrentDictionary<int, GpcmClient>();
@@ -59,7 +75,7 @@ namespace BF2Statistics.Gamespy
         /// <summary>
         /// A timer that is used to Poll all connections, and removes dropped connections
         /// </summary>
-        public static Timer PollTimer { get; protected set; }
+        public static System.Timers.Timer PollTimer { get; protected set; }
 
         /// <summary>
         /// The Login Server Log Writter
@@ -71,6 +87,9 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         public static event EventHandler OnClientsUpdate;
 
+        /// <summary>
+        /// Creates a new Gamespy Client Manager object
+        /// </summary>
         public GpcmServer() : base(29900, MaxConnections)
         {
             // Register for events
@@ -78,9 +97,22 @@ namespace BF2Statistics.Gamespy
             GpcmClient.OnDisconnect += GpcmClient_OnDisconnect;
 
             // Setup timer. Every 15 seconds should be sufficient
-            PollTimer = new Timer(15000);
-            PollTimer.Elapsed += (s, e) => Parallel.ForEach(Clients.Values, client => client.SendKeepAlive());
+            PollTimer = new System.Timers.Timer(15000);
+            PollTimer.Elapsed += (s, e) =>
+            {
+                // Send keep alive to all connected clients
+                if (Clients.Count > 0) 
+                    Parallel.ForEach(Clients.Values, client => client.SendKeepAlive());
+
+                // Disconnect hanging connections
+                if (Processing.Count > 0) 
+                    Parallel.ForEach(Processing.Values, client => CheckTimeout(client));
+            };
             PollTimer.Start();
+
+            // Set connection handling
+            base.ConnectionEnforceMode = EnforceMode.DuringPrepare;
+            base.FullErrorMessage = "The Login Server is currently full. Please try again later!";
 
             // Begin accepting connections
             base.StartAcceptAsync();
@@ -91,12 +123,12 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         public void Shutdown()
         {
+            // Stop accepting new connections
+            base.IgnoreNewConnections = true;
+
             // Discard the poll timer
             PollTimer.Stop();
             PollTimer.Dispose();
-
-            // Stop accepting new connections
-            base.IgnoreNewConnections = true;
 
             // Unregister events so we dont get a shit ton of calls
             GpcmClient.OnSuccessfulLogin -= GpcmClient_OnSuccessfulLogin;
@@ -104,6 +136,7 @@ namespace BF2Statistics.Gamespy
 
             // Disconnected all connected clients
             Parallel.ForEach(Clients.Values, client => client.Disconnect(9));
+            Parallel.ForEach(Processing.Values, client => client.Disconnect(9));
 
             // Shutdown the listener socket
             base.ShutdownSocket();
@@ -117,10 +150,11 @@ namespace BF2Statistics.Gamespy
             }
             catch (Exception e)
             {
-                Program.ErrorLog.Write("WARNING: [Gpcm.Shutdown] Failed to update client database: " + e.Message);
+                Program.ErrorLog.Write("WARNING: [GpcmServer.Shutdown] Failed to update client database: " + e.Message);
             }
 
             // Update Connected Clients in the Database
+            Processing.Clear();
             Clients.Clear();
 
             // Tell the base to dispose all free objects
@@ -136,17 +170,55 @@ namespace BF2Statistics.Gamespy
         {
             try
             {
+                // Get our connection id
+                int ConID = Interlocked.Increment(ref ConnectionCounter);
+
                 // Create a new GpcmClient, passing the IO object for the TcpClientStream
-                GpcmClient client = new GpcmClient(Stream);
+                GpcmClient client = new GpcmClient(Stream, ConID);
+                Processing.TryAdd(ConID, client);
 
                 // Begin the asynchronous login process
                 client.SendServerChallenge();
             }
             catch (Exception e)
             {
-                Program.ErrorLog.Write("WARNING: An Error occured at [Gpcm.ProcessAccept] : Generating Exception Log");
+                Program.ErrorLog.Write("WARNING: An Error occured at [GpcmServer.ProcessAccept] : Generating Exception Log");
                 ExceptionHandler.GenerateExceptionLog(e);
                 base.Release(Stream);
+            }
+        }
+
+        /// <summary>
+        /// Checks the timeout on a client connection. This method is used to detect hanging connections, and
+        /// forcefully disconnects them.
+        /// </summary>
+        /// <param name="client"></param>
+        protected void CheckTimeout(GpcmClient client)
+        {
+            // Setup vars
+            DateTime expireTime = client.Created.AddSeconds(Timeout);
+            GpcmClient oldC;
+
+            // Remove all processing connections that are hanging
+            if (client.Status != LoginStatus.Completed && expireTime <= DateTime.Now)
+            {
+                try
+                {
+                    client.Disconnect(1);
+                    Processing.TryRemove(client.ConnectionId, out oldC);
+                }
+                catch (Exception ex)
+                {
+                    // Log the error
+                    Program.ErrorLog.Write(
+                        "NOTICE: [GpcmServer.CheckTimeout] Error removing client from processing queue. Generating Excpetion Log"
+                    );
+                    ExceptionHandler.GenerateExceptionLog(ex);
+                }
+            }
+            else if (client.Status == LoginStatus.Completed)
+            {
+                Processing.TryRemove(client.ConnectionId, out oldC);
             }
         }
 
@@ -229,15 +301,16 @@ namespace BF2Statistics.Gamespy
             // Wrap this in a try/catch
             try
             {
-                // Check to see if the client is already logged in, if so disconnect the old user
+                GpcmClient oldC;
                 GpcmClient client = sender as GpcmClient;
+
+                // Check to see if the client is already logged in, if so disconnect the old user
                 if (Clients.ContainsKey(client.PlayerId))
                 {
                     // Kick old connection
-                    GpcmClient oldC;
                     if (!Clients.TryRemove(client.PlayerId, out oldC))
                     {
-                        Program.ErrorLog.Write("ERROR: [GpcmClient_OnSuccessfulLogin] Unable to remove previous client entry.");
+                        Program.ErrorLog.Write("ERROR: [GpcmServer._OnSuccessfulLogin] Unable to remove previous client entry.");
                         client.Disconnect(1);
                         return;
                     }
@@ -245,10 +318,13 @@ namespace BF2Statistics.Gamespy
                     oldC.Disconnect(1);
                 }
 
+                // Remove connection from processing
+                Processing.TryRemove(client.ConnectionId, out oldC);
+
                 // Add current client to the dictionary
                 if (!Clients.TryAdd(client.PlayerId, client))
                 {
-                    Program.ErrorLog.Write("ERROR: [GpcmClient_OnSuccessfulLogin] Unable to add client to HashSet.");
+                    Program.ErrorLog.Write("ERROR: [GpcmServer._OnSuccessfulLogin] Unable to add client to HashSet.");
                     return;
                 }
 
@@ -257,7 +333,7 @@ namespace BF2Statistics.Gamespy
             }
             catch (Exception E)
             {
-                Program.ErrorLog.Write("ERROR: [GpcmClient_OnSuccessfulLogin] Exception was thrown, Generating exception log.");
+                Program.ErrorLog.Write("ERROR: [GpcmServer._OnSuccessfulLogin] Exception was thrown, Generating exception log.");
                 ExceptionHandler.GenerateExceptionLog(E);
             }
         }

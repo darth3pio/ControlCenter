@@ -1989,7 +1989,7 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(300, 13);
             this.textBox1.TabIndex = 5;
-            this.textBox1.Text = "Battlefield 2 Statistics Control Center v2.2.0";
+            this.textBox1.Text = "Battlefield 2 Statistics Control Center v2.2.1";
             // 
             // NotificationIcon
             // 

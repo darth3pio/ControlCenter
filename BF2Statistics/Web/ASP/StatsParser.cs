@@ -2,7 +2,7 @@
 
 namespace BF2Statistics.Web.ASP
 {
-    class StatsParser
+    public static class StatsParser
     {
         /// <summary>
         /// Converts an array of headers and data, and pairs them together in

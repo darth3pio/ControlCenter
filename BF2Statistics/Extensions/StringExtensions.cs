@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 
 namespace BF2Statistics
 {
@@ -38,7 +40,7 @@ namespace BF2Statistics
         /// </summary>
         public static string Inverse(this string input)
         {
-            return new string(input.Reverse().ToArray());
+            return new String(input.Reverse().ToArray());
         }
 
         /// <summary>
@@ -85,21 +87,66 @@ namespace BF2Statistics
         public static IEnumerable<string> SplitBySize(this string str, int chunkSize)
         {
             if (chunkSize < 1)
-                throw new ArgumentException("chunkSize cannot be less then 1");
+                throw new ArgumentException("Split size cannot be less then 1", "chunkSize");
 
             return Enumerable.Range(0, (int)Math.Ceiling(str.Length / (double)chunkSize)).Select(i => str.Substring(i * chunkSize, chunkSize));
         }
 
-        public static IEnumerable<string> SplitByLength(this string str, int maxLength)
+        /// <summary>
+        /// Takes a string, and Uppercases the first letter
+        /// </summary>
+        /// <param name="s">The input string</param>
+        /// <returns></returns>
+        public static string UppercaseFirst(this string s)
         {
-            int index = 0;
-            while (index + maxLength < str.Length)
-            {
-                yield return str.Substring(index, maxLength);
-                index += maxLength;
-            }
+            // Make sure we dont have an empty input
+            if (String.IsNullOrWhiteSpace(s))
+                return String.Empty;
 
-            yield return str.Substring(index);
+            // Convert to character array
+            char[] a = s.ToCharArray();
+            a[0] = Char.ToUpper(a[0]);
+            return new String(a);
+        }
+
+        /// <summary>
+        /// Takes a string, and Lowercases the first letter
+        /// </summary>
+        /// <param name="s">The input string</param>
+        /// <returns></returns>
+        public static string LowercaseFirst(this string s)
+        {
+            // Make sure we dont have an empty input
+            if (String.IsNullOrWhiteSpace(s))
+                return String.Empty;
+
+            // Convert to character array
+            char[] a = s.ToCharArray();
+            a[0] = Char.ToLower(a[0]);
+            return new String(a);
+        }
+
+        /// <summary>
+        /// Converts each word's first letter in the string to Uppercase (Invarient Culture)
+        /// </summary>
+        /// <param name="s">the input string</param>
+        /// <returns></returns>
+        public static string ToTitleCase(this string s)
+        {
+            TextInfo textInfo = CultureInfo.InvariantCulture.TextInfo;
+            return textInfo.ToTitleCase(s);
+        }
+
+        /// <summary>
+        /// Converts each word's first letter in the string to Uppercase using the specified culture
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="cultureInfo">The culture info to use</param>
+        /// <returns></returns>
+        public static string ToTitleCase(this string s, CultureInfo cultureInfo)
+        {
+            TextInfo textInfo = cultureInfo.TextInfo;
+            return textInfo.ToTitleCase(s);
         }
 
         /// <summary>

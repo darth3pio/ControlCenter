@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BF2Statistics.Net
 {
-    class BufferDataToken
+    public class BufferDataToken
     {
         /// <summary>
         /// The offset to the allocated buffer, for the associated SocketAsyncEventArgs

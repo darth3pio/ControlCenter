@@ -8,7 +8,7 @@ namespace BF2Statistics.ASP.StatsProcessor
     /// the processing of a snapshot, and provides methods to
     /// check if a given player has met the criteria to earn it.
     /// </summary>
-    class BackendAward
+    public class BackendAward
     {
         /// <summary>
         /// The award ID

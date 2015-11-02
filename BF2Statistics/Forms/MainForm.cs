@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using BF2Statistics.ASP;
@@ -147,8 +144,14 @@ namespace BF2Statistics
         #region Startup Methods
 
         /// <summary>
-        /// This method sets the Install status if the BF2s python files
+        /// This method sets the Stats Python status of the BF2s python files
+        /// on the main GUI.
         /// </summary>
+        /// <remarks>
+        /// - Initial loading of the StatsPythonConfig object
+        /// - Enables / Disables Stats config and Medal editor buttons
+        /// - Sets the texts, font colors and status icon image for the stats python elements
+        /// </remarks>
         private void CheckPythonStatus()
         {
             // Cross Threaded Crap
@@ -385,7 +388,7 @@ namespace BF2Statistics
         }
 
         /// <summary>
-        /// Gets a count of processed and un processed snapshots
+        /// Gets a count of processed and unprocessed snapshots
         /// </summary>
         private void CountSnapshots()
         {
@@ -791,27 +794,17 @@ namespace BF2Statistics
                 catch
                 {
                     // If we cant load the map, lets parse the name the best we can
-                    // First, convert mapname into an array, and capitalize each word
-                    string[] Parts = Entry.MapName.Split('_');
-                    for (int i = 0; i < Parts.Length; i++)
-                    {
-                        // Ignore empty parts
-                        if (String.IsNullOrWhiteSpace(Parts[i]))
-                            continue;
+                    //
+                    // First, convert mapname into an array, splitting by the underscore
+                    string[] Parts = Entry.MapName.Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
 
-                        // Uppercase first letter of ervery word
-                        char[] a = Parts[i].ToCharArray();
-                        a[0] = char.ToUpper(a[0]);
-                        Parts[i] = new String(a);
-                    }
-
-                    // Rebuild the map name into a string
+                    // Rebuild the map name into a string, uppercasing the first letter of each word
                     StringBuilder MapParts = new StringBuilder();
                     foreach (string value in Parts)
-                        MapParts.AppendFormat("{0} ", value);
+                        MapParts.AppendFormat("{0} ", value.UppercaseFirst());
 
                     // Set map name
-                    FirstMapBox.Text = MapParts.ToString();
+                    FirstMapBox.Text = MapParts.ToString().TrimEnd();
                 }
 
                 // Convert gametype

@@ -100,11 +100,33 @@ namespace BF2Statistics
             // Set config vars based on the database mode
             if (DbMode == DatabaseMode.Stats)
             {
+                // Make sure we arent sharing a database
+                if (ConnString.Equals(Program.Config.GamespyDBConnectionString, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    MessageBox.Show(
+                        "The Stats database cannot be shared in the same database as the Gamespy database. Please use a different database name.",
+                        "Ambiguity Error", MessageBoxButtons.OK, MessageBoxIcon.Warning
+                    );
+
+                    return;
+                }
+
                 Program.Config.StatsDBEngine = (TypeSelect.SelectedIndex == 0) ? "Sqlite" : "Mysql";
                 Program.Config.StatsDBConnectionString = ConnString;
             }
             else
             {
+                // Make sure we arent sharing a database
+                if (ConnString.Equals(Program.Config.StatsDBConnectionString, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    MessageBox.Show(
+                        "The Gamespy database cannot be shared in the same database as the Stats database. Please use a different database name.",
+                        "Ambiguity Error", MessageBoxButtons.OK, MessageBoxIcon.Warning
+                    );
+
+                    return;
+                }
+
                 Program.Config.GamespyDBEngine = (TypeSelect.SelectedIndex == 0) ? "Sqlite" : "Mysql";
                 Program.Config.GamespyDBConnectionString = ConnString;
             }

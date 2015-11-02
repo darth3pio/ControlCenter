@@ -8,7 +8,7 @@ namespace BF2Statistics.Web.ASP
     /// <summary>
     /// /ASP/getunlocksinfo.aspx
     /// </summary>
-    class GetUnlocksInfo
+    public sealed class GetUnlocksInfo
     {
         /// <summary>
         /// Player's Unique Id

@@ -6,7 +6,7 @@ namespace BF2Statistics.Web.ASP
     /// <summary>
     /// /ASP/createplayer.aspx
     /// </summary>
-    class CreatePlayer
+    public sealed class CreatePlayer
     {
         /// <summary>
         /// This request creates a player with the specified Pid when called

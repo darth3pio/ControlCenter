@@ -7,7 +7,7 @@ namespace BF2Statistics
     /// The Stats python class is used to Install and Restore the Server
     /// python files, that control stats, awards and ranks.
     /// </summary>
-    class StatsPython
+    public static class StatsPython
     {
         /// <summary>
         /// The latest release version of the stats python
@@ -17,12 +17,12 @@ namespace BF2Statistics
         /// <summary>
         /// Defines the Backup Folder path
         /// </summary>
-        protected static string BackupPath = Path.Combine(Program.Config.ServerPath, "python", "_backup_");
+        private static string BackupPath = Path.Combine(Program.Config.ServerPath, "python", "_backup_");
 
         /// <summary>
         /// Defines the Backup Folder path
         /// </summary>
-        protected static string StatsBackupPath = Path.Combine(Program.Config.ServerPath, "python", "_bf2statistics_python_");
+        private static string StatsBackupPath = Path.Combine(Program.Config.ServerPath, "python", "_bf2statistics_python_");
 
         /// <summary>
         /// Indicates whether the server has the ranked python files installed
@@ -38,7 +38,7 @@ namespace BF2Statistics
         /// <summary>
         /// The BF2StatisticsConfig.py object
         /// </summary>
-        protected static StatsPythonConfig ConfigFile = null;
+        private static StatsPythonConfig ConfigFile = null;
 
         /// <summary>
         /// Returns the BF2StatisticsConfig.py file as a configuration object
@@ -123,18 +123,14 @@ namespace BF2Statistics
         }
 
         /// <summary>
-        /// Restores the ranked python files back to the original state
+        /// Restores the ranked python files back to the original state, without affecting
+        /// any custom scripts or medal data files
         /// </summary>
         public static void RestoreRankedPyFiles()
         {
-            // Use my handy extension method to Copy over the files without deleting
-            // any medal profiles or custom scripts
-            DirectoryExt.Copy(
-                Paths.RankedPythonPath,
-                (Installed) ? BF2Server.PythonPath : StatsBackupPath, 
-                true, 
-                true
-            );
+            // Use my handy extension method to Copy over the files
+            string path = (Installed) ? BF2Server.PythonPath : StatsBackupPath;
+            DirectoryExt.Copy(Paths.RankedPythonPath, path, true, true);
         }
     }
 }

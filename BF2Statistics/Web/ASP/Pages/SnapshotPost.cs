@@ -10,7 +10,7 @@ namespace BF2Statistics.Web.ASP
     /// <summary>
     /// /ASP/bf2statistics.php
     /// </summary>
-    class SnapshotPost
+    public sealed class SnapshotPost
     {
         /// <summary>
         /// This request takes snapshot data, and processes it into the stats database

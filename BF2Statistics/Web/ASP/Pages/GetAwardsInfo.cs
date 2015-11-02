@@ -7,7 +7,7 @@ namespace BF2Statistics.Web.ASP
     /// <summary>
     /// /ASP/getawardsinfo.aspx
     /// </summary>
-    class GetAwardsInfo
+    public sealed class GetAwardsInfo
     {
         /// <summary>
         /// This request provides a list of awards for a particular player

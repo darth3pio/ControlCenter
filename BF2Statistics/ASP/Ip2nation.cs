@@ -9,18 +9,24 @@ using BF2Statistics.Web;
 
 namespace BF2Statistics.ASP
 {
-    class Ip2nation
+    /// <summary>
+    /// A class used to get Country information from IPv4 addresses
+    /// </summary>
+    public static class Ip2nation
     {
         /// <summary>
         /// The connection string to our Ip2Nation sqlite database
         /// </summary>
-        protected static string ConnectionString;
+        private static string ConnectionString;
 
+        /// <summary>
+        /// Static Constructor: Used to create the connection string to the Ip2Nation.db file
+        /// </summary>
         static Ip2nation()
         {
             try
             {
-                // Dont attempt to create, just quit
+                // Dont attempt to create, just quit if the database does not exist
                 string file = Path.Combine(Program.RootPath, "Ip2nation.db");
                 if (!File.Exists(file))
                     throw new Exception("Ip2nation.db file is missing!");

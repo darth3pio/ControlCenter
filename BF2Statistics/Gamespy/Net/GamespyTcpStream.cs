@@ -31,9 +31,9 @@ namespace BF2Statistics.Gamespy.Net
         protected int SendBytesOffset = 0;
 
         /// <summary>
-        /// Indicates whether we are sending a message currently
+        /// Indicates whether we are currently sending a message asynchronously
         /// </summary>
-        protected bool IsSending = false;
+        protected bool WaitingOnAsync = false;
 
         /// <summary>
         /// Our connected socket
@@ -83,7 +83,12 @@ namespace BF2Statistics.Gamespy.Net
         /// <summary>
         /// Event fire when the remote connection is closed
         /// </summary>
-        public event ConnectionClosed OnDisconnect; 
+        public event ConnectionClosed OnDisconnect;
+
+        /// <summary>
+        /// An object to lock onto
+        /// </summary>
+        private Object _lockObj = new Object();
 
         /// <summary>
         /// Creates a new instance of GamespyTcpStream
@@ -113,7 +118,7 @@ namespace BF2Statistics.Gamespy.Net
 
         public void Dispose()
         {
-            if(!SocketClosed)
+            if (!SocketClosed)
                 Close();
         }
 
@@ -132,20 +137,20 @@ namespace BF2Statistics.Gamespy.Net
                     ReadEventArgs.SetBuffer(token.BufferOffset, token.BufferBlockSize);
 
                     // Begin Receiving
-                    if(!Connection.ReceiveAsync(ReadEventArgs))
+                    if (!Connection.ReceiveAsync(ReadEventArgs))
                         ProcessReceive();
                 }
             }
             catch(ObjectDisposedException e)
             {
-                if(!DisconnectEventCalled)
+                if (!DisconnectEventCalled)
                 {
                     // Uh-Oh. idk how we got here
                     Program.ErrorLog.Write("WARNING: [GamespyStream.BeginReceive] ObjectDisposedException was thrown: " + e.Message);
 
                     // Disconnect user
                     DisconnectEventCalled = true;
-                    if(OnDisconnect != null)
+                    if (OnDisconnect != null)
                         OnDisconnect();
                 }
             }
@@ -175,7 +180,7 @@ namespace BF2Statistics.Gamespy.Net
             {
                 Connection.Shutdown(SocketShutdown.Both); 
             }
-            catch(Exception) { }
+            catch (Exception) { }
             finally
             {
                 // Unregister for vents
@@ -188,7 +193,7 @@ namespace BF2Statistics.Gamespy.Net
             }
 
             // If we need to dispose out EventArgs
-            if(DisposeEventArgs)
+            if (DisposeEventArgs)
             {
                 ReadEventArgs.Dispose();
                 WriteEventArgs.Dispose();
@@ -220,11 +225,7 @@ namespace BF2Statistics.Gamespy.Net
             // Force disconnect (Specifically for Gpsp, whom will spam empty connections)
             if (ReadEventArgs.BytesTransferred == 0)
             {
-                if (!DisconnectEventCalled && OnDisconnect != null)
-                {
-                    DisconnectEventCalled = true;
-                    OnDisconnect(); // Parent is responsible for closing the connection
-                }
+                Close();
                 return;
             }
             else
@@ -259,12 +260,15 @@ namespace BF2Statistics.Gamespy.Net
         /// <param name="message">The complete message to be sent to the client</param>
         public void SendAsync(string message)
         {
-            // Create a new message
-            lock (SendMessage)
+            // Make sure the socket is still open
+            if (SocketClosed) return;
+
+            // Create a lock, so we don't add a message while the old one is being cleared
+            lock (_lockObj)
                 SendMessage.AddRange(Encoding.UTF8.GetBytes(message));
 
             // Send if we aren't already in the middle of an Async send
-            if (!IsSending) ProcessSend();
+            if (!WaitingOnAsync) ProcessSend();
         }
 
         /// <summary>
@@ -283,12 +287,15 @@ namespace BF2Statistics.Gamespy.Net
         /// <param name="message">The complete message to be sent to the client</param>
         public void SendAsync(byte[] message)
         {
-            // Create a new message
-            lock (SendMessage)
+            // Make sure the socket is still open
+            if (SocketClosed) return;
+
+            // Create a lock, so we don't add a message while the old one is being cleared
+            lock (_lockObj)
                 SendMessage.AddRange(message);
 
             // Send if we aren't already in the middle of an Async send
-            if (!IsSending) ProcessSend();
+            if (!WaitingOnAsync) ProcessSend();
         }
 
         /// <summary>
@@ -296,40 +303,67 @@ namespace BF2Statistics.Gamespy.Net
         /// </summary>
         private void ProcessSend()
         {
-            // Prevent race conditions by locking the Send Message
-            lock (SendMessage)
-            {
-                // If we have finished sending our message, then reset
-                if (SendMessage.Count <= SendBytesOffset)
-                {
-                    SendBytesOffset = 0;
-                    SendMessage.Clear();
-                    IsSending = false;
-                    return;
-                }
+            // Return if we are closing the socket
+            if (SocketClosed) return;
 
-                // Signify that we are sending data
-                IsSending = true;
+            // Bool holder
+            bool willRaiseEvent = true;
+
+            // Prevent an connection loss exception
+            try
+            {
+                // Prevent race conditions by locking here.
+                // ** Make sure to set WaitingOnAsync Inside the LOCK! **
+                lock (_lockObj)
+                {
+                    // If we are waiting on the IO operation to complete, we exit here
+                    if (WaitingOnAsync) return;
+
+                    // Get the number of bytes remaining to be sent
+                    int NumBytesToSend = SendMessage.Count - SendBytesOffset;
+
+                    // If there are no more bytes to send, then reset
+                    if (NumBytesToSend <= 0)
+                    {
+                        SendMessage.Clear();
+                        SendBytesOffset = 0;
+                        WaitingOnAsync = false;
+                        return;
+                    }
+
+                    // Make sure we arent sending more data then what we have space for
+                    BufferDataToken Token = WriteEventArgs.UserToken as BufferDataToken;
+                    if (NumBytesToSend > Token.BufferBlockSize)
+                        NumBytesToSend = Token.BufferBlockSize;
+
+                    // Copy our message to the Write Buffer
+                    SendMessage.CopyTo(SendBytesOffset, WriteEventArgs.Buffer, Token.BufferOffset, NumBytesToSend);
+                    WriteEventArgs.SetBuffer(Token.BufferOffset, NumBytesToSend);
+
+                    // We have to exit the lock() before we can handle the event manually
+                    WaitingOnAsync = true;
+                    willRaiseEvent = Connection.SendAsync(WriteEventArgs);
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                WaitingOnAsync = false;
+                Close();
             }
 
-            // Get our data token
-            BufferDataToken Token = WriteEventArgs.UserToken as BufferDataToken;
-            int NumBytesToSend = SendMessage.Count - SendBytesOffset;
-
-            // Make sure we arent sending more then we have space for
-            if (NumBytesToSend > Token.BufferBlockSize)
-                NumBytesToSend = Token.BufferBlockSize;
-
-            // Convert our message to bytes, and copy to the buffer
-            SendMessage.CopyTo(SendBytesOffset, WriteEventArgs.Buffer, Token.BufferOffset, NumBytesToSend);
-            WriteEventArgs.SetBuffer(Token.BufferOffset, NumBytesToSend);
-
-            // Send the message to the client
-            if (!Connection.SendAsync(WriteEventArgs))
+            // If we wont raise the IO event, that means a connection sent the messsage syncronously
+            if (!willRaiseEvent)
             {
                 // Remember, if we are here, data was sent Synchronously... IOComplete event is not called! 
-                // Manually set the BytesSent
+                // First, Check for a closed conenction
+                if (WriteEventArgs.BytesTransferred == 0 || WriteEventArgs.SocketError != SocketError.Success)
+                {
+                    Close();
+                    return;
+                }
+                // Append to the offset
                 SendBytesOffset += WriteEventArgs.BytesTransferred;
+                WaitingOnAsync = false;
                 ProcessSend();
             }
         }
@@ -340,7 +374,13 @@ namespace BF2Statistics.Gamespy.Net
         /// <param name="socketError"></param>
         private void HandleSocketError(SocketError socketError)
         {
-            // Error Handle Here
+            if (socketError != SocketError.Success)
+            {
+                if (!SocketClosed)
+                    Close();
+            }
+
+            /* Error Handle Here
             switch (socketError)
             {
                 case SocketError.TooManyOpenSockets:
@@ -348,11 +388,16 @@ namespace BF2Statistics.Gamespy.Net
                 case SocketError.Disconnecting:
                 case SocketError.ConnectionReset:
                 case SocketError.NotConnected:
-                case SocketError.TimedOut:
-                    if (!SocketClosed)
-                        Close();
+                case SocketError.TimedOut:  
+                case SocketError.ProcessLimit:
+                case SocketError.SocketError:
+                case SocketError.HostDown:
+                case SocketError.NetworkDown:
+                case SocketError.NetworkReset:
+                case SocketError.NetworkUnreachable:
                     break;
             }
+            */
         }
 
         /// <summary>
@@ -368,7 +413,16 @@ namespace BF2Statistics.Gamespy.Net
                     ProcessReceive();
                     break;
                 case SocketAsyncOperation.Send:
+                    // Check for a closed conenction
+                    if (e.BytesTransferred == 0 || WriteEventArgs.SocketError != SocketError.Success)
+                    {
+                        Close();
+                        return;
+                    }
+
+                    // Append to the offset
                     SendBytesOffset += e.BytesTransferred;
+                    WaitingOnAsync = false;
                     ProcessSend();
                     break;
             }

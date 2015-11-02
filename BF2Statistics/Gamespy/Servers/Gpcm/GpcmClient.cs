@@ -86,15 +86,19 @@ namespace BF2Statistics.Gamespy
         public bool Disposed { get; protected set; }
 
         /// <summary>
+        /// Indicates the connection ID for this connection
+        /// </summary>
+        public readonly int ConnectionId;
+
+        /// <summary>
+        /// Indicates the date and time this connection was created
+        /// </summary>
+        public readonly DateTime Created = DateTime.Now;
+
+        /// <summary>
         /// The clients socket network stream
         /// </summary>
         public GamespyTcpStream Stream { get; protected set; }
-
-        /// <summary>
-        /// Our login timer enforces that a conenction be terminated
-        /// in the event that a client connection hangs
-        /// </summary>
-        private Timer LoginTimer;
 
         /// <summary>
         /// A random... random
@@ -148,7 +152,7 @@ namespace BF2Statistics.Gamespy
         /// <summary>
         /// Constructor
         /// </summary>
-        public GpcmClient(GamespyTcpStream ConnectionStream)
+        public GpcmClient(GamespyTcpStream ConnectionStream, int ConnectionId)
         {
             // Set default variable values
             PlayerNick = "Connecting...";
@@ -157,16 +161,8 @@ namespace BF2Statistics.Gamespy
             Disposed = false;
             Status = LoginStatus.None;
 
-            // Setup the login timer.
-            LoginTimer = new Timer(10000);
-            LoginTimer.AutoReset = false; // Only raise event once
-            LoginTimer.Elapsed += (s, e) =>
-            {
-                // Dispose the timer, and Force kick if we are still processing
-                LoginTimer.Dispose();
-                if (Status == LoginStatus.Processing)
-                    Disconnect(1);
-            };
+            // Set the connection ID
+            this.ConnectionId = ConnectionId;
 
             // Create our Client Stream
             Stream = ConnectionStream;
@@ -221,6 +217,9 @@ namespace BF2Statistics.Gamespy
         /// </remarks>
         public void Disconnect(int code)
         {
+            // Make sure we arent disposed
+            if (Disposed) return;
+
             // Update database session
             if (Status == LoginStatus.Completed && code < 9)
             {
@@ -323,9 +322,6 @@ namespace BF2Statistics.Gamespy
             ServerChallengeKey = Temp.ToString();
             Status = LoginStatus.Processing;
             Stream.SendAsync(@"\lc\1\challenge\{0}\id\1\final\", ServerChallengeKey);
-
-            // Start the login timer, if the client fails to login in the time, force disconenct
-            LoginTimer.Start();
         }
 
         /// <summary>
@@ -384,7 +380,7 @@ namespace BF2Statistics.Gamespy
 
                         // Update status last, and call success login
                         Status = LoginStatus.Completed;
-                        if(OnSuccessfulLogin != null)
+                        if (OnSuccessfulLogin != null)
                             OnSuccessfulLogin(this);
                     }
                     else
@@ -497,7 +493,7 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         public void SendKeepAlive()
         {
-            if(Status == LoginStatus.Completed)
+            if (Status == LoginStatus.Completed)
             {
                 // Try and send a Keep-Alive
                 try

@@ -11,7 +11,7 @@ namespace BF2Statistics
     /// <summary>
     /// Provides Methods to apply and remove Gamespy Redirects
     /// </summary>
-    static class Redirector
+    public static class Redirector
     {
         /// <summary>
         /// We only initialize once, so store that here
@@ -25,6 +25,9 @@ namespace BF2Statistics
         {
             get
             {
+                // Return false if we havent initialized
+                if (!IsInitialized) return false;
+
                 // DNS Server is always considered enabled
                 if (RedirectMethod == RedirectMode.DnsServer) return true;
 

@@ -10,19 +10,19 @@ namespace BF2Statistics.Gamespy
     /// The Gamespy Server is used to emulate the Official Gamespy Login servers,
     /// and provide players the ability to create fake "Online" accounts.
     /// </summary>
-    public class GamespyEmulator
+    public static class GamespyEmulator
     {
         /// <summary>
         /// Returns whether the login server is running or not
         /// </summary>
-        protected static bool isRunning = false;
+        private static bool bIsRunning = false;
 
         /// <summary>
         /// Returns whether the login server is running or not
         /// </summary>
         public static bool IsRunning
         {
-            get { return isRunning; }
+            get { return bIsRunning; }
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace BF2Statistics.Gamespy
         public static void Start()
         {
             // Make sure we arent already running!
-            if (isRunning) return;
+            if (bIsRunning) return;
 
             // Start the DB Connection
             using (GamespyDatabase Database = new GamespyDatabase()) 
@@ -223,7 +223,7 @@ namespace BF2Statistics.Gamespy
             }
 
             // Let the client know we are ready for connections
-            isRunning = true;
+            bIsRunning = true;
             Started();
         }
 
@@ -239,7 +239,7 @@ namespace BF2Statistics.Gamespy
             CDKeyServer.Shutdown();
 
             // Update status
-            isRunning = false;
+            bIsRunning = false;
 
             // Trigger the OnShutdown Event
             Stopped();

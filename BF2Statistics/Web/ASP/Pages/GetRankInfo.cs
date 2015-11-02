@@ -7,7 +7,7 @@ namespace BF2Statistics.Web.ASP
     /// <summary>
     /// /ASP/getrankinfo.aspx
     /// </summary>
-    class GetRankInfo
+    public sealed class GetRankInfo
     {
         /// <summary>
         /// This request provides details on a particular players rank, and

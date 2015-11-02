@@ -9,7 +9,7 @@ namespace BF2Statistics
     /// <summary>
     /// This class represents a Progressable report on a task that uses steps
     /// </summary>
-    class TaskStep
+    public sealed class TaskStep
     {
         /// <summary>
         /// Gets or Sets the ID of this step

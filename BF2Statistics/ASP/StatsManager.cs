@@ -11,7 +11,6 @@ using BF2Statistics.ASP.StatsProcessor;
 using BF2Statistics.Database;
 using BF2Statistics.Database.QueryBuilder;
 using BF2Statistics.Web;
-using System.Net.Sockets;
 
 namespace BF2Statistics.ASP
 {
@@ -20,21 +19,21 @@ namespace BF2Statistics.ASP
     /// Validate ASP servers, Authorize game server IP addresses to post
     /// snapshot data, and import snapshot data into the stats database.
     /// </summary>
-    class StatsManager
+    public static class StatsManager
     {
         // Define Min/Max PID numbers for players
         const int DEFAULT_PID = 29000000;
         const int MAX_PID = 30000000;
 
         /// <summary>
-        /// The Queue in which snapshots will be stored in
+        /// The Queue in which snapshots will be stored in while waiting to be processed
         /// </summary>
-        protected static ConcurrentEventQueue<Snapshot> SnapshotQueue = new ConcurrentEventQueue<Snapshot>();
+        private static ConcurrentEventQueue<Snapshot> SnapshotQueue = new ConcurrentEventQueue<Snapshot>();
 
         /// <summary>
-        /// The Import Process for snapshots
+        /// Gets the Import Task for processing snapshots
         /// </summary>
-        protected static Task ImportTask;
+        public static Task ImportTask { get; private set; }
 
         /// <summary>
         /// Event fires when a snapshot has been sucessfully recieved
@@ -49,22 +48,35 @@ namespace BF2Statistics.ASP
         /// <summary>
         /// Indicates the number of snapshots that have been accepted
         /// </summary>
-        public static int SnapshotsRecieved { get; protected set; }
+        private static int iSnapshotsRecieved = 0;
+
+        /// <summary>
+        /// Indicates the number of snapshots that have been accepted
+        /// </summary>
+        public static int SnapshotsRecieved 
+        { 
+            get { return iSnapshotsRecieved; } 
+        }
 
         /// <summary>
         /// Indicates the number of snapshots processed successfully
         /// </summary>
-        public static int SnapshotsCompleted { get; protected set; }
+        public static int SnapshotsCompleted { get; private set; }
 
         /// <summary>
         /// The current highest player ID value (Incremented)
         /// </summary>
-        protected static int PlayerPid = 0;
+        private static int PlayerPid = 0;
 
         /// <summary>
         /// The current Lowest player ID value (Decremented)
         /// </summary>
-        protected static int AiPid = 0;
+        private static int AiPid = 0;
+
+        /// <summary>
+        /// An Object we can lock onto when calling the ProcessQueue method
+        /// </summary>
+        private static Object ThisLock = new Object();
 
         /// <summary>
         /// Static constructor to register for Queue Events
@@ -74,8 +86,8 @@ namespace BF2Statistics.ASP
             // When a snapshot is added to Queue, run the Process method
             SnapshotQueue.ItemEnqueued += (s, e) =>  
             {
-                SnapshotsRecieved++;
-                ProcessQueue(); 
+                Interlocked.Increment(ref iSnapshotsRecieved);
+                ProcessQueue();
             };
         }
 
@@ -176,9 +188,8 @@ namespace BF2Statistics.ASP
             // Parse the response message
             using (StreamReader Reader = new StreamReader(Response.GetResponseStream()))
             {
+                // getunlockinfo.aspx always returns a valid response, starting with "O"
                 string Lines = Reader.ReadToEnd().TrimStart();
-
-                // Does the player exist?
                 if (!Lines.StartsWith("O"))
                     throw new Exception("The ASP webserver didnt not respond with a proper ASP response!");
             }
@@ -210,73 +221,77 @@ namespace BF2Statistics.ASP
         /// If not already running, Whenever a snapshot is added to the Processing Queue,
         /// This method will get called to Dequeue and process all snapshots
         /// </summary>
-        protected static void ProcessQueue()
+        private static void ProcessQueue()
         {
-            // Make sure we arent already processing
-            if (ImportTask != null && ImportTask.Status == TaskStatus.Running)
-                return;
-
-            // Do this in another thread
-            ImportTask = Task.Run(() =>
+            // Prevent 2 Import Tasks from processing at once
+            lock (ThisLock)
             {
-                // Fire event
-                if (SnapshotReceived != null)
-                    SnapshotReceived();
+                // Make sure we arent already processing
+                if (ImportTask != null && ImportTask.Status == TaskStatus.Running)
+                    return;
 
-                // Loop through all of the snapshots and process em
-                while (SnapshotQueue.Count > 0)
+                // Do this in another thread
+                ImportTask = Task.Run(() =>
                 {
-                    // Fetch our snapshot
-                    Snapshot Snap;
-                    if (!SnapshotQueue.TryDequeue(out Snap))
-                        throw new Exception("Unable to Dequeue Snapshot Item");
+                    // Fire event
+                    if (SnapshotReceived != null)
+                        SnapshotReceived();
 
-                    // Attempt to process the snapshot
-                    bool WasSuccess = false;
-                    try
+                    // Loop through all of the snapshots and process em
+                    while (SnapshotQueue.Count > 0)
                     {
-                        Snap.ProcessData();
-                        WasSuccess = true;
-                        SnapshotsCompleted++;
+                        // Fetch our snapshot
+                        Snapshot Snap;
+                        if (!SnapshotQueue.TryDequeue(out Snap))
+                            throw new Exception("Unable to Dequeue Snapshot Item");
 
-                        // Fire event
-                        if (SnapshotProcessed != null)
-                            SnapshotProcessed();
+                        // Attempt to process the snapshot
+                        bool WasSuccess = false;
+                        try
+                        {
+                            Snap.ProcessData();
+                            WasSuccess = true;
+                            SnapshotsCompleted++;
 
-                        // Alert user
-                        Notify.Show("Snapshot Processed Successfully!", "From Server IP: " + Snap.ServerIp, AlertType.Success);
-                    }
-                    catch (Exception E)
-                    {
-                        HttpServer.AspStatsLog.Write("ERROR: [SnapshotProcess] " + E.Message + " @ " + E.TargetSite);
-                        ExceptionHandler.GenerateExceptionLog(E);
-                    }
+                            // Fire event
+                            if (SnapshotProcessed != null)
+                                SnapshotProcessed();
 
-                    // Create backup of snapshot
-                    try
-                    {
-                        // Backup the snapshot
-                        string FileName = Snap.ServerPrefix + "-" + Snap.MapName + "_" + Snap.RoundEndDate.ToLocalTime().ToString("yyyyMMdd_HHmm") + ".txt";
-                        File.AppendAllText(
-                            (WasSuccess) ? Path.Combine(Paths.SnapshotProcPath, FileName) : Path.Combine(Paths.SnapshotTempPath, FileName),
-                            Snap.DataString
-                        );
+                            // Alert user
+                            Notify.Show("Snapshot Processed Successfully!", "From Server IP: " + Snap.ServerIp, AlertType.Success);
+                        }
+                        catch (Exception E)
+                        {
+                            HttpServer.AspStatsLog.Write("ERROR: [SnapshotProcess] " + E.Message + " @ " + E.TargetSite);
+                            ExceptionHandler.GenerateExceptionLog(E);
+                        }
+
+                        // Create backup of snapshot
+                        try
+                        {
+                            // Backup the snapshot
+                            string FileName = Snap.ServerPrefix + "-" + Snap.MapName + "_" + Snap.RoundEndDate.ToLocalTime().ToString("yyyyMMdd_HHmm") + ".txt";
+                            File.AppendAllText(
+                                (WasSuccess) ? Path.Combine(Paths.SnapshotProcPath, FileName) : Path.Combine(Paths.SnapshotTempPath, FileName),
+                                Snap.DataString
+                            );
+                        }
+                        catch (Exception E)
+                        {
+                            HttpServer.AspStatsLog.Write("WARNING: [SnapshotFileOperations] Unable to create Snapshot Backup File: " + E.Message);
+                        }
                     }
-                    catch (Exception E)
-                    {
-                        HttpServer.AspStatsLog.Write("WARNING: [SnapshotFileOperations] Unable to create Snapshot Backup File: " + E.Message);
-                    }
-                }
-            })
-            .ContinueWith((Action<Task>)delegate
-            {
-                // Create an exception log if we failed to import correctly
-                if (ImportTask.IsFaulted)
+                })
+                .ContinueWith((Action<Task>)delegate
                 {
-                    Program.ErrorLog.Write("ERROR: [SnapshotQueue] Failed to process all snapshots in Queue: " + ImportTask.Exception.Message);
-                    ExceptionHandler.GenerateExceptionLog(ImportTask.Exception);
-                }
-            });
+                    // Create an exception log if we failed to import correctly
+                    if (ImportTask.IsFaulted)
+                    {
+                        Program.ErrorLog.Write("ERROR: [SnapshotQueue] Failed to process all snapshots in Queue: " + ImportTask.Exception.Message);
+                        ExceptionHandler.GenerateExceptionLog(ImportTask.Exception);
+                    }
+                });
+            }
         }
 
         /// <summary>

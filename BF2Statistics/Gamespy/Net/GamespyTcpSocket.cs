@@ -57,6 +57,23 @@ namespace BF2Statistics.Gamespy.Net
         protected SemaphoreSlim MaxConnectionsEnforcer;
 
         /// <summary>
+        /// Determines where the MaxConnectionsEnforcer stops to wait for a spot to open, and allow
+        /// the connecting client through.
+        /// </summary>
+        protected EnforceMode ConnectionEnforceMode = EnforceMode.BeforeAccept;
+
+        /// <summary>
+        /// If the ConnectionEnforceMode is set to DuringPrepare, then the wait timeout is set here
+        /// </summary>
+        protected int WaitTimeout = 500;
+
+        /// <summary>
+        /// The error message to display if the server is full. Only works if ConnectionEnforceMode is set to DuringPrepare.
+        /// If left empty, no message will be sent back to the client
+        /// </summary>
+        protected string FullErrorMessage = String.Empty;
+
+        /// <summary>
         /// A pool of reusable SocketAsyncEventArgs objects for accept operations
         /// </summary>
         protected SocketAsyncEventArgsPool SocketAcceptPool;
@@ -81,6 +98,11 @@ namespace BF2Statistics.Gamespy.Net
         /// </summary>
         public bool IsDisposed { get; protected set; }
 
+        /// <summary>
+        /// Creates a new TCP socket for handling Gamespy Protocol
+        /// </summary>
+        /// <param name="Port">The port this socket will be bound to</param>
+        /// <param name="MaxConnections">The maximum number of concurrent connections</param>
         public GamespyTcpSocket(int Port, int MaxConnections)
         {
             // Create our Socket
@@ -103,10 +125,7 @@ namespace BF2Statistics.Gamespy.Net
 
             // Create our Buffer Manager for IO operations. 
             // Always allocate double space, one for recieving, and another for sending
-            BufferManager = new BufferManager(
-                BufferSizePerEventArg * MaxNumConnections * 2,
-                BufferSizePerEventArg
-            ); 
+            BufferManager = new BufferManager(MaxNumConnections * 2, BufferSizePerEventArg); 
 
             // Assign our Connection Accept SocketAsyncEventArgs object instances
             for (int i = 0; i < ConcurrentAcceptPoolSize; i++)
@@ -191,21 +210,40 @@ namespace BF2Statistics.Gamespy.Net
         /// Releases the Stream's SocketAsyncEventArgs back to the pool,
         /// and free's up another slot for a new client to connect
         /// </summary>
-        /// <param name="Stream"></param>
+        /// <param name="Stream">The GamespyTcpStream object that is being released.</param>
         protected void Release(GamespyTcpStream Stream)
         {
             // Make sure the connection is closed properly
-            if(!Stream.SocketClosed)
+            if (!Stream.SocketClosed)
                 Stream.Close();
 
             // If we are still registered for this event, then the EventArgs should
             // NEVER be disposed here, or we have an error to fix
             if (Stream.DisposedEventArgs)
-                throw new Exception("Event Args were disposed imporperly!");
+            {
+                // Log this error
+                Program.ErrorLog.Write("WARNING: [GamespyTcpSocket.Release] Event Args were disposed imporperly!");
 
-            // Get our ReadWrite AsyncEvent object back
-            SocketReadWritePool.Push(Stream.ReadEventArgs);
-            SocketReadWritePool.Push(Stream.WriteEventArgs);
+                // Dispose old buffer tokens
+                BufferManager.ReleaseBuffer(Stream.ReadEventArgs);
+                BufferManager.ReleaseBuffer(Stream.WriteEventArgs);
+
+                // Create new Read Event Args
+                SocketAsyncEventArgs SockArgR = new SocketAsyncEventArgs();
+                BufferManager.AssignBuffer(SockArgR);
+                SocketReadWritePool.Push(SockArgR);
+
+                // Create new Write Event Args
+                SocketAsyncEventArgs SockArgW = new SocketAsyncEventArgs();
+                BufferManager.AssignBuffer(SockArgW);
+                SocketReadWritePool.Push(SockArgW);
+            }
+            else
+            {
+                // Get our ReadWrite AsyncEvent object back
+                SocketReadWritePool.Push(Stream.ReadEventArgs);
+                SocketReadWritePool.Push(Stream.WriteEventArgs);
+            }
 
             // Now that we have another set of AsyncEventArgs, we can
             // release this users Semephore lock, allowing another connection
@@ -219,7 +257,7 @@ namespace BF2Statistics.Gamespy.Net
         {
             // Fetch ourselves an available AcceptEventArg for the next connection
             SocketAsyncEventArgs AcceptEventArg;
-            if(SocketAcceptPool.Count > 0)
+            if (SocketAcceptPool.Count > 0)
             {
                 try
                 {
@@ -242,7 +280,8 @@ namespace BF2Statistics.Gamespy.Net
             {
                 // Enforce max connections. If we are capped on connections, the new connection will stop here,
                 // and retrun once a connection is opened up from the Release() method
-                await MaxConnectionsEnforcer.WaitAsync();
+                if (ConnectionEnforceMode == EnforceMode.BeforeAccept)
+                    await MaxConnectionsEnforcer.WaitAsync();
 
                 // Begin accpetion connections
                 bool willRaiseEvent = Listener.AcceptAsync(AcceptEventArg);
@@ -252,11 +291,11 @@ namespace BF2Statistics.Gamespy.Net
                 if (!willRaiseEvent)
                     PrepareAccept(AcceptEventArg);
             }
-            catch(ObjectDisposedException)
+            catch (ObjectDisposedException)
             {
                 // Happens when the server is shutdown
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Program.ErrorLog.Write(
                     "ERROR: [GamespySocket.StartAccept] An Exception was thrown while attempting to recieve"
@@ -271,10 +310,10 @@ namespace BF2Statistics.Gamespy.Net
         /// our client object, and prepared to be handed off to the parent for processing
         /// </summary>
         /// <param name="AcceptEventArg"></param>
-        private void PrepareAccept(SocketAsyncEventArgs AcceptEventArg)
+        protected async void PrepareAccept(SocketAsyncEventArgs AcceptEventArg)
         {
             // If we do not get a success code here, we have a bad socket
-            if(IgnoreNewConnections || AcceptEventArg.SocketError != SocketError.Success)
+            if (IgnoreNewConnections || AcceptEventArg.SocketError != SocketError.Success)
             {
                 // This method closes the socket and releases all resources, both
                 // managed and unmanaged. It internally calls Dispose.           
@@ -284,6 +323,35 @@ namespace BF2Statistics.Gamespy.Net
                 SocketAcceptPool.Push(AcceptEventArg);
                 StartAcceptAsync();
                 return;
+            }
+
+            // If the server is full, send an error message to the player
+            if (ConnectionEnforceMode == EnforceMode.DuringPrepare)
+            {
+                bool Success = await MaxConnectionsEnforcer.WaitAsync(WaitTimeout);
+                if (!Success)
+                {
+                    // If we arent even listening...
+                    if (!IsListening) return;
+
+                    // Alert the client that we are full
+                    if (!String.IsNullOrEmpty(FullErrorMessage))
+                    {
+                        byte[] buffer = Encoding.UTF8.GetBytes(
+                            String.Format(@"\error\\err\0\fatal\\errmsg\{0}\id\1\final\", FullErrorMessage)
+                        );
+                        AcceptEventArg.AcceptSocket.Send(buffer);
+                    }
+
+                    // Log so we can track this!
+                    Program.ErrorLog.Write("NOTICE: [GamespyTcpSocket.PrepareAccept] The Server is currently full! Rejecting connecting client.");
+
+                    // Put the SAEA back in the pool.
+                    AcceptEventArg.AcceptSocket.Close();
+                    SocketAcceptPool.Push(AcceptEventArg);
+                    StartAcceptAsync();
+                    return;
+                }
             }
 
             // Begin accepting a new connection
@@ -337,5 +405,10 @@ namespace BF2Statistics.Gamespy.Net
         /// </summary>
         /// <param name="Stream">A GamespyTcpStream object that wraps the I/O AsyncEventArgs and socket</param>
         protected abstract void ProcessAccept(GamespyTcpStream Stream);
+    }
+
+    public enum EnforceMode
+    {
+        BeforeAccept, DuringPrepare
     }
 }

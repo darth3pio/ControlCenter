@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BF2Statistics.Gamespy.Redirector
 {
-    class SysHostsFile : HostsFile
+    public class SysHostsFile : HostsFile
     {
         /// <summary>
         /// Direct Filepath to the hosts file

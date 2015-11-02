@@ -8,7 +8,7 @@ namespace BF2Statistics.Web.ASP
     /// <summary>
     /// /ASP/getmapinfo.aspx
     /// </summary>
-    class GetMapInfo
+    public sealed class GetMapInfo
     {
         /// <summary>
         /// This request provides details on a particular players map info

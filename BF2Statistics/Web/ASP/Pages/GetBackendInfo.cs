@@ -5,7 +5,7 @@ namespace BF2Statistics.Web.ASP
     /// <summary>
     /// /ASP/getbackendinfo.aspx
     /// </summary>
-    class GetBackendInfo
+    public sealed class GetBackendInfo
     {
         /// <summary>
         /// This request provides details of the backend version, and lists the unlocks

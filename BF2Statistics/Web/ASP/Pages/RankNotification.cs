@@ -7,7 +7,7 @@ namespace BF2Statistics.Web.ASP
     /// <summary>
     /// /ASP/ranknotification.aspx
     /// </summary>
-    class RankNotification
+    public sealed class RankNotification
     {
         /// <summary>
         /// This request clears all rank announcements for a specific player

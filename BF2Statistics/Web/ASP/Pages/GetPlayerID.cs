@@ -9,7 +9,7 @@ namespace BF2Statistics.Web.ASP
     /// <summary>
     /// /ASP/getplayerid.aspx
     /// </summary>
-    class GetPlayerID
+    public sealed class GetPlayerID
     {
         /// <summary>
         /// This request provides details on a particular players rank, and

@@ -7,7 +7,7 @@ namespace BF2Statistics.Web.ASP
     /// <summary>
     /// /ASP/selectunlock.aspx
     /// </summary>
-    class SelectUnlock
+    public sealed class SelectUnlock
     {
         /// <summary>
         /// This request sets the unlock details for a player, when he picks an unlock

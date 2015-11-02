@@ -10,6 +10,7 @@ using BF2Statistics.Logging;
 using BF2Statistics.Web.ASP;
 using System.Linq;
 using BF2Statistics.ASP.StatsProcessor;
+using System.Threading;
 
 namespace BF2Statistics.Web
 {
@@ -18,7 +19,7 @@ namespace BF2Statistics.Web
     /// Server HTTP Requests, and provide players with the ability to run 
     /// thier own BF2 Ranking system on thier personal PC's.
     /// </summary>
-    class HttpServer
+    public static class HttpServer
     {
         /// <summary>
         /// The HTTPListner for the webserver
@@ -28,12 +29,12 @@ namespace BF2Statistics.Web
         /// <summary>
         /// The StatsDebug.log file
         /// </summary>
-        public static LogWriter AspStatsLog { get; protected set; }
+        public static LogWriter AspStatsLog { get; private set; }
 
         /// <summary>
         /// THe Http Server Access log
         /// </summary>
-        public static LogWriter HttpAccessLog { get; protected set; }
+        public static LogWriter HttpAccessLog { get; private set; }
 
         /// <summary>
         /// A List of local IP addresses for this machine
@@ -48,7 +49,7 @@ namespace BF2Statistics.Web
         /// <summary>
         /// Number of session web requests
         /// </summary>
-        public static int SessionRequests { get; protected set; }
+        public static int SessionRequests = 0;
 
         /// <summary>
         /// Is the webserver running?
@@ -195,7 +196,7 @@ namespace BF2Statistics.Web
         /// <summary>
         /// Stops the ASP listener, and unbinds from the port.
         /// </summary>
-        public static void Stop()
+        public async static void Stop()
         {
             if (IsRunning)
             {
@@ -218,6 +219,10 @@ namespace BF2Statistics.Web
 
                 SessionRequests = 0;
             }
+
+            // Wait on pending Snapshots
+            if (StatsManager.ImportTask != null && StatsManager.ImportTask.Status == TaskStatus.Running)
+                await StatsManager.ImportTask;
         }
 
         /// <summary>
@@ -229,7 +234,7 @@ namespace BF2Statistics.Web
             {
                 // Finish accepting the client
                 HttpListenerContext Context = Listener.EndGetContext(Sync);
-                Task.Run(() => { ProcessRequest(new HttpClient(Context)); });
+                Task.Run(() => ProcessRequest(new HttpClient(Context)));
             }
             catch (HttpListenerException E)
             {
@@ -261,7 +266,7 @@ namespace BF2Statistics.Web
         {
             // Update client count, and fire connection event
             StatsDatabase Database;
-            SessionRequests++;
+            Interlocked.Increment(ref SessionRequests);
             RequestRecieved();
 
             // Make sure our stats Database is online

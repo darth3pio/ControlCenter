@@ -10,7 +10,7 @@ namespace BF2Statistics.Web.ASP
     /// This object provides methods to help with
     /// ASP specific responses
     /// </summary>
-    class ASPResponse : HttpResponse
+    public class ASPResponse : HttpResponse
     {
         /// <summary>
         /// Indicates whether the data will be transposed

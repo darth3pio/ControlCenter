@@ -344,8 +344,12 @@ namespace BF2Statistics.Database
                 {
                     try
                     {
+                        // Set the column length to 32, since this is the MD5 hash length
+                        if (base.DatabaseEngine == DatabaseEngine.Mysql)
+                            base.Execute("ALTER TABLE accounts MODIFY COLUMN password VARCHAR(32) NOT NULL");
+
                         // Here we use the QueryReader method to pull 1 row at a time, using memory efficiently
-                        foreach (Dictionary<string, object> Row in base.QueryReader("SELECT id, password FROM accounts"))
+                        foreach (Dictionary<string, object> Row in base.Query("SELECT id, password FROM accounts"))
                         {
                             base.Execute("UPDATE accounts SET password=@P0 WHERE id=@P1",
                                 Row["password"].ToString().GetMD5Hash(false),
