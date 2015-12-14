@@ -1,16 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using BF2Statistics.ASP;
+using BF2Statistics.ASP.StatsProcessor;
 using BF2Statistics.Database;
 using BF2Statistics.Logging;
 using BF2Statistics.Web.ASP;
-using System.Linq;
-using BF2Statistics.ASP.StatsProcessor;
-using System.Threading;
+using BF2Statistics.Web.Bf2Stats;
+using RazorEngine;
+using RazorEngine.Configuration;
+using RazorEngine.Templating;
+using RazorEngine.Text;
 
 namespace BF2Statistics.Web
 {
@@ -25,6 +31,11 @@ namespace BF2Statistics.Web
         /// The HTTPListner for the webserver
         /// </summary>
         private static HttpListener Listener;
+
+        /// <summary>
+        /// Limits the simultaneous connections to prevent an app overload
+        /// </summary>
+        private static SemaphoreSlim ConnectionPool;
 
         /// <summary>
         /// The StatsDebug.log file
@@ -64,13 +75,16 @@ namespace BF2Statistics.Web
                 }
                 catch (ObjectDisposedException) 
                 {
-                    Listener = new HttpListener();
-                    Listener.Prefixes.Add("http://*/ASP/");
-                    Listener.Prefixes.Add("http://*/bf2stats/");
+                    CreateHttpListener();
                     return false;
                 }
             }
         }
+
+        /// <summary>
+        /// Gets the default ModelType for bf2stats pages
+        /// </summary>
+        public static readonly Type ModelType;
 
         /// <summary>
         /// Contains a list of Mime types for the response
@@ -108,7 +122,6 @@ namespace BF2Statistics.Web
         /// </summary>
         public static event AspRequest RequestRecieved;
 
-
         /// <summary>
         /// Static constructor
         /// </summary>
@@ -119,13 +132,23 @@ namespace BF2Statistics.Web
             HttpAccessLog = new LogWriter(Path.Combine(Program.RootPath, "Logs", "AspAccess.log"), true);
 
             // Get a list of all our local IP addresses
-            LocalIPs = new List<IPAddress>(Dns.GetHostAddresses(Dns.GetHostName()));
-            SessionRequests = 0;
+            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
+            LocalIPs = host.AddressList.Where(ip => ip.AddressFamily == AddressFamily.InterNetwork).ToList();
+
+            // Create our conenction pool
+            ConnectionPool = new SemaphoreSlim(50, 50);
 
             // Create our HttpListener instance
-            Listener = new HttpListener();
-            Listener.Prefixes.Add("http://*/ASP/");
-            Listener.Prefixes.Add("http://*/bf2stats/");
+            CreateHttpListener();
+
+            // Create our RazorEngine service
+            CreateRazorService();
+
+            // Try and clear any old cache files
+            ClearRazorCache();
+
+            // Set the Model type once to keep things speedy
+            ModelType = typeof(BF2PageModel);
         }
 
         /// <summary>
@@ -133,64 +156,90 @@ namespace BF2Statistics.Web
         /// </summary>
         public static void Start()
         {
-            if (!IsRunning)
+            // Can't start if we are already running!
+            if (IsRunning) return;
+
+            // === Try to connect to the database
+            using (StatsDatabase Database = new StatsDatabase())  
             {
-                // Try to connect to the database
-                using (StatsDatabase Database = new StatsDatabase())  
+                if (!Database.TablesExist)
                 {
-                    if (!Database.TablesExist)
-                    {
-                        string message = "In order to use the Private Stats feature of this program, we need to setup a database. "
-                            + "You may choose to do this later by clicking \"Cancel\". Would you like to setup the database now?";
-                        DialogResult R = MessageBox.Show(message, "Stats Database Setup", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                        if (R == DialogResult.Yes)
-                            SetupManager.ShowDatabaseSetupForm(DatabaseMode.Stats, MainForm.Instance);
+                    string message = "In order to use the Private Stats feature of this program, we need to setup a database. "
+                        + "You may choose to do this later by clicking \"Cancel\". Would you like to setup the database now?";
+                    DialogResult R = MessageBox.Show(message, "Stats Database Setup", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (R == DialogResult.Yes)
+                        SetupManager.ShowDatabaseSetupForm(DatabaseMode.Stats, MainForm.Instance);
 
-                        // Call the stopped event to Re-enable the main forms buttons
-                        Stopped(null, EventArgs.Empty);
-                        return;
-                    }
-
-                    // Initialize the stats manager
-                    StatsManager.Load(Database);
-
-                    // Drop the SQLite ip2nation country tables
-                    if (Database.DatabaseEngine == DatabaseEngine.Sqlite)
-                    {
-                        var Rows = Database.Query("SELECT COUNT(1) AS count FROM sqlite_master WHERE type='table' AND (name='ip2nation' OR name='ip2nationcountries');");
-                        if (Rows.Count > 0 && Int32.Parse(Rows[0]["count"].ToString()) > 0)
-                        {
-                            Database.Execute("DROP TABLE IF EXISTS 'ip2nation';");
-                            Database.Execute("DROP TABLE IF EXISTS 'ip2nationcountries';");
-                            Database.Execute("VACUUM;");
-                        }
-                    }
+                    // Call the stopped event to Re-enable the main form's buttons
+                    Stopped(null, EventArgs.Empty);
+                    return;
                 }
 
-                // Load XML stats and awards files
-                Bf2Stats.StatsData.Load();
-                BackendAwardData.BuildAwardData();
+                // Initialize the stats manager
+                StatsManager.Load(Database);
 
-                // Start the Listener and accept new connections
+                // Drop the SQLite ip2nation country tables
+                if (Database.DatabaseEngine == DatabaseEngine.Sqlite)
+                {
+                    if (Database.ExecuteScalar<int>(
+                        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND (name='ip2nation' OR name='ip2nationcountries');"
+                    ) > 0)
+                    {
+                        Database.Execute("DROP TABLE IF EXISTS 'ip2nation';");
+                        Database.Execute("DROP TABLE IF EXISTS 'ip2nationcountries';");
+                        Database.Execute("VACUUM;");
+                    }
+                }
+            }
+
+            // === Compile our templates
+            string path = Path.Combine(Program.RootPath, "Web", "Bf2Stats", "Views");
+            foreach (string file in Directory.EnumerateFiles(path, "*.cshtml"))
+            {
+                // If this template file is loaded already, then skip
+                string fileName = Path.GetFileName(file);
+                if (Engine.Razor.IsTemplateCached(fileName, ModelType))
+                    continue;
+
+                // Open the file, and compile it
                 try
                 {
-                    Listener.Start();
-                    Listener.BeginGetContext(HandleRequest, Listener);
+                    using (FileStream stream = File.OpenRead(file))
+                    using (StreamReader reader = new StreamReader(stream))
+                        Engine.Razor.Compile(reader.ReadToEnd(), fileName, ModelType);
                 }
-                catch(ObjectDisposedException)
+                catch (TemplateCompilationException e)
                 {
-                    // If we are disposed (happens when port 80 was in use already before, and we tried to start)
-                    // Then we need to start over with a new Listener
-                    Listener = new HttpListener();
-                    Listener.Prefixes.Add("http://*/ASP/");
-                    Listener.Prefixes.Add("http://*/bf2stats/");
-                    Listener.Start();
-                    Listener.BeginGetContext(HandleRequest, Listener);
+                    // Show the Exception form so the user can view
+                    DialogResult Res = ExceptionForm.ShowTemplateError(e, file);
+
+                    // If the user clicked "Quit", we stop
+                    if (Res == DialogResult.Abort) return;
                 }
-                
-                // Fire Startup Event
-                Started(null, EventArgs.Empty);
             }
+            
+
+            // === Load XML stats and awards files
+            Bf2StatsData.Load();
+            BackendAwardData.BuildAwardData();
+
+            // Start the Listener and accept new connections
+            try
+            {
+                Listener.Start();
+                Listener.BeginGetContext(HandleRequest, Listener);
+            }
+            catch (ObjectDisposedException)
+            {
+                // If we are disposed (happens when port 80 was in use already before, and we tried to start)
+                // Then we need to start over with a new Listener
+                CreateHttpListener();
+                Listener.Start();
+                Listener.BeginGetContext(HandleRequest, Listener);
+            }
+                
+            // Fire Startup Event
+            Started(null, EventArgs.Empty);
         }
 
         /// <summary>
@@ -228,71 +277,70 @@ namespace BF2Statistics.Web
         /// <summary>
         /// Accepts the connection
         /// </summary>
-        private static void HandleRequest(IAsyncResult Sync)
+        private static async void HandleRequest(IAsyncResult Sync)
         {
+            bool Waiting = false;
+
             try
             {
                 // Finish accepting the client
                 HttpListenerContext Context = Listener.EndGetContext(Sync);
-                Task.Run(() => ProcessRequest(new HttpClient(Context)));
+                await Task.Run(async() =>
+                {
+                    // Grab our connection
+                    HttpClient Client = new HttpClient(Context);
+
+                    // Wait for a connection slot to open up
+                    await ConnectionPool.WaitAsync();
+
+                    // Begin acceptinging another connection
+                    if (!Waiting && IsRunning)
+                    {
+                        Listener.BeginGetContext(HandleRequest, Listener);
+                        Waiting = true;
+                    }
+
+                    // Process the client connection
+                    ProcessRequest(Client);
+                });
             }
-            catch (HttpListenerException E)
+            catch (HttpListenerException e)
             {
                 // Thread abort, or application abort request... Ignore
-                if (E.ErrorCode == 995)
+                if (e.ErrorCode == 995)
                     return;
 
                 // Log error
                 Program.ErrorLog.Write(
                     "ERROR: [HttpServer.HandleRequest] \r\n\t - {0}\r\n\t - ErrorCode: {1}", 
-                    E.Message, 
-                    E.ErrorCode
+                    e.Message, 
+                    e.ErrorCode
                 );
             }
-            catch (Exception E)
+            catch (Exception e)
             {
-                Program.ErrorLog.Write("ERROR: [HttpServer.HandleRequest] \r\n\t - {0}", E.Message);
+                ExceptionHandler.GenerateExceptionLog(e);
+                Program.ErrorLog.Write("ERROR: [HttpServer.HandleRequest] \r\n\t - {0}", e.Message);
             }
-
-            // Begin Listening again
-            if(IsRunning) 
-                Listener.BeginGetContext(HandleRequest, Listener);
+            finally
+            {
+                // Begin Listening again
+                if (!Waiting && IsRunning)
+                    Listener.BeginGetContext(HandleRequest, Listener);
+            }
         }
 
         /// <summary>
-        /// Handles the Http Connecting client in a new thread
+        /// Handles the Http Connecting client and processes the HttpResponse
         /// </summary>
         private static void ProcessRequest(HttpClient Client)
         {
-            // Update client count, and fire connection event
-            StatsDatabase Database;
+            // Update connection count
             Interlocked.Increment(ref SessionRequests);
-            RequestRecieved();
-
-            // Make sure our stats Database is online
-            try
-            {
-                // If we arent suppossed to be running, show a 503
-                if (!IsRunning)
-                    throw new Exception("Unable to accept client because the server is not running");
-
-                // If database is offline, Try to re-connect
-                Database = new StatsDatabase();
-            }
-            catch(Exception e)
-            {
-                Program.ErrorLog.Write("ERROR: [HttpServer.ProcessRequest] " + e.Message);
-
-                // Set service is unavialable
-                Client.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-                Client.Response.Send();
-                return;
-            }
 
             // Make sure request method is supported
             if (!AcceptableMethods.Contains(Client.Request.HttpMethod))
             {
-                //Program.ErrorLog.Write("NOTICE: [HttpServer.HandleRequest] Invalid HttpMethod {0} used by client", Client.Request.HttpMethod);
                 Client.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
                 Client.Response.Send();
                 return;
@@ -302,30 +350,95 @@ namespace BF2Statistics.Web
             try
             {
                 // Get our requested document
-                string Document = Client.Request.Url.AbsolutePath.ToLower().Trim();
-                if (Client.IsASPRequest)
+                string Document = Client.Request.Url.AbsolutePath.ToLower().TrimStart(new char[] { '/' }); ;
+                if (Document.StartsWith("asp"))
                 {
-                    DoASPResponse(Client, Document, Database);
+                    // Get our requested document's Controller
+                    ASPController Controller = GetASPController(Client, Path.GetFileName(Document));
+                    if (Controller != null)
+                        // The controller will take over from here and process the response
+                        Controller.HandleRequest();
+                    else 
+                        // Send a 404 if we dont have a controller for this request
+                        Client.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 }
-                else
+                else if (!Program.Config.BF2S_Enabled) // If we dont have BF2S enabled, deny page access
                 {
-                    // If we dont have BF2S enabled, deny page access
-                    if (!Program.Config.BF2S_Enabled)
+                    // Set service is unavialable
+                    Client.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                    Client.Response.Send();
+                }
+                else // Bf2sClone
+                {
+                    // Remove bf2stats folder and trim out the forward slashes
+                    Document = Document.Replace("bf2stats", "").Trim(new char[] { '/' });
+                    if (String.IsNullOrWhiteSpace(Document))
+                        Document = "index";
+
+                    // If the document has an extension, we are loading a resource (js, css, jpg) instead of a page
+                    if (Path.HasExtension(Document))
                     {
-                        // Set service is unavialable
-                        Client.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-                        Client.Response.Send();
+                        // First we get the relative path with no empty entries. Path.Combine also checks for invalid characters
+                        string RelaPath = Path.Combine(Document.Split(new char[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries));
+                        string FullPath = Path.Combine(Program.RootPath, "Web", "Bf2Stats", "Resources", RelaPath);
+                        if (File.Exists(FullPath))
+                        {
+                            // Set the content type based from our extension
+                            string Ext = Path.GetExtension(RelaPath).TrimStart('.');
+                            if (MIMETypes.ContainsKey(Ext))
+                                Client.Response.ContentType = MIMETypes[Ext];
+
+                            // Send response
+                            Client.Response.Send(File.ReadAllBytes(FullPath));
+                        }
+                        else
+                        {
+                            // Resource doesn't exist
+                            Client.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                        }
                     }
                     else
                     {
-                        DoStatsResponse(Client, Document, Database);
+                        // Convert our document path into an MvC route
+                        MvcRoute Route = new MvcRoute(Document);
+
+                        // Try and fetch the controller, and handle the request
+                        Controller Cont = GetBf2StatsController(Route.Controller, Client);
+                        if (Cont != null)
+                        {
+                            // We let the Controller handle the request from here
+                            Cont.HandleRequest(Route);
+                        }
+                        // Check the Razor engine to see if we have this template compiled...
+                        else if (Engine.Razor.IsTemplateCached(Route.Controller + ".cshtml", ModelType))
+                        {
+                            // Custom made template with No Controller
+                            Client.Response.ContentType = "text/html";
+                            Client.Response.ResponseBody.Append(
+                                Engine.Razor.Run(Route.Controller + ".cshtml", ModelType, new IndexModel(Client))
+                            );
+                        }
+                        else
+                        {
+                            // Show 404
+                            Client.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                        }
                     }
                 }
             }
-            catch (Exception E)
+            catch (DbConnectException e)
             {
-                Program.ErrorLog.Write("ERROR: [HttpServer.ProcessRequest] " + E.Message);
-                ExceptionHandler.GenerateExceptionLog(E);
+                string message = e.InnerException?.Message ?? e.Message;
+                Program.ErrorLog.Write("WARNING: [HttpServer.ProcessRequest] Unable to connect to database: " + message);
+
+                // Set service is unavialable
+                Client.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                Client.Response.Send();
+            }
+            catch (Exception e)
+            {
+                Program.ErrorLog.Write("ERROR: [HttpServer.ProcessRequest] " + e.Message);
+                ExceptionHandler.GenerateExceptionLog(e);
                 if (!Client.ResponseSent)
                 {
                     // Internal service error
@@ -339,124 +452,110 @@ namespace BF2Statistics.Web
                 if (!Client.ResponseSent)
                     Client.Response.Send();
 
-                Database.Dispose();
+                // Open a connection
+                ConnectionPool.Release();
+
+                // Fire this last!
+                RequestRecieved();
             }
         }
 
-        private static void DoASPResponse(HttpClient Client, string Document, StatsDatabase Database)
+        /// <summary>
+        /// Returns the specified ASPController object for handling the ASP response, or
+        /// null if the Document does not have a controller
+        /// </summary>
+        /// <param name="Client">The request client</param>
+        /// <param name="Document">The requested document</param>
+        /// <param name="Database">The stats database connection</param>
+        private static ASPController GetASPController(HttpClient Client, string Document)
         {
-            switch (Document.Replace("/asp/", ""))
+            switch (Document)
             {
-                case "bf2statistics.php":
-                    new SnapshotPost(Client, Database);
-                    break;
-                case "createplayer.aspx":
-                    new CreatePlayer(Client, Database);
-                    break;
-                case "getbackendinfo.aspx":
-                    new GetBackendInfo(Client);
-                    break;
-                case "getawardsinfo.aspx":
-                    new GetAwardsInfo(Client, Database);
-                    break;
-                case "getclaninfo.aspx":
-                    new GetClanInfo(Client, Database);
-                    break;
-                case "getleaderboard.aspx":
-                    new GetLeaderBoard(Client, Database);
-                    break;
-                case "getmapinfo.aspx":
-                    new GetMapInfo(Client, Database);
-                    break;
-                case "getplayerid.aspx":
-                    new GetPlayerID(Client, Database);
-                    break;
-                case "getplayerinfo.aspx":
-                    new GetPlayerInfo(Client, Database);
-                    break;
-                case "getrankinfo.aspx":
-                    new GetRankInfo(Client, Database);
-                    break;
-                case "getunlocksinfo.aspx":
-                    new GetUnlocksInfo(Client, Database);
-                    break;
-                case "ranknotification.aspx":
-                    new RankNotification(Client, Database);
-                    break;
-                case "searchforplayers.aspx":
-                    new SearchForPlayers(Client, Database);
-                    break;
-                case "selectunlock.aspx":
-                    new SelectUnlock(Client, Database);
-                    break;
-                default:
-                    Client.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                    Client.Response.Send();
-                    break;
+                case "bf2statistics.php": return new SnapshotPost(Client);
+                case "createplayer.aspx": return new CreatePlayer(Client);
+                case "getbackendinfo.aspx": return new GetBackendInfo(Client);
+                case "getawardsinfo.aspx": return new GetAwardsInfo(Client);
+                case "getclaninfo.aspx": return new GetClanInfo(Client);
+                case "getleaderboard.aspx": return new GetLeaderBoard(Client);
+                case "getmapinfo.aspx": return new GetMapInfo(Client);
+                case "getplayerid.aspx": return new GetPlayerID(Client);
+                case "getplayerinfo.aspx": return new GetPlayerInfo(Client);
+                case "getrankinfo.aspx": return new GetRankInfo(Client);
+                case "getunlocksinfo.aspx": return new GetUnlocksInfo(Client);
+                case "ranknotification.aspx": return new RankNotification(Client);
+                case "searchforplayers.aspx": return new SearchForPlayers(Client);
+                case "selectunlock.aspx": return new SelectUnlock(Client);
+                default: return null;
             }
         }
 
-        private static void DoStatsResponse(HttpClient Client, string Document, StatsDatabase Database)
+        /// <summary>
+        /// Returns the specified Controller object for handling the bf2stats response, or
+        /// null if the Document does not have a controller
+        /// </summary>
+        /// <param name="Document">The requested document</param>
+        /// <param name="Client">The connected client object</param>
+        /// <param name="Database">The stats database connection</param>
+        /// <returns></returns>
+        private static Controller GetBf2StatsController(string Document, HttpClient Client)
         {
-            // remove bf2stats folder and trim out the forward slashes
-            Document = Document.Replace("/bf2stats", "").Trim(new char[] { '/' });
-
-            // image, css, and js files
-            if (Path.HasExtension(Document))
+            switch (Document)
             {
-                string Cpath = Path.Combine(Document.Split(new char[] { '/', '\\' }));
-                string Rpath = Path.Combine(Program.RootPath, "Web", "Bf2Stats", "Resources", Cpath);
-                if (File.Exists(Rpath))
-                {
-                    // Set the content type based from our extension
-                    string Ext = Path.GetExtension(Cpath).TrimStart('.');
-                    if(MIMETypes.ContainsKey(Ext))
-                        Client.Response.ContentType = MIMETypes[Ext];
-
-                    // Send response
-                    Client.Response.Send(File.ReadAllBytes(Rpath));
-                }
-                else
-                {
-                    Client.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                    Client.Response.Send();
-                }
+                case "index": return new IndexController(Client);
+                case "search": return new SearchController(Client);
+                case "rankings": return new RankingsController(Client);
+                case "myleaderboard": return new LeaderboardController(Client);
+                case "player": return new PlayerController(Client);
+                default: return null;
             }
-            else
+        }
+
+        /// <summary>
+        /// Creates the HttpListener object, and configures the prefixes
+        /// </summary>
+        private static void CreateHttpListener()
+        {
+            Listener = new HttpListener();
+            Listener.Prefixes.Add("http://*/ASP/");
+            Listener.Prefixes.Add("http://*/bf2stats/");
+        }
+
+        /// <summary>
+        /// Creates the Razor Engine Service needed to properly handle the cshtml files
+        /// </summary>
+        private static void CreateRazorService()
+        {
+            // Setup RazorEngine
+            TemplateServiceConfiguration config = new TemplateServiceConfiguration();
+            config.CachingProvider = new DefaultCachingProvider();
+            config.EncodedStringFactory = new RawStringFactory();
+            config.DisableTempFileLocking = true;
+            config.BaseTemplateType = typeof(HtmlTemplateBase<>);
+            Engine.Razor = RazorEngineService.Create(config);
+        }
+
+        /// <summary>
+        /// Removes all of the Razor Engine built temporary files from the AppData/Temp folder
+        /// </summary>
+        public static void ClearRazorCache()
+        {
+            // For safety
+            if (IsRunning)
+                throw new Exception("The Razor Cache cannot be cleared while the HttpServer is running.");
+
+            try
             {
-                switch (Document)
-                {
-                    case "":
-                    case "home":
-                        Bf2Stats.HomePage Page = new Bf2Stats.HomePage(Client, Database);
-                        Client.Response.ResponseBody.Append(Page.TransformText());
-                        Client.Response.Send();
-                        break;
-                    case "search":
-                        Bf2Stats.SearchPage SPage = new Bf2Stats.SearchPage(Client, Database);
-                        Client.Response.ResponseBody.Append(SPage.TransformText());
-                        Client.Response.Send();
-                        break;
-                    case "myleaderboard":
-                        Bf2Stats.MyLeaderboardPage LPage = new Bf2Stats.MyLeaderboardPage(Client, Database);
-                        Client.Response.ResponseBody.Append(LPage.TransformText());
-                        Client.Response.Send();
-                        break;
-                    case "player":
-                        Bf2Stats.PlayerPage PPage = new Bf2Stats.PlayerPage(Client, Database);
-                        Client.Response.ResponseBody.Append(PPage.TransformHtml());
-                        Client.Response.Send();
-                        break;
-                    case "rankings":
-                        Bf2Stats.RankingsPage RPage = new Bf2Stats.RankingsPage(Client, Database);
-                        Client.Response.ResponseBody.Append(RPage.TransformHtml());
-                        Client.Response.Send();
-                        break;
-                    default:
-                        Client.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                        Client.Response.Send();
-                        break;
-                }
+                // Get our [User]/AppData/Local/Temp folder Location
+                string folderPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                string path = Path.Combine(folderPath, "Temp");
+
+                // Clear dynamic cache files
+                foreach (string dir in Directory.GetDirectories(path, "RazorEngine_*"))
+                    Directory.Delete(dir, true);
+            }
+            catch (Exception e)
+            {
+                Program.ErrorLog.Write("NOTICE: [HttpServer.ClearRazorCache] " + e.Message);
             }
         }
     }

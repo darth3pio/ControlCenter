@@ -25,14 +25,8 @@ namespace BF2Statistics.Web.Bf2Stats
         public string LastOnline;
         public string TimePlayed;
         public string Country;
-    }
 
-    public struct RankingStats
-    {
-        public string Name;
-        public string Desc;
-
-        public List<Player> TopPlayers;
+        public string Status;
     }
 
     public struct ArmyMapStat

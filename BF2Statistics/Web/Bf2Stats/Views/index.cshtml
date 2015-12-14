@@ -1,0 +1,124 @@
+﻿@using RazorEngine.Templating
+@using BF2Statistics.Web.Bf2Stats
+@inherits HtmlTemplateBase<IndexModel>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="home">
+<head>
+    <title>@Model.Title</title>
+
+    <link rel="icon" href="@(Model.Root)/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="@(Model.Root)/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" media="screen" href="@(Model.Root)/scripts/two-tiers.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="@(Model.Root)/scripts/nt.css">
+    <link rel="stylesheet" type="text/css" media="print" href="@(Model.Root)/scripts/print.css">
+
+    <script type="text/javascript">/* no frames */ if(top.location != self.location) top.location.replace(self.location);</script>
+    <script type="text/javascript" src="@(Model.Root)/scripts/nt2.js"></script>
+    <script type="text/javascript" src="@(Model.Root)/scripts/show.js"></script>
+</head>
+<body class="home">
+    <div id="page-1">
+        <div id="page-2">
+            <h1 id="page-title">BF2S.com - The Numbers Behind Battlefield 2</h1>
+            <div id="page-3">
+                <div id="content">
+                    <div id="content-id">
+                        <!-- template header end == begin content below -->
+                        <div id="stats-col">
+                            <div id="get-stats" class="col-section">
+                                <h2>Get Stats</h2>
+                                <div class="id">
+                                    <p>Get your Battlefield 2 ranked stats by entering your PID number here. Don't know your PID? Just type your nick in and I'll find you as best I can.</p>
+                                    <form action="@(Model.Root)/search" method="post">
+                                        <label for="pid"><strong>PID or Nick</strong></label><br />
+                                        <input type="text" name="searchvalue" id="pid" autocomplete="off" />
+                                        <input type="submit" class="btn" value="Get Stats" />
+                                    </form>
+                                    <div id="quicksearch"></div>
+                                </div>
+                            </div>
+                            <div id="top-players" class="col-section">
+                                <h2>Top 10 Players</h2>
+                                <div class="id">
+                                    <ol>
+                                    @for (int i = 0; i < @Model.Players.Count; i++)
+                                    {
+                                        <li>@(Model.FormatNumber(Model.Players[i]["score"])) - 
+                                            <a href="@(Model.Root)/player/@(Model.Players[i]["id"])">@(Model.Players[i]["name"])</a>
+                                        </li>
+                                    }
+                                    </ol>
+                                    <p><a href="@(Model.Root)/rankings">All Leader Boards &raquo;</a></p>
+                                </div>
+                            </div>
+                            <div id="mlb-short" class="col-section">
+                                <h2>My Leader Board</h2>
+                                <div class="id">
+                                    <ul>
+                                    @foreach (PlayerResult Player in Model.MyLeaderboardPlayers)
+                                    {
+                                        <li>
+                                            <img title="@(Player.Status)" src="@(Model.Root)/images/@(Player.Status).png" height="12" width="12" />
+                                            <img src="@(Model.Root)/images/ranks/icon/rank_@(Player.Rank).gif" alt="" height="16" width="16" />
+                                            <a href="@(Model.Root)/player/@(Player.Pid)">@Player.Name</a>
+                                        </li>
+                                    }
+                                    </ul>					
+                                    <p><a href="@(Model.Root)/myleaderboard">More / Edit &raquo;</a></p>
+                                </div>
+                            </div>
+                        </div><!-- /stats-col -->
+                        <div id="community-col">
+                            <div id="community-features" class="col-section">
+                                <h2>@(Model.Title)</h2>
+                                <div class="id">
+                                    <p>
+                                        Private BF2 ranking system powered by BF2Statistics
+                                    </p>
+                                </div>
+                            </div>
+                            <!--
+                            <div id="server" class="col-section">
+                                <h2>Game Servers</h2>
+                                <div class="id">
+                                    <p style="clear: both;  padding: 10px 0 0 0;"><strong>BF2s 1.5 Madness</strong></p>
+
+                                    <div style="float: left; width: 200px; padding: 0px 5px 5px 0px;">
+                                        <a href="/web/20110722004945/http://www.branzone.com/affiliate.php?aid=bz1026">
+                                            <img src="/web/20110722004945im_/http://www.branzone.com/branzone/img/banners/200_60.gif" alt="" width="200" height="60" style="border:0" />
+                                        </a>
+                                        <br />
+                                    </div>
+                                    <p style="padding-top: 0px;">
+                                        <em>0/32</em>
+                                        <br />
+                                        IP: 67.222.138.85:16567
+                                        <br />
+                                        <a href="/web/20110722004945/http://www.game-monitor.com/GameServer/67.222.138.85:16567">Operation Blue Pearl</a>
+                                    </p>
+                                </div>
+                            </div>
+                            -->
+                        </div><!-- /community-col -->
+                        <!-- end content == footer below -->
+
+                        <hr class="clear" />
+                    </div>
+                </div> <!-- content-id --><!-- content -->
+                <ul id="navitems">
+                    <li><a href="@(Model.Root)/">Home</a></li>
+                    <li><a href="@(Model.Root)/search">Search Stats</a></li>
+                    <li><a href="@(Model.Root)/myleaderboard">My Leader Board</a></li>
+                    <li><a href="@(Model.Root)/rankings">Rankings</a></li>
+                </ul>
+                <a id="secondhome" href="@(Model.Root)/"> </a>
+                <div class="clear"> </div>
+            </div><!-- page 3 -->
+        </div><!-- page 2 -->
+        <div id="footer">
+            &copy; @DateTime.Now.Year - <a href="http://jrm.cc/">Jeff</a> &mdash; 
+            Generated using the <a href='http://bf2statistics.com'>BF2Statistics Control Center</a>
+        </div>
+    </div><!-- page 1 -->
+</body>
+</html>

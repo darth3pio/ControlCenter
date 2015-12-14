@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using BF2Statistics.Python;
 
 namespace BF2Statistics.MedalData
 {
@@ -78,7 +79,7 @@ namespace BF2Statistics.MedalData
             if (Params.Count == 5)
             {
                 Name += (Params[2] == "rtime") 
-                    ? Utils.Sec2hms(Int32.Parse(Params[4])) + " " 
+                    ? Condition.Sec2hms(Int32.Parse(Params[4])) + " " 
                     : String.Format("{0:N0}", Int32.Parse(Params[4])) + " ";
             }
 
@@ -86,13 +87,13 @@ namespace BF2Statistics.MedalData
             switch (parts[0])
             {
                 case "WEAPON":
-                    Param = Data.WeaponNames[Params[3]];
+                    Param = Bf2Constants.WeaponTypes[Params[3]];
                     break;
                 case "VEHICLE":
-                    Param = Data.VehicleNames[Params[3]];
+                    Param = Bf2Constants.VehicleTypes[Params[3]];
                     break;
                 case "KIT":
-                    Param = Data.KitNames[Params[3]];
+                    Param = Bf2Constants.KitTypes[Params[3]];
                     AsOrWith = "as ";
                     break;
             }

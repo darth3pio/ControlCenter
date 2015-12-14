@@ -1,4 +1,0 @@
-Required:
- - Microsoft's .NET 2.0 for FreeImageNET.dll and Microsoft.VisualBasic.PowerPacks.dll
- - Microsoft's .NET 4.5 for Program and supporting Dll's
- - Visual C++ Redistributable 2012 Update 3 or newer for SQLite.Interop.dll

@@ -211,11 +211,21 @@ namespace BF2Statistics.Gamespy.Net
         /// and free's up another slot for a new client to connect
         /// </summary>
         /// <param name="Stream">The GamespyTcpStream object that is being released.</param>
-        protected void Release(GamespyTcpStream Stream)
+        public void Release(GamespyTcpStream Stream)
         {
+            // If the stream has been released, then we stop here
+            if (!IsListening || Stream.Released) return;
+
             // Make sure the connection is closed properly
             if (!Stream.SocketClosed)
+            {
                 Stream.Close();
+                return;
+            }
+
+            // To prevent cross instance releasing
+            if (!Object.ReferenceEquals(this, Stream.SocketManager))
+                throw new ArgumentException("Cannot pass a GamespyTcpStream belonging to a different TcpSocket than this one.");
 
             // If we are still registered for this event, then the EventArgs should
             // NEVER be disposed here, or we have an error to fix
@@ -240,6 +250,10 @@ namespace BF2Statistics.Gamespy.Net
             }
             else
             {
+                // Set null's
+                Stream.ReadEventArgs.AcceptSocket = null;
+                Stream.WriteEventArgs.AcceptSocket = null;
+
                 // Get our ReadWrite AsyncEvent object back
                 SocketReadWritePool.Push(Stream.ReadEventArgs);
                 SocketReadWritePool.Push(Stream.WriteEventArgs);
@@ -375,7 +389,7 @@ namespace BF2Statistics.Gamespy.Net
             GamespyTcpStream Stream = null;
             try
             {
-                Stream = new GamespyTcpStream(ReadArgs, WriteArgs);
+                Stream = new GamespyTcpStream(this, ReadArgs, WriteArgs);
                 ProcessAccept(Stream);
             }
             catch (Exception e)
@@ -385,17 +399,8 @@ namespace BF2Statistics.Gamespy.Net
                 ExceptionHandler.GenerateExceptionLog(e);
 
                 // Make sure the connection is closed properly
-                if (Stream != null && !Stream.SocketClosed)
-                    Stream.Close();
-
-                // Get our ReadWrite AsyncEvent object back
-                ReadArgs.AcceptSocket.Close();
-                SocketReadWritePool.Push(ReadArgs);
-                SocketReadWritePool.Push(WriteArgs);
-
-                // Now that we have another set of AsyncEventArgs, we can
-                // release this users Semephore lock, allowing another connection
-                MaxConnectionsEnforcer.Release();
+                if (Stream != null)
+                    Release(Stream);
             }
         }
 

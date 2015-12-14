@@ -1,13 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Windows.Forms;
 
 namespace BF2Statistics.MedalData
 {
+    /// <summary>
+    /// Return types for python methods
+    /// </summary>
+    public enum ReturnType { Number, Bool }
+
+    /// <summary>
+    /// Provides a base object to define conditions required to receive an award in the medal_data.py
+    /// </summary>
     public abstract class Condition : ICloneable
     {
         /// <summary>
-        /// Returns the return value of this condition
+        /// Returns the value return type of this condition
         /// </summary>
         public abstract ReturnType Returns();
 
@@ -40,5 +49,35 @@ namespace BF2Statistics.MedalData
         /// </summary>
         /// <returns></returns>
         public virtual TreeNode ToTree() { return new TreeNode("empty"); }
+
+        /// <summary>
+        /// Converts a Timespan of seconds into Hours, Minutes, and Seconds
+        /// </summary>
+        /// <param name="seconds">Seconds to convert</param>
+        /// <returns></returns>
+        public static string Sec2hms(int seconds)
+        {
+            TimeSpan t = TimeSpan.FromSeconds(seconds);
+            StringBuilder SB = new StringBuilder();
+            char[] trim = new char[] { ',', ' ' };
+            int Hours = t.Hours;
+
+            // If we have more then 24 hours, then we need to
+            // convert the days to hours
+            if (t.Days > 0)
+                Hours += t.Days * 24;
+
+            // Format
+            if (Hours > 0)
+                SB.AppendFormat("{0} Hours, ", Hours);
+
+            if (t.Minutes > 0)
+                SB.AppendFormat("{0} Minutes, ", t.Minutes);
+
+            if (t.Seconds > 0)
+                SB.AppendFormat("{0} Seconds, ", t.Seconds);
+
+            return SB.ToString().TrimEnd(trim);
+        }
     }
 }

@@ -1,0 +1,877 @@
+﻿@using RazorEngine.Templating
+@using BF2Statistics
+@using BF2Statistics.ASP
+@using StatsConstants = BF2Statistics.MedalData.StatsConstants
+@using BF2Statistics.Python
+@using BF2Statistics.Web.Bf2Stats
+@using System.Collections.Generic
+@inherits HtmlTemplateBase<PlayerModel>
+@{
+    int i = 0;
+    int j = 0;
+    Layout = "_layout.cshtml";
+}
+<h1 id="page-title">
+    <img src="@(Model.Root)/images/ranks/header/rank_@(Model.Player["rank"]).png" alt="" />
+    @Model.Player["name"]<small> @(StatsConstants.GetRankName(Int32.Parse(Model.Player["rank"].ToString())))</small>
+</h1>
+<div id="page-3">
+    <div id="content">
+        <div id="content-id">
+            <!-- template header end == begin content below -->
+            <ul id="stats-nav">
+                <li class="current"><a href="@(Model.Root)/player/@(Model.Player["id"])">Stats</a></li>
+                <li><a href="@(Model.Root)/player/@(Model.Player["id"])/rankings">Ranks &amp; More</a></li>
+            </ul>
+            <div id="prefCol">
+                <div id="prefers">
+                    <img class="solider" src="@(Model.PlayerImage)" alt="@(Model.Player["name"]) - @(Bf2StatsData.GetArmyName(Model.Favorites["army"]))" />
+                    <img class="weapon" src="@(Model.Root)/images/weapons/weapon_@(Model.Favorites["weapon"]).jpg" alt="@(Bf2Constants.GetWeaponName(Model.Favorites["weapon"]))" />
+                    <img class="vehicle" src="@(Model.Root)/images/vehicles/vehicles_@(Model.Favorites["vehicle"]).jpg" alt="@(Bf2Constants.GetVehicleName(Model.Favorites["vehicle"]))" />
+                    <img class="kit" src="@(Model.Root)/images/kits/kit_@(Model.Favorites["kit"]).jpg" alt="@(Bf2Constants.GetKitName(Model.Favorites["kit"]))" />
+                    <img class="map" src="@(Model.Root)/images/maps/map_@(Model.FavoriteMapId).jpg" alt="@(Bf2StatsData.GetMapName(Model.FavoriteMapId))" />
+                    <img id="flag" src="@(Model.Root)/images/flags/@(Model.Player["country"]).png" alt="@(Ip2nation.GetCountyNameFromCode(Model.Player["country"].ToString()))" width="32" height="24" />
+                </div>
+                @if (Program.Config.BF2S_CacheEnabled || !Model.OnMyLeaderboard)
+                {
+                    <a id="add-to-mlb" href="@(Model.Root)/myleaderboard/add/@(Model.Player["id"])">
+                        <img src="@(Model.Root)/images/user_add.png" alt="Add to My Leader Board" />
+                    </a>
+                }
+                else
+                {
+                    <a id="add-to-mlb" href="@(Model.Root)/myleaderboard/remove/@(Model.Player["id"])">
+                        <img src="@(Model.Root)/images/user_delete.png" alt="Remove from My Leader Board" />
+                    </a>
+                }
+            </div>
+            <table border="0" cellpadding="0" cellspacing="0" id="profile">
+                <tr valign="top">
+                    <th>Player Profile</th>
+                    <th>Team Profile</th>
+                    <th>Combat Profile</th>
+                </tr>
+                <tr valign="top">
+                    <td>
+                        <table border="0" cellpadding="0" cellspacing="0" id="player">
+                            <tr>
+                                <th colspan="2">Scores</th>
+                            </tr>
+                            <tr>
+                                <td>Global</td>
+                                <td>@Model.FormatNumber(Model.Player["score"])</td>
+                            </tr>
+                            <tr>
+                                <td>Team</td>
+                                <td>@Model.FormatNumber(Model.Player["teamscore"])</td>
+                            </tr>
+                            <tr>
+                                <td>Combat</td>
+                                <td>@Model.FormatNumber(Model.Player["skillscore"])</td>
+                            </tr>
+                            <tr>
+                                <td>Commander</td>
+                                <td>@Model.FormatNumber(Model.Player["cmdscore"])</td>
+                            </tr>
+                            <tr>
+                                <th colspan="2">Time</th>
+                            </tr>
+                            <tr>
+                                <td nowrap="nowrap">Parachute</td>
+                                <td nowrap="nowrap">@Model.FormatTime(Model.VehicleData[7].Time)</td>
+                            </tr>
+                            <tr>
+                                <td nowrap="nowrap">Commander</td>
+                                <td nowrap="nowrap">@Model.FormatTime(Model.Player["cmdtime"])</td>
+                            </tr>
+                            <tr>
+                                <td nowrap="nowrap">Squad Leader </td>
+                                <td nowrap="nowrap">@Model.FormatTime(Model.Player["sqltime"])</td>
+                            </tr>
+                            <tr>
+                                <td nowrap="nowrap">Squad Member </td>
+                                <td nowrap="nowrap">@Model.FormatTime(Model.Player["sqmtime"])</td>
+                            </tr>
+                            <tr>
+                                <td nowrap="nowrap">Lone Wolf </td>
+                                <td nowrap="nowrap">@Model.FormatTime(Model.Player["lwtime"])</td>
+                            </tr>
+                            <tr>
+                                <td>Total</td>
+                                <td nowrap="nowrap">@Model.FormatTime(Model.Player["time"])</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td>
+                        <table border="0" cellpadding="0" cellspacing="0" id="team">
+                            <tr>
+                                <td nowrap="nowrap">Wins &amp; Losses</td>
+                                <td nowrap="nowrap">
+                                    @Model.FormatNumber(Model.Player["wins"]) &nbsp;/&nbsp;
+                                    @Model.FormatNumber(Model.Player["losses"]) &nbsp;(@Model.WinLossRatio)
+                                </td>
+                            </tr>
+                            <tr>
+                                <th colspan="2">Capture Points</th>
+                            </tr>
+                            <tr>
+                                <td nowrap="nowrap">Captured CP </td>
+                                <td>@Model.FormatNumber(Model.Player["captures"])</td>
+                            </tr>
+                            <tr>
+                                <td nowrap="nowrap">Capture Assist </td>
+                                <td>@Model.FormatNumber(Model.Player["captureassists"])</td>
+                            </tr>
+                            <tr>
+                                <td nowrap="nowrap">Defended CP </td>
+                                <td>@Model.FormatNumber(Model.Player["defends"])</td>
+                            </tr>
+                            <tr>
+                                <th colspan="2">Teamwork</th>
+                            </tr>
+                            <tr>
+                                <td nowrap="nowrap">Kill Assist </td>
+                                <td>@Model.FormatNumber(Model.KillAssists)</td>
+                            </tr>
+                            <tr>
+                                <td>Heal</td>
+                                <td>@Model.FormatNumber(Model.Player["heals"])</td>
+                            </tr>
+                            <tr>
+                                <td>Revive</td>
+                                <td>@Model.FormatNumber(Model.Player["revives"])</td>
+                            </tr>
+                            <tr>
+                                <td>Support</td>
+                                <td>@Model.FormatNumber(Model.Player["ammos"])</td>
+                            </tr>
+                            <tr>
+                                <td>Repair</td>
+                                <td>@Model.FormatNumber(Model.Player["repairs"])</td>
+                            </tr>
+                            <tr>
+                                <td>Driver</td>
+                                <td>@Model.FormatNumber(Model.Player["driverspecials"])</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td>
+                        <table border="0" cellpadding="0" cellspacing="0" id="combat">
+                            <tr>
+                                <td>Accuracy</td>
+                                <td>@(Model.FormatFloat(Model.WeaponSummary.AverageAccuracy, 2))%</td>
+                            </tr>
+                            <tr>
+                                <td><acronym title="Score per minute">SPM</acronym></td>
+                                <td>@Model.FormatFloat(Model.ScorePerMin, 4)</td>
+                            </tr>
+                            <tr>
+                                <td>Suicides </td>
+                                <td>@Model.FormatNumber(Model.Player["suicides"])</td>
+                            </tr>
+                            <tr>
+                                <td nowrap="nowrap">K/D Ratio</td>
+                                <td>@Model.FormatFloat(Model.KillDeathRatio, 3)</td>
+                            </tr>
+                            <tr>
+                                <th colspan="2">Kills</th>
+                            </tr>
+                            <tr>
+                                <td nowrap="nowrap">Total &amp; Streak</td>
+                                <td>@(Model.FormatNumber(Model.Player["kills"])) / @(Model.FormatNumber(Model.Player["killstreak"]))</td>
+                            </tr>
+                            <tr>
+                                <td nowrap="nowrap">Per Minute </td>
+                                <td>@Model.FormatFloat(Model.KillsPerMin, 3)</td>
+                            </tr>
+                            <tr>
+                                <td nowrap="nowrap">Per Round </td>
+                                <td>@Model.FormatFloat(Model.KillsPerRound, 3)</td>
+                            </tr>
+                            <tr>
+                                <th colspan="2">Deaths</th>
+                            </tr>
+                            <tr>
+                                <td>Total &amp; Streak</td>
+                                <td>@(Model.FormatNumber(Model.Player["deaths"])) / @(Model.FormatNumber(Model.Player["deathstreak"]))</td>
+                            </tr>
+                            <tr>
+                                <td>Per Minute </td>
+                                <td>@Model.FormatFloat(Model.DeathsPerMin, 3)</td>
+                            </tr>
+                            <tr>
+                                <td>Per Round </td>
+                                <td>@Model.FormatFloat(Model.DeathsPerRound, 3)</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            <hr class="clear" />
+            <em style="font-size: 9px; text-align: left; display: block;clear: both;padding-left: 8px;">B.R. = Best Round</em>
+            <div id="stats">
+                <div class="col">
+                    <table border="0" cellspacing="0" cellpadding="0" id="army" class="stat sortable">
+                        <tr>
+                            <th>Army</th>
+                            <th>Time</th>
+                            <th>Wins</th>
+                            <th>Losses</th>
+                            <th>Ratio</th>
+                            <th>B.R.</th>
+                        </tr>
+                        @for (i=0; i < Model.ArmyData.Count; i++)
+                        {
+                        <tr @(Model.WriteIf("class=\"favorite\"", Model.Favorites["army"] == i))>
+                            <td id="army-@(i)">@Bf2StatsData.GetArmyName(Model.ArmyData[i].Id)</td>
+                            <td nowrap="nowrap" title="@(Model.ArmyData[i].Time)">@Model.FormatTime(Model.ArmyData[i].Time)</td>
+                            <td>@Model.FormatNumber(Model.ArmyData[i].Wins)</td>
+                            <td>@Model.FormatNumber(Model.ArmyData[i].Losses)</td>
+                            <td>@Model.FormatFloat(Model.ArmyData[i].Ratio, 2)</td>
+                            <td>@Model.FormatNumber(Model.ArmyData[i].Best)</td>
+                        </tr>
+                        }
+                        <tr class="totals sortbottom">
+                            <td>Total</td>
+                            <td nowrap="nowrap">@Model.FormatTime(Model.ArmySummary.TotalTime)</td>
+                            <td>@Model.FormatNumber(Model.ArmySummary.TotalWins)</td>
+                            <td>@Model.FormatNumber(Model.ArmySummary.TotalLosses)</td>
+                            <td> &ndash; </td>
+                            <td> &ndash; </td>
+                        </tr>
+                        <tr class="averages sortbottom">
+                            <td>Averages</td>
+                            <td nowrap="nowrap">@Model.FormatTime(Model.ArmySummary.AverageTime)</td>
+                            <td>@Model.FormatNumber(Model.ArmySummary.AverageWins)</td>
+                            <td>@Model.FormatNumber(Model.ArmySummary.AverageLosses)</td>
+                            <td>@Model.FormatFloat(Model.ArmySummary.Ratio, 2)</td>
+                            <td>@Model.FormatNumber(Model.ArmySummary.AverageBest)</td>
+                        </tr>
+                    </table>
+                    <table border="0" cellspacing="0" cellpadding="0" id="map" class="stat sortable">
+                        <tr>
+                            <th>Map</th>
+                            <th>Time</th>
+                            <th>Wins</th>
+                            <th>Losses</th>
+                            <th>Ratio</th>
+                            <th>B.R.</th>
+                        </tr>
+                        @for (i=0; i < Model.MapData.Count; i++)
+                        {
+                        <tr @(Model.WriteIf("class=\"favorite\"", Model.Favorites["map"] == i))>
+                            <td id="map-@(i)">@Bf2StatsData.GetMapName(Model.MapData[i].Id)</td>
+                            <td nowrap="nowrap" title="@(Model.MapData[i].Time)">@Model.FormatTime(Model.MapData[i].Time)</td>
+                            <td>@Model.FormatNumber(Model.MapData[i].Wins)</td>
+                            <td>@Model.FormatNumber(Model.MapData[i].Losses)</td>
+                            <td>@Model.FormatFloat(Model.MapData[i].Ratio, 2)</td>
+                            <td>@Model.FormatNumber(Model.MapData[i].Best)</td>
+                        </tr>
+                        }
+                        <tr class="totals sortbottom">
+                            <td>Total</td>
+                            <td nowrap="nowrap">@Model.FormatTime(Model.MapSummary.TotalTime)</td>
+                            <td>@Model.FormatNumber(Model.MapSummary.TotalWins)</td>
+                            <td>@Model.FormatNumber(Model.MapSummary.TotalLosses)</td>
+                            <td> &ndash; </td>
+                            <td> &ndash; </td>
+                        </tr>
+                        <tr class="averages sortbottom">
+                            <td>Averages</td>
+                            <td nowrap="nowrap">@Model.FormatTime(Model.MapSummary.AverageTime)</td>
+                            <td>@Model.FormatNumber(Model.MapSummary.AverageWins)</td>
+                            <td>@Model.FormatNumber(Model.MapSummary.AverageLosses)</td>
+                            <td>@Model.FormatFloat(Model.MapSummary.Ratio, 2)</td>
+                            <td>@Model.FormatNumber(Model.MapSummary.AverageBest)</td>
+                        </tr>
+                    </table>
+                    <table id="theater" class="stat sortable" border="0" cellpadding="0" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">Theater<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th>
+                                <th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">Time<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th>
+                                <th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">Wins<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th>
+                                <th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">Losses<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th>
+                                <th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">Ratio<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th>
+                                <th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">B.R.<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th>
+                            </tr>
+                            @for (i=0; i < Model.TheaterData.Count; i++)
+                            {
+                            <tr @(Model.WriteIf("class=\"favorite\"", Model.Favorites["theater"] == i))>
+                                <td id="map-@(i)">@Model.TheaterData[i].Name</td>
+                                <td nowrap="nowrap" title="@(Model.TheaterData[i].Time)">@Model.FormatTime(Model.TheaterData[i].Time)</td>
+                                <td>@Model.FormatNumber(Model.TheaterData[i].Wins)</td>
+                                <td>@Model.FormatNumber(Model.TheaterData[i].Losses)</td>
+                                <td>@Model.FormatFloat(Model.TheaterData[i].Ratio, 2)</td>
+                                <td>@Model.FormatNumber(Model.TheaterData[i].Best)</td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <table border="0" cellspacing="0" cellpadding="0" id="vehicle" class="stat sortable">
+                        <tr>
+                            <th>Vehicle</th>
+                            <th>Time</th>
+                            <th>Kills</th>
+                            <th>Deaths</th>
+                            <th>Ratio</th>
+                            <th>Road Kills</th>
+                        </tr>
+                        @for (i=0; i < 7; i++)
+                        {
+                        <tr @(Model.WriteIf("class=\"favorite\"", Model.Favorites["vehicle"] == i))>
+                            <td id="vehicle-@(i)">@Bf2Constants.GetVehicleName(i)</td>
+                            <td nowrap="nowrap" title="@(Model.VehicleData[i].Time)">@Model.FormatTime(Model.VehicleData[i].Time)</td>
+                            <td>
+                                <span class="abbr" alt="Accounts for @(Model.FormatFloat(Model.VehicleData[i].KillsAcctFor, 2))% of all kills">
+                                    @Model.FormatNumber(Model.VehicleData[i].Kills)
+                                </span>
+                            </td>
+                            <td>@Model.FormatNumber(Model.VehicleData[i].Deaths)</td>
+                            <td>@Model.FormatFloat(Model.VehicleData[i].Ratio, 4)</td>
+                            <td>@Model.FormatNumber(Model.VehicleData[i].RoadKills)</td>
+                        </tr>
+                        }
+                        <tr class="averages sortbottom">
+                            <td>Total</td>
+                            <td nowrap="nowrap">@Model.FormatTime(Model.VehicleSummary.TotalTime)</td>
+                            <td>
+                                <span class="abbr" alt="Accounts for @(Model.FormatFloat(Model.VehicleSummary.KillsAcctFor, 2))% of all kills">
+                                    @Model.FormatNumber(Model.VehicleSummary.TotalKills)
+                                </span>
+                            </td>
+                            <td>@Model.FormatNumber(Model.VehicleSummary.TotalDeaths)</td>
+                            <td> &ndash; </td>
+                            <td>@Model.FormatNumber(Model.VehicleSummary.TotalRoadKills)</td>
+                        </tr>
+                        <tr class="totals sortbottom">
+                            <td>Averages</td>
+                            <td nowrap="nowrap">@Model.FormatTime(Model.VehicleSummary.AverageTime)</td>
+                            <td>@Model.FormatNumber(Model.VehicleSummary.AverageKills)</td>
+                            <td>@Model.FormatNumber(Model.VehicleSummary.AverageDeaths)</td>
+                            <td>@Model.FormatFloat(Model.VehicleSummary.AverageRatio, 2)</td>
+                            <td>@Model.FormatNumber(Model.VehicleSummary.AverageRoadKills)</td>
+                        </tr>
+                    </table>
+                </div><!-- END COL LEFT -->
+                <!-- COL RIGHT -->
+                <div class="col">
+                    <table border="0" cellspacing="0" cellpadding="0" id="expansion" class="stat">
+                        <tr>
+                            <th>Expansion</th>
+                            <th>BF2</th>
+                            <th>SF</th>
+                            <th>EF</th>
+                            <th>AF</th>
+                        </tr>
+                        <tr>
+                            <td>Time</td>
+                            <td nowrap="nowrap" title="@(Model.ExpackTime["bf"])">@Model.FormatTime(Model.ExpackTime["bf"])</td>
+                            <td nowrap="nowrap" title="@(Model.ExpackTime["sf"])">@Model.FormatTime(Model.ExpackTime["sf"])</td>
+                            <td nowrap="nowrap" title="@(Model.ExpackTime["ef"])">@Model.FormatTime(Model.ExpackTime["ef"])</td>
+                            <td nowrap="nowrap" title="@(Model.ExpackTime["af"])">@Model.FormatTime(Model.ExpackTime["af"])</td>
+                        </tr>
+                    </table>
+                    <table border="0" cellspacing="0" cellpadding="0" id="kit" class="stat sortable">
+                        <tr>
+                            <th>Kit</th>
+                            <th>Time</th>
+                            <th>Kills</th>
+                            <th>Deaths</th>
+                            <th>Ratio</th>
+                        </tr>
+                        @for (i=0; i < 7; i++)
+                        {
+                        <tr @(Model.WriteIf("class=\"favorite\"", Model.Favorites["kit"] == i))>
+                            <td id="kit-@(i)">@Bf2Constants.GetKitName(i)</td>
+                            <td nowrap="nowrap" title="@(Model.KitData[i].Time)">@Model.FormatTime(Model.KitData[i].Time)</td>
+                            <td>
+                                <span class="abbr" alt="Accounts for @(Model.FormatFloat(Model.KitData[i].KillsAcctFor, 2))% of all kills">
+                                    @Model.FormatNumber(Model.KitData[i].Kills)
+                                </span>
+                            </td>
+                            <td>@Model.FormatNumber(Model.KitData[i].Deaths)</td>
+                            <td>@Model.FormatFloat(Model.KitData[i].Ratio, 4)</td>
+                        </tr>
+                        }
+                        <tr class="averages sortbottom">
+                            <td>Total</td>
+                            <td nowrap="nowrap">@Model.FormatTime(Model.KitSummary.TotalTime)</td>
+                            <td>
+                                <span class="abbr" alt="Accounts for @(Model.FormatFloat(Model.KitSummary.KillsAcctFor, 2))% of all kills">
+                                    @Model.FormatNumber(Model.KitSummary.TotalKills)
+                                </span>
+                            </td>
+                            <td>@Model.FormatNumber(Model.KitSummary.TotalDeaths)</td>
+                            <td> &ndash; </td>
+                        </tr>
+                        <tr class="totals sortbottom">
+                            <td>Averages</td>
+                            <td nowrap="nowrap">@Model.FormatTime(Model.KitSummary.AverageTime)</td>
+                            <td>@Model.FormatNumber(Model.KitSummary.AverageKills)</td>
+                            <td>@Model.FormatNumber(Model.KitSummary.AverageDeaths)</td>
+                            <td>@Model.FormatFloat(Model.KitSummary.AverageRatio, 2)</td>
+                        </tr>
+                    </table>
+                    <table border="0" cellspacing="0" cellpadding="0" id="weapon" class="stat sortable">
+                        <tr>
+                            <th>Weapon</th>
+                            <th>Time</th>
+                            <th>Kills</th>
+                            <th>Deaths</th>
+                            <th>Ratio</th>
+                            <th>Acc</th>
+                        </tr>
+                        @for (i=0; i < 10; i++)
+                        {
+                        <tr @(Model.WriteIf("class=\"favorite\"", Model.Favorites["weapon"] == i))>
+                            <td id="weapon-@(i)">@Bf2Constants.GetWeaponName(i)</td>
+                            <td nowrap="nowrap" title="@(Model.WeaponData[i].Time)">@Model.FormatTime(Model.WeaponData[i].Time)</td>
+                            <td>
+                                <span class="abbr" alt="Accounts for @(Model.FormatFloat(Model.WeaponData[i].KillsAcctFor, 2))% of all kills">
+                                    @Model.FormatNumber(Model.WeaponData[i].Kills)
+                                </span>
+                            </td>
+                            <td>@Model.FormatNumber(Model.WeaponData[i].Deaths)</td>
+                            <td>@Model.FormatFloat(Model.WeaponData[i].Ratio, 4)</td>
+                            <td title="@(Model.FormatFloat(Model.WeaponData[i].Accuracy, 2))">
+                                <span class="abbr" alt="Shots: @(Model.FormatNumber(Model.WeaponData[i].Fired)), Hits: @Model.FormatNumber(Model.WeaponData[i].Hits))">
+                                    @(Model.FormatFloat(Model.WeaponData[i].Accuracy, 2))%
+                                </span>
+                            </td>
+                        </tr>
+                        }
+                        @for (i=0; i < 3; i++)
+                        {
+                        <tr @(Model.WriteIf("class=\"favorite\"", Model.Favorites["weapon"] == i + 9))>
+                            <td id="weapon-@(i)">@Bf2Constants.GetSpecialWeaponName(i)</td>
+                            <td nowrap="nowrap" title="@(Model.WeaponData2[i].Time)">@Model.FormatTime(Model.WeaponData2[i].Time)</td>
+                            <td>
+                                <span class="abbr" alt="Accounts for @(Model.FormatFloat(Model.WeaponData2[i].KillsAcctFor, 2))% of all kills">
+                                    @Model.FormatNumber(Model.WeaponData2[i].Kills)
+                                </span>
+                            </td>
+                            <td>@Model.FormatNumber(Model.WeaponData2[i].Deaths)</td>
+                            <td>@Model.FormatFloat(Model.WeaponData2[i].Ratio, 4)</td>
+                            <td title="@(Model.FormatFloat(Model.WeaponData2[i].Accuracy, 2))">
+                                <span class="abbr" alt="Shots: @(Model.FormatNumber(Model.WeaponData2[i].Fired)), Hits: @(Model.FormatNumber(Model.WeaponData2[i].Hits))">
+                                    @(Model.FormatFloat(Model.WeaponData2[i].Accuracy, 2))%
+                                </span>
+                            </td>
+                        </tr>
+                        }
+                        <tr class="averages sortbottom">
+                            <td>Total</td>
+                            <td nowrap="nowrap">@Model.FormatTime(Model.WeaponSummary.TotalTime)</td>
+                            <td>
+                                <span class="abbr" alt="Accounts for @(Model.FormatFloat(Model.WeaponSummary.KillsAcctFor, 2))% of all kills">
+                                    @Model.FormatNumber(Model.WeaponSummary.TotalKills)
+                                </span>
+                            </td>
+                            <td>@Model.FormatNumber(Model.WeaponSummary.TotalDeaths)</td>
+                            <td> &ndash; </td>
+                            <td> &ndash; </td>
+                        </tr>
+                        <tr class="totals sortbottom">
+                            <td>Averages</td>
+                            <td nowrap="nowrap">@Model.FormatTime(Model.WeaponSummary.AverageTime(15))</td>
+                            <td>@Model.FormatNumber(Model.WeaponSummary.AverageKills(15))</td>
+                            <td>@Model.FormatNumber(Model.WeaponSummary.AverageDeaths(15))</td>
+                            <td>@Model.FormatFloat(Model.WeaponSummary.AverageRatio, 2)</td>
+                            <td>
+                                <span class="abbr" alt="Shots: @(Model.FormatNumber(Model.WeaponSummary.TotalFired)), Hits: @(Model.FormatNumber(Model.WeaponSummary.TotalHits))">
+                                    @(Model.FormatFloat(Model.WeaponSummary.AverageAccuracy, 2))%
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table border="0" cellspacing="0" cellpadding="0" id="equipment" class="stat sortable">
+                        <tr>
+                            <th>Equipment</th>
+                            <th>Time</th>
+                            <th>Kills</th>
+                            <th>Deaths</th>
+                            <th>Ratio</th>
+                            <th>Usage</th>
+                        </tr>
+                        @for (i=9; i < 18; i++)
+                        {
+                        <tr @(Model.WriteIf("class=\"favorite\"", Model.Favorites["equipment"] == i))>
+                            <td id="weapon-@(i)">@Bf2Constants.GetWeaponName(i)</td>
+                            <td nowrap="nowrap" title="@(Model.WeaponData[i].Time)">@Model.FormatTime(Model.WeaponData[i].Time)</td>
+                            <td>
+                                <span class="abbr" alt="Accounts for @(Model.FormatFloat(Model.WeaponData[i].KillsAcctFor, 2))% of all kills">
+                                    @Model.FormatNumber(Model.WeaponData[i].Kills)
+                                </span>
+                            </td>
+                            <td>@Model.FormatNumber(Model.WeaponData[i].Deaths)</td>
+                            <td>@Model.FormatFloat(Model.WeaponData[i].Ratio, 4)</td>
+                            <td>@Model.FormatNumber(Model.WeaponData[i].Fired)</td>
+                        </tr>
+                        }
+                        <tr class="averages sortbottom">
+                            <td>Total</td>
+                            <td nowrap="nowrap">@Model.FormatTime(Model.EquipmentSummary.TotalTime)</td>
+                            <td>
+                                <span class="abbr" alt="Accounts for @(Model.FormatFloat(Model.EquipmentSummary.KillsAcctFor, 2))% of all kills">
+                                    @Model.FormatNumber(Model.EquipmentSummary.TotalKills)
+                                </span>
+                            </td>
+                            <td>@Model.FormatNumber(Model.EquipmentSummary.TotalDeaths)</td>
+                            <td> &ndash; </td>
+                            <td> &ndash; </td>
+                        </tr>
+                        <tr class="totals sortbottom">
+                            <td>Averages</td>
+                            <td nowrap="nowrap">@Model.FormatTime(Model.EquipmentSummary.AverageTime(9))</td>
+                            <td>@Model.FormatNumber(Model.EquipmentSummary.AverageKills(9))</td>
+                            <td>@Model.FormatNumber(Model.EquipmentSummary.AverageDeaths(9))</td>
+                            <td>@Model.FormatFloat(Model.EquipmentSummary.AverageRatio, 2)</td>
+                            <td>@Model.FormatNumber(Model.EquipmentSummary.AverageFired(9))</td>
+                        </tr>
+                    </table>
+                    <table border="0" cellspacing="0" cellpadding="0" id="fov" class="stat">
+                        <tr>
+                            <th colspan="2">Favorite Victims &amp; Worst Enemies</th>
+                        </tr>
+                        <tr>
+                            <td>Favorite Victim<br />(Kills to) </td>
+                            @if (Model.TopVictims.Count > 0) 
+                            {
+                                <td nowrap="nowrap">
+                                    <acronym title="his rank is @(StatsConstants.GetRankName(Model.TopVictims[0].Rank))">
+                                        <img src="@(Model.Root)/images/ranks/icon/rank_@(Model.TopVictims[0].Rank).gif">
+                                        <a rel="nofollow" href="@(Model.Root)/player/@(Model.TopVictims[0].Pid)">@Model.TopVictims[0].Name</a>
+                                    </acronym> (@Model.TopVictims[0].Count)
+                                </td>
+                            } 
+                            else 
+                            {   
+                                <td>You are no one\'s worst enemy. Go bully someone.</td>
+                            }
+                        </tr>
+                        <tr>
+                            <td nowrap="nowrap">More Victims<br />(Top 10)</td>
+                            <td>
+                                @if (Model.TopVictims.Count > 1)
+                                {
+                                    for (i = 1; i < Model.TopVictims.Count; i++)
+                                    {
+                                    <acronym title="his rank is @(StatsConstants.GetRankName(Model.TopVictims[i].Rank))">
+                                        <img src="@(Model.Root)/images/ranks/icon/rank_@(Model.TopVictims[i].Rank).gif">
+                                        <a rel="nofollow" href="@(Model.Root)/player/@(Model.TopVictims[i].Pid)">@Model.TopVictims[i].Name</a>
+                                    </acronym> @Model.Write("(" + Model.TopVictims[i].Count + "),")
+                                    }
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td nowrap="nowrap">Worst Enemy<br />(Deaths by)</td>
+                            @if (Model.TopEnemies.Count > 0)
+                            {
+                                <td nowrap="nowrap">
+                                    <acronym title="his rank is @(StatsConstants.GetRankName(Model.TopEnemies[0].Rank))">
+                                        <img src="@(Model.Root)/images/ranks/icon/rank_@(Model.TopEnemies[0].Rank).gif">
+                                        <a rel="nofollow" href="@(Model.Root)/player/@(Model.TopEnemies[0].Pid)">@Model.TopEnemies[0].Name</a>
+                                    </acronym> (@Model.TopEnemies[0].Count)
+                                </td>
+                             } 
+                             else 
+                             {
+                                <td>It seems you are invincible!</td>
+                             }
+                        </tr>
+                        <tr>
+                            <td nowrap="nowrap">More Enemies<br />(Top 10)</td>
+                            <td>
+                                @if(Model.TopEnemies.Count > 1)
+                                {
+                                    for (i = 1; i < Model.TopEnemies.Count; i++)
+                                    {
+                                    <acronym title="his rank is @(StatsConstants.GetRankName(Model.TopEnemies[i].Rank))">
+                                        <img src="@(Model.Root)/images/ranks/icon/rank_@(Model.TopEnemies[i].Rank).gif">
+                                        <a rel="nofollow" href="@(Model.Root)/player/@(Model.TopEnemies[i].Pid)">@Model.TopEnemies[i].Name</a>
+                                    </acronym> @Model.Write("(" + Model.TopEnemies[i].Count + "),")
+                                    }
+                                } 
+                                else 
+                                {
+                                    @:No one has picked on you much.
+                                }
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table border="0" cellpadding="0" cellspacing="0" id="misc" class="stat">
+                        <tr>
+                            <th colspan="2">Misc. Stats</th>
+
+                        </tr>
+                        <tr>
+                            <td>PID (Player ID Number)</td>
+                            <td nowrap="nowrap">@Model.Player["id"]</td>
+                        </tr>
+                        <tr>
+                            <td>Enrollment Date </td>
+                            <td nowrap="nowrap">@Model.FormatDate(Model.Player["joined"])</td>
+                        </tr>
+                        <tr>
+                            <td>Last Battle On </td>
+                            <td nowrap="nowrap">@Model.FormatDate(Model.Player["lastonline"])</td>
+                        </tr>
+                        <tr>
+                            <td>Last Update </td>
+                            <td nowrap="nowrap">@DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")</td>
+                        </tr>
+                        <tr>
+                            <td>Next Update</td>
+                            <td nowrap="nowrap">
+                                @if (Program.Config.BF2S_CacheEnabled)
+                                {
+                                   @DateTime.Now.AddMinutes(30).ToString("yyyy-MM-dd hh:mm:ss");
+                                }
+                                else
+                                {
+                                   @DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Kicked &amp; Banned</td>
+                            <td nowrap="nowrap">@(Model.Player["kicked"]) / @(Model.Player["banned"])</td>
+                        </tr>
+                        <tr>
+                            <td>Team: Kills, Damage, &amp; Vehicle Damage </td>
+                            <td nowrap="nowrap">
+                                @(Model.FormatNumber(Model.Player["teamkills"])) /
+                                @(Model.FormatNumber(Model.Player["teamdamage"])) /
+                                @(Model.FormatNumber(Model.Player["teamvehicledamage"]))
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Cost ($50 base)</td>
+                            <td nowrap="nowrap">
+                                @Model.FormatFloat(Model.CostPerHour, 4)
+                                <acronym title="Cents Per Hour">cph</acronym>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <!-- END COL RIGHT -->
+
+                <hr class="clear" />
+
+                <table border="0" cellspacing="0" cellpadding="0" id="unlocks" class="basic-stat">
+                    <tr>
+                        <th>Unlocks</th>
+                    </tr>
+                    <tr>
+                        <td>
+                        @foreach (WeaponUnlock Weapon in Model.PlayerUnlocks)
+                        {
+                            <div class="unlock-inline" onmouseover="show_mine(this);" onmouseout="hide_mine(this);">
+                                <a href="@Model.Write("http://wiki.bf2s.com/weapons/unlocks/" + Weapon.Name.ToLower())">
+                                    <img src="@(Model.Root)/spacer.gif" style="background: url(@(Model.Root)/images/unlocks/@(Weapon.State)/@(Weapon.Id).png);" width="115" height="33" alt="" />
+                                </a>
+                                <div class="unlock-pop dir-left">
+                                    <img src="@(Model.Root)/spacer.gif" style="background: url(@(Model.Root)/images/unlocks/full/@(Weapon.Id).jpg);" width="128" height="128" alt="" />
+                                    <strong>Click for more about the @Weapon.Name</strong>
+                                </div>
+                            </div>
+                            }
+                        </td>
+                    </tr>
+                </table>
+
+                <table border="0" cellspacing="0" cellpadding="0" id="awards" class="stat">
+                    <tr>
+                        <th colspan="2">Awards</th>
+                    </tr>
+                    <tr>
+                        <td>Badges</td>
+                        <td class="awards-row">
+                        @foreach(KeyValuePair<string, List<Award>> Award in Model.PlayerBadges)
+                        {
+                            int Id = Award.Value[0].Id;
+                            int level = Award.Value[0].Level;
+                            <div class="award-inline" onmouseover="show_mine(this);" onmouseout="hide_mine(this);">
+                                <img src="@(Model.Root)/spacer.gif" style="background: url(@(Model.Root)/images/awards/@(Model.WriteIfElse(level > 0, "front/" + Id + "_" + level, "locked/" + Id + "_0")).png);" width="42" height="42" alt="" />
+                                <div class="award-pop dir-@Model.WriteIfElse(j++ < (Model.PlayerBadges.Count / 2), "left", "right")">
+                                    <p>
+                                        <img src="@(Model.Root)/spacer.gif" style="background: url(@(Model.Root)/images/awards/perspective/@(Id)_@(level).jpg);" width="128" height="128" alt="" />
+                                        <strong>@StatsConstants.Badges[Award.Key]</strong>
+                                    </p>
+                                    <ul>
+                                        <li><strong>Basic</strong>@Model.FormatAwardDate(Award.Value[1].Earned)</li>
+                                        <li><strong>Veteran</strong>@Model.FormatAwardDate(Award.Value[2].Earned)</li>
+                                        <li><strong>Expert</strong>@Model.FormatAwardDate(Award.Value[3].Earned)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Medals</td>
+                        <td class="awards-row extra-space">
+                        @{ j = 0; }
+                        @foreach(KeyValuePair<string, Award> Award in Model.PlayerMedals)
+                        {
+                            int Id = Award.Value.Id;
+                            int level = Award.Value.Level;
+                            <div class="award-inline" onmouseover="show_mine(this);" onmouseout="hide_mine(this);">
+                                <img src="@(Model.Root)/spacer.gif" style="background: url(@(Model.Root)/images/awards/@(Model.WriteIfElse(level > 0, "front/" + Id, "locked/" + Id)).png);" width="42" height="42" alt="" />
+                                <div class="award-pop dir-@Model.WriteIfElse(j++ < (Model.PlayerMedals.Count / 2), "left", "right")">
+                                    <p>
+                                        <img src="@(Model.Root)/spacer.gif" style="background: url(@(Model.Root)/images/awards/perspective/@(Id).jpg);" width="128" height="128" alt="" />
+                                            <strong>@StatsConstants.Medals[Award.Key]</strong>
+                                    </p>
+                                    <ul>
+                                        <li>First received: @Model.FormatAwardDate(Award.Value.First)</li>
+                                        <li>Last awarded: @Model.FormatAwardDate(Award.Value.Earned)</li>
+                                        <li>Total awards: @Model.FormatNumber(Award.Value.Level)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Ribbons</td>
+                        <td class="awards-row extra-space">
+                        @{ j = 0; }
+                        @foreach (KeyValuePair<string, Award> Award in Model.PlayerRibbons)
+                        {
+                            int Id = Award.Value.Id;
+                            int level = Award.Value.Level;
+                            <div class="award-inline" onmouseover="show_mine(this);" onmouseout="hide_mine(this);">
+                                <img src="@(Model.Root)/spacer.gif" style="background: url(@(Model.Root)/images/awards/@(Model.WriteIfElse(level > 0, "front/" + Id, "locked/" + Id)).png);" width="42" height="42" alt="" />
+                                <div class="award-pop dir-@Model.WriteIfElse(j++ < (StatsConstants.Ribbons.Count / 2), "left", "right")">
+                                    <p>
+                                        <img src="@(Model.Root)/spacer.gif" style="background: url(@(Model.Root)/images/awards/perspective/@(Id).jpg);" width="128" height="128" alt="" />
+                                        <strong>@StatsConstants.Ribbons[Award.Key]</strong>
+                                    </p>
+                                    <ul>
+                                        <li>First received: @Model.FormatAwardDate(Award.Value.First)</li>
+                                        <li>Last awarded: @Model.FormatAwardDate(Award.Value.Earned)</li>
+                                        <li>Total awards: @Model.FormatNumber(Award.Value.Level)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        }
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>SF Badges<br />&amp; Medals</td>
+                        <td class="awards-row">
+                        @{ j = 0; }
+                        @foreach (KeyValuePair<string, List<Award>> Award in Model.PlayerSFBadges)
+                        {
+                            int Id = Award.Value[0].Id;
+                            int level = Award.Value[0].Level;
+                            <div class="award-inline" onmouseover="show_mine(this);" onmouseout="hide_mine(this);">
+                                <img src="@(Model.Root)/spacer.gif" style="background: url(@(Model.Root)/images/awards/@(Model.WriteIfElse(level > 0, "front/" + Id + "_" + level, "locked/" + Id + "_0")).png);" width="42" height="42" alt="" />
+                                <div class="award-pop dir-@Model.WriteIfElse(j++ < (Model.PlayerSFBadges.Count + Model.PlayerSFMedals.Count / 2), "left", "right")">
+                                    <p>
+                                        <img src="@(Model.Root)/spacer.gif" style="background: url(@(Model.Root)/images/awards/perspective/@(Id)_@(level).jpg);" width="128" height="128" alt="" />
+                                        <strong>@StatsConstants.SfBadges[Award.Key]</strong>
+                                    </p>
+                                    <ul>
+                                        <li><strong>Basic</strong>@Model.FormatAwardDate(Award.Value[1].Earned)</li>
+                                        <li><strong>Veteran</strong>@Model.FormatAwardDate(Award.Value[2].Earned)</li>
+                                        <li><strong>Expert</strong>@Model.FormatAwardDate(Award.Value[3].Earned)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        }
+                        @foreach (KeyValuePair<string, Award> Award in Model.PlayerSFMedals)
+                        {
+                            int Id = Award.Value.Id;
+                            int level = Award.Value.Level;
+                            <div class="award-inline" onmouseover="show_mine(this);" onmouseout="hide_mine(this);">
+                                <img src="@(Model.Root)/spacer.gif" style="background: url(@(Model.Root)/images/awards/@(Model.WriteIfElse(level > 0, "front/" + Id, "locked/" + Id)).png);" width="42" height="42" alt="" />
+                                <div class="award-pop dir-@Model.WriteIfElse(j++ < (Model.PlayerSFBadges.Count + Model.PlayerSFMedals.Count / 2), "left", "right")">
+                                    <p>
+                                        <img src="@(Model.Root)/spacer.gif" style="background: url(@(Model.Root)/images/awards/perspective/@(Id).jpg);" width="128" height="128" alt="" />
+                                        <strong>@StatsConstants.SfMedals[Award.Key]</strong>
+                                    </p>
+                                    <ul>
+                                        <li>First received: @Model.FormatAwardDate(Award.Value.First)</li>
+                                        <li>Last awarded: @Model.FormatAwardDate(Award.Value.Earned)</li>
+                                        <li>Total awards: @Model.FormatNumber(Award.Value.Level)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        }
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>SF Ribbons</td>
+                        <td class="awards-row extra-space">
+                        @{ j = 0; }
+                        @foreach (KeyValuePair<string, Award> Award in Model.PlayerSFRibbons)
+                        {
+                            int Id = Award.Value.Id;
+                            int level = Award.Value.Level;
+                            <div class="award-inline" onmouseover="show_mine(this);" onmouseout="hide_mine(this);">
+                                <img src="@(Model.Root)/spacer.gif" style="background: url(@(Model.Root)/images/awards/@(Model.WriteIfElse(level > 0, "front/" + Id, "locked/" + Id)).png);" width="42" height="42" alt="" />
+                                <div class="award-pop dir-@Model.WriteIfElse(j++ < (Model.PlayerSFRibbons.Count / 2), "left", "right")">
+                                    <p>
+                                        <img src="@(Model.Root)/spacer.gif" style="background: url(@(Model.Root)/images/awards/perspective/@(Id).jpg);" width="128" height="128" alt="" />
+                                        <strong>@StatsConstants.SfRibbons[Award.Key]</strong>
+                                    </p>
+                                    <ul>
+                                        <li>First received: @Model.FormatAwardDate(Award.Value.First)</li>
+                                        <li>Last awarded: @Model.FormatAwardDate(Award.Value.Earned)</li>
+                                        <li>Total awards: @Model.FormatNumber(Award.Value.Level)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        }
+                        </td>
+                    </tr>
+                </table>
+                <table border="0" cellspacing="0" cellpadding="0" id="tta" class="stat">
+                    <tr>
+                        <th colspan="2">Time To Advancement</th>
+                    </tr>
+                    <tr>
+                        <td>Rank</td>
+                        <td>
+                        @foreach(Rank Rnk in Model.NextPlayerRanks)
+                        {
+                            <img src="@(Model.Root)/images/ranks/progress/rank_@(Rnk.Id).png" alt="" style="float: left; margin: 0 5px 5px 0" height="83" width="83" />
+                            <p>
+                                <strong>Next Rank: @StatsConstants.GetRankName(Rnk.Id)</strong>
+                                @if(Rnk.MissingDesc != String.Empty)
+                                {
+                                    <br />@Rnk.MissingDesc<br />
+                                }
+                            </p>
+                            <div class="progressbar">
+                                <div class="progress" style="width: @(Rnk.PercentComplete)%"><span>@(Rnk.PercentComplete)%</span></div>
+                            </div>
+                            <small>
+                                Score: @Model.FormatNumber(Model.Player["score"]) of @Model.FormatNumber(Rnk.MinPoints).
+                                At your historical rate, you should earn @Model.FormatNumber(Rnk.PointsNeeded)
+                                in @Model.FormatNumber(Rnk.DaysToComplete) days (or @Model.FormatTime(Rnk.TimeToComplete) straight).
+                            </small>
+                            <div class="clear"> </div>
+                        }
+                        </td>
+                    </tr>
+                </table>
+
+                <a id="secondhome" href="@(Model.Root)"> </a>
+                <!-- end content == footer below -->
+
+                <hr class="clear" />
+                <br /><br /><br /><br />
+            </div> <!-- /Stats -->
+        </div> <!-- / Content-id -->
+    </div> <!-- /Content -->
+</div> <!-- /Page 3-->

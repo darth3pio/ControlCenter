@@ -1,0 +1,73 @@
+﻿@using RazorEngine.Templating
+@using BF2Statistics.Web.Bf2Stats
+@inherits HtmlTemplateBase<PlayerRankingsModel>
+@{ 
+    int i = 0;
+    int j = 0;
+    Layout = "_layout.cshtml";
+}
+<h1 id="page-title">
+    <img src="@(Model.Root)/images/ranks/header/rank_@(Model.Player["rank"]).png" alt="" />
+    @Model.Player["name"] <small>Player rankings</small>
+</h1>
+<div id="page-3">
+    <div id="content">
+        <div id="content-id">
+            <!-- template header end == begin content below -->
+            <ul id="stats-nav">
+                <li><a href="@(Model.Root)/player/@(Model.Player["id"])">Stats</a></li>
+                <li class="current"><a href="@(Model.Root)/player/@(Model.Player["id"])/rankings">Ranks &amp; More</a></li>
+            </ul>
+            <em>Click a place number to jump to that page in the full ranking list...</em>
+            <table id="player-rankings" class="stat" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    <th>Ranking</th>
+                    <th>Place</th>
+                    <th>Place (@Model.Player["country"].ToString().ToUpperInvariant())</th>
+                    <th>Your Value</th>
+                </tr>
+                @foreach (RankingPosition Score in Model.Rankings)
+                {
+                <tr>
+                    <td>@Model.RankingNames[i]<br /><small style="font-weight:normal">@Model.RankingDescriptions[i++]</small></td>
+                    <td><a href="@(Model.Root)/rankings/@(Score.RankingType)/@(Score.PageNumber)">@Score.Position &rarr;</a></td>
+                    <td>
+                        <a href="@(Model.Root)/rankings/@(Score.RankingType)/@(Model.Player["country"])/@(Score.CtrPageNumber)">
+                            @Score.CtrPosition &rarr;
+                        </a>
+                    </td>
+                    <td>@Score.Value</td>
+                </tr>
+                }
+            </table>
+            <table border="0" cellspacing="0" cellpadding="0" id="achievement" class="stat">
+                <tr>
+                    <th>Stat</th>
+                    <th><abbr title="">Per Round</abbr></th>
+                    <th><abbr title="">Per Minute</abbr></th>
+                    <th><abbr title="">Per Hour</abbr></th>
+                    <th><abbr title="">Per Day</abbr></th>
+                    <th><abbr title="">Per Kill</abbr></th>
+                    <th><abbr title="">Per Death</abbr></th>
+                </tr>
+                @foreach (PlayerRankingStats Stat in Model.Stats)
+                {
+                <tr>
+                    <td>
+                        <abbr title="">@Model.StatsNames[j++]</abbr>
+                    </td>
+                    <td>@Model.FormatNumber(Stat.PerRound)</td>
+                    <td>@Model.FormatNumber(Stat.PerMinute)</td>
+                    <td>@Model.FormatNumber(Stat.PerHour)</td>
+                    <td>@Model.FormatNumber(Stat.PerDay)</td>
+                    <td>@Model.FormatNumber(Stat.PerKill)</td>
+                    <td>@Model.FormatNumber(Stat.PerDeath)</td>
+                </tr>
+                }
+            </table>
+            <!-- end content == footer below -->
+            <hr class="clear" />
+        </div>
+    </div> <!-- content-id --><!-- content -->
+    <div class="clear"> </div>
+</div><!-- page 3 -->

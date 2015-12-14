@@ -22,11 +22,6 @@ namespace BF2Statistics.Web
         public HttpResponse Response { get; protected set; }
 
         /// <summary>
-        /// Indicates whether this request is an ASP request
-        /// </summary>
-        public bool IsASPRequest { get; protected set; }
-
-        /// <summary>
         /// Indicates whether the response object has written to the output stream
         /// </summary>
         public bool ResponseSent 
@@ -48,15 +43,9 @@ namespace BF2Statistics.Web
             RemoteEndPoint = Client.Request.RemoteEndPoint as IPEndPoint;
             Request = new HttpRequest(Client.Request, this);
             if (Client.Request.Url.AbsolutePath.ToLower().StartsWith("/asp/"))
-            {
-                IsASPRequest = true;
                 Response = new ASPResponse(Client.Response, this);
-            }
             else
-            {
-                IsASPRequest = false;
                 Response = new HttpResponse(Client.Response, this);
-            }
 
             // Add BF2Statistics Header
             Client.Response.AddHeader("X-Powered-By", "BF2Statistics Control Center v" + Program.Version);

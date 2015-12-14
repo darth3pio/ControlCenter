@@ -108,42 +108,27 @@ namespace BF2Statistics.MedalData
 
         #region Static Members
 
-        protected static string[] Ranks = new String[22] {
-            "Private",
-            "Private First Class",
-            "Lance Corporal",
-            "Corporal",
-            "Sergeant",
-            "Staff Sergeant",
-            "Gunnery Sergeant",
-            "Master Sergeant",
-            "First Sergeant",
-            "Master Gunnery Sergeant",
-            "Sergeant Major",
-            "Sergeant Major of the Corps",
-            "2nd Lieutenant",
-            "1st Lieutenant",
-            "Captain",
-            "Major",
-            "Lieutenant Colonel",
-            "Colonel",
-            "Brigadier General",
-            "Major General",
-            "Lieutenant General",
-            "General"
-        };
-
+        /// <summary>
+        /// Returns whether or not the Rank ID provided is a valid BF2 Rank index
+        /// </summary>
+        /// <param name="RankId"></param>
+        /// <returns></returns>
         public static bool Exists(int RankId)
         {
-            return (RankId >= 0 && RankId < 22);
+            return RankId.InRange(0, 21);
         }
 
+        /// <summary>
+        /// Returns the Name of the Rank by Index
+        /// </summary>
+        /// <param name="RankId"></param>
+        /// <returns></returns>
         public static string GetName(int RankId)
         {
             if (!Exists(RankId))
                 throw new IndexOutOfRangeException();
 
-            return Ranks[RankId];
+            return StatsConstants.Ranks[RankId];
         }
 
         #endregion Static Members

@@ -260,7 +260,7 @@ namespace BF2Statistics.Database
             try
             {
                 // Create Tables
-                string SQL = Utils.GetResourceAsString("BF2Statistics.SQL.SQLite.Stats.sql");
+                string SQL = Program.GetResourceAsString("BF2Statistics.SQL.SQLite.Stats.sql");
                 base.Execute(SQL);
             }
             catch
@@ -279,7 +279,7 @@ namespace BF2Statistics.Database
                 TaskProgress.Report(new TaskProgressUpdate("Creating Stats Tables", "Creating Bf2Stats Mysql Tables..."));
 
             // Gets Table Queries
-            string[] SQL = Utils.GetResourceFileLines("BF2Statistics.SQL.MySQL.Stats.sql");
+            string[] SQL = Program.GetResourceFileLines("BF2Statistics.SQL.MySQL.Stats.sql");
             List<string> Queries = SqlFile.ExtractQueries(SQL);
 
             // Start Transaction
@@ -307,7 +307,7 @@ namespace BF2Statistics.Database
                 TaskProgress.Report(new TaskProgressUpdate("Inserting Ip2Nation Data"));
 
             // WE STILL INSTALL ip2Nation DATA to stay compatible with the web ASP
-            SQL = Utils.GetResourceFileLines("BF2Statistics.SQL.Ip2nation.sql");
+            SQL = Program.GetResourceFileLines("BF2Statistics.SQL.Ip2nation.sql");
             Queries = SqlFile.ExtractQueries(SQL);
 
             // Insert Ip2Nation data
@@ -370,7 +370,7 @@ namespace BF2Statistics.Database
 
                         // Gets Table Queries
                         string ResourcePath = "BF2Statistics.SQL.Stats." + base.DatabaseEngine.ToString() + "_" + V.ToString() + "_update.sql";
-                        List<string> Queries = SqlFile.ExtractQueries(Utils.GetResourceFileLines(ResourcePath));
+                        List<string> Queries = SqlFile.ExtractQueries(Program.GetResourceFileLines(ResourcePath));
 
                         // Delete old version data
                         base.Execute("DELETE FROM _version");

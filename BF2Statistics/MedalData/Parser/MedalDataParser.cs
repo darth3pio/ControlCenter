@@ -16,7 +16,7 @@ namespace BF2Statistics.MedalData
         {
             // Fill the award cache with the original award conditions
             MatchCollection MedalsMatches, RankMatches;
-            ParseMedalData(Utils.GetResourceAsString("BF2Statistics.MedalData.PyFiles.medal_data_xpack.py"), out MedalsMatches, out RankMatches);
+            ParseMedalData(Program.GetResourceAsString("BF2Statistics.MedalData.PyFiles.medal_data_xpack.py"), out MedalsMatches, out RankMatches);
 
             // Convert each medal match into an object, and add it to the award cache
             foreach (Match ArrayMatch in MedalsMatches)

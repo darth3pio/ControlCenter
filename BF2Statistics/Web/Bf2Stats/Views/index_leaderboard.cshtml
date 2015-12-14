@@ -1,0 +1,46 @@
+﻿@using RazorEngine.Templating
+@using BF2Statistics.Web.Bf2Stats
+@inherits HtmlTemplateBase<IndexModel>
+@{
+    Layout = "_layout.cshtml";
+}
+<h1 id="page-title">@Model.Title</h1>
+<div id="page-3">
+    <div id="content">
+        <div id="content-id">
+            <!-- template header end == begin content below -->
+            <center>
+                <h2>Top @Model.Players.Count Players</h2>
+                <table cellspacing="0" cellpadding="0" border="0" style="width: auto;" class="stat">
+                    <tbody>
+                        <tr>
+                            <th>#</th>
+                            <th>Nick</th>
+                            <th>Global Score</th>
+                            <th>Country</th>
+                            <th>Time</th>
+                        </tr>
+                        @for (int i = 0; i < @Model.Players.Count; i++) 
+                        {
+                            <tr>
+                                <td>@(i + 1)</td>
+                                <td>
+                                    <img src="@(Model.Root)/images/ranks/icon/rank_@(Model.Players[i]["rank"]).gif">&nbsp;
+                                    <a href="@(Model.Root)/player/@(Model.Players[i]["id"])">@(Model.Players[i]["name"])</a>
+                                </td>
+                                <td>@Model.Players[i]["score"]</td>
+                                <td>
+                                    <img src="@(Model.Root)/images/flags/@(Model.Players[i]["country"]).png" height="12" width="16">
+                                </td>
+                                <td>@(Model.FormatTime(Int32.Parse(Model.Players[i]["time"].ToString())))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </center>
+            <a id="secondhome" href="@(Model.Root)"> </a>
+            <!-- end content == footer below -->
+            <hr class="clear">
+        </div>
+    </div> <!-- content-id --><!-- content -->
+</div><!-- Page 3 -->

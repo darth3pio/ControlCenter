@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BF2Statistics</RootNamespace>
     <AssemblyName>BF2Statistics</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -29,6 +29,8 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -38,8 +40,9 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>3</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <NoWarn>CS0234;CS0103</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -59,28 +62,37 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FreeImageNET">
-      <HintPath>..\Libraries\FreeImageNET.dll</HintPath>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <HintPath>.\FreeImageNET.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Microsoft.VisualBasic.PowerPacks, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
-    <Reference Include="MySql.Data, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+    <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySql.Data.6.9.8\lib\net45\MySql.Data.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libraries\Json.Net\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RazorEngine">
+      <HintPath>..\packages\RazorEngine.3.7.4\lib\net45\RazorEngine.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SQLite, Version=1.0.94.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libraries\System.Data.SQLite.dll</HintPath>
+    <Reference Include="System.Data.SQLite, Version=1.0.99.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.99.0\lib\net46\System.Data.SQLite.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.0.0\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -98,20 +110,20 @@
     <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="Extensions\LongExtensions.cs" />
     <Compile Include="Extensions\FileSizeFormatProvider.cs" />
-    <Compile Include="Forms\Gamespy\GamespyConfigForm.cs">
+    <Compile Include="UI\Gamespy\GamespyConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Gamespy\GamespyConfigForm.Designer.cs">
+    <Compile Include="UI\Gamespy\GamespyConfigForm.Designer.cs">
       <DependentUpon>GamespyConfigForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\TaskProgressUpdate.cs" />
-    <Compile Include="Forms\GamespyRedirectForm.cs">
+    <Compile Include="UI\TaskProgressUpdate.cs" />
+    <Compile Include="UI\GamespyRedirectForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\GamespyRedirectForm.Designer.cs">
+    <Compile Include="UI\GamespyRedirectForm.Designer.cs">
       <DependentUpon>GamespyRedirectForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\MyGroupBox.cs">
+    <Compile Include="UI\Controls\MyGroupBox.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Net\DnsCacheResult.cs" />
@@ -126,13 +138,13 @@
     <Compile Include="Gamespy\Servers\Master\MasterClient.cs" />
     <Compile Include="Gamespy\Servers\Master\MasterServer.cs" />
     <Compile Include="Gamespy\Servers\Master\ServerListRetrieveSocket.cs" />
-    <Compile Include="Forms\HostsFileTestForm.cs">
+    <Compile Include="UI\HostsFileTestForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\HostsFileTestForm.Designer.cs">
+    <Compile Include="UI\HostsFileTestForm.Designer.cs">
       <DependentUpon>HostsFileTestForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\NativeForm.cs">
+    <Compile Include="UI\NativeForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="BF2\MapListEntry.cs" />
@@ -147,16 +159,17 @@
     <Compile Include="Net\SocketAsyncEventArgsPool.cs" />
     <Compile Include="Gamespy\Net\GamespyTcpSocket.cs" />
     <Compile Include="Extensions\ProgressBarExtensions.cs" />
-    <Compile Include="Controls\PageControl.cs">
+    <Compile Include="UI\Controls\PageControl.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Gamespy\Redirector\Redirector.cs" />
-    <Compile Include="Forms\ASP\SnapshotFilterForm.cs">
+    <Compile Include="UI\ASP\SnapshotFilterForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ASP\SnapshotFilterForm.Designer.cs">
+    <Compile Include="UI\ASP\SnapshotFilterForm.Designer.cs">
       <DependentUpon>SnapshotFilterForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Python\Bf2Constants.cs" />
     <Compile Include="Updater\GitHubAsset.cs" />
     <Compile Include="Updater\GitHubRelease.cs" />
     <Compile Include="Updater\GitHubUser.cs" />
@@ -165,92 +178,78 @@
     <Compile Include="Utilities\ConcurrentEventQueue.cs" />
     <Compile Include="ASP\StatsManager.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="Forms\DatabaseConfigForm.cs">
+    <Compile Include="UI\DatabaseConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\DatabaseConfigForm.Designer.cs">
+    <Compile Include="UI\DatabaseConfigForm.Designer.cs">
       <DependentUpon>DatabaseConfigForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\ASP\LeaderboardConfigForm.cs">
+    <Compile Include="UI\ASP\LeaderboardConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ASP\LeaderboardConfigForm.Designer.cs">
+    <Compile Include="UI\ASP\LeaderboardConfigForm.Designer.cs">
       <DependentUpon>LeaderboardConfigForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Python\StatsPythonConfig.cs" />
-    <Compile Include="Utilities\DynamicLinq.cs" />
+    <Compile Include="Extensions\DynamicLinq.cs" />
     <Compile Include="Utilities\NiceDictionary.cs" />
-    <Compile Include="SetupManager.cs" />
+    <Compile Include="Application\SetupManager.cs" />
     <Compile Include="Python\StatsPython.cs" />
-    <Compile Include="Controls\ProgressDialog.cs">
+    <Compile Include="UI\Controls\ProgressDialog.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Utilities\SQLMethods.cs" />
-    <Compile Include="Web\Bf2Stats\MyLeaderboardPage.cs" />
-    <Compile Include="Web\Bf2Stats\Pages\MyLeaderboardPage.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MyLeaderboardPage.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Web\Bf2Stats\Pages\RankingsPage.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>RankingsPage.tt</DependentUpon>
-    </Compile>
+    <Compile Include="Extensions\SQLMethods.cs" />
+    <Compile Include="Web\ASP\Controllers\ASPController.cs" />
+    <Compile Include="Web\Bf2Stats\Controllers\Controller.cs" />
+    <Compile Include="Web\Bf2Stats\Controllers\IndexController.cs" />
+    <Compile Include="Web\Bf2Stats\Controllers\LeaderboardController.cs" />
+    <Compile Include="Web\Bf2Stats\Controllers\PlayerController.cs" />
+    <Compile Include="Web\Bf2Stats\Controllers\RankingsController.cs" />
+    <Compile Include="Web\Bf2Stats\Controllers\SearchController.cs" />
+    <Compile Include="Web\Bf2Stats\HomePageType.cs" />
+    <Compile Include="Web\Bf2Stats\Models\BF2PageModel.cs" />
+    <Compile Include="Web\Bf2Stats\Models\IndexModel.cs" />
+    <Compile Include="Web\Bf2Stats\Models\LeaderboardModel.cs" />
+    <Compile Include="Web\Bf2Stats\Models\PlayerModel.cs" />
+    <Compile Include="Web\Bf2Stats\Models\PlayerRankingsModel.cs" />
+    <Compile Include="Web\Bf2Stats\Models\RankingsModel.cs" />
+    <Compile Include="Web\Bf2Stats\Models\RankingsTypeModel.cs" />
+    <Compile Include="Web\Bf2Stats\Models\SearchModel.cs" />
     <Compile Include="Web\Bf2Stats\RankCalculator.cs" />
-    <Compile Include="Web\Bf2Stats\Pages\SearchPage.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>SearchPage.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Web\Bf2Stats\RankingsPage.cs" />
-    <Compile Include="Web\Bf2Stats\SearchPage.cs" />
-    <Compile Include="Web\Bf2Stats\StatsData.cs" />
+    <Compile Include="Web\Bf2Stats\Bf2StatsData.cs" />
     <Compile Include="Web\Bf2Stats\Structures.cs" />
-    <Compile Include="Web\Bf2Stats\HomePage.cs" />
-    <Compile Include="Web\Bf2Stats\Pages\HomePage.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>HomePage.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Web\Bf2Stats\Pages\PlayerPage.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>PlayerPage.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Web\Bf2Stats\PlayerPage.cs" />
     <Compile Include="Web\HttpClient.cs" />
     <Compile Include="Web\HttpRequest.cs" />
     <Compile Include="ASP\StatsProcessor\GameResult.cs" />
     <Compile Include="ASP\StatsProcessor\Player.cs" />
     <Compile Include="Web\ASP\StatsParser.cs" />
-    <Compile Include="Web\ASP\Pages\CreatePlayer.cs" />
+    <Compile Include="Web\ASP\Controllers\CreatePlayer.cs" />
     <Compile Include="ASP\StatsProcessor\AwardCriteria.cs" />
     <Compile Include="BF2\BF2Map.cs" />
     <Compile Include="BF2\BF2Mod.cs" />
     <Compile Include="BF2\BF2Server.cs" />
     <Compile Include="Extensions\IntExtensions.cs" />
-    <Compile Include="Forms\ClientParamsForm.cs">
+    <Compile Include="UI\ClientParamsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ClientParamsForm.Designer.cs">
+    <Compile Include="UI\ClientParamsForm.Designer.cs">
       <DependentUpon>ClientParamsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions\FileExtensions.cs" />
-    <Compile Include="Forms\Server\BotCountInfoForm.cs">
+    <Compile Include="UI\Server\BotCountInfoForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Server\BotCountInfoForm.Designer.cs">
+    <Compile Include="UI\Server\BotCountInfoForm.Designer.cs">
       <DependentUpon>BotCountInfoForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Exceptions\DbConnectException.cs" />
-    <Compile Include="Exceptions\InvalidMapException.cs" />
-    <Compile Include="Exceptions\InvalidModException.cs" />
-    <Compile Include="Exceptions\InvalidNameException.cs" />
-    <Compile Include="Forms\ASP\EAStatsImportForm.cs">
+    <Compile Include="Database\DbConnectException.cs" />
+    <Compile Include="BF2\InvalidMapException.cs" />
+    <Compile Include="BF2\InvalidModException.cs" />
+    <Compile Include="BF2\InvalidNameException.cs" />
+    <Compile Include="UI\ASP\EAStatsImportForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ASP\EAStatsImportForm.Designer.cs">
+    <Compile Include="UI\ASP\EAStatsImportForm.Designer.cs">
       <DependentUpon>EAStatsImportForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions\DateExtensions.cs" />
@@ -263,108 +262,108 @@
     <Compile Include="Database\QueryBuilder\UpdateQueryBuilder.cs" />
     <Compile Include="Database\QueryBuilder\WhereClause.cs" />
     <Compile Include="Database\QueryBuilder\WhereStatement.cs" />
-    <Compile Include="ExceptionHandler.cs" />
-    <Compile Include="Forms\ExceptionForm.cs">
+    <Compile Include="Application\ExceptionHandler.cs" />
+    <Compile Include="UI\ExceptionForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ExceptionForm.Designer.cs">
+    <Compile Include="UI\ExceptionForm.Designer.cs">
       <DependentUpon>ExceptionForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions\FolderSelect\FolderSelectDialog.cs" />
     <Compile Include="Extensions\FolderSelect\Reflector.cs" />
-    <Compile Include="Forms\ASP\ASPConfigForm.cs">
+    <Compile Include="UI\ASP\ASPConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ASP\ASPConfigForm.Designer.cs">
+    <Compile Include="UI\ASP\ASPConfigForm.Designer.cs">
       <DependentUpon>ASPConfigForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Web\ASP\ASPResponse.cs" />
     <Compile Include="ASP\StatsProcessor\BackendAwardData.cs" />
     <Compile Include="ASP\StatsProcessor\BackendAward.cs" />
-    <Compile Include="Web\ASP\Pages\SnapshotPost.cs" />
-    <Compile Include="Web\ASP\Pages\GetMapInfo.cs" />
-    <Compile Include="Web\ASP\Pages\GetAwardsInfo.cs" />
-    <Compile Include="Web\ASP\Pages\GetBackendInfo.cs" />
-    <Compile Include="Web\ASP\Pages\GetClanInfo.cs" />
-    <Compile Include="Web\ASP\Pages\GetLeaderBoard.cs" />
-    <Compile Include="Web\ASP\Pages\GetPlayerID.cs" />
-    <Compile Include="Web\ASP\Pages\GetPlayerInfo.cs" />
-    <Compile Include="Web\ASP\Pages\GetRankInfo.cs" />
-    <Compile Include="Web\ASP\Pages\GetUnlocksInfo.cs" />
+    <Compile Include="Web\ASP\Controllers\SnapshotPost.cs" />
+    <Compile Include="Web\ASP\Controllers\GetMapInfo.cs" />
+    <Compile Include="Web\ASP\Controllers\GetAwardsInfo.cs" />
+    <Compile Include="Web\ASP\Controllers\GetBackendInfo.cs" />
+    <Compile Include="Web\ASP\Controllers\GetClanInfo.cs" />
+    <Compile Include="Web\ASP\Controllers\GetLeaderBoard.cs" />
+    <Compile Include="Web\ASP\Controllers\GetPlayerID.cs" />
+    <Compile Include="Web\ASP\Controllers\GetPlayerInfo.cs" />
+    <Compile Include="Web\ASP\Controllers\GetRankInfo.cs" />
+    <Compile Include="Web\ASP\Controllers\GetUnlocksInfo.cs" />
     <Compile Include="Web\ASP\FormattedOutput.cs" />
-    <Compile Include="Web\ASP\Pages\RankNotification.cs" />
-    <Compile Include="Web\ASP\Pages\SearchForPlayers.cs" />
-    <Compile Include="Web\ASP\Pages\SelectUnlock.cs" />
+    <Compile Include="Web\ASP\Controllers\RankNotification.cs" />
+    <Compile Include="Web\ASP\Controllers\SearchForPlayers.cs" />
+    <Compile Include="Web\ASP\Controllers\SelectUnlock.cs" />
     <Compile Include="ASP\StatsProcessor\Snapshot.cs" />
-    <Compile Include="Forms\MedalData\ConditionForm.cs">
+    <Compile Include="UI\MedalData\ConditionForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\MedalData\ConditionListForm.cs">
+    <Compile Include="UI\MedalData\ConditionListForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\MedalData\ConditionListForm.designer.cs">
+    <Compile Include="UI\MedalData\ConditionListForm.designer.cs">
       <DependentUpon>ConditionListForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\MedalData\GlobalStatMultTimesForm.cs">
+    <Compile Include="UI\MedalData\GlobalStatMultTimesForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\MedalData\GlobalStatMultTimesForm.designer.cs">
+    <Compile Include="UI\MedalData\GlobalStatMultTimesForm.designer.cs">
       <DependentUpon>GlobalStatMultTimesForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\MedalData\MedalConditionForm.cs">
+    <Compile Include="UI\MedalData\MedalConditionForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\MedalData\MedalConditionForm.designer.cs">
+    <Compile Include="UI\MedalData\MedalConditionForm.designer.cs">
       <DependentUpon>MedalConditionForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\MedalData\NewCriteriaForm.cs">
+    <Compile Include="UI\MedalData\NewCriteriaForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\MedalData\NewCriteriaForm.designer.cs">
+    <Compile Include="UI\MedalData\NewCriteriaForm.designer.cs">
       <DependentUpon>NewCriteriaForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\MedalData\ObjectStatForm.cs">
+    <Compile Include="UI\MedalData\ObjectStatForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\MedalData\ObjectStatForm.designer.cs">
+    <Compile Include="UI\MedalData\ObjectStatForm.designer.cs">
       <DependentUpon>ObjectStatForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\MedalData\ScoreStatForm.cs">
+    <Compile Include="UI\MedalData\ScoreStatForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\MedalData\ScoreStatForm.designer.cs">
+    <Compile Include="UI\MedalData\ScoreStatForm.designer.cs">
       <DependentUpon>ScoreStatForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Server\ImageForm.cs">
+    <Compile Include="UI\Server\ImageForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Server\ImageForm.designer.cs">
+    <Compile Include="UI\Server\ImageForm.designer.cs">
       <DependentUpon>ImageForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Server\RandomizeForm.cs">
+    <Compile Include="UI\Server\RandomizeForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Server\RandomizeForm.Designer.cs">
+    <Compile Include="UI\Server\RandomizeForm.Designer.cs">
       <DependentUpon>RandomizeForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\ASP\GameResultForm.cs">
+    <Compile Include="UI\ASP\GameResultForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ASP\GameResultForm.Designer.cs">
+    <Compile Include="UI\ASP\GameResultForm.Designer.cs">
       <DependentUpon>GameResultForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Database\StatsDatabase.cs" />
-    <Compile Include="Delegates.cs" />
-    <Compile Include="Forms\Gamespy\AccountEditForm.cs">
+    <Compile Include="Application\Delegates.cs" />
+    <Compile Include="UI\Gamespy\AccountEditForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Gamespy\AccountEditForm.Designer.cs">
+    <Compile Include="UI\Gamespy\AccountEditForm.Designer.cs">
       <DependentUpon>AccountEditForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Gamespy\CreateAcctForm.cs">
+    <Compile Include="UI\Gamespy\CreateAcctForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Gamespy\CreateAcctForm.Designer.cs">
+    <Compile Include="UI\Gamespy\CreateAcctForm.Designer.cs">
       <DependentUpon>CreateAcctForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Database\DatabaseDriver.cs" />
@@ -372,67 +371,67 @@
     <Compile Include="Database\GamespyDatabase.cs" />
     <Compile Include="Extensions\DirectoryExt.cs" />
     <Compile Include="Extensions\RandomExtensions.cs" />
-    <Compile Include="Forms\Server\BF2sConfig.cs">
+    <Compile Include="UI\Server\BF2sConfig.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Server\BF2sConfig.designer.cs">
+    <Compile Include="UI\Server\BF2sConfig.designer.cs">
       <DependentUpon>BF2sConfig.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\MainForm.cs">
+    <Compile Include="UI\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\MainForm.Designer.cs">
+    <Compile Include="UI\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\InstallForm.cs">
+    <Compile Include="UI\InstallForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\InstallForm.Designer.cs">
+    <Compile Include="UI\InstallForm.Designer.cs">
       <DependentUpon>InstallForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Server\MapListForm.cs">
+    <Compile Include="UI\Server\MapListForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Server\MapListForm.designer.cs">
+    <Compile Include="UI\Server\MapListForm.designer.cs">
       <DependentUpon>MapListForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Server\ScoreSettings.cs">
+    <Compile Include="UI\Server\ScoreSettings.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Server\ScoreSettings.designer.cs">
+    <Compile Include="UI\Server\ScoreSettings.designer.cs">
       <DependentUpon>ScoreSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Server\ServerSettingsForm.cs">
+    <Compile Include="UI\Server\ServerSettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Server\ServerSettingsForm.designer.cs">
+    <Compile Include="UI\Server\ServerSettingsForm.designer.cs">
       <DependentUpon>ServerSettingsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Gamespy\AccountListForm.cs">
+    <Compile Include="UI\Gamespy\AccountListForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Gamespy\AccountListForm.Designer.cs">
+    <Compile Include="UI\Gamespy\AccountListForm.Designer.cs">
       <DependentUpon>AccountListForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Gamespy\GamespyUtils.cs" />
     <Compile Include="Gamespy\Servers\Gpsp\GpspClient.cs" />
     <Compile Include="Gamespy\Servers\Gpsp\GpspServer.cs" />
-    <Compile Include="Forms\MedalData\MedalDataEditor.cs">
+    <Compile Include="UI\MedalData\MedalDataEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\MedalData\MedalDataEditor.Designer.cs">
+    <Compile Include="UI\MedalData\MedalDataEditor.Designer.cs">
       <DependentUpon>MedalDataEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\LoadingForm.cs">
+    <Compile Include="UI\LoadingForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\LoadingForm.Designer.cs">
+    <Compile Include="UI\LoadingForm.Designer.cs">
       <DependentUpon>LoadingForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\ASP\ManageStatsDBForm.cs">
+    <Compile Include="UI\ASP\ManageStatsDBForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ASP\ManageStatsDBForm.Designer.cs">
+    <Compile Include="UI\ASP\ManageStatsDBForm.Designer.cs">
       <DependentUpon>ManageStatsDBForm.cs</DependentUpon>
     </Compile>
     <Compile Include="MedalData\Award.cs" />
@@ -444,44 +443,63 @@
     <Compile Include="MedalData\Conditions\MedalOrRankCondition.cs" />
     <Compile Include="MedalData\Conditions\ObjectStat.cs" />
     <Compile Include="MedalData\Conditions\PlayerStat.cs" />
-    <Compile Include="MedalData\Data.cs" />
+    <Compile Include="MedalData\StatsConstants.cs" />
     <Compile Include="MedalData\IAward.cs" />
     <Compile Include="MedalData\Parser\ISourcePart.cs" />
     <Compile Include="MedalData\Parser\ParseException.cs" />
     <Compile Include="MedalData\Parser\MedalDataParser.cs" />
     <Compile Include="MedalData\Parser\Token.cs" />
     <Compile Include="MedalData\Rank.cs" />
-    <Compile Include="MedalData\SelectItem.cs" />
-    <Compile Include="Forms\MedalData\NewProfilePrompt.cs">
+    <Compile Include="Utilities\KeyValuePair.cs" />
+    <Compile Include="UI\MedalData\NewProfilePrompt.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\MedalData\NewProfilePrompt.Designer.cs">
+    <Compile Include="UI\MedalData\NewProfilePrompt.Designer.cs">
       <DependentUpon>NewProfilePrompt.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\S2hmsForm.cs">
+    <Compile Include="UI\S2hmsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\S2hmsForm.Designer.cs">
+    <Compile Include="UI\S2hmsForm.Designer.cs">
       <DependentUpon>S2hmsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Server\XpackMedalsConfigForm.cs">
+    <Compile Include="UI\Server\XpackMedalsConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Server\XpackMedalsConfigForm.Designer.cs">
+    <Compile Include="UI\Server\XpackMedalsConfigForm.Designer.cs">
       <DependentUpon>XpackMedalsConfigForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Web\MvcRoute.cs" />
+    <Content Include="FreeImage.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SQLite.Interop.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Web\Bf2Stats\Resources\images\bg.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Web\Bf2Stats\Views\player_rankings.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Web\Bf2Stats\Views\rankings_type.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Web\Bf2Stats\Views\Readme.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <EmbeddedResource Include="ASP\BackendAwards.xml" />
-    <EmbeddedResource Include="Forms\GamespyRedirectForm.resx">
+    <EmbeddedResource Include="UI\GamespyRedirectForm.resx">
       <DependentUpon>GamespyRedirectForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Gamespy\GamespyConfigForm.resx">
+    <EmbeddedResource Include="UI\Gamespy\GamespyConfigForm.resx">
       <DependentUpon>GamespyConfigForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\HostsFileTestForm.resx">
+    <EmbeddedResource Include="UI\HostsFileTestForm.resx">
       <DependentUpon>HostsFileTestForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Ai\AIDefault.ai" />
-    <EmbeddedResource Include="Forms\Server\XpackMedalsConfigForm.resx">
+    <EmbeddedResource Include="UI\Server\XpackMedalsConfigForm.resx">
       <DependentUpon>XpackMedalsConfigForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Ip2nation.db">
@@ -489,54 +507,52 @@
     </None>
     <Compile Include="Updater\ProgramUpdater.cs" />
     <Compile Include="Net\Networking.cs" />
-    <Compile Include="Paths.cs" />
-    <Compile Include="Forms\TaskForm.cs">
+    <Compile Include="Application\Paths.cs" />
+    <Compile Include="UI\TaskForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\TaskForm.Designer.cs">
+    <Compile Include="UI\TaskForm.Designer.cs">
       <DependentUpon>TaskForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\ASP\PlayerEditForm.cs">
+    <Compile Include="UI\ASP\PlayerEditForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ASP\PlayerEditForm.Designer.cs">
+    <Compile Include="UI\ASP\PlayerEditForm.Designer.cs">
       <DependentUpon>PlayerEditForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Utilities\Crc16.cs" />
     <Compile Include="Utilities\SqlFile.cs" />
     <Compile Include="Utilities\Tipsy.cs" />
     <Compile Include="Utilities\Notify.cs" />
-    <Compile Include="Utilities\KeyValueItem.cs" />
     <Compile Include="Logging\LogMessage.cs" />
     <Compile Include="Logging\LogWriter.cs" />
-    <Compile Include="Forms\ASP\PlayerSearchForm.cs">
+    <Compile Include="UI\ASP\PlayerSearchForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ASP\PlayerSearchForm.Designer.cs">
+    <Compile Include="UI\ASP\PlayerSearchForm.Designer.cs">
       <DependentUpon>PlayerSearchForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs" />
+    <Compile Include="Application\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Gamespy\GamespyEmulator.cs" />
     <Compile Include="BF2\ServerSettings.cs" />
-    <Compile Include="Forms\ASP\SnapshotViewForm.cs">
+    <Compile Include="UI\ASP\SnapshotViewForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ASP\SnapshotViewForm.Designer.cs">
+    <Compile Include="UI\ASP\SnapshotViewForm.Designer.cs">
       <DependentUpon>SnapshotViewForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions\SocketExtensions.cs" />
-    <Compile Include="Utilities\Utils.cs" />
     <Compile Include="Utilities\Validator.cs" />
     <Compile Include="Web\HttpServer.cs" />
     <Compile Include="Web\HttpResponse.cs" />
+    <None Include="packages.config" />
     <None Include="Resources\database.png" />
     <None Include="Resources\dedicated_server.png" />
-    <None Include="ToDoList.txt" />
-    <EmbeddedResource Include="Forms\DatabaseConfigForm.resx">
+    <EmbeddedResource Include="UI\DatabaseConfigForm.resx">
       <DependentUpon>DatabaseConfigForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ASP\LeaderboardConfigForm.resx">
+    <EmbeddedResource Include="UI\ASP\LeaderboardConfigForm.resx">
       <DependentUpon>LeaderboardConfigForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Resources\question_button.png" />
@@ -545,10 +561,7 @@
     <None Include="Resources\BF2_SF_Icon.png" />
     <None Include="Resources\GamespyBanner.jpg" />
     <None Include="Resources\GamespyBanner1.jpg" />
-    <Content Include="SQLite.Interop.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <EmbeddedResource Include="Forms\ASP\SnapshotFilterForm.resx">
+    <EmbeddedResource Include="UI\ASP\SnapshotFilterForm.resx">
       <DependentUpon>SnapshotFilterForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Web\Bf2Stats\TheaterData.xml" />
@@ -565,94 +578,94 @@
     <Content Include="Web\Bf2Stats\Resources\spacer.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <EmbeddedResource Include="Forms\ClientParamsForm.resx">
+    <EmbeddedResource Include="UI\ClientParamsForm.resx">
       <DependentUpon>ClientParamsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ASP\EAStatsImportForm.resx">
+    <EmbeddedResource Include="UI\ASP\EAStatsImportForm.resx">
       <DependentUpon>EAStatsImportForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ExceptionForm.resx">
+    <EmbeddedResource Include="UI\ExceptionForm.resx">
       <DependentUpon>ExceptionForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ASP\ASPConfigForm.resx">
+    <EmbeddedResource Include="UI\ASP\ASPConfigForm.resx">
       <DependentUpon>ASPConfigForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Gamespy\CreateAcctForm.resx">
+    <EmbeddedResource Include="UI\Gamespy\CreateAcctForm.resx">
       <DependentUpon>CreateAcctForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\LoadingForm.resx">
+    <EmbeddedResource Include="UI\LoadingForm.resx">
       <DependentUpon>LoadingForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\MedalData\ConditionListForm.resx">
+    <EmbeddedResource Include="UI\MedalData\ConditionListForm.resx">
       <DependentUpon>ConditionListForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\MedalData\GlobalStatMultTimesForm.resx">
+    <EmbeddedResource Include="UI\MedalData\GlobalStatMultTimesForm.resx">
       <DependentUpon>GlobalStatMultTimesForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\MedalData\MedalConditionForm.resx">
+    <EmbeddedResource Include="UI\MedalData\MedalConditionForm.resx">
       <DependentUpon>MedalConditionForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\MedalData\MedalDataEditor.resx">
+    <EmbeddedResource Include="UI\MedalData\MedalDataEditor.resx">
       <DependentUpon>MedalDataEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\MedalData\NewCriteriaForm.resx">
+    <EmbeddedResource Include="UI\MedalData\NewCriteriaForm.resx">
       <DependentUpon>NewCriteriaForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\MedalData\NewProfilePrompt.resx">
+    <EmbeddedResource Include="UI\MedalData\NewProfilePrompt.resx">
       <DependentUpon>NewProfilePrompt.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\MedalData\ObjectStatForm.resx">
+    <EmbeddedResource Include="UI\MedalData\ObjectStatForm.resx">
       <DependentUpon>ObjectStatForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\MedalData\ScoreStatForm.resx">
+    <EmbeddedResource Include="UI\MedalData\ScoreStatForm.resx">
       <DependentUpon>ScoreStatForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\S2hmsForm.resx">
+    <EmbeddedResource Include="UI\S2hmsForm.resx">
       <DependentUpon>S2hmsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Server\BF2sConfig.resx">
+    <EmbeddedResource Include="UI\Server\BF2sConfig.resx">
       <DependentUpon>BF2sConfig.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Gamespy\AccountEditForm.resx">
+    <EmbeddedResource Include="UI\Gamespy\AccountEditForm.resx">
       <DependentUpon>AccountEditForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\InstallForm.resx">
+    <EmbeddedResource Include="UI\InstallForm.resx">
       <DependentUpon>InstallForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\MainForm.resx">
+    <EmbeddedResource Include="UI\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Server\BotCountInfoForm.resx">
+    <EmbeddedResource Include="UI\Server\BotCountInfoForm.resx">
       <DependentUpon>BotCountInfoForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Server\ImageForm.resx">
+    <EmbeddedResource Include="UI\Server\ImageForm.resx">
       <DependentUpon>ImageForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Server\MapListForm.resx">
+    <EmbeddedResource Include="UI\Server\MapListForm.resx">
       <DependentUpon>MapListForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Server\RandomizeForm.resx">
+    <EmbeddedResource Include="UI\Server\RandomizeForm.resx">
       <DependentUpon>RandomizeForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Server\ScoreSettings.resx">
+    <EmbeddedResource Include="UI\Server\ScoreSettings.resx">
       <DependentUpon>ScoreSettings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Server\ServerSettingsForm.resx">
+    <EmbeddedResource Include="UI\Server\ServerSettingsForm.resx">
       <DependentUpon>ServerSettingsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Gamespy\AccountListForm.resx">
+    <EmbeddedResource Include="UI\Gamespy\AccountListForm.resx">
       <DependentUpon>AccountListForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ASP\SnapshotViewForm.resx">
+    <EmbeddedResource Include="UI\ASP\SnapshotViewForm.resx">
       <DependentUpon>SnapshotViewForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ASP\PlayerSearchForm.resx">
+    <EmbeddedResource Include="UI\ASP\PlayerSearchForm.resx">
       <DependentUpon>PlayerSearchForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ASP\ManageStatsDBForm.resx">
+    <EmbeddedResource Include="UI\ASP\ManageStatsDBForm.resx">
       <DependentUpon>ManageStatsDBForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ASP\GameResultForm.resx">
+    <EmbeddedResource Include="UI\ASP\GameResultForm.resx">
       <DependentUpon>GameResultForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -665,10 +678,10 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Forms\TaskForm.resx">
+    <EmbeddedResource Include="UI\TaskForm.resx">
       <DependentUpon>TaskForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ASP\PlayerEditForm.resx">
+    <EmbeddedResource Include="UI\ASP\PlayerEditForm.resx">
       <DependentUpon>PlayerEditForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
@@ -686,31 +699,27 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="Web\Bf2Stats\Pages\HomePage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>HomePage.cs</LastGenOutput>
-      <CustomToolNamespace>BF2Statistics.Web.Bf2Stats</CustomToolNamespace>
-    </None>
-    <None Include="Web\Bf2Stats\Pages\MyLeaderboardPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>MyLeaderboardPage.cs</LastGenOutput>
-      <CustomToolNamespace>BF2Statistics.Web.Bf2Stats</CustomToolNamespace>
-    </None>
-    <None Include="Web\Bf2Stats\Pages\PlayerPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>PlayerPage.cs</LastGenOutput>
-      <CustomToolNamespace>BF2Statistics.Web.Bf2Stats</CustomToolNamespace>
-    </None>
-    <None Include="Web\Bf2Stats\Pages\RankingsPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>RankingsPage.cs</LastGenOutput>
-      <CustomToolNamespace>BF2Statistics.Web.Bf2Stats</CustomToolNamespace>
-    </None>
-    <None Include="Web\Bf2Stats\Pages\SearchPage.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>SearchPage.cs</LastGenOutput>
-      <CustomToolNamespace>BF2Statistics.Web.Bf2Stats</CustomToolNamespace>
-    </None>
+    <Content Include="Web\Bf2Stats\Views\index_leaderboard.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Web\Bf2Stats\Views\_layout.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Web\Bf2Stats\Views\myleaderboard.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Web\Bf2Stats\Views\player.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Web\Bf2Stats\Views\rankings_index.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Web\Bf2Stats\Views\search.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Web\Bf2Stats\Views\index.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Web\Bf2Stats\Resources\favicon.ico">
@@ -3902,9 +3911,6 @@
     <None Include="Resources\Settings.png" />
     <None Include="Resources\Settins.png" />
     <EmbeddedResource Include="SQL\MySQL.Stats.sql" />
-    <Content Include="FreeImage.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <EmbeddedResource Include="Logo.ico" />
     <EmbeddedResource Include="SQL\SQLite.Stats.sql" />
     <None Include="Resources\e_logo.png" />
@@ -4382,6 +4388,13 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\System.Data.SQLite.Core.1.0.99.0\build\net46\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.99.0\build\net46\System.Data.SQLite.Core.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.99.0\build\net46\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.99.0\build\net46\System.Data.SQLite.Core.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

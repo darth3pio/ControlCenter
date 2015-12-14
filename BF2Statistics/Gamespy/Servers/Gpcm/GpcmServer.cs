@@ -138,9 +138,6 @@ namespace BF2Statistics.Gamespy
             Parallel.ForEach(Clients.Values, client => client.Disconnect(9));
             Parallel.ForEach(Processing.Values, client => client.Disconnect(9));
 
-            // Shutdown the listener socket
-            base.ShutdownSocket();
-
             // Update the database
             try
             {
@@ -156,6 +153,9 @@ namespace BF2Statistics.Gamespy
             // Update Connected Clients in the Database
             Processing.Clear();
             Clients.Clear();
+
+            // Shutdown the listener socket
+            base.ShutdownSocket();
 
             // Tell the base to dispose all free objects
             base.Dispose();
@@ -275,9 +275,6 @@ namespace BF2Statistics.Gamespy
             // Remove client, and call OnUpdate Event
             try
             {
-                // Release this stream's AsyncEventArgs to the object pool
-                base.Release(client.Stream);
-
                 // Remove client from online list
                 if (Clients.TryRemove(client.PlayerId, out client) && !client.Disposed)
                     client.Dispose();
@@ -305,17 +302,10 @@ namespace BF2Statistics.Gamespy
                 GpcmClient client = sender as GpcmClient;
 
                 // Check to see if the client is already logged in, if so disconnect the old user
-                if (Clients.ContainsKey(client.PlayerId))
+                if (Clients.TryRemove(client.PlayerId, out oldC))
                 {
-                    // Kick old connection
-                    if (!Clients.TryRemove(client.PlayerId, out oldC))
-                    {
-                        Program.ErrorLog.Write("ERROR: [GpcmServer._OnSuccessfulLogin] Unable to remove previous client entry.");
-                        client.Disconnect(1);
-                        return;
-                    }
-
                     oldC.Disconnect(1);
+                    return;
                 }
 
                 // Remove connection from processing

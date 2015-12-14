@@ -1,0 +1,39 @@
+﻿@using RazorEngine.Templating
+@using BF2Statistics.Web.Bf2Stats
+@inherits HtmlTemplateBase<BF2PageModel>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="inner">
+<head>
+    <title>@Model.Title</title>
+
+    <link rel="icon" href="@(Model.Root)/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="@(Model.Root)/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" media="screen" href="@(Model.Root)/scripts/two-tiers.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="@(Model.Root)/scripts/nt.css">
+    <link rel="stylesheet" type="text/css" media="print" href="@(Model.Root)/scripts/print.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="@(Model.Root)/scripts/default.css">
+
+    <script type="text/javascript">/* no frames */ if(top.location != self.location) top.location.replace(self.location);</script>
+    <script type="text/javascript" src="@(Model.Root)/scripts/nt2.js"></script>
+    <script type="text/javascript" src="@(Model.Root)/scripts/show.js"></script>
+</head>
+<body class="inner">
+    <div id="page-1">
+        <div id="page-2">
+            @RenderBody()
+            <div id="footer">Generated using the <a href='http://bf2statistics.com'>BF2Statistics Control Center</a></div>
+            <ul id="navitems">
+                <li><a href="@(Model.Root)">Home</a></li>
+                <li><a href="@(Model.Root)/search">Search Stats</a></li>
+                <li><a href="@(Model.Root)/myleaderboard">My Leader Board</a></li>
+                <li><a href="@(Model.Root)/rankings">Rankings</a></li>
+            </ul>
+            <form action="@(Model.Root)/search" method="post" id="getstats">
+                <label for="pid">Get Stats</label>
+                <input type="text" name="searchvalue" id="pid" value="@(Model.SearchBarValue)" />
+                <input type="submit" class="btn" value="Go" />
+            </form>
+        </div><!-- page 2 -->
+    </div><!-- page 1 -->
+</body>
+</html>

@@ -14,7 +14,7 @@ namespace BF2Statistics.MedalData
         public PlayerStat(List<string> Params)
         {
             this.Params = Params;
-            if (Params[0] == "player_stat" && !Data.IsTimeStat(Params[1]))
+            if (Params[0] == "player_stat" && !StatsConstants.IsTimeStat(Params[1]))
                 Params[0] = "player_score";
         }
 
@@ -34,7 +34,7 @@ namespace BF2Statistics.MedalData
         public override void SetParams(List<string> Params)
         {
             this.Params = Params;
-            if (Params[0] == "player_stat" && !Data.IsTimeStat(Params[1]))
+            if (Params[0] == "player_stat" && !StatsConstants.IsTimeStat(Params[1]))
                 Params[0] = "player_score";
         }
 
@@ -78,15 +78,15 @@ namespace BF2Statistics.MedalData
 
             // Define start of description
             if (Params[0] == "global_stat")
-                Name = "Global " + Data.GlobalStrings[Params[1]];
+                Name = "Global " + StatsConstants.PythonGlobalVars[Params[1]];
             else
-                Name = "Round " + Data.PlayerStrings[Params[1]];
+                Name = "Round " + StatsConstants.PythonPlayerVars[Params[1]];
 
             // If we have 3 params, parse the last paramenter
             if (Params.Count == 3)
             {
-                if (Data.IsTimeStat(Params[1]))
-                    P2 = Utils.Sec2hms(Int32.Parse(Params[2]));
+                if (StatsConstants.IsTimeStat(Params[1]))
+                    P2 = Condition.Sec2hms(Int32.Parse(Params[2]));
                 else
                     P2 = String.Format("{0:N0}", Int32.Parse(Params[2]));
 

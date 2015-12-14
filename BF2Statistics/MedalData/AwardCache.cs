@@ -7,7 +7,7 @@ namespace BF2Statistics.MedalData
     /// The Award cache class is responsible for holding all the found
     /// awards and ranks from the Medal data file.
     /// </summary>
-    class AwardCache
+    public static class AwardCache
     {
         /// <summary>
         /// List of all found Medals
@@ -101,7 +101,7 @@ namespace BF2Statistics.MedalData
         /// <param name="C">The parsed condition to earn the award</param>
         public static void AddDefaultAwardCondition(string Id, Condition C)
         {
-            if(!OrigConditions.ContainsKey(Id))
+            if (!OrigConditions.ContainsKey(Id))
                 OrigConditions.Add(Id, C);
         }
 

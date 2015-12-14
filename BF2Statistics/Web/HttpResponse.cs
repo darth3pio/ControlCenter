@@ -15,7 +15,7 @@ namespace BF2Statistics.Web
         /// <summary>
         /// The Http Response Object
         /// </summary>
-        protected HttpListenerResponse Response;
+        public HttpListenerResponse Response { get; protected set; }
 
         /// <summary>
         /// Our connection timer
@@ -25,7 +25,7 @@ namespace BF2Statistics.Web
         /// <summary>
         /// The Response Body to send to the client
         /// </summary>
-        public StringBuilder ResponseBody { get; protected set; }
+        public StringBuilder ResponseBody { get; protected set; } = new StringBuilder();
 
         /// <summary>
         /// Gets or sets the HTTP status code to be returned to the client
@@ -67,7 +67,7 @@ namespace BF2Statistics.Web
         /// <summary>
         /// Indicates whether the response object is finished
         /// </summary>
-        public bool ResponseSent { get; protected set; }
+        public bool ResponseSent { get; protected set; } = false;
 
         /// <summary>
         /// Constructor
@@ -77,12 +77,9 @@ namespace BF2Statistics.Web
             // Set internals
             this.Client = Client;
             this.Response = Response;
-            this.ResponseBody = new StringBuilder();
-            this.ResponseSent = false;
 
             // Start the stopwatch for response benchmarking
-            this.Clock = new Stopwatch();
-            this.Clock.Start();
+            this.Clock = Stopwatch.StartNew();
         }
 
         /// <summary>
@@ -141,8 +138,7 @@ namespace BF2Statistics.Web
         public void Send(byte[] Body)
         {
             // Cant send a second response!
-            if (ResponseSent)
-                return; //throw new Exception("Unable to send a response to the client, A response has already been sent!");
+            if (ResponseSent) return;
 
             try
             {
@@ -151,7 +147,7 @@ namespace BF2Statistics.Web
                 Response.KeepAlive = false;
 
                 // Send Response to the remote socket
-                if(Client.Request.HttpMethod != "HEAD")
+                if (Client.Request.HttpMethod != "HEAD")
                     Response.OutputStream.Write(Body, 0, Body.Length);
             }
             catch(Exception Ex)
@@ -188,7 +184,7 @@ namespace BF2Statistics.Web
         /// <returns></returns>
         protected string BuildErrorPage()
         {
-            string Page = Utils.GetResourceAsString("BF2Statistics.Web.Error.html");
+            string Page = Program.GetResourceAsString("BF2Statistics.Web.Error.html");
             return String.Format(Page, StatusCode, StatusDescription, GetErrorDesciption());
         }
 

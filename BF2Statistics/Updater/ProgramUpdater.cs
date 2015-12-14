@@ -100,7 +100,7 @@ namespace BF2Statistics
                     }
                 });
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Program.ErrorLog.Write("WARNING: Error occured while trying to fetch the new release version: " + e.Message);
                 NewVersion = Program.Version;

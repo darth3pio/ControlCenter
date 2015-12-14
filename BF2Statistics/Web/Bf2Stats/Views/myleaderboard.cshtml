@@ -1,0 +1,88 @@
+﻿@using RazorEngine
+@using RazorEngine.Templating
+@using BF2Statistics.Web.Bf2Stats
+@inherits HtmlTemplateBase<LeaderboardModel>
+@{
+    Layout = "_layout.cshtml";
+}
+<h1 id="page-title">My Leader Board</h1>
+<div id="page-3">
+    <div id="content">
+        <div id="content-id">
+            <!-- template header end == begin content below -->
+            <div id="mlb-instructions">
+                <p>
+                    Setup your own leaderboard to track the stats of other Battlefield 2 players.
+                    It's pretty easy! Just type in a list of PID numbers (comma separated)
+                    and click "Get Leader Board". Once you've got the list set right, you
+                    can just bookmark the page, copy &amp; paste the url to friends, or
+                    click "Save Leader Board" to keep the board in a cookie.
+                </p>
+                <p class="poof">
+                    This service will work for BF2 players only. They must play on leased,
+                    rented, or public Ranked Servers for the EA game Battlefield 2 in order
+                    for this gaming website to be able to track their stats.
+                </p>
+
+                <form action="@(Model.Root)/myleaderboard" method="post">
+                    <label>Player ID's (Nick* or Number): <br />
+                        <input name="leaderboard" size="80" value="@(Model.CookieValue)" type="text">
+                    </label>
+                    <input name="set" value="Save Leader Board" type="submit">
+                    <input name="get" value="Get Leader Board" type="submit">
+                </form>
+                <p><strong>You MUST use PID numbers.</strong> Also, the limit is 50 players.</p>
+            </div>
+
+            <form action="/compare.php" method="get">
+                <table border="0" align="center" cellpadding="0" cellspacing="0" class="stat sortable" id="myleaderboard">
+                    <tbody>
+                        <tr>
+                            <th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">Personal Leaderboard<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th> <!-- colspan="2" -->
+                            <th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">Score<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th>
+                            <th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">SPM<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th>
+                            <th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">K:D<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th>
+                            <th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">Time Played<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th>
+                            <th class="nosort"><acronym title="Online / Offline">O/O</acronym></th>
+                            <th class="nosort">Last Update</th>
+                            <th><a href="#" class="sortheader" onclick="ts_resortTable(this);return false;">PID<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a></th>
+                            <th class="nosort"><img title="Remove A Player" src="@(Model.Root)/images/user_delete.png" /></th>
+                        </tr>
+                        @foreach (PlayerResult Player in Model.Players)
+                        {
+                            <tr>
+                                <td>
+                                    <img src="@(Model.Root)/images/ranks/icon/rank_@(Player.Rank).gif" alt="" style="border: 0pt none;" />
+                                    <a href="@(Model.Root)/player/@(Player.Pid)">@(Player.Name)</a>&nbsp;
+                                    <img src="@(Model.Root)/images/flags/@(Player.Country).png" height="12" width="16" />
+                                </td>
+                                <td>@Player.Score</td>
+                                <td>@Player.Spm</td>
+                                <td>@Player.Kdr</td>
+                                <td title="@(Player.TimePlayed)">@Player.TimePlayed</td>
+                                <td>
+                                    <img title="@(Player.Status)" src="@(Model.Root)/images/@(Player.Status).png" height="12" width="12">
+                                </td>
+                                <td>@Player.LastOnline</td>
+                                <td>@Player.Pid</td>
+                                <td>
+                                    <a href="@(Model.Root)/myleaderboard/remove/@(Player.Pid)">
+                                        <img title="Remove @(Player.Name)" src="@(Model.Root)/images/user_delete.png">
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </form>
+
+            <div style="margin: 20px auto 0pt; text-align: center;"></div>
+            <!-- end content == footer below -->
+
+            <hr class="clear">
+
+        </div>
+    </div> <!-- content-id --><!-- content -->
+    <a id="secondhome" href="@(Model.Root)"> </a>
+
+</div><!-- page 3 -->

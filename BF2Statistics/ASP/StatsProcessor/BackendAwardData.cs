@@ -120,7 +120,7 @@ namespace BF2Statistics.ASP.StatsProcessor
                 if (file.Length == 0)
                 {
                     using (StreamWriter writer = new StreamWriter(file, Encoding.UTF8, 1024, true))
-                        writer.Write(Utils.GetResourceAsString("BF2Statistics.ASP.BackendAwards.xml"));
+                        writer.Write(Program.GetResourceAsString("BF2Statistics.ASP.BackendAwards.xml"));
 
                     file.Flush();
                     file.Seek(0, SeekOrigin.Begin);

@@ -1,12 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BF2Statistics.MedalData;
 
 namespace BF2Statistics.Web.Bf2Stats
 {
-    class RankCalculator
+    /// <summary>
+    /// The RankCalulator object is used to programmatically determine the next
+    /// ranks that can be earned by a player given its current stats and awards
+    /// </summary>
+    public static class RankCalculator
     {
-        protected static Rank[] Ranks;
+        /// <summary>
+        /// An Array of Rank objects that define the requirements to earn the Ranks
+        /// in Battlefield 2
+        /// </summary>
+        private static Rank[] Ranks;
 
         /// <summary>
         /// Used when the RankData.xml is loaded by the StatsData object,
@@ -19,7 +29,7 @@ namespace BF2Statistics.Web.Bf2Stats
         }
 
         /// <summary>
-        /// Generates the next 3 ranks that can currently be obtained by the player
+        /// Generates the next <paramref name="Count"/> ranks that can currently be obtained by the player
         /// </summary>
         /// <param name="Score">The players current score</param>
         /// <param name="Rank">The players current rank ID</param>
@@ -113,7 +123,7 @@ namespace BF2Statistics.Web.Bf2Stats
         /// </summary>
         /// <param name="CurRank"></param>
         /// <param name="Awards"></param>
-        protected static List<Rank> GetNextRankUps(int CurRank, Dictionary<string, int> Awards)
+        private static List<Rank> GetNextRankUps(int CurRank, Dictionary<string, int> Awards)
         {
             List<Rank> rRanks = new List<Rank>();
             for (int i = CurRank + 1; i < 22; i++)
@@ -136,64 +146,39 @@ namespace BF2Statistics.Web.Bf2Stats
         /// <param name="Rnk"></param>
         /// <param name="ForPrevRank"></param>
         /// <returns></returns>
-        protected static string GenerateMissingDesc(Rank Rnk, bool ForPrevRank)
+        private static string GenerateMissingDesc(Rank Rnk, bool ForPrevRank)
         {
             StringBuilder Msg = new StringBuilder();
 
             // Prefix
             if (ForPrevRank)
-                Msg.AppendFormat("You are not yet eligible for the advanced rank of <strong>{0}</strong> because you are missing the awards: ", StatsData.GetRankName(Rnk.Id));
+            {
+                Msg.AppendFormat(
+                    "You are not yet eligible for the advanced rank of <strong>{0}</strong> because you are missing the awards: ",
+                    MedalData.Rank.GetName(Rnk.Id)
+                );
+            }
             else
                 Msg.Append("You are missing the awards: ");
 
             // Add missing award titles
             int i = 0;
-            foreach (KeyValuePair<string, int> Award in Rnk.MissingAwards)
+            foreach (KeyValuePair<string, int> Awd in Rnk.MissingAwards)
             {
-                string name = "Unknown";
+                // Increment missing award ID
                 i++;
 
-                if (StatsData.Badges.ContainsKey(Award.Key))
-                    name = GetBadgePrefix(Award.Value) + StatsData.Badges[Award.Key];
-                else if (StatsData.Medals.ContainsKey(Award.Key))
-                    name = StatsData.Medals[Award.Key];
-                else if (StatsData.Ribbons.ContainsKey(Award.Key))
-                    name = StatsData.Ribbons[Award.Key];
-                else if (StatsData.SfBadges.ContainsKey(Award.Key))
-                    name = GetBadgePrefix(Award.Value) + StatsData.SfBadges[Award.Key];
-                else if (StatsData.SfMedals.ContainsKey(Award.Key))
-                    name = StatsData.SfMedals[Award.Key];
-                else if (StatsData.SfRibbons.ContainsKey(Award.Key))
-                    name = StatsData.SfRibbons[Award.Key];
+                // Check for Badge, and append the badge level if so...
+                string AwdId = (Awd.Key[0] == '1') ? Awd.Key + "_" + Awd.Value : Awd.Key;
+
+                // Fetch the award's full string name
+                string name = StatsConstants.Awards.ContainsKey(Awd.Key) ? MedalData.Award.GetName(AwdId) : "Unknown";
 
                 // Add the award
-                if(i == Rnk.MissingAwards.Count)
-                    Msg.Append(name + ".");
-                else
-                    Msg.Append(name + ", ");
+                Msg.Append(name + ((i == Rnk.MissingAwards.Count) ? "." : ",") + " ");
             }
 
             return Msg.ToString();
-        }
-
-        /// <summary>
-        /// Returns a prefix for a badge level
-        /// </summary>
-        /// <param name="BadgeLevel"></param>
-        /// <returns></returns>
-        protected static string GetBadgePrefix(int BadgeLevel)
-        {
-            switch (BadgeLevel)
-            {
-                case 1:
-                    return "Basic ";
-                case 2:
-                    return "Veteran ";
-                case 3:
-                    return "Expert ";
-            }
-
-            return "";
         }
     }
 }

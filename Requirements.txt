@@ -1,0 +1,4 @@
+Required:
+ - Microsoft's .NET 2.0 Microsoft.VisualBasic.PowerPacks.dll
+ - Microsoft's .NET 4.6.1 for Program and supporting Dll's
+ - Visual C++ 2015 Update 1 runtime for x86 for SQLite.Interop.dll

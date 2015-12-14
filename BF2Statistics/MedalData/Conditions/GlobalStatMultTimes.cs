@@ -67,9 +67,9 @@ namespace BF2Statistics.MedalData
         public override TreeNode ToTree()
         {
             // Achieve award less times then 
-            string Type = Data.GlobalStrings[Params[1]];
-            string Value = (Data.IsTimeStat(Params[1]))
-                ? Utils.Sec2hms( Int32.Parse(Params[2]) )
+            string Type = StatsConstants.PythonGlobalVars[Params[1]];
+            string Value = (StatsConstants.IsTimeStat(Params[1]))
+                ? Condition.Sec2hms( Int32.Parse(Params[2]) )
                 : String.Format("{0:N0}", Int32.Parse(Params[2]));
 
             TreeNode Me = new TreeNode("Achieved " + Value + " Global " + Type + " One or More Times");

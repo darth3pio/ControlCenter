@@ -374,7 +374,7 @@ namespace BF2Statistics.Database.QueryBuilder
 
 
             // Append Where
-            if(this.WhereStatement.Count != 0)
+            if (this.WhereStatement.Count != 0)
                 Query.Append(" WHERE " + this.WhereStatement.BuildStatement(BuildCommand, ref Command));
 
             // Append GroupBy
@@ -411,12 +411,21 @@ namespace BF2Statistics.Database.QueryBuilder
             }
 
             // Set the command text
-            if(BuildCommand)
+            if (BuildCommand)
                 Command.CommandText = Query.ToString();
 
             // Return Result
             return (BuildCommand) ? Command as object : Query.ToString();
         }
 
+        public List<Dictionary<string, object>> ExecuteQuery()
+        {
+            return Driver.Query(BuildQuery());
+        }
+
+        public T ExecuteScalar<T>()
+        {
+            return Driver.ExecuteScalar<T>(BuildQuery());
+        }
     }
 }

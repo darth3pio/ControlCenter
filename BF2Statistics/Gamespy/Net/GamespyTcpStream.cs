@@ -41,6 +41,11 @@ namespace BF2Statistics.Gamespy.Net
         public Socket Connection;
 
         /// <summary>
+        /// Contains the GamespyTcpSocket that owns this object
+        /// </summary>
+        public GamespyTcpSocket SocketManager { get; protected set; }
+
+        /// <summary>
         /// Our AsycnEventArgs object for reading data
         /// </summary>
         public SocketAsyncEventArgs ReadEventArgs { get; protected set; }
@@ -63,6 +68,11 @@ namespace BF2Statistics.Gamespy.Net
         /// and cleaned up properly
         /// </summary>
         public bool SocketClosed { get; protected set; }
+
+        /// <summary>
+        /// Indicates whether this stream has been released to the SocketManager
+        /// </summary>
+        public bool Released { get; protected set; }
 
         /// <summary>
         /// Indicates whether the OnDisconnect event has been called
@@ -93,21 +103,23 @@ namespace BF2Statistics.Gamespy.Net
         /// <summary>
         /// Creates a new instance of GamespyTcpStream
         /// </summary>
-        /// <param name="ReadAsyncEventArgs"></param>
-        public GamespyTcpStream(SocketAsyncEventArgs ReadAsyncEventArgs, SocketAsyncEventArgs WriteAsyncEventArgs)
+        /// <param name="ReadArgs"></param>
+        public GamespyTcpStream(GamespyTcpSocket Parent, SocketAsyncEventArgs ReadArgs, SocketAsyncEventArgs WritetArgs)
         {
             // Store our connection
-            Connection = ReadAsyncEventArgs.AcceptSocket;
+            Connection = ReadArgs.AcceptSocket;
+            SocketManager = Parent;
 
             // Create our IO event callbacks
-            ReadAsyncEventArgs.Completed += IOComplete;
-            WriteAsyncEventArgs.Completed += IOComplete;
+            ReadArgs.Completed += IOComplete;
+            WritetArgs.Completed += IOComplete;
 
             // Set our internal variables
-            ReadEventArgs = ReadAsyncEventArgs;
-            WriteEventArgs = WriteAsyncEventArgs;
+            ReadEventArgs = ReadArgs;
+            WriteEventArgs = WritetArgs;
             SocketClosed = false;
             DisposedEventArgs = false;
+            Released = false;
         }
 
         ~GamespyTcpStream()
@@ -141,7 +153,7 @@ namespace BF2Statistics.Gamespy.Net
                         ProcessReceive();
                 }
             }
-            catch(ObjectDisposedException e)
+            catch (ObjectDisposedException e)
             {
                 if (!DisconnectEventCalled)
                 {
@@ -154,7 +166,7 @@ namespace BF2Statistics.Gamespy.Net
                         OnDisconnect();
                 }
             }
-            catch(SocketException e)
+            catch (SocketException e)
             {
                 HandleSocketError(e.SocketErrorCode);
             }
@@ -169,16 +181,14 @@ namespace BF2Statistics.Gamespy.Net
         /// </param>
         public void Close(bool DisposeEventArgs = false)
         {
-            // If we've done this before
+            // Set that the socket is being closed once, and properly
             if (SocketClosed) return;
-
-            // Set that the socket is being closed properly
             SocketClosed = true;
 
             // Do a shutdown before you close the socket
             try
             {
-                Connection.Shutdown(SocketShutdown.Both); 
+                Connection.Shutdown(SocketShutdown.Both);
             }
             catch (Exception) { }
             finally
@@ -198,6 +208,12 @@ namespace BF2Statistics.Gamespy.Net
                 ReadEventArgs.Dispose();
                 WriteEventArgs.Dispose();
                 DisposedEventArgs = true;
+            }
+            else
+            {
+                // Finally, release this stream so we can allow a new connection
+                SocketManager.Release(this);
+                Released = true;
             }
 
             // Call Disconnect Event
@@ -234,8 +250,8 @@ namespace BF2Statistics.Gamespy.Net
                 BufferDataToken token = ReadEventArgs.UserToken as BufferDataToken;
                 RecvMessage.Append(
                     Encoding.UTF8.GetString(
-                        ReadEventArgs.Buffer, 
-                        token.BufferOffset, 
+                        ReadEventArgs.Buffer,
+                        token.BufferOffset,
                         ReadEventArgs.BytesTransferred
                     )
                 );

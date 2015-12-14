@@ -7,7 +7,7 @@ using System.Resources;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Battlefield 2 Statistics Control Center")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A Battlefield 2 server manager packaged with a Gamespy emulator")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Battlefield 2 Statistics")]
 [assembly: AssemblyProduct("Battlefield 2 Statistics Control Center")]
@@ -33,6 +33,6 @@ using System.Resources;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.2.1.0")]
-[assembly: AssemblyFileVersion("2.2.1.0")]
+[assembly: AssemblyVersion("2.3.0.0")]
+[assembly: AssemblyFileVersion("2.3.0.0")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]

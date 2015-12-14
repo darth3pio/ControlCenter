@@ -1,0 +1,96 @@
+﻿@using RazorEngine.Templating
+@using BF2Statistics.Web.Bf2Stats
+@using PlayerRow = BF2Statistics.Web.Bf2Stats.RankingsTypeModel.PlayerRow
+@inherits HtmlTemplateBase<RankingsTypeModel>
+@{
+    int i = 0;
+    bool FilterCountry = !String.IsNullOrEmpty(Model.Country);
+    Layout = "_layout.cshtml";
+}
+<h1 id="page-title">Current Rankings <small>"nuh uh! I'm better!"</small></h1>
+<div id="page-3">
+    <div id="content">
+        <div id="content-id">
+            <div id="rankingnav">
+                <p><strong>Rank players by:</strong></p>
+                <ol>
+                    <li><a href="@(Model.Root)/rankings/">Rankings Home</a></li>
+                    <li><a href="@(Model.Root)/rankings/score/@(Model.Country)">Global Score</a></li>
+                    <li><a href="@(Model.Root)/rankings/spm/@(Model.Country)">Score per Minute</a></li>
+                    <li><a href="@(Model.Root)/rankings/wlr/@(Model.Country)">Win-Loss Ratio</a></li>
+                    <li><a href="@(Model.Root)/rankings/kdr/@(Model.Country)">Kill-Death Ratio</a></li>
+                    <li><a href="@(Model.Root)/rankings/knife_kdr/@(Model.Country)">Knife KDR</a></li>
+                    <li><a href="@(Model.Root)/rankings/sniper_acc/@(Model.Country)">Sniper Accuracy</a></li>
+                    <li><a href="@(Model.Root)/rankings/brs/@(Model.Country)">Best Round Score</a></li>
+                    <li><a href="@(Model.Root)/rankings/fc/@(Model.Country)">Flag Captures</a></li>
+                    <li><a href="@(Model.Root)/rankings/fw/@(Model.Country)">Flag Work</a></li>
+                    <li><a href="@(Model.Root)/rankings/btw/@(Model.Country)">Best Teamworkers</a></li>
+                    <li><a href="@(Model.Root)/rankings/hpd/@(Model.Country)">Hours per Day</a></li>
+                    <li><a href="@(Model.Root)/rankings/command/@(Model.Country)">Command Score</a></li>
+                    <li><a href="@(Model.Root)/rankings/rcmds/@(Model.Country)">Relative Command Score</a></li>
+                </ol>
+                <p><strong>Filter by Country:</strong></p>
+                <ul>
+                    <li class="nofilter"><a href="@(Model.Root)/rankings/@(Model.UrlName)">No Country Filter</a></li>
+                @foreach (string country in Model.CountryList)
+                {
+                    <li @(Model.WriteIf("class=\"current\"", country.Equals(Model.Country, StringComparison.InvariantCultureIgnoreCase)))>
+                       <a href="@(Model.Root)/rankings/@(Model.UrlName)/@(country)/">@country</a>
+                    </li>
+                }
+                </ul>
+            </div>
+            <hr />
+            <ul id="ranking-page-nav">
+                <li><span>Total: @Model.FormatNumber(Model.TotalRecords)</span></li>
+                @for (i = 1; i <= Model.TotalPages; i++)
+                {
+                    if (i == Model.CurrentPage)
+                    {
+                        <li><strong>@i</strong></li>
+                    }
+                    else if(FilterCountry)
+                    {
+                        <li><a href="@(Model.Root)/rankings/@(Model.UrlName)/@(Model.Country)/@(i)">@i</a></li>
+                    }
+                    else
+                    {
+                        <li><a href="@(Model.Root)/rankings/@(Model.UrlName)/@(i)">@i</a></li>
+                    }
+                }
+            </ul>
+            <table id="rankslist" class="stat" cellpadding="0" cellspacing="0" border="0" style="width:auto;">
+                <tr>
+                    <th>#</th>
+                    <th>Nick</th>
+                    <th>@Model.ScoreHeader</th>
+                    <th>Ctr</th>
+                    <th>Time</th>
+                    <th>SPM</th>
+                    <th>WLR</th>
+                    <th>KDR</th>
+                </tr>
+                @{i = (Model.CurrentPage * 50) - 50; }
+                @foreach (PlayerRow Row in Model.Records)
+                {
+                <tr>
+                    <td>@(++i)</td>
+                    <td>
+                        <img src="@(Model.Root)/images/ranks/icon/rank_@(Row.Rank).gif" alt="" /> 
+                        <a href="@(Model.Root)/player/@(Row.Pid)/">@Row.Name</a>
+                    </td>
+                    <td>@Row.ScoreValue</td>
+                    <td>
+                        <img src="@(Model.Root)/images/flags/@(Row.Country).png" width="25" height="15" />
+                    </td>
+                    <td align="right">@Model.FormatTime(Row.Time)</td>
+                    <td>@Row.ScorePerMin.ToString("0.00")</td>
+                    <td>@Row.WinLossRatio.ToString("0.00")</td>
+                    <td>@Row.KillDeathRatio.ToString("0.00")</td>
+                </tr>
+                 }
+            </table>
+        </div>
+    </div>
+</div>
+

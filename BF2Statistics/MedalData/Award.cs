@@ -6,6 +6,16 @@ using System.Windows.Forms;
 namespace BF2Statistics.MedalData
 {
     /// <summary>
+    /// Award type enumeration
+    /// </summary>
+    public enum AwardType { Medal, Badge, Ribbon, Rank }
+
+    /// <summary>
+    /// Badgel level enumeration
+    /// </summary>
+    public enum BadgeLevel { Bronze, Silver, Gold }
+
+    /// <summary>
     /// Represents an award found in the medal data file as an object
     /// </summary>
     public class Award : IAward
@@ -53,7 +63,7 @@ namespace BF2Statistics.MedalData
         {
             // Throw an exception if the award is non-existant
             if (!Exists(AwardId))
-                throw new Exception("Award Doesnt Exist! " + AwardId);
+                throw new Exception("Award Doesnt Exist: " + AwardId);
 
             // Set award vars
             this.Id = AwardId;
@@ -162,18 +172,19 @@ namespace BF2Statistics.MedalData
             if (!BadgeId.Contains('_'))
                 throw new Exception("Award is not a badge");
 
-            string[] parts = BadgeId.Split('_');
-            switch (parts[1])
-            {
-                case "1":
-                    return BadgeLevel.Bronze;
-                case "2":
-                    return BadgeLevel.Silver;
-                case "3":
-                    return BadgeLevel.Gold;
-            }
+            // Make sure the badge level is in range
+            int id = Int32.Parse(BadgeId.Split('_')[1]);
+            if (!id.InRange(1, 3))
+                throw new Exception("Invalid badge level provided: " + id);
 
-            return BadgeLevel.Bronze;
+            // Now that we have validated this badge id/level, return its type
+            switch (id)
+            {
+                default:
+                case 1: return BadgeLevel.Bronze;
+                case 2: return BadgeLevel.Silver;
+                case 3: return BadgeLevel.Gold;
+            }
         }
 
         /// <summary>
@@ -188,27 +199,23 @@ namespace BF2Statistics.MedalData
             {
                 // Make sure the award exists!
                 string[] parts = AwardId.Split('_');
-                if (!Awards.ContainsKey(parts[0]))
+                if (!StatsConstants.Awards.ContainsKey(parts[0]))
                     throw new Exception("Not a valid badge ID");
 
                 switch (parts[1])
                 {
-                    case "1":
-                        return "Basic " + Awards[parts[0]];
-                    case "2":
-                        return "Veteran " + Awards[parts[0]];
-                    case "3":
-                        return "Expert " + Awards[parts[0]];
+                    default:
+                    case "1": return "Basic " + StatsConstants.Awards[parts[0]];
+                    case "2": return "Veteran " + StatsConstants.Awards[parts[0]];
+                    case "3": return "Expert " + StatsConstants.Awards[parts[0]];
                 }
-
-                return null;
             }
 
             // Make sure the award exists
-            if (!Awards.ContainsKey(AwardId))
+            if (!StatsConstants.Awards.ContainsKey(AwardId))
                 throw new Exception("Invalid Award ID");
 
-            return Awards[AwardId];
+            return StatsConstants.Awards[AwardId];
         }
 
         /// <summary>
@@ -219,11 +226,9 @@ namespace BF2Statistics.MedalData
         public static bool Exists(string AwardId)
         {
             if (AwardId.Contains('_'))
-            {
-                string[] parts = AwardId.Split('_');
-                return Awards.ContainsKey(parts[0]);
-            }
-            return Awards.ContainsKey(AwardId);
+                AwardId = AwardId.Split('_')[0];
+
+            return StatsConstants.Awards.ContainsKey(AwardId);
         }
 
         /// <summary>
@@ -233,100 +238,10 @@ namespace BF2Statistics.MedalData
         /// <returns></returns>
         public static bool IsSfAward(string AwardId)
         {
-            // Badges always have an underscore
-            if (AwardId.Contains('_'))
-            {
-                string[] parts = AwardId.Split('_');
-                AwardId = parts[0];
-            }
-
-            // Contert to int
-            int id = Int32.Parse(AwardId);
-            return ((id > 1260000 && id < 2100000) || (id > 3260000 && id < 6000000));
+            // SF awards always go as x26xxxx
+            return (AwardId[1] == '2' && AwardId[2] == '6');
         }
 
         #endregion StaticMembers
-
-        /// <summary>
-        /// Awards list.. At the bottom because of the size :S
-        /// </summary>
-        public static Dictionary<string, string> Awards = new Dictionary<string, string>()
-        {
-            // Badges
-            {"1031119", "Assault Combat Badge"},
-            {"1031120", "Anti-Tank Combat Badge"},
-            {"1031109", "Sniper Combat Badge"},
-            {"1031115", "Spec-Ops Combat Badge"},
-            {"1031121", "Support Combat Badge"},
-            {"1031105", "Engineer Combat Badge"},
-            {"1031113", "Medic Combat Badge"},
-            {"1031406", "Knife Combat Badge"},
-            {"1031619", "Pistol Combat Badge"},
-            {"1032415", "Explosives Ordinance Badge"},
-            {"1190601", "First Aid Badge"},
-            {"1190507", "Engineer Badge"},
-            {"1191819", "Resupply Badge"},
-            {"1190304", "Command Badge"},
-            {"1220118", "Armour Badge"},
-            {"1222016", "Transport Badge"},
-            {"1220803", "Helicopter Badge"},
-            {"1220122", "Aviator Badge"},
-            {"1220104", "Air Defense Badge"},
-            {"1031923", "Ground Defense Badge"},
-
-            // SF Badges
-            {"1261119", "Assault Specialist Badge"},
-            {"1261120", "Anti-Tank Specialist Badge"},
-            {"1261109", "Sniper Specialist Badge"},
-            {"1261115", "Spec-Ops Specialist Badge"},
-            {"1261121", "Support Specialist Badge"},
-            {"1261105", "Engineer Specialist Badge"},
-            {"1261113", "Medic Specialist Badge"},
-            {"1260602", "Tactical Support Weaponry Badge"},
-            {"1260708", "Grappling Hook Specialist Badge"},
-            {"1262612", "Zip Line Specialist Badge"},
-
-            // Medals
-            {"2191608", "Purple Heart"},
-            {"2191319", "Meritorious Service Medal"},
-            {"2190303", "Combat Action Medal"},
-            {"2190309", "Air Combat Medal"},
-            {"2190318", "Armour Combat Medal"},
-            {"2190308", "Helecopter Combat Medal"},
-            {"2190703", "Good Conduct Medal"},
-            {"2020903", "Combat Infantry Medal"},
-            {"2020913", "Marksman Infantry Medal"},
-            {"2020919", "Sharpshooter Infantry Medal"},
-            {"2021322", "Medal of Valour"},
-            {"2020419", "Distinguished Service Medal"},
-
-            // Ribbons
-            {"3240301", "Combat Action Ribbon"},
-            {"3211305", "Meritorious Unit Ribbon"},
-            {"3150914", "Infantry Officer Ribbon"},
-            {"3151920", "Staff Officer Ribbon"},
-            {"3190409", "Distinguished Service Ribbon"},
-            {"3242303", "War College Ribbon"},
-            {"3212201", "Valorous Unit Ribbon"},
-            {"3241213", "Legion of Merit Ribbon"},
-            {"3190318", "Crew Service Ribbon"},
-            {"3190118", "Armoured Service Ribbon"},
-            {"3190105", "Aerial Service Ribbon"},
-            {"3190803", "Helicopter Service Ribbon"},
-            {"3040109", "Air Defense Ribbon"},
-            {"3040718", "Ground Defense Ribbon"},
-            {"3240102", "Airborne Ribbon"},
-            {"3240703", "Good Conduct Ribbon"},
-
-            // SF Ribbons
-            {"3260318", "Crew Specialist Ribbon"},
-            {"3260118", "Armored Transport Specialist Ribbon"},
-            {"3260105", "Airborne Specialist Service Ribbon"},
-            {"3260803", "Helo Specialist Ribbon"},
-
-            // Cant be earned
-            {"6666666", "Smoc Award. Awarded From ASP"},
-            {"6666667", "General Award. Awarded From ASP"}
-        };
     }
 }

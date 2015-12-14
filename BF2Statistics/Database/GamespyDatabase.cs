@@ -322,9 +322,9 @@ namespace BF2Statistics.Database
 
             // If an exception is thrown, table doesnt exist... fresh install
             if (DatabaseEngine == DatabaseEngine.Sqlite)
-                base.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.SQLite.Gamespy.sql"));
+                base.Execute(Program.GetResourceAsString("BF2Statistics.SQL.SQLite.Gamespy.sql"));
             else
-                base.Execute(Utils.GetResourceAsString("BF2Statistics.SQL.MySQL.Gamespy.sql"));
+                base.Execute(Program.GetResourceAsString("BF2Statistics.SQL.MySQL.Gamespy.sql"));
         }
 
         /// <summary>

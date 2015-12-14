@@ -1,0 +1,54 @@
+﻿@using RazorEngine.Templating
+@using BF2Statistics.MedalData
+@using BF2Statistics.Web.Bf2Stats
+@inherits HtmlTemplateBase<RankingsModel>
+@{
+    Layout = "_layout.cshtml";
+}
+<h1 id="page-title">Current Rankings <small>"nuh uh! I'm better!"</small></h1>
+<div id="page-3">
+    <div id="content">
+        <div id="content-id">
+            <!-- template header end == begin content below -->
+            <em>pssst, click each header for a complete, filterable list.</em>
+            <table id="rankslist-home" class="stat" border="0" cellpadding="0" cellspacing="0">
+                <tbody>
+                    <tr>
+                        <th>Stat</th>
+                        <th>#1</th>
+                        <th>#2</th>
+                        <th>#3</th>
+                        <th>#4</th>
+                        <th>#5</th>
+                    </tr>
+                    @foreach (RankingStats Stat in Model.Stats)
+                    {
+                    <tr>
+                        <td><a href="@(Model.Root)/rankings/@(Stat.UrlName)/">@Stat.Name</a></td>
+                        @foreach (Player Player in Stat.TopPlayers)
+                        {
+                            if (!String.IsNullOrEmpty(Player.Name))
+                            {
+                                <td>
+                                    <img src="@(Model.Root)/images/ranks/icon/rank_@(Player.Rank).gif" alt="@(StatsConstants.GetRankName(Player.Rank))">
+                                    <a href="@(Model.Root)/player/@(Player.Pid)">@(Player.Name)</a>
+                                    <br />@Player.Value
+                                </td>
+                            }
+                            else
+                            {
+                                <td>&nbsp;</td>
+                            }
+                        }
+                    </tr>
+                    <tr class="separator">
+                        <td colspan="6">@Stat.Desc</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+            <p><!-- end content == footer below --></p>
+            <hr class="clear">
+        </div>
+    </div> <!-- content-id --><!-- content -->
+</div><!-- page 3 -->	
