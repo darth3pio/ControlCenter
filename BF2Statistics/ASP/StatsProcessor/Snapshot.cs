@@ -256,7 +256,7 @@ namespace BF2Statistics.ASP.StatsProcessor
                 Log("Snapshot mode set to CentralDatabase.Minimal. Rank and Award data will be ingnored", LogLevel.Notice);
 
             // Setup some variables
-            Stopwatch Clock = new Stopwatch();
+            Stopwatch Clock = Stopwatch.StartNew();
             List<Dictionary<string, object>> Rows;
             InsertQueryBuilder InsertQuery;
             UpdateQueryBuilder UpdateQuery;
@@ -266,9 +266,6 @@ namespace BF2Statistics.ASP.StatsProcessor
             using (StatsDatabase Driver = new StatsDatabase())
             using (DbTransaction Transaction = Driver.BeginTransaction())
             {
-                // Begin timer
-                Clock.Start();
-
                 // To prevent half complete snapshots due to exceptions,
                 // Put the whole thing in a try block, and rollback on error
                 try

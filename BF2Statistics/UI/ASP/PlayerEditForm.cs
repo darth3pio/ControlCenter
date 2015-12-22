@@ -31,11 +31,6 @@ namespace BF2Statistics
         private Dictionary<string, object> Player;
 
         /// <summary>
-        /// Current executing Assembly
-        /// </summary>
-        Assembly Me = Assembly.GetExecutingAssembly();
-
-        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="Pid">The Players ID</param>
@@ -85,7 +80,7 @@ namespace BF2Statistics
             try
             {
                 string Country = String.IsNullOrEmpty(Player["country"].ToString()) ? "XX" : Player["country"].ToString();
-                CountryPicture.Image = Image.FromStream(Me.GetManifestResourceStream("BF2Statistics.Resources." + Country.ToUpper() + ".png"));
+                CountryPicture.Image = Image.FromStream(Program.GetResource("BF2Statistics.Resources." + Country.ToUpper() + ".png"));
             }
             catch { }
 
@@ -334,7 +329,7 @@ namespace BF2Statistics
         private void RankSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
             int Rank = RankSelect.SelectedIndex;
-            RankPictureBox.Image = Image.FromStream(Me.GetManifestResourceStream("BF2Statistics.Resources.rank_" + Rank + ".png"));
+            RankPictureBox.Image = Image.FromStream(Program.GetResource("BF2Statistics.Resources.rank_" + Rank + ".png"));
             LabelTitle.Text = MedalData.Rank.GetName(Rank);
             SaveBtn.Enabled = true;
         }

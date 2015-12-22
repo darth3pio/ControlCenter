@@ -176,6 +176,7 @@ namespace BF2Statistics
             StatsPython.Config.AspPort = (int) AspPort.Value;
             StatsPython.Config.CentralAspPort = (int) CentralPort.Value;
             StatsPython.Config.AspFile = AspCallback.Text;
+            StatsPython.Config.CentralStatsMode = CentralDatabase.SelectedIndex;
             StatsPython.Config.CentralAspFile = CentralCallback.Text;
             StatsPython.Config.ClanManager.Enabled = (ClanManager.SelectedIndex == 1);
             StatsPython.Config.ClanManager.ServerMode = CmServerMode.SelectedIndex;

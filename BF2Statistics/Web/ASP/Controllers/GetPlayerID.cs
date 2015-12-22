@@ -55,29 +55,11 @@ namespace BF2Statistics.Web.ASP
                         // Grab new Player ID using thread safe methods
                         Pid = (IsAI > 0) ? StatsManager.GenerateNewAIPid() : StatsManager.GenerateNewPlayerPid();
 
-                        // Create New Player Unlock Data
-                        StringBuilder Query = new StringBuilder("INSERT INTO unlocks VALUES ");
-
-                        // Normal unlocks
-                        for (int i = 11; i < 100; i += 11)
-                            Query.AppendFormat("({0}, {1}, 'n'), ", Pid, i);
-
-                        // Sf Unlocks
-                        for (int i = 111; i < 556; i += 111)
-                        {
-                            Query.AppendFormat("({0}, {1}, 'n')", Pid, i);
-                            if (i != 555)
-                                Query.Append(", ");
-                        }
-
                         // Create Player
                         Database.Execute(
                             "INSERT INTO player(id, name, joined, isbot) VALUES(@P0, @P1, @P2, @P3)",
                             Pid, PlayerNick, DateTime.UtcNow.ToUnixTimestamp(), IsAI
                         );
-
-                        // Create player unlocks
-                        Database.Execute(Query.ToString());
                     }
                     else
                         Pid = Int32.Parse(Rows[0]["id"].ToString());

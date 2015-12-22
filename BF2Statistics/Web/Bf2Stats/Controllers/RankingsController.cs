@@ -76,9 +76,9 @@ namespace BF2Statistics.Web.Bf2Stats
         private void ShowIndex()
         {
             // Check the cache file
-            if (!base.CacheFileExpired("rankings", 30))
+            if (!base.CacheFileExpired("rankings_index", 30))
             {
-                base.SendCachedResponse("rankings");
+                base.SendCachedResponse("rankings_index");
                 return;
             }
 
