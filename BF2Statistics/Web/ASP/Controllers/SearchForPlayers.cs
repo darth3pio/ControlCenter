@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using BF2Statistics.Database;
+using BF2Statistics.Database.QueryBuilder;
 
 namespace BF2Statistics.Web.ASP
 {
     /// <summary>
     /// /ASP/searchforplayers.aspx
     /// </summary>
+    /// <queryParam name="nick">partial or full name of the player search</queryParam>
+    /// <queryParam name="sort">"a" (alpha/numeric), "r" (reverse), if not set, sorted by ASCII worth</queryParam>
+    /// <queryParam name="where">"a" (any), "b" (begin), "e" (end), "x" (exact)</queryParam>
+    /// <seealso cref="http://bf2tech.org/index.php/BF2_Statistics#Function:_searchforplayers"/>
     public sealed class SearchForPlayers : ASPController
     {
         public SearchForPlayers(HttpClient Client) : base(Client) { }
@@ -29,20 +34,49 @@ namespace BF2Statistics.Web.ASP
                 // Setup local vars
                 int i = 0;
                 string Nick = Request.QueryString["nick"];
-                List<Dictionary<string, object>> Rows;
+                string Sort = (Request.QueryString.ContainsKey("sort")) ? Request.QueryString["sort"] : "a";
+                string Where = (Request.QueryString.ContainsKey("where")) ? Request.QueryString["where"] : "a";
 
                 // Timestamp Header
                 Response.WriteResponseStart();
                 Response.WriteHeaderLine("asof");
                 Response.WriteDataLine(DateTime.UtcNow.ToUnixTimestamp());
 
+                // Build our query builder
+                SelectQueryBuilder builder = new SelectQueryBuilder(Database);
+                builder.SelectColumns("id", "name", "score");
+                builder.SelectFromTable("player");
+                builder.Limit(20);
+
+                // Where statement for our query
+                switch (Where.ToLowerInvariant())
+                {
+                    default:
+                    case "a": // Any
+                        builder.AddWhere("name", Comparison.Like, "%" + Nick + "%");
+                        break;
+                    case "b": // Begins With
+                        builder.AddWhere("name", Comparison.Like, "%" + Nick);
+                        break;
+                    case "e": // Ends With
+                        builder.AddWhere("name", Comparison.Like, Nick + "%");
+                        break;
+                    case "x": // Exactly
+                        builder.AddWhere("name", Comparison.Equals, Nick);
+                        break;
+                }
+
+                // Add sorting (a = ascending, r = reverse (descending))
+                if (Sort.Equals("r", StringComparison.InvariantCultureIgnoreCase))
+                    builder.AddOrderBy("name", Sorting.Descending);
+                else
+                    builder.AddOrderBy("name", Sorting.Ascending);
+
                 // Output status
                 Response.WriteHeaderLine("n", "pid", "nick", "score");
-                Rows = Database.Query("SELECT id, name, score FROM player WHERE name LIKE @P0 LIMIT 20", "%" + Nick + "%");
-                foreach (Dictionary<string, object> Player in Rows)
+                foreach (Dictionary<string, object> Player in builder.ExecuteQuery())
                 {
-                    Response.WriteDataLine(i + 1, Rows[i]["id"], Rows[i]["name"].ToString().Trim(), Rows[i]["score"]);
-                    i++;
+                    Response.WriteDataLine(++i, Player["id"], Player["name"].ToString().Trim(), Player["score"]);
                 }
 
                 // Send Response

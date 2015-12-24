@@ -132,8 +132,7 @@ namespace BF2Statistics.Web
             HttpAccessLog = new LogWriter(Path.Combine(Program.RootPath, "Logs", "AspAccess.log"), true);
 
             // Get a list of all our local IP addresses
-            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
-            LocalIPs = host.AddressList.Where(ip => ip.AddressFamily == AddressFamily.InterNetwork).ToList();
+            LocalIPs = Dns.GetHostEntry(Dns.GetHostName()).AddressList.ToList();
 
             // Create our conenction pool
             ConnectionPool = new SemaphoreSlim(50, 50);
@@ -178,12 +177,11 @@ namespace BF2Statistics.Web
                 // Initialize the stats manager
                 StatsManager.Load(Database);
 
-                // Drop the SQLite ip2nation country tables
+                // Drop the SQLite ip2nation country tables (old table versions)
                 if (Database.DatabaseEngine == DatabaseEngine.Sqlite)
                 {
-                    if (Database.ExecuteScalar<int>(
-                        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND (name='ip2nation' OR name='ip2nationcountries');"
-                    ) > 0)
+                    string query = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='ip2nation'";
+                    if (Database.ExecuteScalar<bool>(query)) // 0 count converts to false
                     {
                         Database.Execute("DROP TABLE IF EXISTS 'ip2nation';");
                         Database.Execute("DROP TABLE IF EXISTS 'ip2nationcountries';");

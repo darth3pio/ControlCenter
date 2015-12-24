@@ -7,6 +7,8 @@ namespace BF2Statistics.Web.ASP
     /// <summary>
     /// /ASP/getrankinfo.aspx
     /// </summary>
+    /// <queryParam name="pid" type="int">The unique player ID</queryParam>
+    /// <seealso cref="http://bf2tech.org/index.php/BF2_Statistics#Function:_getrankinfo"/>
     public sealed class GetRankInfo : ASPController
     {
         /// <summary>

@@ -195,12 +195,7 @@ namespace BF2Statistics.Web
         {
             HttpServer.HttpAccessLog.Write("{0} - \"{1}\" [Status: {2}, Len: {3}, Time: {4}ms]",
                 Client.RemoteEndPoint.Address,
-                String.Concat(
-                    Client.Request.HttpMethod,
-                    " ", Client.Request.Url.PathAndQuery,
-                    " HTTP/",
-                    Client.Request.ProtocolVersion
-                ),
+                $"{Client.Request.HttpMethod} {Client.Request.Url.PathAndQuery} HTTP/{Client.Request.ProtocolVersion}",
                 Response.StatusCode,
                 Response.ContentLength64,
                 Clock.ElapsedMilliseconds
@@ -215,24 +210,15 @@ namespace BF2Statistics.Web
         {
             switch (StatusCode)
             {
-                case 200:
-                    return "OK";
-                case 400:
-                    return "Bad Request";
-                case 403:
-                    return "Forbidden";
-                case 404:
-                    return "Not Found";
-                case 405:
-                    return "Method Not Allowed";
-                case 411:
-                    return "Length Required";
-                case 501:
-                    return "Not Implemented";
-                case 503:
-                    return "Service Unavailable";
-                default:
-                    return "Internal Server Error";
+                case 200: return "OK";
+                case 400: return "Bad Request";
+                case 403: return "Forbidden";
+                case 404: return "Not Found";
+                case 405: return "Method Not Allowed";
+                case 411: return "Length Required";
+                case 501: return "Not Implemented";
+                case 503: return "Service Unavailable";
+                default: return "Internal Server Error";
             }
         }
 
@@ -244,24 +230,15 @@ namespace BF2Statistics.Web
         {
             switch (StatusCode)
             {
-                case 400:
-                    return "The server was unable to understand the request";
-                case 403:
-                    return "You don't have permission to access this page";
-                case 404:
-                    return "The requested resource is not found";
-                case 405:
-                    return "The Request Method Is Not Allowed";
-                case 411:
-                    return "The server refuses to accept the request without a defined Content- Length";
-                case 500:
-                    return "An Internal Server Error occurred during this request";
-                case 501:
-                    return "Request method is not supported";
-                case 503:
-                    return "The service is unavailable";
-                default:
-                    return "";
+                case 400: return "The server was unable to understand the request";
+                case 403: return "You don't have permission to access this page";
+                case 404: return "The requested resource is not found";
+                case 405: return "The Request Method Is Not Allowed";
+                case 411: return "The server refuses to accept the request without a defined Content- Length";
+                case 500: return "An Internal Server Error occurred during this request";
+                case 501: return "Request method is not supported";
+                case 503: return "The service is unavailable";
+                default: return "";
             }
         }
     }

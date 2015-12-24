@@ -5,6 +5,13 @@ using System.Text;
 
 namespace BF2Statistics.Database.QueryBuilder
 {
+    /// <summary>
+    /// Provides an object interface that can properly put together an Insert Query string.
+    /// </summary>
+    /// <remarks>
+    /// All parameters in the WHERE and HAVING statements will be escaped by the underlaying
+    /// DbCommand object, making the Execute*() methods SQL injection safe.
+    /// </remarks>
     class InsertQueryBuilder
     {
         #region Properties
@@ -28,13 +35,20 @@ namespace BF2Statistics.Database.QueryBuilder
 
         #region Constructors
 
-        public InsertQueryBuilder() { }
-
+        /// <summary>
+        /// Creates a new instance of InsertQueryBuilder with the provided Database Driver.
+        /// </summary>
+        /// <param name="Driver">The DatabaseDriver that will be used to query this SQL statement</param>
         public InsertQueryBuilder(DatabaseDriver Driver)
         {
             this.Driver = Driver;
         }
 
+        /// <summary>
+        /// Creates a new instance of InsertQueryBuilder with the provided Database Driver.
+        /// </summary>
+        /// <param name="Table">The table we are inserting into</param>
+        /// <param name="Driver">The DatabaseDriver that will be used to query this SQL statement</param>
         public InsertQueryBuilder(string Table, DatabaseDriver Driver)
         {
             this.Table = Table;
@@ -43,6 +57,11 @@ namespace BF2Statistics.Database.QueryBuilder
 
         #endregion Constructors
 
+        /// <summary>
+        /// Sets a value for the specified field
+        /// </summary>
+        /// <param name="Field">The column or field name</param>
+        /// <param name="Value">The value to insert</param>
         public void SetField(string Field, object Value)
         {
             if (Fields.ContainsKey(Field))
@@ -77,23 +96,18 @@ namespace BF2Statistics.Database.QueryBuilder
 
         /// <summary>
         /// Builds the query string with the current SQL Statement, and returns
-        /// the querystring.
+        /// the querystring. This method is NOT Sql Injection safe!
         /// </summary>
         /// <returns></returns>
-        public string BuildQuery()
-        {
-            return BuildQuery(false) as String;
-        }
+        public string BuildQuery() => BuildQuery(false) as String;
 
         /// <summary>
         /// Builds the query string with the current SQL Statement, and
-        /// returns the DbCommand to be executed
+        /// returns the DbCommand to be executed. All WHERE paramenters
+        /// are propery escaped, making this command SQL Injection safe.
         /// </summary>
         /// <returns></returns>
-        public DbCommand BuildCommand()
-        {
-            return BuildQuery(true) as DbCommand;
-        }
+        public DbCommand BuildCommand() => BuildQuery(true) as DbCommand;
 
         /// <summary>
         /// Builds the query string or DbCommand
@@ -165,9 +179,10 @@ namespace BF2Statistics.Database.QueryBuilder
         }
 
         /// <summary>
-        /// Executes the command against the database. The database driver must be set!
+        /// Executes the built SQL statement on the Database connection that was passed
+        /// in the contructor. All WHERE paramenters are propery escaped, 
+        /// making this command SQL Injection safe.
         /// </summary>
-        /// <returns></returns>
         public int Execute()
         {
             Driver.NumQueries++;

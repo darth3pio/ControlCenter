@@ -96,7 +96,10 @@ namespace BF2Statistics.Web
             get { return Request.Url; }
         }
 
-        protected Dictionary<string, string> PostVars = new Dictionary<string, string>();
+        /// <summary>
+        /// A Key => Value collection of our formUrlEncoded POST Vars
+        /// </summary>
+        protected Dictionary<string, string> PostVars;
 
         /// <summary>
         /// Creates a new instance of HttpRequest
@@ -104,7 +107,7 @@ namespace BF2Statistics.Web
         /// <param name="Client">The HttpClient creating this response</param>
         public HttpRequest(HttpListenerRequest Request, HttpClient Client)
         {
-            // Create a better QueryString object
+            // Create a better QueryString object 
             this.QueryString = Request.QueryString.Cast<string>().ToDictionary(p => p, p => Request.QueryString[p]);
             this.Request = Request;
             this.Client = Client;
@@ -117,23 +120,37 @@ namespace BF2Statistics.Web
         /// <returns></returns>
         public Dictionary<string, string> GetFormUrlEncodedPostVars()
         {
-            if (Request.HasEntityBody && PostVars.Count == 0)
+            // No post data, or processed already?
+            if (!Request.HasEntityBody || PostVars != null)
             {
-                try
+                // Initialize empty Dic
+                if (PostVars == null)
+                    PostVars = new Dictionary<string, string>(0);
+
+                return PostVars;
+            }
+
+            // Always wrap handling user data in a Try-Catch
+            try
+            {
+                using (StreamReader reader = new StreamReader(Request.InputStream, Request.ContentEncoding))
                 {
-                    using (StreamReader Rdr = new StreamReader(Request.InputStream))
+                    string[] rawParams = reader.ReadToEnd().Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
+                    PostVars = new Dictionary<string, string>(rawParams.Length);
+                    foreach (string field in rawParams)
                     {
-                        string[] rawParams = Rdr.ReadToEnd().Split('&');
-                        foreach (string param in rawParams)
-                        {
-                            string[] kvPair = param.Split('=');
-                            if (kvPair.Length == 2)
-                                PostVars.Add(kvPair[0], Uri.UnescapeDataString(kvPair[1]));
-                        }
+                        // Convert to Key/Value
+                        string[] pair = field.Split(new[] { '=' }, 2, StringSplitOptions.RemoveEmptyEntries);
+
+                        // If we dont have a key/pair, skip
+                        if (pair.Length != 2)
+                            continue;
+
+                        PostVars[pair[0]] = Uri.UnescapeDataString(pair[1]);
                     }
                 }
-                catch { }
             }
+            catch { }
 
             return PostVars;
         }

@@ -95,7 +95,7 @@ namespace BF2Statistics
                             .OrderByDescending(x => x.Published).ToList();
 
                         // Parse version
-                        if (Releases.Count > 0)
+                        if (Releases?.Count > 0)
                             Version.TryParse(Releases[0].TagName, out NewVersion);
                     }
                 });

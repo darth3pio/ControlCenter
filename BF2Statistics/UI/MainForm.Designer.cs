@@ -1164,6 +1164,7 @@
             // 
             // TotalUnProcSnapCount
             // 
+            this.TotalUnProcSnapCount.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.TotalUnProcSnapCount.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.TotalUnProcSnapCount.Location = new System.Drawing.Point(183, 44);
             this.TotalUnProcSnapCount.Name = "TotalUnProcSnapCount";
@@ -1174,6 +1175,7 @@
             // 
             // TotalSnapCount
             // 
+            this.TotalSnapCount.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.TotalSnapCount.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.TotalSnapCount.Location = new System.Drawing.Point(183, 24);
             this.TotalSnapCount.Name = "TotalSnapCount";
@@ -1989,7 +1991,7 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(300, 13);
             this.textBox1.TabIndex = 5;
-            this.textBox1.Text = "Battlefield 2 Statistics Control Center v2.3.1";
+            this.textBox1.Text = "Battlefield 2 Statistics Control Center v2.3.2";
             // 
             // NotificationIcon
             // 

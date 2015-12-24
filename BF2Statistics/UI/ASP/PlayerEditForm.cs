@@ -418,7 +418,7 @@ namespace BF2Statistics
         /// </summary>
         private void ViewBf2sBtn_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start("http://localhost/bf2stats/player?pid=" + this.Pid);
+            System.Diagnostics.Process.Start("http://localhost/bf2stats/player/" + this.Pid);
         }
     }
 }

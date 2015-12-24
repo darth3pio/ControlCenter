@@ -24,10 +24,7 @@ namespace BF2Statistics.Net
         /// <summary>
         /// The total amount of bytes allocated by this buffer object
         /// </summary>
-        public int BufferSize
-        {
-            get { return Buffer.Length; }
-        }
+        public int BufferSize => Buffer.Length;
 
         /// <summary>
         /// The number of bytes each SocketAsyncEventArgs object gets allocated
@@ -43,13 +40,7 @@ namespace BF2Statistics.Net
         /// <summary>
         /// Indicates whether there is space still remaining in the buffer
         /// </summary>
-        public bool SpaceAvailable
-        {
-            get
-            {
-                return !Disposed && FreeBufferSpace.Count > 0;
-            }
-        }
+        public bool SpaceAvailable => !Disposed && FreeBufferSpace.Count > 0;
 
         /// <summary>
         /// Indicates whether this object has been disposed

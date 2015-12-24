@@ -7,6 +7,7 @@ namespace BF2Statistics.Web.ASP
     /// <summary>
     /// /ASP/getleaderboard.aspx
     /// </summary>
+    /// <seealso cref="http://bf2tech.org/index.php/BF2_Statistics#Function:_getleaderboard"/>
     public sealed class GetLeaderBoard : ASPController
     {
         // Needed Params

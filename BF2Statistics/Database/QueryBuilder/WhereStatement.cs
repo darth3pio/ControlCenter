@@ -5,6 +5,9 @@ using System.Text;
 
 namespace BF2Statistics.Database.QueryBuilder
 {
+    /// <summary>
+    /// Represents an entire WHERE statement inside an SQL query
+    /// </summary>
     class WhereStatement : List<WhereClause>
     {
         /// <summary>
@@ -29,60 +32,52 @@ namespace BF2Statistics.Database.QueryBuilder
         /// <summary>
         /// Builds the Where statement to SQL format
         /// </summary>
+        /// <param name="command">The command object to use, if any. Using a command makes 
+        /// this statement SQL injection safe!</param>
         /// <returns></returns>
-        public string BuildStatement()
+        public string BuildStatement(DbCommand command)
         {
-            DbCommand Command = null;
-            return BuildStatement(false, ref Command);
-        }
+            StringBuilder builder = new StringBuilder();
+            int counter = 0;
 
-        /// <summary>
-        /// Builds the Where statement to SQL format
-        /// </summary>
-        /// <param name="UseCommand">Determines whether or not to use a DbCommand object, and DbParameters</param>
-        /// <param name="Command">The command object to use</param>
-        /// <returns></returns>
-        public string BuildStatement(bool UseCommand, ref DbCommand Command)
-        {
-            StringBuilder Statement = new StringBuilder();
-            int Counter = 1;
-
-            foreach (WhereClause ParentClause in this)
+            // Loop through each Where clause (wrapped in parenthesis)
+            foreach (WhereClause parentClause in this)
             {
-                // Open Parent Clause
-                Statement.Append("(");
+                // Open Parent Clause grouping if we have more then 1 SubClause
+                if (parentClause.Count > 1)
+                    builder.Append("(");
 
-                foreach(WhereClause.SubClause Clause in ParentClause)
+                // SubClause Counter
+                int subCounter = 0;
+
+                // Append each Sub Clause
+                foreach (WhereClause.SubClause clause in parentClause)
                 {
-                    // SubClause Counter
-                    int pCounter = 1;
+                    // If we have more sub clauses in this group, append operator
+                    if (++subCounter > 1)
+                        builder.Append((clause.LogicOperator == LogicOperator.Or) ? " OR " : " AND ");
 
-                    // If we have more clauses, append operator
-                    if ((pCounter < ParentClause.Count) && Clause.LogicOperator != null)
-                        Statement.Append((Clause.LogicOperator == LogicOperator.Or) ? " OR " : " AND ");
-                    pCounter++;
-
-                    // If using a command, Convert values to Parameters
-                    if (UseCommand && Command != null && Clause.Value != null && Clause.Value != DBNull.Value && !(Clause.Value is SqlLiteral))
+                    // If using a command, Convert values to Parameters for SQL safety
+                    if (command != null && clause.Value != null && clause.Value != DBNull.Value && !(clause.Value is SqlLiteral))
                     {
-                        if (Clause.ComparisonOperator == Comparison.Between || Clause.ComparisonOperator == Comparison.NotBetween)
+                        if (clause.ComparisonOperator == Comparison.Between || clause.ComparisonOperator == Comparison.NotBetween)
                         {
                             // Add the between values to the command parameters
-                            object[] Between = ((object[])Clause.Value);
-                            DbParameter Param1 = Command.CreateParameter();
-                            Param1.ParameterName = "@P" + Command.Parameters.Count;
+                            object[] Between = ((object[])clause.Value);
+                            DbParameter Param1 = command.CreateParameter();
+                            Param1.ParameterName = "@P" + command.Parameters.Count;
                             Param1.Value = Between[0].ToString();
-                            DbParameter Param2 = Command.CreateParameter();
-                            Param2.ParameterName = "@P" + (Command.Parameters.Count + 1);
+                            DbParameter Param2 = command.CreateParameter();
+                            Param2.ParameterName = "@P" + (command.Parameters.Count + 1);
                             Param2.Value = Between[1].ToString();
 
                             // Add Params to command
-                            Command.Parameters.Add(Param1);
-                            Command.Parameters.Add(Param2);
+                            command.Parameters.Add(Param1);
+                            command.Parameters.Add(Param2);
 
                             // Add statement
-                           Statement.Append( 
-                               CreateComparisonClause(Clause.FieldName, Clause.ComparisonOperator, (object) new object[2]
+                           builder.Append( 
+                               CreateComparisonClause(clause.FieldName, clause.ComparisonOperator, (object) new object[2]
                                {
                                     (object) new SqlLiteral(Param1.ParameterName),
                                     (object) new SqlLiteral(Param2.ParameterName)
@@ -92,31 +87,37 @@ namespace BF2Statistics.Database.QueryBuilder
                         else
                         {
                             // Create param for value
-                            DbParameter Param = Command.CreateParameter();
-                            Param.ParameterName = "@P" + Command.Parameters.Count;
-                            Param.Value = Clause.Value;
+                            DbParameter Param = command.CreateParameter();
+                            Param.ParameterName = "@P" + command.Parameters.Count;
+                            Param.Value = clause.Value;
 
                             // Add Params to command
-                            Command.Parameters.Add(Param);
+                            command.Parameters.Add(Param);
 
                             // Add statement
-                            Statement.Append(CreateComparisonClause(Clause.FieldName, Clause.ComparisonOperator, new SqlLiteral(Param.ParameterName)));
+                            builder.Append(
+                                CreateComparisonClause(
+                                    clause.FieldName, 
+                                    clause.ComparisonOperator, 
+                                    new SqlLiteral(Param.ParameterName)
+                                )
+                            );
                         }
                     }
                     else
-                        Statement.Append(CreateComparisonClause(Clause.FieldName, Clause.ComparisonOperator, Clause.Value));
+                        builder.Append(CreateComparisonClause(clause.FieldName, clause.ComparisonOperator, clause.Value));
                 }
 
-                // Close Parent Clause
-                Statement.Append(")");
+                // Close Parent Clause grouping
+                if (parentClause.Count > 1)
+                    builder.Append(")");
 
                 // If we have more clauses, append operator
-                if (Counter < this.Count)
-                    Statement.Append( (StatementOperator == LogicOperator.Or) ? " OR " : " AND " );
-                Counter++;
+                if (++counter < this.Count)
+                    builder.Append( (StatementOperator == LogicOperator.Or) ? " OR " : " AND " );
             }
 
-            return Statement.ToString();
+            return builder.ToString();
         }
 
         /// <summary>
@@ -134,9 +135,9 @@ namespace BF2Statistics.Database.QueryBuilder
                 switch (ComparisonOperator)
                 {
                     case Comparison.Equals:
-                        return FieldName + " IS NULL";
+                        return $"{FieldName} IS NULL";
                     case Comparison.NotEqualTo:
-                        return "NOT " + FieldName + " IS NULL";
+                        return $"NOT {FieldName} IS NULL";
                 }
             }
             else
@@ -144,21 +145,21 @@ namespace BF2Statistics.Database.QueryBuilder
                 switch (ComparisonOperator)
                 {
                     case Comparison.Equals:
-                        return FieldName + " = " + FormatSQLValue(Value);
+                        return $"{FieldName} = {FormatSQLValue(Value)}";
                     case Comparison.NotEqualTo:
-                        return FieldName + " <> " + FormatSQLValue(Value);
+                        return $"{FieldName} <> {FormatSQLValue(Value)}";
                     case Comparison.Like:
-                        return FieldName + " LIKE " + FormatSQLValue(Value);
+                        return $"{FieldName} LIKE {FormatSQLValue(Value)}";
                     case Comparison.NotLike:
-                        return "NOT " + FieldName + " LIKE " + FormatSQLValue(Value);
+                        return $"NOT {FieldName} LIKE {FormatSQLValue(Value)}";
                     case Comparison.GreaterThan:
-                        return FieldName + " > " + FormatSQLValue(Value);
+                        return $"{FieldName} > {FormatSQLValue(Value)}";
                     case Comparison.GreaterOrEquals:
-                        return FieldName + " >= " + FormatSQLValue(Value);
+                        return $"{FieldName} >= {FormatSQLValue(Value)}";
                     case Comparison.LessThan:
-                        return FieldName + " < " + FormatSQLValue(Value);
+                        return $"{FieldName} < {FormatSQLValue(Value)}";
                     case Comparison.LessOrEquals:
-                        return FieldName + " <= " + FormatSQLValue(Value);
+                        return $"{FieldName} <= {FormatSQLValue(Value)}";
                     case Comparison.In:
                     case Comparison.NotIn:
                         string str1 = (ComparisonOperator == Comparison.NotIn) ? "NOT " : "";
@@ -202,22 +203,15 @@ namespace BF2Statistics.Database.QueryBuilder
 
             switch (someValue.GetType().Name)
             {
-                case "String":
-                    return "'" + ((string)someValue).Replace("'", "''") + "'";
-                case "DateTime":
-                    return "'" + ((DateTime)someValue).ToString("yyyy/MM/dd HH:mm:ss") + "'";
-                case "DBNull":
-                    return "NULL";
-                case "Boolean":
-                    return (bool)someValue ? "1" : "0";
-                case "Guid":
-                    return "'" + ((Guid)someValue).ToString() + "'";
-                case "SqlLiteral":
-                    return ((SqlLiteral)someValue).Value;
+                case "String": return $"'{((string)someValue).Replace("'", "''")}'";
+                case "DateTime": return $"'{((DateTime)someValue).ToString("yyyy/MM/dd HH:mm:ss")}'";
+                case "DBNull": return "NULL";
+                case "Boolean": return (bool)someValue ? "1" : "0";
+                case "Guid": return $"'{((Guid)someValue).ToString()}'";
+                case "SqlLiteral": return ((SqlLiteral)someValue).Value;
                 case "SelectQueryBuilder":
-                    return ((SelectQueryBuilder)someValue).BuildQuery();
-                default:
-                    return someValue.ToString();
+                    throw new ArgumentException("Using SelectQueryBuilder in another Querybuilder statement is unsupported!", "someValue");
+                default: return someValue.ToString();
             }
         }
     }

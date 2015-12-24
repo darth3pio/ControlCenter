@@ -227,10 +227,7 @@ namespace BF2Statistics.Gamespy
         /// </summary>
         /// <param name="Pid">The players ID</param>
         /// <returns></returns>
-        public bool IsConnected(int Pid)
-        {
-            return Clients.ContainsKey(Pid);
-        }
+        public bool IsConnected(int Pid) => Clients.ContainsKey(Pid);
 
         /// <summary>
         /// Forces the logout of a connected client

@@ -118,7 +118,7 @@ namespace BF2Statistics
             Query.SelectCount();
             Query.SelectFromTable("player");
             if (Where != null) Query.AddWhere(Where);
-            int TotalFilteredRows = Driver.ExecuteScalar<int>(Query.BuildQuery());
+            int TotalFilteredRows = Query.ExecuteScalar<int>();
 
             // Get Total Player Count, if the Where clause is null, this will be the same as the Filtered Row Count
             int TotalRows = TotalFilteredRows;
@@ -127,7 +127,7 @@ namespace BF2Statistics
                 Query = new SelectQueryBuilder(Driver);
                 Query.SelectCount();
                 Query.SelectFromTable("player");
-                TotalRows = Driver.ExecuteScalar<int>(Query.BuildQuery());
+                TotalRows = Query.ExecuteScalar<int>();
             }
 
             // Stop Count

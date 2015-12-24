@@ -8,6 +8,9 @@ using MySql.Data.MySqlClient;
 
 namespace BF2Statistics.Database
 {
+    /// <summary>
+    /// Provides an interface to a database connection.
+    /// </summary>
     public class DatabaseDriver : IDisposable
     {
         /// <summary>
@@ -36,14 +39,10 @@ namespace BF2Statistics.Database
         protected bool IsDisposed = false;
 
         /// <summary>
-        /// Constructor
+        /// Creates a new instance of DatabaseDriver
         /// </summary>
-        /// <param name="Engine">The string name, for the GetDatabaseEngine() method</param>
-        /// <param name="Host">The Database server IP Address</param>
-        /// <param name="Port">The Database server Port Number</param>
-        /// <param name="DatabaseName">The name of the database</param>
-        /// <param name="User">A username, with database privliages</param>
-        /// <param name="Pass">The password to the User</param>
+        /// <param name="Engine">Specifies the database engine type for this connection</param>
+        /// <param name="ConnectionString">The Connection string to connect to this database</param>
         public DatabaseDriver(string Engine, string ConnectionString)
         {
             // Set class variables, and create a new connection builder
@@ -123,10 +122,10 @@ namespace BF2Statistics.Database
         /// <summary>
         /// Creates a new command to be executed on the database
         /// </summary>
-        /// <param name="QueryString"></param>
+        /// <param name="QueryString">The query string this command will use</param>
         public DbCommand CreateCommand(string QueryString)
         {
-            if (DatabaseEngine == Database.DatabaseEngine.Sqlite)
+            if (DatabaseEngine == DatabaseEngine.Sqlite)
                 return new SQLiteCommand(QueryString, Connection as SQLiteConnection);
             else
                 return new MySqlCommand(QueryString, Connection as MySqlConnection);
@@ -182,7 +181,7 @@ namespace BF2Statistics.Database
         /// <param name="Sql">The SQL Statement to run on the database</param>
         /// <param name="Params">A list of sql params to add to the command</param>
         /// <returns></returns>
-        public List<Dictionary<string, object>> Query(string Sql, List<DbParameter> Params)
+        public List<Dictionary<string, object>> Query(string Sql, IEnumerable<DbParameter> Params)
         {
             // Create our Rows result
             List<Dictionary<string, object>> Rows = new List<Dictionary<string, object>>();
@@ -416,7 +415,7 @@ namespace BF2Statistics.Database
         /// <param name="Sql">The SQL statement to be executed</param>
         /// <param name="Params">A list of Sqlparameters</param>
         /// <returns></returns>
-        public object ExecuteScalar(string Sql, List<DbParameter> Params)
+        public object ExecuteScalar(string Sql, IEnumerable<DbParameter> Params)
         {
             // Create the SQL Command
             using (DbCommand Command = this.CreateCommand(Sql))
@@ -481,6 +480,25 @@ namespace BF2Statistics.Database
                     Command.Parameters.Add(Param);
                 }
 
+                // Increase Query Count
+                NumQueries++;
+
+                // Execute command, and dispose of the command
+                object Value = Command.ExecuteScalar();
+                return (T)Convert.ChangeType(Value, typeof(T), CultureInfo.InvariantCulture);
+            }
+        }
+
+        /// <summary>
+        /// Executes the query, and returns the first column of the first row in the result 
+        /// set returned by the query. Additional columns or rows are ignored.
+        /// </summary>
+        /// <param name="Command">The SQL Command to run on this database</param>
+        public T ExecuteScalar<T>(DbCommand Command)
+        {
+            // Create the SQL Command
+            using (Command)
+            {
                 // Increase Query Count
                 NumQueries++;
 

@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace BF2Statistics.Database.QueryBuilder
 {
+    /// <summary>
+    /// Represents a group of Where Clauses that will grouped together and 
+    /// wrapped in parenthesis
+    /// </summary>
     class WhereClause : List<WhereClause.SubClause>, ICloneable
     {
         /// <summary>
@@ -23,17 +27,6 @@ namespace BF2Statistics.Database.QueryBuilder
         }
 
         /// <summary>
-        /// Adds a new clause to the current where clause. The parent field name will be used
-        /// </summary>
-        /// <param name="Logic"></param>
-        /// <param name="Operator">The Comaparison Operator to use</param>
-        /// <param name="Value">The value, for the column name and comparison operator</param>
-        public void AddClause(LogicOperator Logic, Comparison @Operator, object Value)
-        {
-            this.Add(new SubClause(Logic, this.FieldName, @Operator, Value));
-        }
-
-        /// <summary>
         /// Adds a new clause to the current where clause.
         /// </summary>
         /// <param name="Logic">The Logic operator, that seperates this from the previos clause</param>
@@ -46,6 +39,17 @@ namespace BF2Statistics.Database.QueryBuilder
         }
 
         /// <summary>
+        /// Adds a new clause to the current where clause. The parent field name will be used
+        /// </summary>
+        /// <param name="Logic"></param>
+        /// <param name="Operator">The Comaparison Operator to use</param>
+        /// <param name="Value">The value, for the column name and comparison operator</param>
+        public void AddClause(LogicOperator Logic, Comparison @Operator, object Value)
+        {
+            this.Add(new SubClause(Logic, this.FieldName, @Operator, Value));
+        }
+
+        /// <summary>
         /// Returns a clone of this clause
         /// </summary>
         /// <returns></returns>
@@ -55,7 +59,7 @@ namespace BF2Statistics.Database.QueryBuilder
         }
         
         /// <summary>
-        /// An Actual clause statement
+        /// An actual clause statement that converts to a Key = Value string
         /// </summary>
         internal struct SubClause : ICloneable
         {
@@ -67,7 +71,7 @@ namespace BF2Statistics.Database.QueryBuilder
             /// <summary>
             /// The Logic operator, that seperates this from the previos clause
             /// </summary>
-            public LogicOperator? LogicOperator;
+            public LogicOperator LogicOperator;
 
             /// <summary>
             /// The Comaparison Operator to use
@@ -100,7 +104,7 @@ namespace BF2Statistics.Database.QueryBuilder
                     throw new Exception("Cannot use comparison operator " + ((object)@Operator).ToString() + " for NULL values.");
 
                 // Set class vars
-                this.LogicOperator = Logic;
+                this.LogicOperator = Logic ?? LogicOperator.And;
                 this.FieldName = FieldName;
                 this.ComparisonOperator = @Operator;
                 this.Value = Value;

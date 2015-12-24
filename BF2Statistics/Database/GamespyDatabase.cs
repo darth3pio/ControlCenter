@@ -24,18 +24,12 @@ namespace BF2Statistics.Database
         /// <summary>
         /// Indicates whether the SQL tables exist in this database
         /// </summary>
-        public bool TablesExist
-        {
-            get { return Version.Major > 0; }
-        }
+        public bool TablesExist => Version.Major > 0;
 
         /// <summary>
         /// Indicates whether the user should be notified to update the database
         /// </summary>
-        public bool NeedsUpdated
-        {
-            get { return Version.CompareTo(LatestVersion) < 0; }
-        }
+        public bool NeedsUpdated => Version.CompareTo(LatestVersion) < 0;
 
         /// <summary>
         /// Constructor

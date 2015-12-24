@@ -5,6 +5,13 @@ using System.Text;
 
 namespace BF2Statistics.Database.QueryBuilder
 {
+    /// <summary>
+    /// Provides an object interface that can properly put together an Update Query string.
+    /// </summary>
+    /// <remarks>
+    /// All parameters in the WHERE statement will be escaped by the underlaying
+    /// DbCommand object, making the Execute*() methods SQL injection safe.
+    /// </remarks>
     class UpdateQueryBuilder
     {
         #region Properties
@@ -33,13 +40,20 @@ namespace BF2Statistics.Database.QueryBuilder
 
         #region Constructors
 
-        public UpdateQueryBuilder() { }
-
+        /// <summary>
+        /// Creates a new instance of UpdateQueryBuilder with the provided Database Driver.
+        /// </summary>
+        /// <param name="Driver">The DatabaseDriver that will be used to query this SQL statement</param>
         public UpdateQueryBuilder(DatabaseDriver Driver)
         {
             this.Driver = Driver;
         }
 
+        /// <summary>
+        /// Creates a new instance of UpdateQueryBuilder with the provided Database Driver.
+        /// </summary>
+        /// <param name="Table">The table we are updating</param>
+        /// <param name="Driver">The DatabaseDriver that will be used to query this SQL statement</param>
         public UpdateQueryBuilder(string Table, DatabaseDriver Driver)
         {
             this.Table = Table;
@@ -50,11 +64,22 @@ namespace BF2Statistics.Database.QueryBuilder
 
         #region Fields
 
+        /// <summary>
+        /// Sets a value for the specified field
+        /// </summary>
+        /// <param name="Field">The column or field name</param>
+        /// <param name="Value">The new value to update</param>
         public void SetField(string Field, object Value)
         {
             this.SetField(Field, Value, ValueMode.Set);
         }
 
+        /// <summary>
+        /// Sets a value for the specified field
+        /// </summary>
+        /// <param name="Field">The column or field name</param>
+        /// <param name="Value">The new value to update</param>
+        /// <param name="Mode">Sets how the update value will be applied to the existing field value</param>
         public void SetField(string Field, object Value, ValueMode Mode)
         {
             if (Fields.ContainsKey(Field))
@@ -114,23 +139,18 @@ namespace BF2Statistics.Database.QueryBuilder
 
         /// <summary>
         /// Builds the query string with the current SQL Statement, and returns
-        /// the querystring.
+        /// the querystring. This method is NOT Sql Injection safe!
         /// </summary>
         /// <returns></returns>
-        public string BuildQuery()
-        {
-            return BuildQuery(false) as String;
-        }
+        public string BuildQuery() => BuildQuery(false) as String;
 
         /// <summary>
         /// Builds the query string with the current SQL Statement, and
-        /// returns the DbCommand to be executed
+        /// returns the DbCommand to be executed. All WHERE paramenters
+        /// are propery escaped, making this command SQL Injection safe.
         /// </summary>
         /// <returns></returns>
-        public DbCommand BuildCommand()
-        {
-            return BuildQuery(true) as DbCommand;
-        }
+        public DbCommand BuildCommand() => BuildQuery(true) as DbCommand;
 
         /// <summary>
         /// Builds the query string or DbCommand
@@ -144,7 +164,7 @@ namespace BF2Statistics.Database.QueryBuilder
                 throw new Exception("Cannot build a command when the Db Drvier hasn't been specified. Call SetDbDriver first.");
 
             // Make sure we have a table name
-            if(String.IsNullOrWhiteSpace(Table))
+            if (String.IsNullOrWhiteSpace(Table))
                 throw new Exception("Table to update was not set.");
 
             // Make sure we have at least 1 field to update
@@ -155,7 +175,7 @@ namespace BF2Statistics.Database.QueryBuilder
             DbCommand Command = (BuildCommand) ? Driver.CreateCommand(null) : null;
 
             // Start Query
-            StringBuilder Query = new StringBuilder("UPDATE " + Table + " SET ");
+            StringBuilder Query = new StringBuilder($"UPDATE {Table} SET ");
 
             // Add Fields
             bool First = true;
@@ -193,7 +213,7 @@ namespace BF2Statistics.Database.QueryBuilder
 
             // Append Where
             if (this.WhereStatement.Count != 0)
-                Query.Append(" WHERE " + this.WhereStatement.BuildStatement(BuildCommand, ref Command));
+                Query.Append(" WHERE " + this.WhereStatement.BuildStatement(Command));
 
             // Set the command text
             if (BuildCommand) Command.CommandText = Query.ToString();

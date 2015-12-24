@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using BF2Statistics.ASP;
+using BF2Statistics.Database;
+using BF2Statistics.Database.QueryBuilder;
 using BF2Statistics.Gamespy;
 using BF2Statistics.Gamespy.Redirector;
 using BF2Statistics.Net;

@@ -8,6 +8,8 @@ namespace BF2Statistics.Web.ASP
     /// <summary>
     /// /ASP/getplayerinfo.aspx
     /// </summary>
+    /// <queryParam name="pid" type="int">The unique player ID</queryParam>
+    /// <seealso cref="http://bf2tech.org/index.php/BF2_Statistics#Function:_getplayerinfo"/>
     public sealed class GetPlayerInfo : ASPController
     {
         /// <summary>
