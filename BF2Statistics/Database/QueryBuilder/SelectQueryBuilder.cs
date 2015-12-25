@@ -357,7 +357,7 @@ namespace BF2Statistics.Database.QueryBuilder
                 if (GroupByColumns.Count == 0)
                     throw new Exception("Having statement was set without Group By");
 
-                Query.Append(" HAVING " + HavingStatement.BuildStatement(Command));
+                Query.Append(" HAVING " + this.HavingStatement.BuildStatement(Command));
             }
 
             // Append OrderBy

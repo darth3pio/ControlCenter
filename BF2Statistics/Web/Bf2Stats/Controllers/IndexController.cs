@@ -33,7 +33,7 @@ namespace BF2Statistics.Web.Bf2Stats
                     );
 
                     // Send response
-                    base.SendTemplateRepsonse("index_leaderboard", typeof(IndexModel), Model);
+                    base.SendTemplateResponse("index_leaderboard", typeof(IndexModel), Model);
                 }
                 else
                 {
@@ -102,7 +102,7 @@ namespace BF2Statistics.Web.Bf2Stats
                     }
 
                     // Send response
-                    base.SendTemplateRepsonse("index", typeof(IndexModel), Model);
+                    base.SendTemplateResponse("index", typeof(IndexModel), Model);
                 }
             }
         }

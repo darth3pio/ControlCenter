@@ -708,7 +708,7 @@ namespace BF2Statistics.Web.Bf2Stats
                 : Model.Root + "/images/soldiers/" + Model.Favorites["army"] + "_" + Model.Favorites["kit"] + "_5.jpg";
 
             // Send the response
-            base.SendTemplateRepsonse("player", typeof(PlayerModel), Model, Pid.ToString());
+            base.SendTemplateResponse("player", typeof(PlayerModel), Model, Pid.ToString());
         }
 
         private void ShowRankings()
@@ -870,7 +870,7 @@ namespace BF2Statistics.Web.Bf2Stats
             #endregion
 
             // Send the response
-            base.SendTemplateRepsonse("player_rankings", typeof(PlayerRankingsModel), Model, Pid + "_rankings");
+            base.SendTemplateResponse("player_rankings", typeof(PlayerRankingsModel), Model, Pid + "_rankings");
         }
 
         /// <summary>

@@ -59,7 +59,7 @@ namespace BF2Statistics.Web.Bf2Stats
         protected static readonly string[] ActionNames = new string[]
         {
             "score", "spm", "wlr", "kdr", "knife_kdr", "sniper_acc",
-            "brs", "fc", "fw", "teamwork", "hpd", "command", "rcmds"
+            "brs", "fc", "fw", "btw", "hpd", "command", "rcmds"
         };
 
         public RankingsController(HttpClient Client) : base(Client) { }
@@ -102,7 +102,7 @@ namespace BF2Statistics.Web.Bf2Stats
             }
 
             // Send response
-            base.SendTemplateRepsonse("rankings_index", typeof(RankingsModel), Model, "Rankings");
+            base.SendTemplateResponse("rankings_index", typeof(RankingsModel), Model, "Rankings");
         }
 
         private void ShowRankingType(MvcRoute Route)
@@ -211,7 +211,7 @@ namespace BF2Statistics.Web.Bf2Stats
             }
 
             // Send response
-            base.SendTemplateRepsonse("rankings_type", typeof(RankingsTypeModel), Model, CacheName);
+            base.SendTemplateResponse("rankings_type", typeof(RankingsTypeModel), Model, CacheName);
         }
 
         /// <summary>

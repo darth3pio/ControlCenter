@@ -133,7 +133,7 @@ namespace BF2Statistics.Web
             // Always wrap handling user data in a Try-Catch
             try
             {
-                using (StreamReader reader = new StreamReader(Request.InputStream, Request.ContentEncoding))
+                using (StreamReader reader = new StreamReader(Request.InputStream, Encoding.UTF8))
                 {
                     string[] rawParams = reader.ReadToEnd().Split(new[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
                     PostVars = new Dictionary<string, string>(rawParams.Length);

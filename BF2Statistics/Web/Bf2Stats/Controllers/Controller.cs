@@ -70,7 +70,7 @@ namespace BF2Statistics.Web.Bf2Stats
         /// <param name="ModelType">The Model type used in the template file</param>
         /// <param name="Model">The Model used in the template file</param>
         /// <param name="CacheFileName">The name of the Cached file if we are using one. Leave blank for no caching.</param>
-        protected void SendTemplateRepsonse(string TemplateName, Type ModelType, object Model, string CacheFileName = "")
+        protected void SendTemplateResponse(string TemplateName, Type ModelType, object Model, string CacheFileName = "")
         {
             // Send Response
             HttpResponse Response = Client.Response;
