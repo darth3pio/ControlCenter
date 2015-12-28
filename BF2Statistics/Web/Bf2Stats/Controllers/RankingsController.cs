@@ -118,10 +118,9 @@ namespace BF2Statistics.Web.Bf2Stats
             // - scoreType/pageNumber
             if (Route.Params.Length == 1)
             {
-                if (Validator.IsNumeric(Route.Params[0]))
+                if (Int32.TryParse(Route.Params[0], out Model.CurrentPage))
                 {
                     // Just a page number provided
-                    Model.CurrentPage = Int32.Parse(Route.Params[0]);
                     CacheName = $"rankings_{Route.Action}_{Model.CurrentPage}";
                 }
                 else if (Route.Params[0].Length == 2)
@@ -131,9 +130,8 @@ namespace BF2Statistics.Web.Bf2Stats
                     CacheName = $"rankings_{Route.Action}_{Model.Country}_1";
                 }
             }
-            else if (Route.Params.Length == 2 && Validator.IsNumeric(Route.Params[1]))
+            else if (Route.Params.Length == 2 && Int32.TryParse(Route.Params[1], out Model.CurrentPage))
             {
-                Model.CurrentPage = Int32.Parse(Route.Params[1]);
                 if (Route.Params[0].Length == 2) // Check valid country code
                 {
                     Model.Country = Route.Params[0];

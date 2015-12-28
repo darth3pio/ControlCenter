@@ -1,0 +1,61 @@
+﻿@using RazorEngine.Templating
+@using BF2Statistics.Web.Bf2Stats
+@inherits HtmlTemplateBase<PlayerHistoryModel>
+@{
+    int i = 0;
+    Layout = "_layout.cshtml";
+}
+<h1 id="page-title">
+    <img src="@(Model.Root)/images/ranks/header/rank_@(Model.Player["rank"]).png" alt="" />
+    @Model.Player["name"] <small>Player History</small>
+</h1>
+<div id="page-3">
+    <div id="content">
+        <div id="content-id">
+            <!-- template header end == begin content below -->
+            <ul id="stats-nav">
+                <li><a href="@(Model.Root)/player/@(Model.Player["id"])">Stats</a></li>
+                <li class="current"><a href="@(Model.Root)/player/@(Model.Player["id"])/history">History</a></li>
+                <li><a href="@(Model.Root)/player/@(Model.Player["id"])/rankings">Ranks &amp; More</a></li>
+            </ul>
+            <h3>Games Played History</h3>
+            <p>This page will show you the last 50 games this player has played.</p>
+            <table cellspacing="0" cellpadding="0" border="0" class="stat">
+                <tbody>
+                    <tr>
+                        <th>#</th>
+                        <th>Mapname</th>
+                        <th>Date</th>
+                        <th>Rank</th>
+                        <th>Round Score</th>
+                        <th>Kills</th>
+                        <th>Deaths</th>
+                        <th>Cmd Score</th>
+                        <th>Skill Score</th>
+                        <th>Team Score</th>
+                        <th>Time Played</th>
+                    </tr>
+                    @foreach (PlayerHistory Round in Model.History)
+                    {
+                        <tr>
+                            <td>@(++i)</td>
+                            <td>@Round.MapName</td>
+                            <td>@Round.Date.ToString("yyyy-MM-dd hh:mm")</td>
+                            <td><img src="@(Model.Root)/images/ranks/icon/rank_@(Round.Rank).gif"></td>
+                            <td>@Round.Score</td>
+                            <td>@Round.Kills</td>
+                            <td>@Round.Deaths</td>
+                            <td>@Round.CmdScore</td>
+                            <td>@Round.SkillScore</td>
+                            <td>@Round.TeamScore</td>
+                            <td>@(Model.FormatTime(Round.TimePlayed))</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <!-- end content == footer below -->
+            <hr class="clear" />
+        </div>
+    </div> <!-- content-id --><!-- content -->
+    <div class="clear"> </div>
+</div><!-- page 3 -->

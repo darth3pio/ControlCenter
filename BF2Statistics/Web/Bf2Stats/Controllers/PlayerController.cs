@@ -15,7 +15,7 @@ namespace BF2Statistics.Web.Bf2Stats
         /// <summary>
         /// The player ID
         /// </summary>
-        protected int Pid;
+        protected int Pid = 0;
 
         /// <summary>
         /// Gets or Sets an open stats database connection
@@ -49,15 +49,8 @@ namespace BF2Statistics.Web.Bf2Stats
 
         public override void HandleRequest(MvcRoute Route)
         {
-            // Make sure we have a pid
-            if (!Validator.IsValidPID(Route.Action))
-            {
-                Client.Response.Redirect("/bf2stats");
-                return;
-            }
-
-            // Fetch Player ID (we already verified its an int above)
-            Pid = Int32.Parse(Route.Action);
+            // Try and Fetch Player ID
+            Int32.TryParse(Route.Action, out Pid);
 
             // NOTE: The HttpServer will handle the DbConnectException
             using (Database = new StatsDatabase())
@@ -71,10 +64,19 @@ namespace BF2Statistics.Web.Bf2Stats
                 }
 
                 // Load our page based on the param passed
-                if (Route.Params.Length > 0 && Route.Params[0] == "rankings")
-                    ShowRankings();
+                if (Route.Params.Length > 0)
+                {
+                    if (Route.Params[0] == "rankings")
+                        ShowRankings();
+                    else if (Route.Params[0] == "history")
+                        ShowHistory();
+                    else
+                        Client.Response.StatusCode = 404;
+                }
                 else
+                {
                     ShowStats();
+                }
             }
         }
 
@@ -714,9 +716,9 @@ namespace BF2Statistics.Web.Bf2Stats
         private void ShowRankings()
         {
             // Check cache
-            if (!base.CacheFileExpired(Pid + "_rankings", 30))
+            if (!base.CacheFileExpired($"{Pid}_rankings", 30))
             {
-                base.SendCachedResponse(Pid + "_rankings");
+                base.SendCachedResponse($"{Pid}_rankings");
                 return;
             }
 
@@ -871,6 +873,60 @@ namespace BF2Statistics.Web.Bf2Stats
 
             // Send the response
             base.SendTemplateResponse("player_rankings", typeof(PlayerRankingsModel), Model, Pid + "_rankings");
+        }
+
+        private void ShowHistory()
+        {
+            // Check cache
+            string cacheFile = $"{Pid}_history";
+            if (!base.CacheFileExpired(cacheFile, 30))
+            {
+                base.SendCachedResponse(cacheFile);
+                return;
+            }
+
+            // Create our Model
+            PlayerHistoryModel Model = new PlayerHistoryModel(Client);
+            Model.Player = Rows[0];
+            Model.SearchBarValue = Pid.ToString();
+
+            // load data
+            Rows = Database.Query("SELECT * FROM player_history WHERE id=@P0 ORDER BY timestamp DESC LIMIT 50", Pid);
+            Model.History = new List<PlayerHistory>(Rows.Count);
+
+            // Create our History objects
+            foreach (Dictionary<string, object> row in Rows)
+            {
+                int timeStamp = Int32.Parse(row["timestamp"].ToString());
+
+                // Try and get our Map id from the Round Histroy table since the MapId 
+                // isnt stored in the player histroy table
+                string mapName = "Unknown Map";
+                int iMapId = 0;
+                object mapId = Database.ExecuteScalar("SELECT mapid FROM round_history WHERE timestamp=@P0", timeStamp);
+                if (mapId != null && Int32.TryParse(mapId.ToString(), out iMapId) && Bf2StatsData.Maps.ContainsKey(iMapId))
+                {
+                    mapName = Bf2StatsData.Maps[iMapId];
+                }
+
+                // Set history data
+                Model.History.Add(new PlayerHistory()
+                {
+                    Date = DateTime.Now.FromUnixTimestamp(timeStamp),
+                    Score = Int32.Parse(row["score"].ToString()),
+                    CmdScore = Int32.Parse(row["cmdscore"].ToString()),
+                    SkillScore = Int32.Parse(row["skillscore"].ToString()),
+                    TeamScore = Int32.Parse(row["teamscore"].ToString()),
+                    TimePlayed = Int32.Parse(row["time"].ToString()),
+                    Kills = Int32.Parse(row["kills"].ToString()),
+                    Deaths = Int32.Parse(row["deaths"].ToString()),
+                    Rank = Int32.Parse(row["rank"].ToString()),
+                    MapName = mapName
+                });
+            }
+
+            // Send the response
+            base.SendTemplateResponse("player_history", typeof(PlayerHistoryModel), Model, cacheFile);
         }
 
         /// <summary>

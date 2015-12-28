@@ -211,6 +211,7 @@
     <Compile Include="Web\Bf2Stats\Models\BF2PageModel.cs" />
     <Compile Include="Web\Bf2Stats\Models\IndexModel.cs" />
     <Compile Include="Web\Bf2Stats\Models\LeaderboardModel.cs" />
+    <Compile Include="Web\Bf2Stats\Models\PlayerHistoryModel.cs" />
     <Compile Include="Web\Bf2Stats\Models\PlayerModel.cs" />
     <Compile Include="Web\Bf2Stats\Models\PlayerRankingsModel.cs" />
     <Compile Include="Web\Bf2Stats\Models\RankingsModel.cs" />
@@ -719,6 +720,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Web\Bf2Stats\Views\index.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Web\Bf2Stats\Views\player_history.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

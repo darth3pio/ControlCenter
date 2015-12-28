@@ -291,10 +291,6 @@ namespace BF2Statistics.Database.QueryBuilder
             if (selectedTables.Count == 0)
                 throw new Exception("No tables were specified for this query.");
 
-            // Ensure we have at least 1 column selected
-            if (selectedColumns.Count == 0)
-                throw new Exception("No columns were specified for this query.");
-
             // Create Command
             DbCommand Command = (BuildCommand) ? Driver.CreateCommand(null) : null;
 
