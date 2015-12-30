@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace BF2Statistics
 {
@@ -31,7 +32,11 @@ namespace BF2Statistics
         /// </summary>
         private string[] AiMatches = new string[4];
 
-        private bool OrigForced;
+        /// <summary>
+        /// Indicates whether the bot count was forced previously
+        /// via the AiDefault.ai file
+        /// </summary>
+        private bool BotCountForced;
 
         /// <summary>
         /// Constructor
@@ -137,7 +142,7 @@ namespace BF2Statistics
             }
             catch (Exception e)
             {
-                this.Load += new EventHandler(CloseOnStart);
+                this.Load += (s, ea) => this.Close();
                 MessageBox.Show(e.Message, "Server Settings File Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -187,7 +192,7 @@ namespace BF2Statistics
                 switch (M.Groups["name"].Value.ToLower())
                 {
                     case "overridemenusettings":
-                        ForceBotCount.Checked = OrigForced = (M.Groups["value"].Value.Trim() == "1");
+                        ForceBotCount.Checked = BotCountForced = (M.Groups["value"].Value.Trim() == "1");
                         AiMatches[0] = M.Value;
                         break;
                     case "setmaxnbots":
@@ -238,16 +243,18 @@ namespace BF2Statistics
                 Settings.SetValue("coopBotCount", BotCountBar2.Value.ToString());
             }
 
-            // No need to write to the file if we werent enabled in the first place
-            if (!OrigForced && !ForceBotCount.Checked)
+            // No need to write to the AiDefault file if we didnt have forced bot counts from the start
+            if (!BotCountForced && !ForceBotCount.Checked)
                 return;
 
             // Save Values in the AiDefault if there is changes to be made
             if (ForceBotCount.Checked)
             {
+                // Create en-US culture formating for the float
+                string formated = (BotDifficultyBar.Value / 100f).ToString("0.00", CultureInfo.InvariantCulture);
                 AiDefaultText = AiDefaultText.Replace(AiMatches[0], "aiSettings.overrideMenuSettings 1")
-                    .Replace(AiMatches[1], "aiSettings.setMaxNBots " + (BotCountBar2.Value + BotCountBar1.Value))
-                    .Replace(AiMatches[2], "aiSettings.setBotSkill " + (BotDifficultyBar.Value / 100f))
+                    .Replace(AiMatches[1], $"aiSettings.setMaxNBots {(BotCountBar2.Value + BotCountBar1.Value)}")
+                    .Replace(AiMatches[2], $"aiSettings.setBotSkill {formated}")
                     .Replace(AiMatches[3], "aiSettings.maxBotsIncludeHumans 0");
             }
             else
@@ -360,14 +367,6 @@ namespace BF2Statistics
             {
                 MessageBox.Show(ex.Message, "Server Settings File Save Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        /// <summary>
-        /// Event closes the form when fired
-        /// </summary>
-        private void CloseOnStart(object sender, EventArgs e)
-        {
-            this.Close();
         }
 
         #region Events

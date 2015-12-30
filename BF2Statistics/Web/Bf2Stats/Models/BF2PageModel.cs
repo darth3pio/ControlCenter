@@ -9,6 +9,11 @@ namespace BF2Statistics.Web.Bf2Stats
     public abstract class BF2PageModel
     {
         /// <summary>
+        /// Indicates the specific culture formating for dates
+        /// </summary>
+        public static readonly CultureInfo SpecificCulture = CultureInfo.CreateSpecificCulture("en-US");
+
+        /// <summary>
         /// Contains the title of the page
         /// </summary>
         public string Title = Program.Config.BF2S_Title;
@@ -35,7 +40,7 @@ namespace BF2Statistics.Web.Bf2Stats
         /// <returns></returns>
         public string FormatNumber(object Time)
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0:n0}", Double.Parse(Time.ToString()));
+            return String.Format(SpecificCulture, "{0:n0}", Double.Parse(Time.ToString()));
         }
 
         /// <summary>
@@ -43,10 +48,14 @@ namespace BF2Statistics.Web.Bf2Stats
         /// </summary>
         /// <param name="Time"></param>
         /// <returns></returns>
-        public string FormatTime(int Time)
+        public string FormatTime(double Time)
         {
             TimeSpan Span = TimeSpan.FromSeconds(Time);
-            return String.Format("{0:00}:{1:00}:{2:00}", Span.TotalHours, Span.Minutes, Span.Seconds);
+
+            // We don't want the Timespan rounding up the fraction of total hours
+            // so we will make our own method for calculation...
+            double hours = (Span.Days * 24) + Span.Hours;
+            return String.Format(SpecificCulture, "{0:00}:{1:00}:{2:00}", hours, Span.Minutes, Span.Seconds);
         }
 
         /// <summary>
@@ -57,7 +66,7 @@ namespace BF2Statistics.Web.Bf2Stats
         public string FormatDate(int Time)
         {
             DateTime T = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return (T.AddSeconds(Time)).ToString("yyyy-MM-dd HH:mm:ss");
+            return (T.AddSeconds(Time)).ToString("yyyy-MM-dd HH:mm:ss", SpecificCulture);
         }
 
         /// <summary>

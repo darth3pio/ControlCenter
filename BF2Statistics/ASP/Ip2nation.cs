@@ -58,7 +58,7 @@ namespace BF2Statistics.ASP
 
             try
             {
-                using (DatabaseDriver Driver = new DatabaseDriver("Sqlite", ConnectionString))
+                using (DatabaseDriver Driver = new DatabaseDriver(DatabaseEngine.Sqlite, ConnectionString))
                 {
                     // Fetch country code from Ip2Nation
                     Driver.Connect();
@@ -87,7 +87,7 @@ namespace BF2Statistics.ASP
         {
             try
             {
-                using (DatabaseDriver Driver = new DatabaseDriver("Sqlite", ConnectionString))
+                using (DatabaseDriver Driver = new DatabaseDriver(DatabaseEngine.Sqlite, ConnectionString))
                 {
                     // Fetch country code from Ip2Nation
                     Driver.Connect();

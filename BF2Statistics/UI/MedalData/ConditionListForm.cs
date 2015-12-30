@@ -129,8 +129,11 @@ namespace BF2Statistics.MedalData
         private void AddNewCriteria(object sender, FormClosingEventArgs e)
         {
             Condition Add = Child.GetCondition();
-            ConditionTree.Nodes[0].Nodes.Add(Add.ToTree());
-            UpdateRoot();
+            if (Add != null)
+            {
+                ConditionTree.Nodes[0].Nodes.Add(Add.ToTree());
+                UpdateRoot();
+            }
         }
 
         /// <summary>
@@ -138,31 +141,31 @@ namespace BF2Statistics.MedalData
         /// </summary>
         public void EditCriteria()
         {
+            // Grab the selected treenode
+            TreeNode SelectedNode = ConditionTree.SelectedNode;
+
             // Make sure we have a node selected
-            if (Node == null)
+            if (SelectedNode == null)
             {
                 MessageBox.Show("Please select a criteria to edit.");
                 return;
             }
 
-            // Make sure its a child node, unless... its the only node :eek:
-            TreeNode SelectedNode = ConditionTree.SelectedNode;
-            if (SelectedNode.Parent == null && SelectedNode.Nodes.Count != 0)
+            // Make sure its a child node, and not the topmost
+            if (SelectedNode.Parent == null) // && SelectedNode.Nodes.Count != 0)
                 return;
 
-            this.Node = SelectedNode;
-
             // Open correct condition editor form
-            if (Node.Tag is ObjectStat)
-                Child = new ObjectStatForm(Node);
-            else if (Node.Tag is PlayerStat)
-                Child = new ScoreStatForm(Node);
-            else if (Node.Tag is MedalOrRankCondition)
-                Child = new MedalConditionForm(Node);
-            else if (Node.Tag is GlobalStatMultTimes)
-                Child = new GlobalStatMultTimesForm(Node);
-            else if (Node.Tag is ConditionList)
-                Child = new ConditionListForm(Node);
+            if (SelectedNode.Tag is ObjectStat)
+                Child = new ObjectStatForm(SelectedNode);
+            else if (SelectedNode.Tag is PlayerStat)
+                Child = new ScoreStatForm(SelectedNode);
+            else if (SelectedNode.Tag is MedalOrRankCondition)
+                Child = new MedalConditionForm(SelectedNode);
+            else if (SelectedNode.Tag is GlobalStatMultTimes)
+                Child = new GlobalStatMultTimesForm(SelectedNode);
+            else if (SelectedNode.Tag is ConditionList)
+                Child = new ConditionListForm(SelectedNode);
             else
                 return;
 
@@ -183,26 +186,30 @@ namespace BF2Statistics.MedalData
         /// </summary>
         public void DeleteCriteria()
         {
-            TreeNode Node = ConditionTree.SelectedNode;
+            TreeNode SelectedNode = ConditionTree.SelectedNode;
 
             // Make sure we have a node selected
-            if (Node == null)
+            if (SelectedNode == null)
             {
                 MessageBox.Show("Please select a criteria to edit.");
                 return;
             }
 
+            // Make sure we can't delete the parent node
+            // Mostly because we need to keep references intact
+            if (SelectedNode.Parent == null) return;
+
             // Dont delete on Plus / Div Trees
-            if (!(Node.Tag is ConditionList))
+            if (!(SelectedNode.Tag is ConditionList))
             {
-                TreeNode Parent = Node.Parent;
+                TreeNode Parent = SelectedNode.Parent;
                 if (Parent == null)
                     return;
 
                 // If we are in the root condition list
                 if (Parent.Parent == null || Parent.Parent.Tag == null)
                 {
-                    ConditionTree.Nodes.Remove(Node);
+                    ConditionTree.Nodes.Remove(SelectedNode);
                     return;
                 }
 
@@ -221,11 +228,11 @@ namespace BF2Statistics.MedalData
                 }
                 else
                 {
-                    ConditionTree.Nodes.Remove(Node);
+                    ConditionTree.Nodes.Remove(SelectedNode);
                 }
             }
             else
-                ConditionTree.Nodes.Remove(Node);
+                ConditionTree.Nodes.Remove(SelectedNode);
 
             ConditionTree.Refresh();
         }
@@ -273,8 +280,20 @@ namespace BF2Statistics.MedalData
                 }
             }
 
+            // Generate a new list, and store it in the Node.Tag
             List = (ConditionList)MedalDataParser.ParseNodeConditions(ConditionTree.Nodes[0]);
             Node.Tag = List;
+
+            // For AND (and) OR lists, since we can add and remove elements (thus losing references),
+            // we must clear the condition nodes, and rebuild them from scratch
+            if (List.Type == ConditionType.And || List.Type == ConditionType.Or)
+            {
+                Node.Nodes.Clear();
+                foreach (var something in List.GetConditions())
+                    Node.Nodes.Add(something.ToTree());
+            }
+
+            // Signal to the DataEditor that we made changes
             MedalDataEditor.ChangesMade = true;
             this.DialogResult = DialogResult.OK;
         }
@@ -327,7 +346,6 @@ namespace BF2Statistics.MedalData
             }
 
             // Make sure we are only adding to the root condition list
-
             Child = new NewCriteriaForm();
             Child.FormClosing += Child_FormClosing;
             Child.Show();
@@ -390,7 +408,7 @@ namespace BF2Statistics.MedalData
                 {
                     ConditionList L = (ConditionList)CNode.Tag;
                     int Items = L.GetConditions().Count;
-                    if (Items > 1 && L.Type != ConditionType.And)
+                    if (Items > 1 && L.Type != ConditionType.And && L.Type != ConditionType.Or)
                         CNode.ContextMenuStrip.Items[0].Enabled = false;
                 }
             }

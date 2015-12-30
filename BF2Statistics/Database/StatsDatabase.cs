@@ -82,7 +82,7 @@ namespace BF2Statistics.Database
             };
 
         /// <summary>
-        /// Constructor
+        /// Creates a connection to the Stats Database
         /// </summary>
         public StatsDatabase() : base(Program.Config.StatsDBEngine, Program.Config.StatsDBConnectionString)
         {
@@ -360,11 +360,11 @@ namespace BF2Statistics.Database
                     try
                     {
                         // Get our version string
-                        Version V = VersionList[i];
+                        Version nextVersion = VersionList[i];
 
                         // Gets Table Queries
-                        string ResourcePath = "BF2Statistics.SQL.Stats." + base.DatabaseEngine.ToString() + "_" + V.ToString() + "_update.sql";
-                        List<string> Queries = SqlFile.ExtractQueries(Program.GetResourceFileLines(ResourcePath));
+                        string resource = $"BF2Statistics.SQL.Stats.{DatabaseEngine}_{nextVersion}_update.sql";
+                        List<string> Queries = SqlFile.ExtractQueries(Program.GetResourceFileLines(resource));
 
                         // Delete old version data
                         base.Execute("DELETE FROM _version");
@@ -374,7 +374,7 @@ namespace BF2Statistics.Database
                             base.Execute(Query);
 
                         // Insert New Data
-                        base.Execute("INSERT INTO _version(dbver, dbdate) VALUES (@P0, @P1)", V.ToString(), DateTime.UtcNow.ToUnixTimestamp());
+                        base.Execute("INSERT INTO _version(dbver, dbdate) VALUES (@P0, @P1)", nextVersion, DateTime.UtcNow.ToUnixTimestamp());
                         Transaction.Commit();
                     }
                     catch

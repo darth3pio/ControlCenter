@@ -247,30 +247,23 @@ namespace BF2Statistics.Web.Bf2Stats
 
         public string FormatTime(object Time)
         {
-            TimeSpan Span = TimeSpan.FromSeconds(Int32.Parse(Time.ToString()));
-            return String.Format("{0:00}:{1:00}:{2:00}", Span.TotalHours, Span.Minutes, Span.Seconds);
-        }
-
-        public string FormatTime(double Time)
-        {
-            TimeSpan Span = TimeSpan.FromSeconds(Time);
-            return String.Format("{0:00}:{1:00}:{2:00}", Span.TotalHours, Span.Minutes, Span.Seconds);
+            return base.FormatTime(Int32.Parse(Time.ToString()));
         }
 
         public string FormatNumber(int Num)
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0:n0}", Num);
+            return String.Format(SpecificCulture, "{0:n0}", Num);
         }
 
         public string FormatFloat(object Num, int Decimals)
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0:F" + Decimals + "}", Num);
+            return String.Format(SpecificCulture, "{0:F" + Decimals + "}", Num);
         }
 
         public string FormatDate(object Time)
         {
             DateTime T = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return (T.AddSeconds(Int32.Parse(Time.ToString()))).ToString("yyyy-MM-dd HH:mm:ss");
+            return (T.AddSeconds(Int32.Parse(Time.ToString()))).ToString("yyyy-MM-dd HH:mm:ss", SpecificCulture);
         }
 
         public string FormatAwardDate(int Time)
@@ -279,7 +272,7 @@ namespace BF2Statistics.Web.Bf2Stats
             if (Sec > 0)
             {
                 DateTime T = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                return " (<i>" + T.AddSeconds(Sec).ToString("MMMM dd, yyyy") + "</i>)";
+                return " (<i>" + T.AddSeconds(Sec).ToString("MMMM dd, yyyy", SpecificCulture) + "</i>)";
             }
             else
                 return "";

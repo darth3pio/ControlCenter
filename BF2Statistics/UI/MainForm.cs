@@ -1232,6 +1232,8 @@ namespace BF2Statistics
             {
                 // Display loading image and disable buttons
                 AspStatusPic.Image = Resources.loading;
+                AspStatusLabel.Text = "Starting...";
+                AspStatusLabel.ForeColor = Color.Orange;
                 ToggleAspServerBtn.Enabled = false;
                 ToggleWebServerBtn.Enabled = false;
                 ToggleGamespyEmuBtn.Enabled = false;
@@ -1273,6 +1275,13 @@ namespace BF2Statistics
                     ToggleWebServerBtn.Enabled = true;
                     ToggleGamespyEmuBtn.Enabled = true;
                     ToggleGamespyServerBtn.Enabled = true;
+
+                    // Set texts
+                    if (!HttpServer.IsRunning)
+                    {
+                        AspStatusLabel.Text = "Stopped";
+                        AspStatusLabel.ForeColor = SystemColors.ControlDark;
+                    }
                 }
             }
             else

@@ -111,7 +111,7 @@ namespace BF2Statistics.MedalData
             try 
             {
                 // Dispose old image
-                if(AwardPictureBox.Image != null)
+                if (AwardPictureBox.Image != null)
                     AwardPictureBox.Image.Dispose();
 
                 AwardPictureBox.Image = Image.FromStream(Program.GetResource("BF2Statistics.Resources." + name + ".jpg"));

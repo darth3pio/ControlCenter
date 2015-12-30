@@ -62,9 +62,9 @@ namespace BF2Statistics.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Sqlite")]
-        public string GamespyDBEngine {
+        public global::BF2Statistics.Database.DatabaseEngine GamespyDBEngine {
             get {
-                return ((string)(this["GamespyDBEngine"]));
+                return ((global::BF2Statistics.Database.DatabaseEngine)(this["GamespyDBEngine"]));
             }
             set {
                 this["GamespyDBEngine"] = value;
@@ -74,24 +74,12 @@ namespace BF2Statistics.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Sqlite")]
-        public string StatsDBEngine {
+        public global::BF2Statistics.Database.DatabaseEngine StatsDBEngine {
             get {
-                return ((string)(this["StatsDBEngine"]));
+                return ((global::BF2Statistics.Database.DatabaseEngine)(this["StatsDBEngine"]));
             }
             set {
                 this["StatsDBEngine"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("29000000")]
-        public int ASP_DefaultPID {
-            get {
-                return ((int)(this["ASP_DefaultPID"]));
-            }
-            set {
-                this["ASP_DefaultPID"] = value;
             }
         }
         

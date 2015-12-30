@@ -40,7 +40,7 @@
                         <tr>
                             <td>@(++i)</td>
                             <td>@Round.MapName</td>
-                            <td>@Round.Date.ToString("yyyy-MM-dd hh:mm")</td>
+                            <td>@Round.Date.ToString("yyyy-MM-dd hh:mm", BF2PageModel.SpecificCulture)</td>
                             <td><img src="@(Model.Root)/images/ranks/icon/rank_@(Round.Rank).gif"></td>
                             <td>@Round.Score</td>
                             <td>@Round.Kills</td>

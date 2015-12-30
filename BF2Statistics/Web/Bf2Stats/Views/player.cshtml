@@ -624,18 +624,18 @@
                         </tr>
                         <tr>
                             <td>Last Update </td>
-                            <td nowrap="nowrap">@DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")</td>
+                            <td nowrap="nowrap">@DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss", BF2PageModel.SpecificCulture)</td>
                         </tr>
                         <tr>
                             <td>Next Update</td>
                             <td nowrap="nowrap">
                                 @if (Program.Config.BF2S_CacheEnabled)
                                 {
-                                   @DateTime.Now.AddMinutes(30).ToString("yyyy-MM-dd hh:mm:ss");
+                                   @DateTime.Now.AddMinutes(30).ToString("yyyy-MM-dd hh:mm:ss", BF2PageModel.SpecificCulture);
                                 }
                                 else
                                 {
-                                   @DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+                                   @DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss", BF2PageModel.SpecificCulture);
                                 }
                             </td>
                         </tr>

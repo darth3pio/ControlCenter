@@ -99,7 +99,7 @@ namespace BF2Statistics.Web.Bf2Stats
                     {
                         int mid = Int32.Parse(Node.Attributes["id"].Value);
                         string mod = Node.Attributes["mod"].Value;
-                        Maps.Add(mid, Node.InnerText);
+                        Maps[mid] = Node.InnerText;
 
                         // Add map to mod map ids if mod is not empty
                         if (!String.IsNullOrWhiteSpace(mod) && ModMapIds.ContainsKey(mod))

@@ -544,11 +544,10 @@ namespace BF2Statistics.Web
             try
             {
                 // Get our [User]/AppData/Local/Temp folder Location
-                string folderPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                string path = Path.Combine(folderPath, "Temp");
+                string folderPath = Path.GetTempPath();
 
                 // Clear dynamic cache files
-                foreach (string dir in Directory.GetDirectories(path, "RazorEngine_*"))
+                foreach (string dir in Directory.GetDirectories(folderPath, "RazorEngine_*"))
                     Directory.Delete(dir, true);
             }
             catch (Exception e)

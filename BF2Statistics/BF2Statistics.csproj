@@ -111,6 +111,12 @@
     <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="Extensions\LongExtensions.cs" />
     <Compile Include="Extensions\FileSizeFormatProvider.cs" />
+    <Compile Include="UI\Controls\MenuButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\SplitButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UI\Gamespy\GamespyConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>

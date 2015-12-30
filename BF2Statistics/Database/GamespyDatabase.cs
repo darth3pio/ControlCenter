@@ -32,7 +32,7 @@ namespace BF2Statistics.Database
         public bool NeedsUpdated => Version.CompareTo(LatestVersion) < 0;
 
         /// <summary>
-        /// Constructor
+        /// Creates a new connection to the Gamespy Database
         /// </summary>
         public GamespyDatabase() : base(Program.Config.GamespyDBEngine, Program.Config.GamespyDBConnectionString)
         {

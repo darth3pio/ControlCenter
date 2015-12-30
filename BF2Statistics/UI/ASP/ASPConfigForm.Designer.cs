@@ -50,11 +50,9 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.DebugLvl = new System.Windows.Forms.ComboBox();
             this.UnlocksOption = new System.Windows.Forms.ComboBox();
-            this.OfflinePid = new System.Windows.Forms.NumericUpDown();
             this.AuthGameServers = new System.Windows.Forms.TextBox();
             this.label15 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
-            this.label12 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.SaveBtn = new System.Windows.Forms.Button();
             this.CancelBtn = new System.Windows.Forms.Button();
@@ -64,7 +62,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.MinRoundPlayers)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.MinRoundTime)).BeginInit();
             this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.OfflinePid)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -293,11 +290,9 @@
             this.groupBox2.BackColor = System.Drawing.Color.WhiteSmoke;
             this.groupBox2.Controls.Add(this.DebugLvl);
             this.groupBox2.Controls.Add(this.UnlocksOption);
-            this.groupBox2.Controls.Add(this.OfflinePid);
             this.groupBox2.Controls.Add(this.AuthGameServers);
             this.groupBox2.Controls.Add(this.label15);
             this.groupBox2.Controls.Add(this.label13);
-            this.groupBox2.Controls.Add(this.label12);
             this.groupBox2.Controls.Add(this.label10);
             this.groupBox2.Location = new System.Drawing.Point(371, 12);
             this.groupBox2.Name = "groupBox2";
@@ -332,37 +327,13 @@
             this.UnlocksOption.Size = new System.Drawing.Size(180, 21);
             this.UnlocksOption.TabIndex = 15;
             // 
-            // OfflinePid
-            // 
-            this.OfflinePid.Location = new System.Drawing.Point(152, 198);
-            this.OfflinePid.Maximum = new decimal(new int[] {
-            999999999,
-            0,
-            0,
-            0});
-            this.OfflinePid.Minimum = new decimal(new int[] {
-            10000000,
-            0,
-            0,
-            0});
-            this.OfflinePid.Name = "OfflinePid";
-            this.OfflinePid.Size = new System.Drawing.Size(97, 20);
-            this.OfflinePid.TabIndex = 14;
-            this.Tipsy.SetToolTip(this.OfflinePid, "Default Offline PlayerID. All offline accounts that do not have an ID number will" +
-        " decrement off of this number.\r\nNot recomended to change");
-            this.OfflinePid.Value = new decimal(new int[] {
-            29000000,
-            0,
-            0,
-            0});
-            // 
             // AuthGameServers
             // 
             this.AuthGameServers.Location = new System.Drawing.Point(21, 59);
             this.AuthGameServers.Multiline = true;
             this.AuthGameServers.Name = "AuthGameServers";
             this.AuthGameServers.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.AuthGameServers.Size = new System.Drawing.Size(311, 124);
+            this.AuthGameServers.Size = new System.Drawing.Size(311, 147);
             this.AuthGameServers.TabIndex = 7;
             this.Tipsy.SetToolTip(this.AuthGameServers, resources.GetString("AuthGameServers.ToolTip"));
             // 
@@ -383,15 +354,6 @@
             this.label13.Size = new System.Drawing.Size(83, 13);
             this.label13.TabIndex = 4;
             this.label13.Text = "Unlocks Option:";
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(18, 202);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(86, 13);
-            this.label12.TabIndex = 3;
-            this.label12.Text = "Offline Player ID:";
             // 
             // label10
             // 
@@ -452,7 +414,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.MinRoundTime)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.OfflinePid)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -468,7 +429,6 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Label label13;
@@ -484,7 +444,6 @@
         private System.Windows.Forms.TextBox AuthGameServers;
         private System.Windows.Forms.ComboBox DebugLvl;
         private System.Windows.Forms.ComboBox UnlocksOption;
-        private System.Windows.Forms.NumericUpDown OfflinePid;
         private System.Windows.Forms.Button SaveBtn;
         private System.Windows.Forms.Button CancelBtn;
         private System.Windows.Forms.ToolTip Tipsy;

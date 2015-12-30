@@ -135,6 +135,41 @@ namespace BF2Statistics.ASP
             // Create the Snapshot Object
             Snapshot Snap = new Snapshot(Data, ServerAddress);
 
+            // Update this server in the Database
+            using (StatsDatabase Database = new StatsDatabase())
+            {
+                // Try and grab the ID of this server
+                int id = Database.ExecuteScalar<int>(
+                    "SELECT COALESCE(id, -1) FROM servers WHERE ip=@P0 AND port=@P1", 
+                    ServerAddress, Snap.ServerPort
+                );
+
+                // New server?
+                if (id < 0)
+                {
+                    InsertQueryBuilder builder = new InsertQueryBuilder(Database);
+                    builder.SetTable("servers");
+                    builder.SetField("ip", ServerAddress);
+                    builder.SetField("port", Snap.ServerPort);
+                    builder.SetField("prefix", Snap.ServerPrefix);
+                    builder.SetField("name", Snap.ServerName);
+                    builder.SetField("queryport", Snap.QueryPort);
+                    builder.SetField("lastupdate", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
+                    builder.Execute();
+                }
+                else // existing
+                {
+                    UpdateQueryBuilder builder = new UpdateQueryBuilder(Database);
+                    builder.SetTable("servers");
+                    builder.SetField("prefix", Snap.ServerPrefix);
+                    builder.SetField("name", Snap.ServerName);
+                    builder.SetField("queryport", Snap.QueryPort);
+                    builder.SetField("lastupdate", DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
+                    builder.AddWhere("id", Comparison.Equals, id);
+                    builder.Execute();
+                }
+            }
+
             // Add snapshot to Queue
             SnapshotQueue.Enqueue(Snap);
         }

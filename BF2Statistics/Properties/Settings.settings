@@ -11,14 +11,11 @@
     <Setting Name="ServerPath" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="GamespyDBEngine" Type="System.String" Scope="User">
+    <Setting Name="GamespyDBEngine" Type="BF2Statistics.Database.DatabaseEngine" Scope="User">
       <Value Profile="(Default)">Sqlite</Value>
     </Setting>
-    <Setting Name="StatsDBEngine" Type="System.String" Scope="User">
+    <Setting Name="StatsDBEngine" Type="BF2Statistics.Database.DatabaseEngine" Scope="User">
       <Value Profile="(Default)">Sqlite</Value>
-    </Setting>
-    <Setting Name="ASP_DefaultPID" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">29000000</Value>
     </Setting>
     <Setting Name="ASP_UnlocksMode" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>

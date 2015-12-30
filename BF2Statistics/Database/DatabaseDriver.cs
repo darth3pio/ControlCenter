@@ -41,25 +41,21 @@ namespace BF2Statistics.Database
         /// <summary>
         /// Creates a new instance of DatabaseDriver
         /// </summary>
-        /// <param name="Engine">Specifies the database engine type for this connection</param>
-        /// <param name="ConnectionString">The Connection string to connect to this database</param>
-        public DatabaseDriver(string Engine, string ConnectionString)
+        /// <param name="engine">Specifies the database engine type for this connection</param>
+        /// <param name="connectionString">The Connection string to connect to this database</param>
+        public DatabaseDriver(DatabaseEngine engine, string connectionString)
         {
             // Set class variables, and create a new connection builder
-            this.DatabaseEngine = GetDatabaseEngine(Engine);
+            this.DatabaseEngine = engine;
 
             // Establish the connection
-            if (this.DatabaseEngine == DatabaseEngine.Sqlite)
+            if (engine == DatabaseEngine.Sqlite)
             {
-                Connection = new SQLiteConnection(ConnectionString);
-            }
-            else if (this.DatabaseEngine == DatabaseEngine.Mysql)
-            {
-                Connection = new MySqlConnection(ConnectionString);
+                Connection = new SQLiteConnection(connectionString);
             }
             else
             {
-                throw new Exception("Invalid Database type.");
+                Connection = new MySqlConnection(connectionString);
             }
         }
 
@@ -525,16 +521,6 @@ namespace BF2Statistics.Database
         public DbTransaction BeginTransaction(IsolationLevel Level)
         {
             return Connection.BeginTransaction(Level);
-        }
-
-        /// <summary>
-        /// Converts a database string name to a DatabaseEngine type.
-        /// </summary>
-        /// <param name="Name"></param>
-        /// <returns></returns>
-        public static DatabaseEngine GetDatabaseEngine(string Name)
-        {
-            return ((DatabaseEngine)Enum.Parse(typeof(DatabaseEngine), Name, true));
         }
     }
 }

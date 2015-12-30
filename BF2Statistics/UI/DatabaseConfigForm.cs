@@ -32,10 +32,10 @@ namespace BF2Statistics
 
             // Our connection string temp variable
             string ConnString = (Mode == DatabaseMode.Stats) ? Program.Config.StatsDBConnectionString : Program.Config.GamespyDBConnectionString;
-            string Engine = (Mode == DatabaseMode.Stats) ? Program.Config.StatsDBEngine : Program.Config.GamespyDBEngine;
+            DatabaseEngine Engine = (Mode == DatabaseMode.Stats) ? Program.Config.StatsDBEngine : Program.Config.GamespyDBEngine;
 
             // Fill values for config boxes
-            if (Engine == "Sqlite")
+            if (Engine == DatabaseEngine.Sqlite)
             {
                 TypeSelect.SelectedIndex = 0;
                 SQLiteConnectionStringBuilder Builder = new SQLiteConnectionStringBuilder(ConnString);
@@ -113,7 +113,9 @@ namespace BF2Statistics
                     return false;
                 }
 
-                Program.Config.StatsDBEngine = (TypeSelect.SelectedIndex == 0) ? "Sqlite" : "Mysql";
+                Program.Config.StatsDBEngine = (TypeSelect.SelectedIndex == 0) 
+                    ? DatabaseEngine.Sqlite 
+                    : DatabaseEngine.Mysql;
                 Program.Config.StatsDBConnectionString = ConnString;
             }
             else
@@ -130,7 +132,9 @@ namespace BF2Statistics
                     return false;
                 }
 
-                Program.Config.GamespyDBEngine = (TypeSelect.SelectedIndex == 0) ? "Sqlite" : "Mysql";
+                Program.Config.GamespyDBEngine = (TypeSelect.SelectedIndex == 0) 
+                    ? DatabaseEngine.Sqlite 
+                    : DatabaseEngine.Mysql;
                 Program.Config.GamespyDBConnectionString = ConnString;
             }
 

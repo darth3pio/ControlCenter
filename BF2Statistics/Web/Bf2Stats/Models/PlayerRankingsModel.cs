@@ -67,6 +67,11 @@ namespace BF2Statistics.Web.Bf2Stats
         {
             return String.Format(CultureInfo.InvariantCulture, "{0:n4}", Decimal.Parse(Num.ToString()));
         }
+
+        public string FormatInteger(int Num)
+        {
+            return String.Format(CultureInfo.InvariantCulture, "{0:n0}", Num);
+        }
     }
 
     public struct RankingPosition

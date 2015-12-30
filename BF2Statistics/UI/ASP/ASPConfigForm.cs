@@ -25,7 +25,6 @@ namespace BF2Statistics
             GeneralProcessing.SelectedIndex = Program.Config.ASP_GeneralCheck ? 1 : 0;
             AwdRoundComplete.SelectedIndex = Program.Config.ASP_AwardsReqComplete ? 1 : 0;
             AuthGameServers.Lines = Program.Config.ASP_GameHosts.Split(',');
-            OfflinePid.Value = Program.Config.ASP_DefaultPID;
             UnlocksOption.SelectedIndex = Program.Config.ASP_UnlocksMode;
             DebugLvl.SelectedIndex = Program.Config.ASP_DebugLevel - 1;
         }
@@ -46,7 +45,6 @@ namespace BF2Statistics
             Program.Config.ASP_GeneralCheck = (GeneralProcessing.SelectedIndex == 1);
             Program.Config.ASP_AwardsReqComplete = (AwdRoundComplete.SelectedIndex == 1);
             Program.Config.ASP_GameHosts = String.Join(",", AuthGameServers.Lines);
-            Program.Config.ASP_DefaultPID = Int32.Parse(OfflinePid.Value.ToString());
             Program.Config.ASP_UnlocksMode = UnlocksOption.SelectedIndex;
             Program.Config.ASP_DebugLevel = DebugLvl.SelectedIndex + 1;
 

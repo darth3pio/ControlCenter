@@ -4502,9 +4502,9 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
 		<row><td>PROGRAMFILETOLAUNCHATEND</td><td>[INSTALLDIR]BF2Statistics.Primary output</td><td/></row>
-		<row><td>ProductCode</td><td>{1E21A1AC-D2D9-4B7A-9926-14C25E47EAB0}</td><td/></row>
+		<row><td>ProductCode</td><td>{4F2168A6-A876-40BD-BEA3-BE06350C9C5C}</td><td/></row>
 		<row><td>ProductName</td><td>BF2Statistics Control Center</td><td/></row>
-		<row><td>ProductVersion</td><td>2.3.3</td><td/></row>
+		<row><td>ProductVersion</td><td>2.3.4</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -4792,7 +4792,7 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<col def="s72">ActionProperty</col>
 		<col def="S72">ISDisplayName</col>
 		<row><td>{00000000-0000-0000-0000-000000000000}</td><td>***ALL_VERSIONS***</td><td></td><td></td><td>2</td><td/><td>ISFOUNDNEWERPRODUCTVERSION</td><td>ISPreventDowngrade</td></row>
-		<row><td>{72A4AFA3-2750-49AC-8FC4-AD9ED5CFFD84}</td><td></td><td>2.3.2</td><td></td><td>768</td><td/><td>ISACTIONPROP1</td><td>NewUpgradeEntry1</td></row>
+		<row><td>{72A4AFA3-2750-49AC-8FC4-AD9ED5CFFD84}</td><td></td><td>2.3.3</td><td></td><td>768</td><td/><td>ISACTIONPROP1</td><td>NewUpgradeEntry1</td></row>
 	</table>
 
 	<table name="Verb">
