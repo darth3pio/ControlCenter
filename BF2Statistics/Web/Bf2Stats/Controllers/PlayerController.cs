@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -726,6 +727,7 @@ namespace BF2Statistics.Web.Bf2Stats
             PlayerRankingsModel Model = new PlayerRankingsModel(Client);
             Model.Player = Rows[0];
             Model.SearchBarValue = Pid.ToString();
+            string value;
 
             #region Player Rankings
 
@@ -744,14 +746,16 @@ namespace BF2Statistics.Web.Bf2Stats
             query = "SELECT score / (time / 60.0) AS spm FROM player WHERE id=@P0";
             try
             {
-                Score.Value = Math.Round(Database.ExecuteScalar<decimal>(query, Pid), 4);
+                value = Database.ExecuteScalar<string>(query, Pid);
+                Score.Value = Math.Round(Decimal.Parse(value, CultureInfo.InvariantCulture), 4);
             }
             catch
             {
+                value = "0.000";
                 Score.Value = 0.0000m;
             }
 
-            query = "SELECT COUNT(id), score / (time / 60.0) AS spm FROM player WHERE spm > " + Score.Value;
+            query = "SELECT COUNT(id), ROUND(score / (time / 60.0), 8) AS spm FROM player WHERE spm > " + value;
             Score.Position = Database.ExecuteScalar<int>(query) + 1;
             Score.CtrPosition = Database.ExecuteScalar<int>(query + " AND country=@P0", Model.Player["country"]) + 1;
             Score.PageNumber = GetPage(Score.Position);
@@ -763,14 +767,16 @@ namespace BF2Statistics.Web.Bf2Stats
             query = "SELECT (wins * 1.0 / losses) AS wlr FROM player WHERE id=@P0";
             try
             {
-                Score.Value = Math.Round(Database.ExecuteScalar<decimal>(query, Pid), 4);
+                value = Database.ExecuteScalar<string>(query, Pid);
+                Score.Value = Math.Round(Decimal.Parse(value, CultureInfo.InvariantCulture), 4);
             }
             catch
             {
+                value = "0.000";
                 Score.Value = 0.0000m;
             }
 
-            query = "SELECT COUNT(id), (wins * 1.0 / losses) AS wlr FROM player WHERE wlr > " + Score.Value;
+            query = "SELECT COUNT(id), ROUND(wins * 1.0 / losses, 8) AS wlr FROM player WHERE wlr > " + value;
             Score.Position = Database.ExecuteScalar<int>(query) + 1;
             Score.CtrPosition = Database.ExecuteScalar<int>(query + " AND country=@P0", Model.Player["country"]) + 1;
             Score.PageNumber = GetPage(Score.Position);
@@ -782,14 +788,16 @@ namespace BF2Statistics.Web.Bf2Stats
             query = "SELECT (kills * 1.0 / deaths) AS value FROM player WHERE id=@P0";
             try
             {
-                Score.Value = Math.Round(Database.ExecuteScalar<decimal>(query, Pid), 4);
+                value = Database.ExecuteScalar<string>(query, Pid);
+                Score.Value = Math.Round(Decimal.Parse(value, CultureInfo.InvariantCulture), 4);
             }
             catch
             {
+                value = "0.000";
                 Score.Value = 0.0000m;
             }
 
-            query = "SELECT COUNT(id), (kills * 1.0 / deaths) AS value FROM player WHERE value > " + Score.Value;
+            query = "SELECT COUNT(id), ROUND(kills * 1.0 / deaths, 8) AS value FROM player WHERE value > " + value;
             Score.Position = Database.ExecuteScalar<int>(query) + 1;
             Score.CtrPosition = Database.ExecuteScalar<int>(query + " AND country=@P0", Model.Player["country"]) + 1;
             Score.PageNumber = GetPage(Score.Position);
@@ -801,16 +809,18 @@ namespace BF2Statistics.Web.Bf2Stats
             query = "SELECT (knifekills * 1.0 / knifedeaths) AS value FROM weapons WHERE id=@P0";
             try
             {
-                Score.Value = Math.Round(Database.ExecuteScalar<decimal>(query, Pid), 4);
+                value = Database.ExecuteScalar<string>(query, Pid);
+                Score.Value = Math.Round(Decimal.Parse(value, CultureInfo.InvariantCulture), 4);
             }
             catch
             {
+                value = "0.000";
                 Score.Value = 0.0000m;
             }
 
-            query = "SELECT COUNT(id), (knifekills * 1.0 / knifedeaths) AS value FROM weapons WHERE value > " + Score.Value;
+            query = "SELECT COUNT(id), ROUND(knifekills * 1.0 / knifedeaths, 8) AS value FROM weapons WHERE value > " + value;
             Score.Position = Database.ExecuteScalar<int>(query) + 1;
-            query = "SELECT COUNT(w.id), (w.knifekills * 1.0 / w.knifedeaths) AS value "
+            query = "SELECT COUNT(w.id), ROUND(w.knifekills * 1.0 / w.knifedeaths, 8) AS value "
                 + "FROM weapons AS w "
                 + "JOIN player AS p "
                 + "WHERE p.id = w.id AND p.country=@P0 AND value > " + Score.Value;
@@ -824,16 +834,18 @@ namespace BF2Statistics.Web.Bf2Stats
             query = "SELECT (hit4 * 1.0 / fired4) AS value FROM weapons WHERE id=@P0";
             try
             {
-                Score.Value = Math.Round(Database.ExecuteScalar<decimal>(query, Pid), 4);
+                value = Database.ExecuteScalar<string>(query, Pid);
+                Score.Value = Math.Round(Decimal.Parse(value, CultureInfo.InvariantCulture), 4);
             }
             catch
             {
+                value = "0.000";
                 Score.Value = 0.0000m;
             }
 
-            query = "SELECT COUNT(id), (hit4 * 1.0 / fired4) AS value FROM weapons WHERE value > " + Score.Value;
+            query = "SELECT COUNT(id), ROUND(hit4 * 1.0 / fired4, 8) AS value FROM weapons WHERE value > " + value;
             Score.Position = Database.ExecuteScalar<int>(query) + 1;
-            query = "SELECT COUNT(w.id), (w.hit4 * 1.0 / w.fired4) AS value "
+            query = "SELECT COUNT(w.id), ROUND(w.hit4 * 1.0 / w.fired4, 8) AS value "
                 + "FROM weapons AS w "
                 + "JOIN player AS p "
                 + "WHERE p.id = w.id AND p.country=@P0 AND value > " + Score.Value;
@@ -849,14 +861,16 @@ namespace BF2Statistics.Web.Bf2Stats
             query = "SELECT (time / 3600.0) / ((lastonline - joined) / 86400.0) AS value FROM player WHERE id=@P0";
             try
             {
-                Score.Value = Math.Round(Database.ExecuteScalar<decimal>(query, Pid), 4);
+                value = Database.ExecuteScalar<string>(query, Pid);
+                Score.Value = Math.Round(Decimal.Parse(value, CultureInfo.InvariantCulture), 4);
             }
             catch
             {
+                value = "0.000";
                 Score.Value = 0.0000m;
             }
 
-            query = "SELECT COUNT(id), (time / 3600.0) / ((lastonline - joined) / 86400.0) AS value FROM player WHERE value > " + Score.Value;
+            query = "SELECT COUNT(id), ROUND((time / 3600.0) / ((lastonline - joined) / 86400.0), 8) AS value FROM player WHERE value > " + value;
             Rows = Database.Query(query);
             Score.Position = Database.ExecuteScalar<int>(query) + 1;
             Score.CtrPosition = Database.ExecuteScalar<int>(query + " AND country=@P0", Model.Player["country"]) + 1;
@@ -879,14 +893,16 @@ namespace BF2Statistics.Web.Bf2Stats
             query = "SELECT COALESCE((cmdscore * 1.0 / cmdtime), 0.0) AS value FROM player WHERE id=@P0";
             try
             {
-                Score.Value = Math.Round(Database.ExecuteScalar<decimal>(query, Pid), 4);
+                value = Database.ExecuteScalar<string>(query, Pid);
+                Score.Value = Math.Round(Decimal.Parse(value, CultureInfo.InvariantCulture), 4);
             }
             catch
             {
+                value = "0.000";
                 Score.Value = 0.0000m;
             }
 
-            query = "SELECT COUNT(id), COALESCE((cmdscore * 1.0 / cmdtime), 0.0) AS value FROM player WHERE value > " + Score.Value;
+            query = "SELECT COUNT(id), COALESCE((cmdscore * 1.0 / cmdtime), 0.0) AS value FROM player WHERE value > " + value;
             Score.Position = Database.ExecuteScalar<int>(query) + 1;
             Score.CtrPosition = Database.ExecuteScalar<int>(query + " AND country=@P0", Model.Player["country"]) + 1;
             Score.PageNumber = GetPage(Score.Position);

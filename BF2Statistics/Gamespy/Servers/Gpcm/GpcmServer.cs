@@ -168,13 +168,14 @@ namespace BF2Statistics.Gamespy
         /// <param name="Stream">A GamespyTcpStream object that wraps the I/O AsyncEventArgs and socket</param>
         protected override void ProcessAccept(GamespyTcpStream Stream)
         {
+            // Get our connection id
+            int ConID = Interlocked.Increment(ref ConnectionCounter);
+            GpcmClient client;
+
             try
             {
-                // Get our connection id
-                int ConID = Interlocked.Increment(ref ConnectionCounter);
-
                 // Create a new GpcmClient, passing the IO object for the TcpClientStream
-                GpcmClient client = new GpcmClient(Stream, ConID);
+                client = new GpcmClient(Stream, ConID);
                 Processing.TryAdd(ConID, client);
 
                 // Begin the asynchronous login process
@@ -182,8 +183,14 @@ namespace BF2Statistics.Gamespy
             }
             catch (Exception e)
             {
+                // Log the error
                 Program.ErrorLog.Write("WARNING: An Error occured at [GpcmServer.ProcessAccept] : Generating Exception Log");
                 ExceptionHandler.GenerateExceptionLog(e);
+
+                // Remove pending connection
+                Processing.TryRemove(ConID, out client);
+
+                // Release this stream so it can be used again
                 base.Release(Stream);
             }
         }

@@ -101,11 +101,32 @@ namespace BF2Statistics.Web.Bf2Stats
                         });
                     }
 
+                    // Get a list of our online servers
+                    if (GamespyEmulator.IsRunning)
+                    {
+                        // Get our servers next
+                        foreach (GameServer server in MasterServer.Servers.Values)
+                        {
+                            // Add info if its online
+                            Model.Servers.Add(new Server()
+                            {
+                                AddressInfo = new IPEndPoint(server.AddressInfo.Address, server.hostport),
+                                Name = server.hostname,
+                                ImagePath = base.CorrectUrls(server.bf2_communitylogo_url, Model),
+                                MapName = server.mapname,
+                                MaxPlayers = server.maxplayers,
+                                PlayerCount = server.numplayers,
+                                MapSize = server.bf2_mapsize,
+                                GameType = BF2Server.GetGametypeString(server.gametype)
+                            });
+                        }
+                    }
+
                     // Send response
                     base.SendTemplateResponse("index", typeof(IndexModel), Model);
                 }
             }
-        }
+    }
 
         private string GetOnlineStatus(int Pid)
         {

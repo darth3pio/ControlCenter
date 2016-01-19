@@ -468,7 +468,7 @@ namespace BF2Statistics.Gamespy
                 if (!isGroup && previous)
                 {
                     op = filter.Substring(i - (i >= 1 ? (previous ? 1 : 0) : 0), 1);
-                    if (op == "(" || op == ")")
+                    if (op == "(") //|| op == ")")
                     {
                         isGroup = true;
                         length = 1;

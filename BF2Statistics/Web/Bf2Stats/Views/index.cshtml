@@ -77,28 +77,33 @@
                                     </p>
                                 </div>
                             </div>
-                            <!--
                             <div id="server" class="col-section">
-                                <h2>Game Servers</h2>
+                                <h2>Our Game Servers</h2>
                                 <div class="id">
-                                    <p style="clear: both;  padding: 10px 0 0 0;"><strong>BF2s 1.5 Madness</strong></p>
-
-                                    <div style="float: left; width: 200px; padding: 0px 5px 5px 0px;">
-                                        <a href="/web/20110722004945/http://www.branzone.com/affiliate.php?aid=bz1026">
-                                            <img src="/web/20110722004945im_/http://www.branzone.com/branzone/img/banners/200_60.gif" alt="" width="200" height="60" style="border:0" />
-                                        </a>
-                                        <br />
-                                    </div>
-                                    <p style="padding-top: 0px;">
-                                        <em>0/32</em>
-                                        <br />
-                                        IP: 67.222.138.85:16567
-                                        <br />
-                                        <a href="/web/20110722004945/http://www.game-monitor.com/GameServer/67.222.138.85:16567">Operation Blue Pearl</a>
-                                    </p>
+                                @if (Model.Servers.Count == 0)
+                                {
+                                    <p style="clear: both;  padding: 10px 0 0 0;">No Servers Online :(</p>
+                                }
+                                else
+                                {
+                                    foreach (Server server in Model.Servers)
+                                    {
+                                        <p style="clear: both;  padding: 10px 0 0 0;"><strong>@server.Name</strong></p>
+                                        <div style="float: left; width: 200px; padding: 0px 5px 5px 0px;">
+                                            <img src="@(server.ImagePath)" alt="@(server.Name)" width="200" height="60" style="border:0" />
+                                            <br />
+                                        </div>
+                                        <p style="padding-top: 0px;">
+                                            <em>@server.GameType: @(server.PlayerCount)/@(server.MaxPlayers)</em>
+                                            <br />
+                                            IP: @server.AddressInfo.Address : @server.AddressInfo.Port
+                                            <br />
+                                            <a href="#">@server.MapName</a> (@server.MapSize)
+                                        </p>
+                                    }
+                                }
                                 </div>
                             </div>
-                            -->
                         </div><!-- /community-col -->
                         <!-- end content == footer below -->
 

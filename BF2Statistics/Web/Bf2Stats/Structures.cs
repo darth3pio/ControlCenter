@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 
 namespace BF2Statistics.Web.Bf2Stats
 {
@@ -333,5 +334,24 @@ namespace BF2Statistics.Web.Bf2Stats
                 TimeToComplete = 0.0
             };
         }
+    }
+
+    public struct Server
+    {
+        public IPEndPoint AddressInfo;
+
+        public string Name;
+
+        public string ImagePath;
+
+        public int PlayerCount;
+
+        public int MaxPlayers;
+
+        public string MapName;
+
+        public int MapSize;
+
+        public string GameType;
     }
 }

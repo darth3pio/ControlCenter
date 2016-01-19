@@ -812,20 +812,7 @@ namespace BF2Statistics
                 }
 
                 // Convert gametype
-                switch (Entry.GameMode)
-                {
-                    case "coop":
-                        MapModeBox.Text = "Coop";
-                        break;
-                    case "cq":
-                        MapModeBox.Text = "Conquest";
-                        break;
-                    case "sp1":
-                    case "sp2":
-                    case "sp3":
-                        MapModeBox.Text = "SinglePlayer";
-                        break;
-                }
+                MapModeBox.Text = BF2Server.GetGametypeString(Entry.GameMode);
 
                 // Set mapsize
                 MapSizeBox.Text = Entry.MapSize.ToString();

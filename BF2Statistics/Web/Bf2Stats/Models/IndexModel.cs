@@ -14,6 +14,11 @@ namespace BF2Statistics.Web.Bf2Stats
         /// </summary>
         public List<PlayerResult> MyLeaderboardPlayers = new List<PlayerResult>();
 
+        /// <summary>
+        /// A list of servers to display on the Index.cshtml page
+        /// </summary>
+        public List<Server> Servers = new List<Server>();
+
         public IndexModel(HttpClient Client) : base(Client) { }
     }
 }

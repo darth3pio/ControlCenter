@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
@@ -97,6 +98,16 @@
             this.label28 = new System.Windows.Forms.Label();
             this.label29 = new System.Windows.Forms.Label();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.AiCqDefendFlag = new System.Windows.Forms.NumericUpDown();
+            this.AiCqFlagNeutralizeAsst = new System.Windows.Forms.NumericUpDown();
+            this.AiCqFlagNeutralize = new System.Windows.Forms.NumericUpDown();
+            this.AiCqFlagCaptureAsst = new System.Windows.Forms.NumericUpDown();
+            this.AiCqFlagCapture = new System.Windows.Forms.NumericUpDown();
+            this.label31 = new System.Windows.Forms.Label();
+            this.label57 = new System.Windows.Forms.Label();
+            this.label58 = new System.Windows.Forms.Label();
+            this.label59 = new System.Windows.Forms.Label();
+            this.label60 = new System.Windows.Forms.Label();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
             this.AiSuicideScore = new System.Windows.Forms.NumericUpDown();
             this.AiTeamVehicleDamage = new System.Windows.Forms.NumericUpDown();
@@ -152,16 +163,10 @@
             this.Cancel = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
             this.ResetButton = new System.Windows.Forms.Button();
-            this.AiCqDefendFlag = new System.Windows.Forms.NumericUpDown();
-            this.AiCqFlagNeutralizeAsst = new System.Windows.Forms.NumericUpDown();
-            this.AiCqFlagNeutralize = new System.Windows.Forms.NumericUpDown();
-            this.AiCqFlagCaptureAsst = new System.Windows.Forms.NumericUpDown();
-            this.AiCqFlagCapture = new System.Windows.Forms.NumericUpDown();
-            this.label31 = new System.Windows.Forms.Label();
-            this.label57 = new System.Windows.Forms.Label();
-            this.label58 = new System.Windows.Forms.Label();
-            this.label59 = new System.Windows.Forms.Label();
-            this.label60 = new System.Windows.Forms.Label();
+            this.ImportBtn = new BF2Statistics.SplitButton();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.ImportSettingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ExportSettingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox6.SuspendLayout();
@@ -202,6 +207,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.AiCoopFlagCaptureAsst)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AiCoopFlagCapture)).BeginInit();
             this.groupBox8.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqDefendFlag)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagNeutralizeAsst)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagNeutralize)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagCaptureAsst)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagCapture)).BeginInit();
             this.groupBox9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.AiSuicideScore)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AiTeamVehicleDamage)).BeginInit();
@@ -228,11 +238,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.AmmoPointLimit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.HealPointLimit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RepairPointLimit)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiCqDefendFlag)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagNeutralizeAsst)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagNeutralize)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagCaptureAsst)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagCapture)).BeginInit();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -1047,6 +1053,111 @@
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Conquest Scoring";
             // 
+            // AiCqDefendFlag
+            // 
+            this.AiCqDefendFlag.Location = new System.Drawing.Point(202, 73);
+            this.AiCqDefendFlag.Maximum = new decimal(new int[] {
+            999,
+            0,
+            0,
+            0});
+            this.AiCqDefendFlag.Name = "AiCqDefendFlag";
+            this.AiCqDefendFlag.Size = new System.Drawing.Size(40, 20);
+            this.AiCqDefendFlag.TabIndex = 38;
+            // 
+            // AiCqFlagNeutralizeAsst
+            // 
+            this.AiCqFlagNeutralizeAsst.Location = new System.Drawing.Point(300, 47);
+            this.AiCqFlagNeutralizeAsst.Maximum = new decimal(new int[] {
+            999,
+            0,
+            0,
+            0});
+            this.AiCqFlagNeutralizeAsst.Name = "AiCqFlagNeutralizeAsst";
+            this.AiCqFlagNeutralizeAsst.Size = new System.Drawing.Size(40, 20);
+            this.AiCqFlagNeutralizeAsst.TabIndex = 37;
+            // 
+            // AiCqFlagNeutralize
+            // 
+            this.AiCqFlagNeutralize.Location = new System.Drawing.Point(300, 21);
+            this.AiCqFlagNeutralize.Maximum = new decimal(new int[] {
+            999,
+            0,
+            0,
+            0});
+            this.AiCqFlagNeutralize.Name = "AiCqFlagNeutralize";
+            this.AiCqFlagNeutralize.Size = new System.Drawing.Size(40, 20);
+            this.AiCqFlagNeutralize.TabIndex = 36;
+            // 
+            // AiCqFlagCaptureAsst
+            // 
+            this.AiCqFlagCaptureAsst.Location = new System.Drawing.Point(123, 47);
+            this.AiCqFlagCaptureAsst.Maximum = new decimal(new int[] {
+            999,
+            0,
+            0,
+            0});
+            this.AiCqFlagCaptureAsst.Name = "AiCqFlagCaptureAsst";
+            this.AiCqFlagCaptureAsst.Size = new System.Drawing.Size(40, 20);
+            this.AiCqFlagCaptureAsst.TabIndex = 35;
+            // 
+            // AiCqFlagCapture
+            // 
+            this.AiCqFlagCapture.Location = new System.Drawing.Point(123, 21);
+            this.AiCqFlagCapture.Maximum = new decimal(new int[] {
+            999,
+            0,
+            0,
+            0});
+            this.AiCqFlagCapture.Name = "AiCqFlagCapture";
+            this.AiCqFlagCapture.Size = new System.Drawing.Size(40, 20);
+            this.AiCqFlagCapture.TabIndex = 34;
+            // 
+            // label31
+            // 
+            this.label31.AutoSize = true;
+            this.label31.Location = new System.Drawing.Point(131, 75);
+            this.label31.Name = "label31";
+            this.label31.Size = new System.Drawing.Size(68, 13);
+            this.label31.TabIndex = 33;
+            this.label31.Text = "Defend Flag:";
+            // 
+            // label57
+            // 
+            this.label57.AutoSize = true;
+            this.label57.Location = new System.Drawing.Point(186, 49);
+            this.label57.Name = "label57";
+            this.label57.Size = new System.Drawing.Size(110, 13);
+            this.label57.TabIndex = 32;
+            this.label57.Text = "Flag Neutralize Assist:";
+            // 
+            // label58
+            // 
+            this.label58.AutoSize = true;
+            this.label58.Location = new System.Drawing.Point(217, 23);
+            this.label58.Name = "label58";
+            this.label58.Size = new System.Drawing.Size(80, 13);
+            this.label58.TabIndex = 31;
+            this.label58.Text = "Flag Neutralize:";
+            // 
+            // label59
+            // 
+            this.label59.AutoSize = true;
+            this.label59.Location = new System.Drawing.Point(17, 49);
+            this.label59.Name = "label59";
+            this.label59.Size = new System.Drawing.Size(100, 13);
+            this.label59.TabIndex = 30;
+            this.label59.Text = "Flag Capture Assist:";
+            // 
+            // label60
+            // 
+            this.label60.AutoSize = true;
+            this.label60.Location = new System.Drawing.Point(47, 23);
+            this.label60.Name = "label60";
+            this.label60.Size = new System.Drawing.Size(70, 13);
+            this.label60.TabIndex = 29;
+            this.label60.Text = "Flag Capture:";
+            // 
             // groupBox9
             // 
             this.groupBox9.Controls.Add(this.AiSuicideScore);
@@ -1681,7 +1792,7 @@
             // 
             // Cancel
             // 
-            this.Cancel.Location = new System.Drawing.Point(353, 364);
+            this.Cancel.Location = new System.Drawing.Point(542, 361);
             this.Cancel.Name = "Cancel";
             this.Cancel.Size = new System.Drawing.Size(91, 29);
             this.Cancel.TabIndex = 1;
@@ -1691,7 +1802,7 @@
             // 
             // SaveButton
             // 
-            this.SaveButton.Location = new System.Drawing.Point(458, 364);
+            this.SaveButton.Location = new System.Drawing.Point(644, 361);
             this.SaveButton.Name = "SaveButton";
             this.SaveButton.Size = new System.Drawing.Size(91, 29);
             this.SaveButton.TabIndex = 2;
@@ -1701,124 +1812,55 @@
             // 
             // ResetButton
             // 
-            this.ResetButton.Location = new System.Drawing.Point(220, 364);
+            this.ResetButton.Location = new System.Drawing.Point(31, 361);
             this.ResetButton.Name = "ResetButton";
-            this.ResetButton.Size = new System.Drawing.Size(117, 29);
+            this.ResetButton.Size = new System.Drawing.Size(120, 29);
             this.ResetButton.TabIndex = 3;
             this.ResetButton.Text = "Reset To default";
             this.ResetButton.UseVisualStyleBackColor = true;
             this.ResetButton.Click += new System.EventHandler(this.ResetButton_Click);
             // 
-            // AiCqDefendFlag
+            // ImportBtn
             // 
-            this.AiCqDefendFlag.Location = new System.Drawing.Point(202, 73);
-            this.AiCqDefendFlag.Maximum = new decimal(new int[] {
-            999,
-            0,
-            0,
-            0});
-            this.AiCqDefendFlag.Name = "AiCqDefendFlag";
-            this.AiCqDefendFlag.Size = new System.Drawing.Size(40, 20);
-            this.AiCqDefendFlag.TabIndex = 38;
+            this.ImportBtn.AutoSize = true;
+            this.ImportBtn.ContextMenuStrip = this.contextMenuStrip1;
+            this.ImportBtn.Location = new System.Drawing.Point(165, 361);
+            this.ImportBtn.Name = "ImportBtn";
+            this.ImportBtn.ShowSplitlineAlways = true;
+            this.ImportBtn.Size = new System.Drawing.Size(120, 29);
+            this.ImportBtn.SplitMenuStrip = this.contextMenuStrip1;
+            this.ImportBtn.TabIndex = 4;
+            this.ImportBtn.Text = "Import / Export";
+            this.ImportBtn.UseVisualStyleBackColor = true;
             // 
-            // AiCqFlagNeutralizeAsst
+            // contextMenuStrip1
             // 
-            this.AiCqFlagNeutralizeAsst.Location = new System.Drawing.Point(300, 47);
-            this.AiCqFlagNeutralizeAsst.Maximum = new decimal(new int[] {
-            999,
-            0,
-            0,
-            0});
-            this.AiCqFlagNeutralizeAsst.Name = "AiCqFlagNeutralizeAsst";
-            this.AiCqFlagNeutralizeAsst.Size = new System.Drawing.Size(40, 20);
-            this.AiCqFlagNeutralizeAsst.TabIndex = 37;
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ImportSettingsMenuItem,
+            this.ExportSettingsMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(156, 70);
             // 
-            // AiCqFlagNeutralize
+            // ImportSettingsMenuItem
             // 
-            this.AiCqFlagNeutralize.Location = new System.Drawing.Point(300, 21);
-            this.AiCqFlagNeutralize.Maximum = new decimal(new int[] {
-            999,
-            0,
-            0,
-            0});
-            this.AiCqFlagNeutralize.Name = "AiCqFlagNeutralize";
-            this.AiCqFlagNeutralize.Size = new System.Drawing.Size(40, 20);
-            this.AiCqFlagNeutralize.TabIndex = 36;
+            this.ImportSettingsMenuItem.Name = "ImportSettingsMenuItem";
+            this.ImportSettingsMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.ImportSettingsMenuItem.Text = "Import Settings";
+            this.ImportSettingsMenuItem.Click += new System.EventHandler(this.ImportSettingsMenuItem_Click);
             // 
-            // AiCqFlagCaptureAsst
+            // ExportSettingsMenuItem
             // 
-            this.AiCqFlagCaptureAsst.Location = new System.Drawing.Point(123, 47);
-            this.AiCqFlagCaptureAsst.Maximum = new decimal(new int[] {
-            999,
-            0,
-            0,
-            0});
-            this.AiCqFlagCaptureAsst.Name = "AiCqFlagCaptureAsst";
-            this.AiCqFlagCaptureAsst.Size = new System.Drawing.Size(40, 20);
-            this.AiCqFlagCaptureAsst.TabIndex = 35;
-            // 
-            // AiCqFlagCapture
-            // 
-            this.AiCqFlagCapture.Location = new System.Drawing.Point(123, 21);
-            this.AiCqFlagCapture.Maximum = new decimal(new int[] {
-            999,
-            0,
-            0,
-            0});
-            this.AiCqFlagCapture.Name = "AiCqFlagCapture";
-            this.AiCqFlagCapture.Size = new System.Drawing.Size(40, 20);
-            this.AiCqFlagCapture.TabIndex = 34;
-            // 
-            // label31
-            // 
-            this.label31.AutoSize = true;
-            this.label31.Location = new System.Drawing.Point(131, 75);
-            this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(68, 13);
-            this.label31.TabIndex = 33;
-            this.label31.Text = "Defend Flag:";
-            // 
-            // label57
-            // 
-            this.label57.AutoSize = true;
-            this.label57.Location = new System.Drawing.Point(186, 49);
-            this.label57.Name = "label57";
-            this.label57.Size = new System.Drawing.Size(110, 13);
-            this.label57.TabIndex = 32;
-            this.label57.Text = "Flag Neutralize Assist:";
-            // 
-            // label58
-            // 
-            this.label58.AutoSize = true;
-            this.label58.Location = new System.Drawing.Point(217, 23);
-            this.label58.Name = "label58";
-            this.label58.Size = new System.Drawing.Size(80, 13);
-            this.label58.TabIndex = 31;
-            this.label58.Text = "Flag Neutralize:";
-            // 
-            // label59
-            // 
-            this.label59.AutoSize = true;
-            this.label59.Location = new System.Drawing.Point(17, 49);
-            this.label59.Name = "label59";
-            this.label59.Size = new System.Drawing.Size(100, 13);
-            this.label59.TabIndex = 30;
-            this.label59.Text = "Flag Capture Assist:";
-            // 
-            // label60
-            // 
-            this.label60.AutoSize = true;
-            this.label60.Location = new System.Drawing.Point(47, 23);
-            this.label60.Name = "label60";
-            this.label60.Size = new System.Drawing.Size(70, 13);
-            this.label60.TabIndex = 29;
-            this.label60.Text = "Flag Capture:";
+            this.ExportSettingsMenuItem.Name = "ExportSettingsMenuItem";
+            this.ExportSettingsMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.ExportSettingsMenuItem.Text = "Export Settings";
+            this.ExportSettingsMenuItem.Click += new System.EventHandler(this.ExportSettingsMenuItem_Click);
             // 
             // ScoreSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(769, 402);
+            this.Controls.Add(this.ImportBtn);
             this.Controls.Add(this.ResetButton);
             this.Controls.Add(this.SaveButton);
             this.Controls.Add(this.Cancel);
@@ -1877,6 +1919,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.AiCoopFlagCapture)).EndInit();
             this.groupBox8.ResumeLayout(false);
             this.groupBox8.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqDefendFlag)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagNeutralizeAsst)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagNeutralize)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagCaptureAsst)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagCapture)).EndInit();
             this.groupBox9.ResumeLayout(false);
             this.groupBox9.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.AiSuicideScore)).EndInit();
@@ -1908,12 +1955,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.AmmoPointLimit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.HealPointLimit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.RepairPointLimit)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiCqDefendFlag)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagNeutralizeAsst)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagNeutralize)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagCaptureAsst)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.AiCqFlagCapture)).EndInit();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -2053,5 +2097,9 @@
         private System.Windows.Forms.Label label58;
         private System.Windows.Forms.Label label59;
         private System.Windows.Forms.Label label60;
+        private SplitButton ImportBtn;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem ImportSettingsMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ExportSettingsMenuItem;
     }
 }

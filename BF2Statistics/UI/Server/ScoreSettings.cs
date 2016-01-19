@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace BF2Statistics
 {
@@ -565,5 +567,153 @@ namespace BF2Statistics
         }
 
         #endregion
+
+        private void ImportSettingsMenuItem_Click(object sender, EventArgs e)
+        {
+            // Define our file path and 
+            string file = Path.Combine(Paths.DocumentsFolder, "ScoringSettings.xml");
+
+            // Make sure the file exists
+            if (!File.Exists(file))
+            {
+                MessageBox.Show(
+                    "There are currently no exported savings to import.",
+                    "No Saved Settings", MessageBoxButtons.OK, MessageBoxIcon.Information
+                );
+                return;
+            }
+
+            //=== Load the file, and import
+
+            // Generate our mappings
+            Dictionary<string, string[]>[] types = { Scores, ConqScores, CoopScores };
+            string[] names = { "general", "conquest", "coop" };
+
+            // Itterate through all of our saved settings, and set them in the 
+            // correct scoring dictionary
+            try
+            {
+                using (FileStream stream = new FileStream(file, FileMode.Open, FileAccess.Read))
+                {
+                    // Load the XML file
+                    XDocument Doc = XDocument.Load(stream);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        // Load element
+                        XElement element = Doc.Root.Element(names[i]);
+
+                        // Add each scoring item to the XML
+                        foreach (XElement item in element.Elements())
+                        {
+                            string itemName = item.FirstAttribute.Value;
+                            switch (i)
+                            {
+                                case 0:
+                                    Scores[itemName][0] = item.Value;
+                                    break;
+                                case 1:
+                                    ConqScores[itemName][0] = item.Value;
+                                    break;
+                                case 2:
+                                    CoopScores[itemName][0] = item.Value;
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                // Fill form values
+                FillFormFields();
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        private void ExportSettingsMenuItem_Click(object sender, EventArgs e)
+        {
+            // Warn the user about saved changes
+            DialogResult res = MessageBox.Show(
+                "Changes made since this window was opened will not reflect in the ScoringSettings.xml file "
+                + "without reloading the saved changes. Would you like me to reload the last saved values?", 
+                "Reload Settings", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question
+            );
+
+            // Return if user cancels
+            if (res == DialogResult.Cancel) return;
+
+            // Show loading form
+            LoadingForm.ShowScreen(this);
+
+            // Reload settings!
+            if (res == DialogResult.Yes && (!LoadConqFile() || !LoadCoopFile() || !LoadScoringCommon()))
+            {
+                LoadingForm.CloseForm();
+                return;
+            }
+
+            try
+            {
+                // Define our file path and 
+                string file = Path.Combine(Paths.DocumentsFolder, "ScoringSettings.xml");
+
+                // Generate our mappings
+                Dictionary<string, string[]>[] types = { Scores, ConqScores, CoopScores };
+                string[] names = { "general", "conquest", "coop" };
+
+                // Create XML Settings
+                XmlWriterSettings settings = new XmlWriterSettings();
+                settings.Indent = true;
+                settings.IndentChars = "\t";
+                settings.NewLineChars = Environment.NewLine;
+                settings.NewLineHandling = NewLineHandling.Replace;
+
+                // Write to file
+                using (FileStream stream = File.Open(file, FileMode.Create))
+                using (XmlWriter Writer = XmlWriter.Create(stream, settings))
+                {
+                    // Player Element
+                    Writer.WriteStartDocument();
+
+                    // Write editing warning
+                    Writer.WriteComment(" Auto Generated :: Please DO NOT Edit Me! ");
+
+                    // Begin
+                    Writer.WriteStartElement("settings");
+
+                    // Itterate through all setting catagories
+                    for (int i = 0; i < 3; i++)
+                    {
+                        // Start general Element
+                        Writer.WriteStartElement(names[i]);
+
+                        // Add each scoring item to the XML
+                        foreach (KeyValuePair<string, string[]> item in types[i])
+                        {
+                            // Open Row tag
+                            Writer.WriteStartElement("item");
+                            Writer.WriteAttributeString("name", item.Key);
+                            Writer.WriteValue(item.Value[0]);
+                            Writer.WriteEndElement();
+                        }
+
+                        // Close settings element
+                        Writer.WriteEndElement();
+                    }
+
+                    // Close Tags and File
+                    Writer.WriteEndElement();  // Close general Element
+                    Writer.WriteEndDocument(); // End and Save file
+                }
+
+                // Notify user
+                Notify.Show("Settings Exported", "Scoring settings were exported successfully!", AlertType.Success);
+            }
+            finally
+            {
+                LoadingForm.CloseForm();
+            }
+        }
     }
 }

@@ -128,9 +128,7 @@ namespace BF2Statistics.Web.Bf2Stats
 
                     // Replace Http Link Addresses to match the request URL, preventing Localhost links with external requests
                     BF2PageModel Model = new IndexModel(Client);
-                    Client.Response.ResponseBody.Append(
-                        Regex.Replace(source, "http://.*?/Bf2stats", Model.Root, RegexOptions.IgnoreCase)
-                    );
+                    Client.Response.ResponseBody.Append(CorrectUrls(source, Model));
                 }
             }
             catch (Exception e)
@@ -142,6 +140,18 @@ namespace BF2Statistics.Web.Bf2Stats
             // Send Response
             Client.Response.ContentType = "text/html";
             Client.Response.Send();
+        }
+
+        /// <summary>
+        /// This method will reformat all base url's to point to the requested
+        /// hostname and bf2stats querypath.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="Model"></param>
+        /// <returns></returns>
+        protected string CorrectUrls(string source, BF2PageModel Model)
+        {
+            return Regex.Replace(source, "http://.*?/Bf2stats", Model.Root, RegexOptions.IgnoreCase);
         }
 
         /// <summary>

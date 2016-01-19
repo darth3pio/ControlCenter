@@ -167,6 +167,19 @@ namespace BF2Statistics
             catch { } // Who cares?
         }
 
+        public static string GetGametypeString(string gametype)
+        {
+            switch (gametype.ToLowerInvariant().Replace("gpm_", ""))
+            {
+                case "coop": return "Coop";
+                case "cq": return "Conquest";
+                case "sp1": return "SinglePlayer 16";
+                case "sp2": return "SinglePlayer 32";
+                case "sp3": return "SinglePlayer 64";
+                default: return gametype;
+            }
+        }
+
         /// <summary>
         /// Starts the Battlefield 2 Server application
         /// </summary>

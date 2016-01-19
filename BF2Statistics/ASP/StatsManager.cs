@@ -140,7 +140,7 @@ namespace BF2Statistics.ASP
             {
                 // Try and grab the ID of this server
                 int id = Database.ExecuteScalar<int>(
-                    "SELECT COALESCE(id, -1) FROM servers WHERE ip=@P0 AND port=@P1", 
+                    "SELECT COALESCE(id, -1), COUNT(id) FROM servers WHERE ip=@P0 AND port=@P1", 
                     ServerAddress, Snap.ServerPort
                 );
 
